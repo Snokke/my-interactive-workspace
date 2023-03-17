@@ -25,7 +25,7 @@ export default class Table extends THREE.Group {
 
     this._isScaleUp = false;
 
-    this._tableScale = 1;
+    this._tableScale = 0.5;
 
     this._handleMoveOutSpeed = 7;
     this._handleRotationSpeed = 25;
