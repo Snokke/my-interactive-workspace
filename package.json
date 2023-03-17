@@ -1,0 +1,22 @@
+{
+  "name": "room-3d",
+  "version": "0.1.0",
+  "description": "My room.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "black-engine": "^0.5.16",
+    "three": "^0.150.1",
+    "three-webgl-stats": "^1.0.5",
+    "tweakpane": "^3.1.7",
+    "vercel": "^28.17.0"
+  }
+}
