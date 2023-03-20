@@ -120,6 +120,7 @@ export default class Scene3DDebugMenu {
     if (DEBUG_CONFIG.orbitControls) {
       const orbitControls = this._orbitControls = new OrbitControls(this._camera, Black.engine.containerElement);
       orbitControls.enableDamping = true;
+      orbitControls.rotateSpeed = 0.7;
 
       if (!this._isAssetsLoaded) {
         orbitControls.enabled = false;
@@ -140,28 +141,21 @@ export default class Scene3DDebugMenu {
   _initLilGUIHelper() {
     const gui = new GUIHelper();
 
-    const scene3DDebugTab = gui.addTab({
-      pages: [
-        { title: '3D Scene' },
-        { title: 'Gameplay' },
-      ],
+    const scene3DFolder = gui.addFolder({
+      title: 'Scene Debugger',
     });
 
-    scene3DDebugTab.pages[0].addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'FPS meter' })
-      .on('change', (fpsMeterState) => {
-        this.onFpsMeterClick(fpsMeterState.value);
+    scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })
+      .on('change', (statsState) => {
+        this.onFpsMeterClick(statsState.value);
+        this.onRendererStatsClick(statsState.value);
       });
 
-    scene3DDebugTab.pages[0].addInput(DEBUG_CONFIG, 'rendererStats', { label: 'Stats' })
-      .on('change', (rendererStatsState) => {
-        this.onRendererStatsClick(rendererStatsState.value);
-      });
-
-    scene3DDebugTab.pages[0].addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
+    scene3DFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
       .on('change', (wireframeState) => {
         if (wireframeState.value) {
           if (DEBUG_CONFIG.gridHelper) {
-            const gridHelperController = GUIHelper.getController(scene3DDebugTab.pages[0], 'Grid');
+            const gridHelperController = GUIHelper.getController(scene3DFolder, 'Grid');
             DEBUG_CONFIG.gridHelper = false;
             gridHelperController.refresh();
           }
@@ -175,12 +169,12 @@ export default class Scene3DDebugMenu {
         }
       });
 
-    scene3DDebugTab.pages[0].addInput(DEBUG_CONFIG, 'orbitControls', { label: 'Orbit' })
-      .on('change', (orbitControlsState) => {
-        this.onOrbitControlsClick(orbitControlsState.value);
-      });
+    // scene3DFolder.addInput(DEBUG_CONFIG, 'orbitControls', { label: 'Orbit' })
+    //   .on('change', (orbitControlsState) => {
+    //     this.onOrbitControlsClick(orbitControlsState.value);
+    //   });
 
-    scene3DDebugTab.pages[0].addInput(DEBUG_CONFIG, 'gridHelper', { label: 'Grid' })
+    scene3DFolder.addInput(DEBUG_CONFIG, 'gridHelper', { label: 'Grid' })
       .on('change', (gridHelperState) => {
         this.onGridHelperClick(gridHelperState.value);
       });

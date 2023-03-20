@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import Loader from '../core/loader';
-import Locker from './locker';
-import Table from './table';
+import Locker from './locker/locker';
+import Table from './table/table';
 
 export default class Scene3D extends THREE.Group {
   constructor(camera) {
@@ -12,7 +12,7 @@ export default class Scene3D extends THREE.Group {
     this._raycaster = null;
     this._roomGroup = null;
 
-    this._objects = {};
+    this._roomObject = {};
     this._allMeshes = [];
 
     this._init();
@@ -37,14 +37,19 @@ export default class Scene3D extends THREE.Group {
   onPointerDown(x, y) {
     const { objectType, instanceId } = this._checkIntersection(x, y);
 
-    if (objectType === OBJECT_TYPE.Table) {
-      this._objects[OBJECT_TYPE.Table].changeState();
-    }
+    switch (objectType) {
+      case OBJECT_TYPE.Table:
+        this._roomObject[OBJECT_TYPE.Table].changeState();
+        break;
 
-    if (objectType === OBJECT_TYPE.Locker) {
-      console.log(`Locker ${instanceId}`);
+      case OBJECT_TYPE.Locker:
+        if (instanceId === undefined) {
+          this._roomObject[OBJECT_TYPE.Locker].pushAllCases();
+        } else {
+          this._roomObject[OBJECT_TYPE.Locker].pushCase(instanceId);
+        }
+        break;
     }
-
   }
 
   onPointerUp() {
@@ -91,7 +96,7 @@ export default class Scene3D extends THREE.Group {
     const table = new Table(tableGroup);
     this.add(table);
 
-    this._objects[OBJECT_TYPE.Table] = table;
+    this._roomObject[OBJECT_TYPE.Table] = table;
   }
 
   _initLocker() {
@@ -99,12 +104,12 @@ export default class Scene3D extends THREE.Group {
     const locker = new Locker(lockerGroup);
     this.add(locker);
 
-    this._objects[OBJECT_TYPE.Locker] = locker;
+    this._roomObject[OBJECT_TYPE.Locker] = locker;
   }
 
   _gatherAllMeshes() {
-    for (const key in this._objects) {
-      this._allMeshes.push(...this._objects[key].getAllMeshes());
+    for (const key in this._roomObject) {
+      this._allMeshes.push(...this._roomObject[key].getAllMeshes());
     }
   }
 }

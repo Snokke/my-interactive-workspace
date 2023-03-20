@@ -15,7 +15,7 @@ const SCENE_CONFIG = {
     directional: {
       color: 0xFFEFE4,
       intensity: 0.8,
-      position: { x: -2, y: 7, z: -7 },
+      position: { x: -2, y: 7, z: 7 },
     },
   },
 };

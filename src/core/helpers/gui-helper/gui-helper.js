@@ -1,12 +1,17 @@
 import { Pane } from 'tweakpane';
 import { GUI_CONFIG } from './gui-helper-config';
+import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
 
 export default class GUIHelper {
   constructor() {
     this.gui = new Pane({
       title: 'Debug',
     });
+
     this.gui.hidden = true;
+    this.gui.containerElem_.style.width = '270px';
+
+    this.gui.registerPlugin(EssentialsPlugin);
 
     if (!GUI_CONFIG.openAtStart) {
       this.gui.expanded = false;
@@ -43,6 +48,16 @@ export default class GUIHelper {
     return null;
   }
 
+  getControllerFromFolder(folderName, controllerName) {
+    const folder = this.getFolder(folderName);
+
+    if (folder) {
+      return this.getController(folder, controllerName);
+    }
+
+    return null;
+  }
+
   showAfterAssetsLoad() {
     const currentUrl = window.location.href;
     const isDebug = currentUrl.indexOf('#debug') !== -1;
@@ -62,6 +77,10 @@ export default class GUIHelper {
 
   static getController(folder, name) {
     return GUIHelper.instance.getController(folder, name);
+  }
+
+  static getControllerFromFolder(folderName, controllerName) {
+    return GUIHelper.instance.getControllerFromFolder(folderName, controllerName);
   }
 }
 
