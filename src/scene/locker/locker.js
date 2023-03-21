@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { OBJECT_TYPE } from '../scene3d';
-import LockerCaseAnimations from './locker-case-animations';
-import { LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_NAME, LOCKER_PART_NAME_TO_DELETE, LOCKER_PART_TYPE } from './locker-data';
+import { LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_NAME, LOCKER_PART_NAME_TO_DELETE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
 
@@ -12,10 +11,10 @@ export default class Locker extends THREE.Group {
 
     this._lockerGroup = lockerGroup;
     this._objectType = OBJECT_TYPE.Locker;
+    this._currentAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._lockerDebug = null;
     this._parts = null;
-    this._lockerCaseAnimations = null;
 
     this._allMeshes = [];
     this._casesState = [];
@@ -30,8 +29,14 @@ export default class Locker extends THREE.Group {
     const isAllCasesClosed = this._casesState.every(state => state === LOCKER_CASE_STATE.Closed);
 
     if (isAllCasesClosed) {
-      this._lockerCaseAnimations.getAnimationData()
-        .forEach(({ i, direction, delay }) => this._moveCase(i, direction, delay));
+      if (this._currentAnimationType === LOCKER_CASES_RANDOM_ANIMATIONS) {
+        const animationTypes = Object.values(LOCKER_CASES_ANIMATION_TYPE);
+        const animationType = animationTypes[Math.floor(Math.random() * animationTypes.length)];
+
+        this._showCasesAnimation(animationType);
+      } else {
+        this._showCasesAnimation(this._currentAnimationType);
+      }
     } else {
       for (let i = 0; i < LOCKER_CONFIG.casesCount; i += 1) {
         this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.In);
@@ -118,6 +123,17 @@ export default class Locker extends THREE.Group {
     }
   }
 
+  _showCasesAnimation(animationType) {
+    const casesSequence = LOCKER_CASES_ANIMATION_SEQUENCE[animationType];
+
+    for (let j = 0; j < casesSequence.length; j += 1) {
+      casesSequence[j].forEach((i) => {
+        const delay = j * (1 / LOCKER_CONFIG.caseMoveSpeed) * LOCKER_CONFIG.allCasesAnimationDelayCoefficient;
+        this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.Out, delay);
+      });
+    }
+  }
+
   _init() {
     const casePart = this._lockerGroup.children.find(child => child.name === 'case01');
     const caseGeometry = casePart.geometry.clone();
@@ -132,7 +148,6 @@ export default class Locker extends THREE.Group {
     this.add(body);
 
     this._initCases(caseGeometry, caseStartPosition);
-    this._initAllCasesAnimation();
 
     this._initDebug();
   }
@@ -201,16 +216,11 @@ export default class Locker extends THREE.Group {
     }
   }
 
-  _initAllCasesAnimation() {
-    this._lockerCaseAnimations = new LockerCaseAnimations();
-  }
-
   _initDebug() {
-    const currentAnimationType = this._lockerCaseAnimations.getCurrentAnimationType();
-    const lockerDebug = this._lockerDebug = new LockerDebug(currentAnimationType);
+    const lockerDebug = this._lockerDebug = new LockerDebug(this._currentAnimationType);
 
     lockerDebug.events.on('pushCase', (msg, instanceId) => this.pushCase(instanceId));
     lockerDebug.events.on('pushAllCases', () => this.pushAllCases());
-    lockerDebug.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._lockerCaseAnimations.setCurrentAnimationType(allCasesAnimation));
+    lockerDebug.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
   }
 }
