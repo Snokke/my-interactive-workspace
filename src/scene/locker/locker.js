@@ -23,7 +23,13 @@ export default class Locker extends THREE.Group {
     this._caseMoveTween = [];
     this._caseStartPositions = [];
 
+    this._isInputEnabled = true;
+
     this._init();
+  }
+
+  isInputEnabled() {
+    return this._isInputEnabled;
   }
 
   pushAllCases() {

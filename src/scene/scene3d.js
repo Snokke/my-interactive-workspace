@@ -32,14 +32,14 @@ export default class Scene3D extends THREE.Group {
 
     switch (objectType) {
       case OBJECT_TYPE.Table:
-        this._setGlow(this._roomObject[OBJECT_TYPE.Table].getAllMeshes());
+        this._setGlow(this._roomObject[OBJECT_TYPE.Table], this._roomObject[OBJECT_TYPE.Table].getAllMeshes());
         break;
 
       case OBJECT_TYPE.Locker:
         if (instanceId === undefined) {
-          this._setGlow(this._roomObject[OBJECT_TYPE.Locker].getBodyMesh());
+          this._setGlow(this._roomObject[OBJECT_TYPE.Locker], this._roomObject[OBJECT_TYPE.Locker].getBodyMesh());
         } else {
-          this._setGlow(this._roomObject[OBJECT_TYPE.Locker].getCaseMesh(instanceId));
+          this._setGlow(this._roomObject[OBJECT_TYPE.Locker], this._roomObject[OBJECT_TYPE.Locker].getCaseMesh(instanceId));
         }
         break;
 
@@ -71,8 +71,10 @@ export default class Scene3D extends THREE.Group {
 
   }
 
-  _setGlow(items) {
-    this._outlinePass.selectedObjects = [...items];
+  _setGlow(object, items) {
+    if (object.isInputEnabled()) {
+      this._outlinePass.selectedObjects = [...items];
+    }
   }
 
   _resetGlow() {

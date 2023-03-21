@@ -16,10 +16,34 @@ export default class TableDebug {
     GUIHelper.getControllerFromFolder('Table', 'State').refresh();
   }
 
+  enable() {
+    const tableControllers = GUIHelper.getFolder('Table');
+
+    tableControllers.children.forEach((child) => {
+      child.disabled = false;
+    });
+  }
+
+  disable() {
+    const tableControllers = GUIHelper.getFolder('Table');
+
+    tableControllers.children.forEach((child) => {
+      child.disabled = true;
+    });
+  }
+
   _init() {
     const tableFolder = GUIHelper.getGui().addFolder({
       title: 'Table',
     });
+
+    tableFolder.addButton({
+      title: 'Start show animation',
+    }).on('click', () => {
+      this.events.post('showAnimation');
+    });
+
+    tableFolder.addSeparator();
 
     tableFolder.addInput(this._currentTableState, 'value', {
       label: 'State',

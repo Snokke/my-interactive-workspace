@@ -27,14 +27,71 @@ export default class Table extends THREE.Group {
     this._previousHandleAngle = 0;
     this._allMeshes = [];
 
+    this._isInputEnabled = true;
+
     this._init();
   }
 
   show() {
+    this._isInputEnabled = false;
+    this._tableDebug.disable();
 
+    this._reset();
+    this._setPositionForShowAnimation();
+
+    const fallDownTime = 600;
+
+    const legs = this._parts[TABLE_PART_NAME.Legs];
+    const topPart = this._parts[TABLE_PART_NAME.TopPart];
+    const tableTop = this._parts[TABLE_PART_NAME.Tabletop];
+    const handle = this._parts[TABLE_PART_NAME.Handle];
+
+    new TWEEN.Tween(legs.position)
+      .to({ y: legs.userData['startPosition'].y }, fallDownTime)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start();
+
+    new TWEEN.Tween(topPart.position)
+      .to({ y: topPart.userData['startPosition'].y }, fallDownTime)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(250)
+      .start();
+
+    new TWEEN.Tween(tableTop.position)
+      .to({ y: tableTop.userData['startPosition'].y }, fallDownTime)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(500)
+      .start();
+
+    handle.scale.set(0, 0, 0);
+    const handleScaleTween = new TWEEN.Tween(handle.scale)
+      .to({ x: 1, y: 1, z: 1 }, 300)
+      .easing(TWEEN.Easing.Back.Out)
+      .delay(1100)
+      .start();
+
+    handleScaleTween.onComplete(() => {
+      const handleMoveTween = new TWEEN.Tween(handle.position)
+      .to({ z: 0 }, 300)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start();
+
+      handleMoveTween.onComplete(() => {
+        this._isInputEnabled = true;
+        this._tableDebug.enable();
+      });
+    });
+  }
+
+  isInputEnabled() {
+    return this._isInputEnabled;
   }
 
   changeState() {
+    if (!this._isInputEnabled) {
+      return;
+    }
+
     const handle = this._parts[TABLE_PART_NAME.Handle];
 
     if (this._currentTableState.value === TABLE_STATE.Moving) {
@@ -157,6 +214,30 @@ export default class Table extends THREE.Group {
     this._tableDebug.updateTableState(state);
   }
 
+  _setPositionForShowAnimation() {
+    const startPositionY = 10;
+
+    for (let key in this._parts) {
+      this._parts[key].position.y = this._parts[key].userData['startPosition'].y + startPositionY;
+    }
+
+    const handle = this._parts[TABLE_PART_NAME.Handle];
+    handle.position.copy(handle.userData['startPosition']);
+    handle.position.z = 1.5;
+  }
+
+  _reset() {
+    this._stopTweens();
+
+    this._handleState = { value: TABLE_HANDLE_STATE.Idle };
+    this._setTableState(TABLE_STATE.SittingMode);
+    this._previousTableState = this._currentTableState.value;
+
+    this._topPartsGroup.position.y = 0;
+    this._parts[TABLE_PART_NAME.Handle].rotation.z = 0;
+    this._parts[TABLE_PART_NAME.Handle].position.z = 0;
+  }
+
   _init() {
     this.add(this._tableGroup);
 
@@ -184,6 +265,7 @@ export default class Table extends THREE.Group {
       parts[TABLE_PART_NAME[partName]] = part;
 
       part.userData['objectType'] = this._objectType;
+      part.userData['startPosition'] = part.position.clone();
       this._allMeshes.push(part);
     }
 
@@ -205,5 +287,6 @@ export default class Table extends THREE.Group {
     const tableDebug = this._tableDebug = new TableDebug(this._currentTableState);
 
     tableDebug.events.on('changeState', () => this.changeState());
+    tableDebug.events.on('showAnimation', () => this.show());
   }
 }
