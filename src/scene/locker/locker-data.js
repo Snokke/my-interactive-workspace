@@ -8,7 +8,7 @@ const LOCKER_PART_NAME = {
 }
 
 const LOCKER_PART_NAME_TO_DELETE = {
-  CASE01: 'case01',
+  // CASE01: 'case01',
   CASE02: 'case02',
   CASE03: 'case03',
   CASE04: 'case04',

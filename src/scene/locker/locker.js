@@ -15,6 +15,7 @@ export default class Locker extends THREE.Group {
 
     this._lockerDebug = null;
     this._parts = null;
+    this._caseForOutline = null;
 
     this._allMeshes = [];
     this._casesState = [];
@@ -72,6 +73,24 @@ export default class Locker extends THREE.Group {
 
   getAllMeshes() {
     return this._allMeshes;
+  }
+
+  getBodyMesh() {
+    return [this._parts[LOCKER_PART_TYPE.BODY]];
+  }
+
+  getCaseMesh(instanceId) {
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+
+    const casePart = this._parts[LOCKER_PART_TYPE.CASE];
+
+    casePart.getMatrixAt(instanceId, matrix);
+    position.setFromMatrixPosition(matrix);
+
+    this._caseForOutline.position.copy(position);
+
+    return [this._caseForOutline];
   }
 
   _moveCase(instanceId, direction, delay = 0) {
@@ -135,9 +154,20 @@ export default class Locker extends THREE.Group {
   }
 
   _init() {
-    const casePart = this._lockerGroup.children.find(child => child.name === 'case01');
+    const casePart = this._caseForOutline = this._lockerGroup.children.find(child => child.name === 'case01');
     const caseGeometry = casePart.geometry.clone();
     const caseStartPosition = casePart.position.clone();
+
+    this._caseForOutline.material = new THREE.MeshLambertMaterial({
+      transparent: true,
+      opacity: 0,
+      color: 0x00ff00
+    });
+
+    const scale = 1.005;
+    casePart.scale.set(scale, scale, scale);
+
+    this.add(this._caseForOutline);
 
     this._removeExtraParts(this._lockerGroup);
 

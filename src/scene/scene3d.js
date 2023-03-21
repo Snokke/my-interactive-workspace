@@ -4,10 +4,11 @@ import Locker from './locker/locker';
 import Table from './table/table';
 
 export default class Scene3D extends THREE.Group {
-  constructor(camera) {
+  constructor(camera, outlinePass) {
     super();
 
     this._camera = camera;
+    this._outlinePass = outlinePass;
 
     this._raycaster = null;
     this._roomGroup = null;
@@ -27,11 +28,25 @@ export default class Scene3D extends THREE.Group {
   }
 
   onPointerMove(x, y) {
-    // if (this._checkIntersectsWithTable(x, y)) {
-    //   this._table.startScaleUp();
-    // } else {
-    //   this._table.stopScaleUp();
-    // }
+    const { objectType, instanceId } = this._checkIntersection(x, y);
+
+    switch (objectType) {
+      case OBJECT_TYPE.Table:
+        this._setGlow(this._roomObject[OBJECT_TYPE.Table].getAllMeshes());
+        break;
+
+      case OBJECT_TYPE.Locker:
+        if (instanceId === undefined) {
+          this._setGlow(this._roomObject[OBJECT_TYPE.Locker].getBodyMesh());
+        } else {
+          this._setGlow(this._roomObject[OBJECT_TYPE.Locker].getCaseMesh(instanceId));
+        }
+        break;
+
+      default:
+        this._resetGlow();
+        break;
+      }
   }
 
   onPointerDown(x, y) {
@@ -54,6 +69,14 @@ export default class Scene3D extends THREE.Group {
 
   onPointerUp() {
 
+  }
+
+  _setGlow(items) {
+    this._outlinePass.selectedObjects = [...items];
+  }
+
+  _resetGlow() {
+    this._outlinePass.selectedObjects = [];
   }
 
   _checkIntersection(x, y) {

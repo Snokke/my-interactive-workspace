@@ -70,6 +70,10 @@ export default class Loader extends GameObject {
   _onThreeJSAssetsLoaded() {
     setTimeout(() => {
       loadingPercentElement.classList.add('ended');
+
+      setTimeout(() => {
+        loadingPercentElement.style.display = 'none';
+      }, 300);
     }, 300);
 
     setTimeout(() => {

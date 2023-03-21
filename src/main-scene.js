@@ -7,6 +7,7 @@ export default class MainScene {
 
     this._scene = data.scene;
     this._camera = data.camera;
+    this._outlinePass = data.outlinePass;
 
     this._init();
   }
@@ -21,7 +22,7 @@ export default class MainScene {
   }
 
   _init() {
-    this._scene3D = new Scene3D(this._camera);
+    this._scene3D = new Scene3D(this._camera, this._outlinePass);
     this._ui = new UI();
 
     this._initSignals();

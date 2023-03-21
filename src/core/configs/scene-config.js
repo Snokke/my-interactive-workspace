@@ -1,5 +1,5 @@
 const SCENE_CONFIG = {
-  antialias: true,
+  antialias: false,
   backgroundColor: 0xCCCCCC,
   camera: {
     fov: 60,

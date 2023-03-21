@@ -1,9 +1,15 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import { EffectComposer } from '/node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
+import { OutlinePass } from '/node_modules/three/examples/jsm/postprocessing/OutlinePass.js';
+import { SMAAPass } from '/node_modules/three/examples/jsm/postprocessing/SMAAPass.js';
+import { RenderPass } from '/node_modules/three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from '/node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from '/node_modules/three/examples/jsm/shaders/GammaCorrectionShader.js';
 import SCENE_CONFIG from './configs/scene-config';
 import MainScene from '../main-scene';
 import LoadingOverlay from './loading-overlay';
-import { CanvasDriver, Engine, Input, MasterAudio, StageScaleMode } from 'black-engine';
+import { Black, CanvasDriver, Engine, Input, MasterAudio, StageScaleMode } from 'black-engine';
 import Loader from './loader';
 import Scene3DDebugMenu from './helpers/gui-helper/scene-3d-debug-menu';
 
@@ -15,6 +21,8 @@ export default class BaseScene {
     this._loadingOverlay = null;
     this._mainScene = null;
     this._scene3DDebugMenu = null;
+    this._effectComposer = null;
+    this._outlinePass = null;
 
     this._windowSizes = {};
     this._isAssetsLoaded = false;
@@ -26,6 +34,7 @@ export default class BaseScene {
     const data = {
       scene: this._scene,
       camera: this._camera,
+      outlinePass: this._outlinePass
     };
 
     this._mainScene = new MainScene(data);
@@ -37,6 +46,10 @@ export default class BaseScene {
     this._loadingOverlay.hide();
     this._scene3DDebugMenu.showAfterAssetsLoad();
     this._mainScene.afterAssetsLoad();
+  }
+
+  getOutlinePass() {
+    return this._outlinePass;
   }
 
   _init() {
@@ -64,6 +77,8 @@ export default class BaseScene {
     this._initLoadingOverlay();
     this._initOnResize();
     this._setupBackgroundColor();
+    this._initPostProcessing();
+
     this._initScene3DDebugMenu();
   }
 
@@ -87,10 +102,10 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    // renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.useLegacyLights = false;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
+    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // renderer.toneMappingExposure = 1;
 
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -145,11 +160,65 @@ export default class BaseScene {
 
       this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
       this._renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
+      this._effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     });
   }
 
   _setupBackgroundColor() {
     this._scene.background = new THREE.Color(SCENE_CONFIG.backgroundColor);
+  }
+
+  _initPostProcessing() {
+    this._initEffectsComposer();
+    this._initOutlinePass();
+    this._initGammaCorrectionPass();
+    this._initAntiAliasingPass();
+  }
+
+  _initEffectsComposer() {
+    // const size = this._renderer.getSize(new Vector2());
+    // const pixelRatio = this._renderer.getPixelRatio();
+    // const width = size.width;
+    // const height = size.height;
+
+    // const target = new THREE.WebGLRenderTarget(width * pixelRatio, height * pixelRatio, {
+    //   minFilter: THREE.LinearFilter,
+    //   magFilter: THREE.LinearFilter,
+    //   format: THREE.RGBAFormat,
+    //   encoding: THREE.sRGBEncoding
+    // });
+
+    const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
+    // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
+    // effectComposer.renderTarget2.texture.encoding = THREE.sRGBEncoding;
+
+    const renderPass = new RenderPass(this._scene, this._camera);
+    effectComposer.addPass(renderPass);
+  }
+
+  _initOutlinePass() {
+    const bounds = Black.stage.bounds;
+
+    const outlinePass = this._outlinePass = new OutlinePass(new THREE.Vector2(bounds.width, bounds.height), this._scene, this._camera);
+    this._effectComposer.addPass(outlinePass);
+
+    // outlinePass.visibleEdgeColor.set('#00ff00');
+    outlinePass.edgeGlow = 1;
+    outlinePass.edgeStrength = 4;
+    outlinePass.edgeThickness = 2;
+    outlinePass.pulsePeriod = 2.5;
+  }
+
+  _initAntiAliasingPass() {
+    const smaaPass = new SMAAPass();
+    this._effectComposer.addPass(smaaPass);
+  }
+
+  _initGammaCorrectionPass() {
+    const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
+    this._effectComposer.addPass(gammaCorrectionPass);
   }
 
   _initScene3DDebugMenu() {
@@ -172,7 +241,8 @@ export default class BaseScene {
           this._mainScene.update(deltaTime);
         }
 
-        this._renderer.render(this._scene, this._camera);
+        this._effectComposer.render();
+        // this._renderer.render(this._scene, this._camera);
       }
 
       this._scene3DDebugMenu.postUpdate();
