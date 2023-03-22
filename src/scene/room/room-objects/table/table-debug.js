@@ -1,5 +1,5 @@
 import { MessageDispatcher } from "black-engine";
-import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
+import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import TABLE_CONFIG from "./table-config";
 
 export default class TableDebug {

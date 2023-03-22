@@ -1,33 +1,27 @@
-import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
-import { ROOM_OBJECT_TYPE } from '../room-config';
+import Delayed from '../../../../core/helpers/delayed-call';
+import RoomObjectAbstract from '../../room-object.abstract';
 
-export default class Locker extends THREE.Group {
-  constructor(lockerGroup) {
-    super();
+export default class Locker extends RoomObjectAbstract {
+  constructor(meshesGroup, roomObjectType) {
+    super(meshesGroup, roomObjectType);
 
-    this._lockerGroup = lockerGroup;
-    this._objectType = ROOM_OBJECT_TYPE.Locker;
     this._currentAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._lockerDebug = null;
-    this._parts = null;
-
-    this._allMeshes = [];
     this._casesState = [];
     this._casesPreviousState = [];
     this._caseMoveTween = [];
-
-    this._isInputEnabled = true;
 
     this._init();
   }
 
   show() {
-    this._isInputEnabled = false;
+    super.show();
+
     this._lockerDebug.disable();
 
     this._reset();
@@ -53,33 +47,32 @@ export default class Locker extends THREE.Group {
         .start();
 
       scaleTween.onComplete(() => {
-        const moveTween = new TWEEN.Tween(casePart.position)
+        new TWEEN.Tween(casePart.position)
           .to({ z: casePart.userData.startPosition.z }, 300)
           .easing(TWEEN.Easing.Sinusoidal.Out)
           .start();
-
-        // todo
-        moveTween.onComplete(() => {
-          this._isInputEnabled = true;
-          this._lockerDebug.enable();
-        });
       });
     }
+
+    Delayed.call(500 + cases.length * 100 + 300 + 300, () => {
+      this._isInputEnabled = true;
+      this._lockerDebug.enable();
+    })
   }
 
-  onClick(object) {
+  onClick(roomObject) {
     if (!this._isInputEnabled) {
       return;
     }
 
-    const partType = object.userData.partType;
+    const partType = roomObject.userData.partType;
 
     if (partType === LOCKER_PART_TYPE.BODY) {
       this.pushAllCases();
     }
 
     if (CASES.includes(partType)) {
-      this.pushCase(object.userData.caseId);
+      this.pushCase(roomObject.userData.caseId);
     }
   }
 
@@ -122,18 +115,6 @@ export default class Locker extends THREE.Group {
     } else {
       this._moveCase(caseId, LOCKER_CASE_MOVE_DIRECTION.Out);
     }
-  }
-
-  isInputEnabled() {
-    return this._isInputEnabled;
-  }
-
-  getObjectType() {
-    return this._objectType;
-  }
-
-  getAllMeshes() {
-    return this._allMeshes;
   }
 
   getBodyMesh() {
@@ -220,8 +201,8 @@ export default class Locker extends THREE.Group {
   _reset() {
     this._stopTweens();
 
-    this._casesState = Array(LOCKER_CONFIG.casesCount).fill(LOCKER_CASE_STATE.Closed);
-    this._casesPreviousState = this._casesState;
+    this._casesState = [];
+    this._casesPreviousState = [];
 
     CASES.forEach((partName) => {
       const casePart = this._parts[partName];
@@ -230,49 +211,21 @@ export default class Locker extends THREE.Group {
   }
 
   _init() {
-    const parts = this._parts = this._getParts(this._lockerGroup);
-    this._addMaterials(parts);
+    this._initParts(LOCKER_PART_TYPE);
+    this._addMaterials();
 
-    for (let key in parts) {
-      this.add(parts[key]);
-    }
+    for (let key in this._parts) {
+      const part = this._parts[key];
+      const partType = part.userData.partType;
 
-    this._casesState = Array(LOCKER_CONFIG.casesCount).fill(LOCKER_CASE_STATE.Closed);
-    this._casesPreviousState = this._casesState;
-
-    this._initDebug();
-  }
-
-  _getParts(lockerGroup) {
-    const lockerParts = {};
-
-    for (const partName in LOCKER_PART_TYPE) {
-      const part = lockerGroup.children.find(child => child.name === LOCKER_PART_TYPE[partName]);
-      lockerParts[LOCKER_PART_TYPE[partName]] = part;
-
-      part.userData['objectType'] = this._objectType;
-      part.userData['partType'] = LOCKER_PART_TYPE[partName];
-      part.userData['startPosition'] = part.position.clone();
-
-      if (CASES.includes(LOCKER_PART_TYPE[partName])) {
+      if (CASES.includes(partType)) {
         part.userData['caseId'] = parseInt(part.name.replace('case', '')) - 1;
       }
 
-      this._allMeshes.push(part);
+      this.add(part);
     }
 
-    return lockerParts;
-  }
-
-  _addMaterials(parts) {
-    for (const partName in parts) {
-      const part = parts[partName];
-      const material = new THREE.MeshLambertMaterial({
-        color: Math.random() * 0xffffff,
-      });
-
-      part.material = material;
-    }
+    this._initDebug();
   }
 
   _initDebug() {

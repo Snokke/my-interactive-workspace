@@ -1,5 +1,5 @@
 import { MessageDispatcher } from "black-engine";
-import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
+import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import LOCKER_CONFIG from "./locker-config";
 import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./locker-data";
 

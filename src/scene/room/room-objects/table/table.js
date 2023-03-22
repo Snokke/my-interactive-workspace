@@ -3,21 +3,17 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
 import TableDebug from './table-debug';
 import TABLE_CONFIG from './table-config';
-import { ROOM_OBJECT_TYPE } from '../room-config';
+import RoomObjectAbstract from '../../room-object.abstract';
 
-export default class Table extends THREE.Group {
-  constructor(tableGroup) {
-    super();
-
-    this._tableGroup = tableGroup;
-    this._objectType = ROOM_OBJECT_TYPE.Table;
+export default class Table extends RoomObjectAbstract {
+  constructor(meshesGroup, roomObjectType) {
+    super(meshesGroup, roomObjectType);
 
     this._handleState = { value: TABLE_HANDLE_STATE.Idle };
     this._currentTableState = { value: TABLE_STATE.SittingMode };
     this._previousTableState = this._currentTableState.value;
 
     this._tableDebug = null;
-    this._parts = null;
     this._topPartsGroup = null;
 
     this._tweenHandleMoveOut = null;
@@ -25,15 +21,13 @@ export default class Table extends THREE.Group {
     this._tweenHandleRotation = null;
 
     this._previousHandleAngle = 0;
-    this._allMeshes = [];
-
-    this._isInputEnabled = true;
 
     this._init();
   }
 
   show() {
-    this._isInputEnabled = false;
+    super.show();
+
     this._tableDebug.disable();
 
     this._reset();
@@ -82,11 +76,7 @@ export default class Table extends THREE.Group {
     });
   }
 
-  isInputEnabled() {
-    return this._isInputEnabled;
-  }
-
-  onClick() {
+  onClick(roomObject) {
     if (!this._isInputEnabled) {
       return;
     }
@@ -101,14 +91,6 @@ export default class Table extends THREE.Group {
 
     this._setTableState(TABLE_STATE.Moving);
     this._startFromHandleMoveOut(handle);
-  }
-
-  getAllMeshes() {
-    return this._allMeshes;
-  }
-
-  getObjectType() {
-    return this._objectType;
   }
 
   _changeDirection(handle) {
@@ -242,13 +224,12 @@ export default class Table extends THREE.Group {
   }
 
   _init() {
-    this.add(this._tableGroup);
+    this._initParts(TABLE_PART_TYPE);
+    this._addMaterials();
 
-    const parts = this._parts = this._getParts(this._tableGroup);
-    this._addMaterials(parts);
-
-    const topPartsGroup = this._topPartsGroup = this._createTopPartsGroup(parts);
+    const topPartsGroup = this._topPartsGroup = this._createTopPartsGroup(this._parts);
     this.add(topPartsGroup);
+    this.add(this._parts[TABLE_PART_TYPE.Legs]);
 
     this._initDebug();
   }
@@ -258,32 +239,6 @@ export default class Table extends THREE.Group {
     topPartsGroup.add(tableParts[TABLE_PART_TYPE.Tabletop], tableParts[TABLE_PART_TYPE.TopPart], tableParts[TABLE_PART_TYPE.Handle]);
 
     return topPartsGroup;
-  }
-
-  _getParts(table) {
-    const parts = {};
-
-    for (const partName in TABLE_PART_TYPE) {
-      const part = table.children.find(child => child.name === TABLE_PART_TYPE[partName]);
-      parts[TABLE_PART_TYPE[partName]] = part;
-
-      part.userData['objectType'] = this._objectType;
-      part.userData['startPosition'] = part.position.clone();
-      this._allMeshes.push(part);
-    }
-
-    return parts;
-  }
-
-  _addMaterials(parts) {
-    for (const partName in parts) {
-      const part = parts[partName];
-      const material = new THREE.MeshLambertMaterial({
-        color: `hsl(${Math.random() * 360}, 80%, 50%)`,
-      });
-
-      part.material = material;
-    }
   }
 
   _initDebug() {

@@ -1,5 +1,5 @@
-import Table from './table/table';
-import Locker from './locker/locker';
+import Table from './room-objects/table/table';
+import Locker from './room-objects/locker/locker';
 
 const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',

@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import DEBUG_CONFIG from '../core/configs/debug-config';
 import GUIHelper from '../core/helpers/gui-helper/gui-helper';
 import Loader from '../core/loader';
-import { LOCKER_PART_TYPE } from './locker/locker-data';
-import { ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './room-config';
+import { LOCKER_PART_TYPE } from './room/room-objects/locker/locker-data';
+import { ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './room/room-config';
 
 export default class Scene3D extends THREE.Group {
   constructor(camera, outlinePass) {
@@ -40,13 +40,13 @@ export default class Scene3D extends THREE.Group {
   }
 
   onPointerDown(x, y) {
-    const object = this._checkIntersection(x, y);
+    const intersectedObject = this._checkIntersection(x, y);
 
-    if (object === null) {
+    if (intersectedObject === null) {
       return;
     }
 
-    this._roomObject[object.userData.objectType].onClick(object);
+    this._roomObject[intersectedObject.userData.objectType].onClick(intersectedObject);
   }
 
   _checkToGlow(mesh) {
@@ -56,18 +56,18 @@ export default class Scene3D extends THREE.Group {
       return;
     }
 
-    const object = this._roomObject[mesh.userData.objectType];
+    const roomObject = this._roomObject[mesh.userData.objectType];
 
     switch (mesh.userData.objectType) {
       case ROOM_OBJECT_TYPE.Table:
-        this._setGlow(object.getAllMeshes());
+        this._setGlow(roomObject.getAllMeshes());
         break;
 
       case ROOM_OBJECT_TYPE.Locker:
         if (mesh.userData.partType === LOCKER_PART_TYPE.BODY) {
-          this._setGlow(object.getBodyMesh());
+          this._setGlow(roomObject.getBodyMesh());
         } else {
-          this._setGlow(object.getCaseMesh(mesh.userData.caseId));
+          this._setGlow(roomObject.getCaseMesh(mesh.userData.caseId));
         }
         break;
       }
@@ -121,10 +121,10 @@ export default class Scene3D extends THREE.Group {
       const config = ROOM_OBJECT_CONFIG[type];
 
       const group = this._roomGroup.getObjectByName(config.groupName);
-      const object = new config.class(group);
-      this.add(object);
+      const roomObject = new config.class(group, type);
+      this.add(roomObject);
 
-      this._roomObject[type] = object;
+      this._roomObject[type] = roomObject;
     }
 
     for (const key in this._roomObject) {
