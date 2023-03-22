@@ -7,6 +7,7 @@ export default class TableDebug {
     this.events = new MessageDispatcher();
 
     this._currentTableState = currentTableState;
+    this._tableFolder = null;
 
     this._init();
   }
@@ -17,33 +18,21 @@ export default class TableDebug {
   }
 
   enable() {
-    const tableControllers = GUIHelper.getFolder('Table');
-
-    tableControllers.children.forEach((child) => {
+    this._tableFolder.children.forEach((child) => {
       child.disabled = false;
     });
   }
 
   disable() {
-    const tableControllers = GUIHelper.getFolder('Table');
-
-    tableControllers.children.forEach((child) => {
+    this._tableFolder.children.forEach((child) => {
       child.disabled = true;
     });
   }
 
   _init() {
-    const tableFolder = GUIHelper.getGui().addFolder({
+    const tableFolder = this._tableFolder = GUIHelper.getGui().addFolder({
       title: 'Table',
     });
-
-    tableFolder.addButton({
-      title: 'Start show animation',
-    }).on('click', () => {
-      this.events.post('showAnimation');
-    });
-
-    tableFolder.addSeparator();
 
     tableFolder.addInput(this._currentTableState, 'value', {
       label: 'State',

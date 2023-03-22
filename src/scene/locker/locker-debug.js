@@ -8,12 +8,25 @@ export default class LockerDebug {
     this.events = new MessageDispatcher();
 
     this._allCasesAnimationType = allCasesAnimationType;
+    this._lockerFolder = null;
 
     this._init();
   }
 
+  enable() {
+    this._lockerFolder.children.forEach((child) => {
+      child.disabled = false;
+    });
+  }
+
+  disable() {
+    this._lockerFolder.children.forEach((child) => {
+      child.disabled = true;
+    });
+  }
+
   _init() {
-    const lockerFolder = GUIHelper.getGui().addFolder({
+    const lockerFolder = this._lockerFolder = GUIHelper.getGui().addFolder({
       title: 'Locker',
     });
 

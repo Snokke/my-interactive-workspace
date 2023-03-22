@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { OBJECT_TYPE } from '../scene3d';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
+import { ROOM_OBJECT_TYPE } from '../room-config';
 
 export default class Locker extends THREE.Group {
   constructor(lockerGroup) {
     super();
 
     this._lockerGroup = lockerGroup;
-    this._objectType = OBJECT_TYPE.Locker;
+    this._objectType = ROOM_OBJECT_TYPE.Locker;
     this._currentAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._lockerDebug = null;
@@ -26,7 +26,52 @@ export default class Locker extends THREE.Group {
     this._init();
   }
 
+  show() {
+    this._isInputEnabled = false;
+    this._lockerDebug.disable();
+
+    this._reset();
+    this._setPositionForShowAnimation();
+
+    const fallDownTime = 600;
+
+    const body = this._parts[LOCKER_PART_TYPE.BODY];
+    const cases = CASES.map((partType) => this._parts[partType]);
+
+    new TWEEN.Tween(body.position)
+      .to({ y: body.userData.startPosition.y }, fallDownTime)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start();
+
+    for (let i = 0; i < cases.length; i += 1) {
+      const casePart = cases[i];
+
+      const scaleTween = new TWEEN.Tween(casePart.scale)
+        .to({ x: 1, y: 1, z: 1 }, 300)
+        .easing(TWEEN.Easing.Back.Out)
+        .delay(500 + i * 100)
+        .start();
+
+      scaleTween.onComplete(() => {
+        const moveTween = new TWEEN.Tween(casePart.position)
+          .to({ z: casePart.userData.startPosition.z }, 300)
+          .easing(TWEEN.Easing.Sinusoidal.Out)
+          .start();
+
+        // todo
+        moveTween.onComplete(() => {
+          this._isInputEnabled = true;
+          this._lockerDebug.enable();
+        });
+      });
+    }
+  }
+
   onClick(object) {
+    if (!this._isInputEnabled) {
+      return;
+    }
+
     const partType = object.userData.partType;
 
     if (partType === LOCKER_PART_TYPE.BODY) {
@@ -139,6 +184,12 @@ export default class Locker extends THREE.Group {
     }
   }
 
+  _stopTweens() {
+    for (let i = 0; i < this._caseMoveTween.length; i += 1) {
+      this._stopCaseMoveTween(i);
+    }
+  }
+
   _showCasesAnimation(animationType) {
     const casesSequence = LOCKER_CASES_ANIMATION_SEQUENCE[animationType];
 
@@ -150,6 +201,34 @@ export default class Locker extends THREE.Group {
     }
   }
 
+  _setPositionForShowAnimation() {
+    const startPositionY = 10;
+
+    const body = this._parts[LOCKER_PART_TYPE.BODY];
+    body.position.y = body.userData.startPosition.y + startPositionY;
+
+    const caseStartPositionZ = 3;
+    const startScale = 0;
+
+    CASES.forEach((partName) => {
+      const casePart = this._parts[partName];
+      casePart.position.z = caseStartPositionZ;
+      casePart.scale.set(startScale, startScale, startScale);
+    });
+  }
+
+  _reset() {
+    this._stopTweens();
+
+    this._casesState = Array(LOCKER_CONFIG.casesCount).fill(LOCKER_CASE_STATE.Closed);
+    this._casesPreviousState = this._casesState;
+
+    CASES.forEach((partName) => {
+      const casePart = this._parts[partName];
+      casePart.position.z = casePart.userData.startPosition.z;
+    });
+  }
+
   _init() {
     const parts = this._parts = this._getParts(this._lockerGroup);
     this._addMaterials(parts);
@@ -157,6 +236,9 @@ export default class Locker extends THREE.Group {
     for (let key in parts) {
       this.add(parts[key]);
     }
+
+    this._casesState = Array(LOCKER_CONFIG.casesCount).fill(LOCKER_CASE_STATE.Closed);
+    this._casesPreviousState = this._casesState;
 
     this._initDebug();
   }

@@ -142,7 +142,7 @@ export default class Scene3DDebugMenu {
     const gui = new GUIHelper();
 
     const scene3DFolder = gui.addFolder({
-      title: 'Scene Debugger',
+      title: 'Scene',
     });
 
     scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })

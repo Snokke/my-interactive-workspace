@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import DEBUG_CONFIG from '../core/configs/debug-config';
+import GUIHelper from '../core/helpers/gui-helper/gui-helper';
 import Loader from '../core/loader';
-import Locker from './locker/locker';
 import { LOCKER_PART_TYPE } from './locker/locker-data';
-import Table from './table/table';
+import { ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './room-config';
 
 export default class Scene3D extends THREE.Group {
   constructor(camera, outlinePass) {
@@ -11,6 +12,7 @@ export default class Scene3D extends THREE.Group {
     this._camera = camera;
     this._outlinePass = outlinePass;
 
+    this._outlineEnabled = { value: true };
     this._raycaster = null;
     this._roomGroup = null;
 
@@ -23,8 +25,10 @@ export default class Scene3D extends THREE.Group {
   }
 
   update(dt) {
-    const object = this._checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
-    this._checkToGlow(object);
+    if (this._outlineEnabled.value) {
+      const intersectedMesh = this._checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
+      this._checkToGlow(intersectedMesh);
+    }
   }
 
   onClick() {
@@ -45,39 +49,36 @@ export default class Scene3D extends THREE.Group {
     this._roomObject[object.userData.objectType].onClick(object);
   }
 
-  onPointerUp() {
-
-  }
-
-  _checkToGlow(object) {
-    if (object === null) {
+  _checkToGlow(mesh) {
+    if (mesh === null || !this._roomObject[mesh.userData.objectType].isInputEnabled()) {
       this._resetGlow();
 
       return;
     }
 
-    switch (object.userData.objectType) {
-      case OBJECT_TYPE.Table:
-        const table = this._roomObject[OBJECT_TYPE.Table];
-        this._setGlow(table, table.getAllMeshes());
+    const object = this._roomObject[mesh.userData.objectType];
+
+    switch (mesh.userData.objectType) {
+      case ROOM_OBJECT_TYPE.Table:
+        this._setGlow(object.getAllMeshes());
         break;
 
-      case OBJECT_TYPE.Locker:
-        const locker = this._roomObject[OBJECT_TYPE.Locker];
-
-        if (object.userData.partType === LOCKER_PART_TYPE.BODY) {
-          this._setGlow(locker, locker.getBodyMesh());
+      case ROOM_OBJECT_TYPE.Locker:
+        if (mesh.userData.partType === LOCKER_PART_TYPE.BODY) {
+          this._setGlow(object.getBodyMesh());
         } else {
-          this._setGlow(locker, locker.getCaseMesh(object.userData.caseId));
+          this._setGlow(object.getCaseMesh(mesh.userData.caseId));
         }
         break;
       }
   }
 
-  _setGlow(object, items) {
-    if (object.isInputEnabled()) {
-      this._outlinePass.selectedObjects = items;
+  _setGlow(items) {
+    if (DEBUG_CONFIG.wireframe) {
+      return;
     }
+
+    this._outlinePass.selectedObjects = items;
   }
 
   _resetGlow() {
@@ -106,40 +107,59 @@ export default class Scene3D extends THREE.Group {
 
     this._roomGroup = Loader.assets['room'].scene;
 
-    this._initTable();
-    this._initLocker();
-
-    this._gatherAllMeshes();
+    this._initObjects();
+    this._initShowAnimationsDebug();
   }
 
   _initRaycaster() {
     this._raycaster = new THREE.Raycaster();
   }
 
-  _initTable() {
-    const tableGroup = this._roomGroup.getObjectByName('Table');
-    const table = new Table(tableGroup);
-    this.add(table);
+  _initObjects() {
+    for (const key in ROOM_OBJECT_TYPE) {
+      const type = ROOM_OBJECT_TYPE[key];
+      const config = ROOM_OBJECT_CONFIG[type];
 
-    this._roomObject[OBJECT_TYPE.Table] = table;
-  }
+      const group = this._roomGroup.getObjectByName(config.groupName);
+      const object = new config.class(group);
+      this.add(object);
 
-  _initLocker() {
-    const lockerGroup = this._roomGroup.getObjectByName('Locker');
-    const locker = new Locker(lockerGroup);
-    this.add(locker);
+      this._roomObject[type] = object;
+    }
 
-    this._roomObject[OBJECT_TYPE.Locker] = locker;
-  }
-
-  _gatherAllMeshes() {
     for (const key in this._roomObject) {
       this._allMeshes.push(...this._roomObject[key].getAllMeshes());
     }
   }
-}
 
-export const OBJECT_TYPE = {
-  Table: 'TABLE',
-  Locker: 'LOCKER',
+  _initShowAnimationsDebug() {
+    const sceneDebugFolder = GUIHelper.getFolder('Scene');
+
+    sceneDebugFolder.addInput(this._outlineEnabled, 'value', { label: 'Outline' })
+      .on('change', (outlineState) => {
+        this._outlineEnabled.value = outlineState.value;
+      });
+
+    sceneDebugFolder.addSeparator();
+
+    let selectedObjectType = ROOM_OBJECT_TYPE.Locker;
+
+    sceneDebugFolder.addBlade({
+      view: 'list',
+      label: 'Show animation',
+      options: [
+        { text: 'Table', value: ROOM_OBJECT_TYPE.Table },
+        { text: 'Locker', value: ROOM_OBJECT_TYPE.Locker },
+      ],
+      value: selectedObjectType,
+    }).on('change', (objectType) => {
+      selectedObjectType = objectType.value;
+    });
+
+    sceneDebugFolder.addButton({
+      title: 'Start show animation',
+    }).on('click', () => {
+      this._roomObject[selectedObjectType].show();
+    });
+  }
 }
