@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Loader from '../core/loader';
 import Locker from './locker/locker';
+import { LOCKER_PART_TYPE } from './locker/locker-data';
 import Table from './table/table';
 
 export default class Scene3D extends THREE.Group {
@@ -16,11 +17,14 @@ export default class Scene3D extends THREE.Group {
     this._roomObject = {};
     this._allMeshes = [];
 
+    this._pointerPosition = new THREE.Vector2();
+
     this._init();
   }
 
   update(dt) {
-
+    const object = this._checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
+    this._checkToGlow(object);
   }
 
   onClick() {
@@ -28,52 +32,51 @@ export default class Scene3D extends THREE.Group {
   }
 
   onPointerMove(x, y) {
-    const { objectType, instanceId } = this._checkIntersection(x, y);
-
-    switch (objectType) {
-      case OBJECT_TYPE.Table:
-        this._setGlow(this._roomObject[OBJECT_TYPE.Table], this._roomObject[OBJECT_TYPE.Table].getAllMeshes());
-        break;
-
-      case OBJECT_TYPE.Locker:
-        if (instanceId === undefined) {
-          this._setGlow(this._roomObject[OBJECT_TYPE.Locker], this._roomObject[OBJECT_TYPE.Locker].getBodyMesh());
-        } else {
-          this._setGlow(this._roomObject[OBJECT_TYPE.Locker], this._roomObject[OBJECT_TYPE.Locker].getCaseMesh(instanceId));
-        }
-        break;
-
-      default:
-        this._resetGlow();
-        break;
-      }
+    this._pointerPosition.set(x, y);
   }
 
   onPointerDown(x, y) {
-    const { objectType, instanceId } = this._checkIntersection(x, y);
+    const object = this._checkIntersection(x, y);
 
-    switch (objectType) {
-      case OBJECT_TYPE.Table:
-        this._roomObject[OBJECT_TYPE.Table].changeState();
-        break;
-
-      case OBJECT_TYPE.Locker:
-        if (instanceId === undefined) {
-          this._roomObject[OBJECT_TYPE.Locker].pushAllCases();
-        } else {
-          this._roomObject[OBJECT_TYPE.Locker].pushCase(instanceId);
-        }
-        break;
+    if (object === null) {
+      return;
     }
+
+    this._roomObject[object.userData.objectType].onClick(object);
   }
 
   onPointerUp() {
 
   }
 
+  _checkToGlow(object) {
+    if (object === null) {
+      this._resetGlow();
+
+      return;
+    }
+
+    switch (object.userData.objectType) {
+      case OBJECT_TYPE.Table:
+        const table = this._roomObject[OBJECT_TYPE.Table];
+        this._setGlow(table, table.getAllMeshes());
+        break;
+
+      case OBJECT_TYPE.Locker:
+        const locker = this._roomObject[OBJECT_TYPE.Locker];
+
+        if (object.userData.partType === LOCKER_PART_TYPE.BODY) {
+          this._setGlow(locker, locker.getBodyMesh());
+        } else {
+          this._setGlow(locker, locker.getCaseMesh(object.userData.caseId));
+        }
+        break;
+      }
+  }
+
   _setGlow(object, items) {
     if (object.isInputEnabled()) {
-      this._outlinePass.selectedObjects = [...items];
+      this._outlinePass.selectedObjects = items;
     }
   }
 
@@ -89,16 +92,13 @@ export default class Scene3D extends THREE.Group {
     this._raycaster.setFromCamera(mousePosition, this._camera);
     const intersects = this._raycaster.intersectObjects(this._allMeshes);
 
-    let objectType = null;
-    let instanceId = null;
+    let intersectedObject = null;
 
     if (intersects.length > 0) {
-      const intersect = intersects[0];
-      objectType = intersect.object.userData.objectType;
-      instanceId = intersect.instanceId;
+      intersectedObject = intersects[0].object;
     }
 
-    return { objectType, instanceId };
+    return intersectedObject;
   }
 
   _init() {

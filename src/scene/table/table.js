@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { OBJECT_TYPE } from '../scene3d';
-import { TABLE_HANDLE_STATE, TABLE_PART_NAME, TABLE_STATE } from './table-data';
+import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
 import TableDebug from './table-debug';
 import TABLE_CONFIG from './table-config';
 
@@ -41,10 +41,10 @@ export default class Table extends THREE.Group {
 
     const fallDownTime = 600;
 
-    const legs = this._parts[TABLE_PART_NAME.Legs];
-    const topPart = this._parts[TABLE_PART_NAME.TopPart];
-    const tableTop = this._parts[TABLE_PART_NAME.Tabletop];
-    const handle = this._parts[TABLE_PART_NAME.Handle];
+    const legs = this._parts[TABLE_PART_TYPE.Legs];
+    const topPart = this._parts[TABLE_PART_TYPE.TopPart];
+    const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
+    const handle = this._parts[TABLE_PART_TYPE.Handle];
 
     new TWEEN.Tween(legs.position)
       .to({ y: legs.userData['startPosition'].y }, fallDownTime)
@@ -72,7 +72,7 @@ export default class Table extends THREE.Group {
 
     handleScaleTween.onComplete(() => {
       const handleMoveTween = new TWEEN.Tween(handle.position)
-      .to({ z: 0 }, 300)
+      .to({ z: handle.userData['startPosition'].z }, 300)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start();
 
@@ -87,12 +87,12 @@ export default class Table extends THREE.Group {
     return this._isInputEnabled;
   }
 
-  changeState() {
+  onClick() {
     if (!this._isInputEnabled) {
       return;
     }
 
-    const handle = this._parts[TABLE_PART_NAME.Handle];
+    const handle = this._parts[TABLE_PART_TYPE.Handle];
 
     if (this._currentTableState.value === TABLE_STATE.Moving) {
       this._changeDirection(handle);
@@ -136,10 +136,10 @@ export default class Table extends THREE.Group {
     this._handleState.value = TABLE_HANDLE_STATE.MovingOut;
 
     const positionZ = 0.75;
-    const time = (positionZ - handle.position.z) / TABLE_CONFIG.handleMoveOutSpeed * 1000;
+    const time = Math.abs(handle.userData['startPosition'].z + positionZ - handle.position.z) / TABLE_CONFIG.handleMoveOutSpeed * 1000;
 
     const tweenHandleMoveOut = this._tweenHandleMoveOut = new TWEEN.Tween(handle.position)
-      .to({ z: positionZ }, time)
+      .to({ z: handle.userData['startPosition'].z + positionZ }, time)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start();
 
@@ -178,9 +178,9 @@ export default class Table extends THREE.Group {
   _startFromHandleMoveIn(handle) {
     this._handleState.value = TABLE_HANDLE_STATE.MovingIn;
 
-    const time = handle.position.z / TABLE_CONFIG.handleMoveOutSpeed * 1000;
+    const time = Math.abs(handle.userData['startPosition'].z - handle.position.z) / TABLE_CONFIG.handleMoveOutSpeed * 1000;
     const tweenHandleMoveIn = this._tweenHandleMoveIn = new TWEEN.Tween(handle.position)
-      .to({ z: 0 }, time)
+      .to({ z: handle.userData['startPosition'].z }, time)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start();
 
@@ -221,9 +221,9 @@ export default class Table extends THREE.Group {
       this._parts[key].position.y = this._parts[key].userData['startPosition'].y + startPositionY;
     }
 
-    const handle = this._parts[TABLE_PART_NAME.Handle];
+    const handle = this._parts[TABLE_PART_TYPE.Handle];
     handle.position.copy(handle.userData['startPosition']);
-    handle.position.z = 1.5;
+    handle.position.z = 2.5;
   }
 
   _reset() {
@@ -234,8 +234,8 @@ export default class Table extends THREE.Group {
     this._previousTableState = this._currentTableState.value;
 
     this._topPartsGroup.position.y = 0;
-    this._parts[TABLE_PART_NAME.Handle].rotation.z = 0;
-    this._parts[TABLE_PART_NAME.Handle].position.z = 0;
+    this._parts[TABLE_PART_TYPE.Handle].rotation.z = 0;
+    this._parts[TABLE_PART_TYPE.Handle].position.z = 0;
   }
 
   _init() {
@@ -252,7 +252,7 @@ export default class Table extends THREE.Group {
 
   _createTopPartsGroup(tableParts) {
     const topPartsGroup = new THREE.Group();
-    topPartsGroup.add(tableParts[TABLE_PART_NAME.Tabletop], tableParts[TABLE_PART_NAME.TopPart], tableParts[TABLE_PART_NAME.Handle]);
+    topPartsGroup.add(tableParts[TABLE_PART_TYPE.Tabletop], tableParts[TABLE_PART_TYPE.TopPart], tableParts[TABLE_PART_TYPE.Handle]);
 
     return topPartsGroup;
   }
@@ -260,9 +260,9 @@ export default class Table extends THREE.Group {
   _getParts(table) {
     const parts = {};
 
-    for (const partName in TABLE_PART_NAME) {
-      const part = table.children.find(child => child.name === TABLE_PART_NAME[partName]);
-      parts[TABLE_PART_NAME[partName]] = part;
+    for (const partName in TABLE_PART_TYPE) {
+      const part = table.children.find(child => child.name === TABLE_PART_TYPE[partName]);
+      parts[TABLE_PART_TYPE[partName]] = part;
 
       part.userData['objectType'] = this._objectType;
       part.userData['startPosition'] = part.position.clone();
@@ -286,7 +286,7 @@ export default class Table extends THREE.Group {
   _initDebug() {
     const tableDebug = this._tableDebug = new TableDebug(this._currentTableState);
 
-    tableDebug.events.on('changeState', () => this.changeState());
+    tableDebug.events.on('changeState', () => this.onClick());
     tableDebug.events.on('showAnimation', () => this.show());
   }
 }

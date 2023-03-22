@@ -1,4 +1,4 @@
-const TABLE_PART_NAME = {
+const TABLE_PART_TYPE = {
   Tabletop: 'tabletop',
   TopPart: 'top-part',
   Handle: 'handle',
@@ -18,4 +18,4 @@ const TABLE_HANDLE_STATE = {
   Rotating: 'ROTATING',
 }
 
-export { TABLE_PART_NAME, TABLE_STATE, TABLE_HANDLE_STATE };
+export { TABLE_PART_TYPE, TABLE_STATE, TABLE_HANDLE_STATE };
