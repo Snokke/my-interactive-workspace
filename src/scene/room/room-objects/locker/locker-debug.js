@@ -26,7 +26,9 @@ export default class LockerDebug {
   }
 
   _init() {
-    const lockerFolder = this._lockerFolder = GUIHelper.getGui().addFolder({
+    const roomObjectsFolder = GUIHelper.getFolder('Room objects');
+
+    const lockerFolder = this._lockerFolder = roomObjectsFolder.addFolder({
       title: 'Locker',
     });
 

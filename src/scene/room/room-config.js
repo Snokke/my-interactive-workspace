@@ -1,6 +1,10 @@
 import Table from './room-objects/table/table';
 import Locker from './room-objects/locker/locker';
 
+const ROOM_CONFIG = {
+  outlineEnabled: true,
+}
+
 const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',
   Locker: 'LOCKER',
@@ -17,4 +21,4 @@ const ROOM_OBJECT_CONFIG = {
   },
 }
 
-export { ROOM_OBJECT_TYPE, ROOM_OBJECT_CONFIG };
+export { ROOM_CONFIG, ROOM_OBJECT_TYPE, ROOM_OBJECT_CONFIG };

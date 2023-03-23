@@ -3,7 +3,8 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
 import TableDebug from './table-debug';
 import TABLE_CONFIG from './table-config';
-import RoomObjectAbstract from '../../room-object.abstract';
+import RoomObjectAbstract from '../room-object.abstract';
+import Delayed from '../../../../core/helpers/delayed-call';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -25,7 +26,7 @@ export default class Table extends RoomObjectAbstract {
     this._init();
   }
 
-  show() {
+  show(delay) {
     super.show();
 
     this._tableDebug.disable();
@@ -33,45 +34,47 @@ export default class Table extends RoomObjectAbstract {
     this._reset();
     this._setPositionForShowAnimation();
 
-    const fallDownTime = 600;
+    Delayed.call(delay, () => {
+      const fallDownTime = 600;
 
-    const legs = this._parts[TABLE_PART_TYPE.Legs];
-    const topPart = this._parts[TABLE_PART_TYPE.TopPart];
-    const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
-    const handle = this._parts[TABLE_PART_TYPE.Handle];
+      const legs = this._parts[TABLE_PART_TYPE.Legs];
+      const topPart = this._parts[TABLE_PART_TYPE.TopPart];
+      const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
+      const handle = this._parts[TABLE_PART_TYPE.Handle];
 
-    new TWEEN.Tween(legs.position)
-      .to({ y: legs.userData.startPosition.y }, fallDownTime)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start();
+      new TWEEN.Tween(legs.position)
+        .to({ y: legs.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .start();
 
-    new TWEEN.Tween(topPart.position)
-      .to({ y: topPart.userData.startPosition.y }, fallDownTime)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .delay(250)
-      .start();
+      new TWEEN.Tween(topPart.position)
+        .to({ y: topPart.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .delay(250)
+        .start();
 
-    new TWEEN.Tween(tableTop.position)
-      .to({ y: tableTop.userData.startPosition.y }, fallDownTime)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .delay(500)
-      .start();
+      new TWEEN.Tween(tableTop.position)
+        .to({ y: tableTop.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .delay(500)
+        .start();
 
-    const handleScaleTween = new TWEEN.Tween(handle.scale)
-      .to({ x: 1, y: 1, z: 1 }, 300)
-      .easing(TWEEN.Easing.Back.Out)
-      .delay(1100)
-      .start();
+      const handleScaleTween = new TWEEN.Tween(handle.scale)
+        .to({ x: 1, y: 1, z: 1 }, 300)
+        .easing(TWEEN.Easing.Back.Out)
+        .delay(1100)
+        .start();
 
-    handleScaleTween.onComplete(() => {
-      const handleMoveTween = new TWEEN.Tween(handle.position)
-      .to({ z: handle.userData.startPosition.z }, 300)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start();
+      handleScaleTween.onComplete(() => {
+        const handleMoveTween = new TWEEN.Tween(handle.position)
+        .to({ z: handle.userData.startPosition.z }, 300)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .start();
 
-      handleMoveTween.onComplete(() => {
-        this._isInputEnabled = true;
-        this._tableDebug.enable();
+        handleMoveTween.onComplete(() => {
+          this._isInputEnabled = true;
+          this._tableDebug.enable();
+        });
       });
     });
   }
@@ -91,6 +94,10 @@ export default class Table extends RoomObjectAbstract {
 
     this._setTableState(TABLE_STATE.Moving);
     this._startFromHandleMoveOut(handle);
+  }
+
+  getMeshesForOutline(mesh) {
+    return this._meshes;
   }
 
   _changeDirection(handle) {

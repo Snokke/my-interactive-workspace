@@ -9,7 +9,7 @@ export default class GUIHelper {
     });
 
     this.gui.hidden = true;
-    this.gui.containerElem_.style.width = '270px';
+    this.gui.containerElem_.style.width = '275px';
 
     this.gui.registerPlugin(EssentialsPlugin);
 

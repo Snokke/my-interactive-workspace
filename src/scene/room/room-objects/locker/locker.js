@@ -3,7 +3,7 @@ import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LO
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
 import Delayed from '../../../../core/helpers/delayed-call';
-import RoomObjectAbstract from '../../room-object.abstract';
+import RoomObjectAbstract from '../room-object.abstract';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -19,7 +19,7 @@ export default class Locker extends RoomObjectAbstract {
     this._init();
   }
 
-  show() {
+  show(delay) {
     super.show();
 
     this._lockerDebug.disable();
@@ -27,37 +27,40 @@ export default class Locker extends RoomObjectAbstract {
     this._reset();
     this._setPositionForShowAnimation();
 
-    const fallDownTime = 600;
+    Delayed.call(delay, () => {
 
-    const body = this._parts[LOCKER_PART_TYPE.BODY];
-    const cases = CASES.map((partType) => this._parts[partType]);
+      const fallDownTime = 600;
 
-    new TWEEN.Tween(body.position)
-      .to({ y: body.userData.startPosition.y }, fallDownTime)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start();
+      const body = this._parts[LOCKER_PART_TYPE.BODY];
+      const cases = CASES.map((partType) => this._parts[partType]);
 
-    for (let i = 0; i < cases.length; i += 1) {
-      const casePart = cases[i];
-
-      const scaleTween = new TWEEN.Tween(casePart.scale)
-        .to({ x: 1, y: 1, z: 1 }, 300)
-        .easing(TWEEN.Easing.Back.Out)
-        .delay(500 + i * 100)
+      new TWEEN.Tween(body.position)
+        .to({ y: body.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
         .start();
 
-      scaleTween.onComplete(() => {
-        new TWEEN.Tween(casePart.position)
-          .to({ z: casePart.userData.startPosition.z }, 300)
-          .easing(TWEEN.Easing.Sinusoidal.Out)
-          .start();
-      });
-    }
+      for (let i = 0; i < cases.length; i += 1) {
+        const casePart = cases[i];
 
-    Delayed.call(500 + cases.length * 100 + 300 + 300, () => {
-      this._isInputEnabled = true;
-      this._lockerDebug.enable();
-    })
+        const scaleTween = new TWEEN.Tween(casePart.scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Back.Out)
+          .delay(500 + i * 100)
+          .start();
+
+        scaleTween.onComplete(() => {
+          new TWEEN.Tween(casePart.position)
+            .to({ z: casePart.userData.startPosition.z }, 300)
+            .easing(TWEEN.Easing.Sinusoidal.Out)
+            .start();
+        });
+      }
+
+      Delayed.call(500 + cases.length * 100 + 300 + 300, () => {
+        this._isInputEnabled = true;
+        this._lockerDebug.enable();
+      })
+    });
   }
 
   onClick(roomObject) {
@@ -117,12 +120,12 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  getBodyMesh() {
-    return [this._parts[LOCKER_PART_TYPE.BODY]];
-  }
+  getMeshesForOutline(mesh) {
+    if (mesh.userData.partType === LOCKER_PART_TYPE.BODY) {
+      return [this._parts[LOCKER_PART_TYPE.BODY]];
+    }
 
-  getCaseMesh(caseId) {
-    const partName = `case0${caseId + 1}`;
+    const partName = `case0${mesh.userData.caseId + 1}`;
     const casePart = this._parts[partName];
 
     return [casePart];

@@ -7,14 +7,16 @@ export default class TableDebug {
     this.events = new MessageDispatcher();
 
     this._currentTableState = currentTableState;
+
     this._tableFolder = null;
+    this._stateController = null;
 
     this._init();
   }
 
   updateTableState(tableState) {
     this._currentTableState.value = tableState;
-    GUIHelper.getControllerFromFolder('Table', 'State').refresh();
+    this._stateController.refresh();
   }
 
   enable() {
@@ -30,11 +32,13 @@ export default class TableDebug {
   }
 
   _init() {
-    const tableFolder = this._tableFolder = GUIHelper.getGui().addFolder({
+    const roomObjectsFolder = GUIHelper.getFolder('Room objects');
+
+    const tableFolder = this._tableFolder = roomObjectsFolder.addFolder({
       title: 'Table',
     });
 
-    tableFolder.addInput(this._currentTableState, 'value', {
+    this._stateController = tableFolder.addInput(this._currentTableState, 'value', {
       label: 'State',
       disabled: true,
     });

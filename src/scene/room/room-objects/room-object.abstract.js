@@ -17,7 +17,9 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isInputEnabled = false;
   }
 
-  onClick(roomObject) { }
+  onClick() { }
+
+  getMeshesForOutline(mesh) { }
 
   getObjectType() {
     return this._roomObjectType;

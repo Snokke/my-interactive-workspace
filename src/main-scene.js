@@ -29,10 +29,6 @@ export default class MainScene {
   }
 
   _initSignals() {
-    this._ui.on('onClick', () => {
-      this._scene3D.onClick();
-    });
-
     this._ui.on('onPointerMove', (msg, x, y) => this._scene3D.onPointerMove(x, y));
     this._ui.on('onPointerDown', (msg, x, y) => this._scene3D.onPointerDown(x, y));
     // this._ui.on('onPointerUp', () => this._scene3D.onPointerUp());
