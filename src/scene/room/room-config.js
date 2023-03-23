@@ -1,5 +1,6 @@
 import Table from './room-objects/table/table';
 import Locker from './room-objects/locker/locker';
+import FloorLamp from './room-objects/floor-lamp/floor-lamp';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -9,6 +10,7 @@ const ROOM_CONFIG = {
 const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',
   Locker: 'LOCKER',
+  FloorLamp: 'FLOOR_LAMP',
 }
 
 const ROOM_OBJECT_CONFIG = {
@@ -19,6 +21,10 @@ const ROOM_OBJECT_CONFIG = {
   [ROOM_OBJECT_TYPE.Locker]: {
     groupName: 'Locker',
     class: Locker,
+  },
+  [ROOM_OBJECT_TYPE.FloorLamp]: {
+    groupName: 'Floor_lamp',
+    class: FloorLamp,
   },
 }
 
