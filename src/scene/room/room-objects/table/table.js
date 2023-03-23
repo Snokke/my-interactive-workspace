@@ -29,6 +29,7 @@ export default class Table extends RoomObjectAbstract {
   show(delay) {
     super.show();
 
+    this._isShowAnimationActive = true;
     this._tableDebug.disable();
 
     this._reset();
@@ -74,6 +75,9 @@ export default class Table extends RoomObjectAbstract {
         handleMoveTween.onComplete(() => {
           this._isInputEnabled = true;
           this._tableDebug.enable();
+
+          this._isShowAnimationActive = false;
+          this.events.post('showAnimationComplete');
         });
       });
     });

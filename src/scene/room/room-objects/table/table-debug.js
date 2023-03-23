@@ -1,14 +1,13 @@
-import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
+import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import TABLE_CONFIG from "./table-config";
 
-export default class TableDebug {
+export default class TableDebug extends RoomObjectDebugAbstract {
   constructor(currentTableState) {
-    this.events = new MessageDispatcher();
+    super();
 
     this._currentTableState = currentTableState;
 
-    this._tableFolder = null;
     this._stateController = null;
 
     this._init();
@@ -19,22 +18,10 @@ export default class TableDebug {
     this._stateController.refresh();
   }
 
-  enable() {
-    this._tableFolder.children.forEach((child) => {
-      child.disabled = false;
-    });
-  }
-
-  disable() {
-    this._tableFolder.children.forEach((child) => {
-      child.disabled = true;
-    });
-  }
-
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Room objects');
 
-    const tableFolder = this._tableFolder = roomObjectsFolder.addFolder({
+    const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Table',
     });
 

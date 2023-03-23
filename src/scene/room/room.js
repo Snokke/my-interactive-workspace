@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
 import Loader from '../../core/loader';
-import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './room-config';
 import RoomDebug from './room-debug';
 
 export default class Room extends THREE.Group {
@@ -38,9 +38,11 @@ export default class Room extends THREE.Group {
     }
   }
 
-  show() {
-    this._roomObject[ROOM_OBJECT_TYPE.Locker].show();
-    this._roomObject[ROOM_OBJECT_TYPE.Table].show(200);
+  show(startDelay = 0) {
+    this._roomDebug.disableShowAnimationControllers();
+
+    this._roomObject[ROOM_OBJECT_TYPE.Locker].show(startDelay);
+    this._roomObject[ROOM_OBJECT_TYPE.Table].show(startDelay + 200);
   }
 
   _checkToGlow(mesh) {
@@ -70,7 +72,12 @@ export default class Room extends THREE.Group {
   _init() {
     this._initRoomDebug();
     this._initObjects();
+    this._initSignals();
     this._configureRaycaster();
+
+    if (ROOM_CONFIG.showStartAnimations) {
+      this.show(600);
+    }
   }
 
   _initObjects() {
@@ -88,6 +95,18 @@ export default class Room extends THREE.Group {
     }
   }
 
+  _initSignals() {
+    for (const key in this._roomObject) {
+      const roomObject = this._roomObject[key];
+
+      roomObject.events.on('showAnimationComplete', () => {
+        if (this._checkIsShowAnimationComplete()) {
+          this._roomDebug.enableShowAnimationControllers();
+        }
+      });
+    }
+  }
+
   _configureRaycaster() {
     const allMeshes = [];
 
@@ -102,7 +121,21 @@ export default class Room extends THREE.Group {
     const roomDebug = this._roomDebug = new RoomDebug();
 
     roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => {
-      this._roomObject[selectedObjectType].show();
+      if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
+        this.show();
+      } else {
+        this._roomObject[selectedObjectType].show();
+      }
     });
+  }
+
+  _checkIsShowAnimationComplete() {
+    for (const key in this._roomObject) {
+      if (this._roomObject[key].isShowAnimationActive()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

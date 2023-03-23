@@ -1,34 +1,21 @@
-import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
+import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import LOCKER_CONFIG from "./locker-config";
 import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./locker-data";
 
-export default class LockerDebug {
+export default class LockerDebug extends RoomObjectDebugAbstract {
   constructor(allCasesAnimationType) {
-    this.events = new MessageDispatcher();
+    super();
 
     this._allCasesAnimationType = allCasesAnimationType;
-    this._lockerFolder = null;
 
     this._init();
-  }
-
-  enable() {
-    this._lockerFolder.children.forEach((child) => {
-      child.disabled = false;
-    });
-  }
-
-  disable() {
-    this._lockerFolder.children.forEach((child) => {
-      child.disabled = true;
-    });
   }
 
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Room objects');
 
-    const lockerFolder = this._lockerFolder = roomObjectsFolder.addFolder({
+    const lockerFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Locker',
     });
 

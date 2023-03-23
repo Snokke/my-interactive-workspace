@@ -22,6 +22,7 @@ export default class Locker extends RoomObjectAbstract {
   show(delay) {
     super.show();
 
+    this._isShowAnimationActive = true;
     this._lockerDebug.disable();
 
     this._reset();
@@ -59,6 +60,9 @@ export default class Locker extends RoomObjectAbstract {
       Delayed.call(500 + cases.length * 100 + 300 + 300, () => {
         this._isInputEnabled = true;
         this._lockerDebug.enable();
+
+        this._isShowAnimationActive = false;
+        this.events.post('showAnimationComplete');
       })
     });
   }

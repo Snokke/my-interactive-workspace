@@ -1,8 +1,11 @@
 import * as THREE from 'three';
+import { MessageDispatcher } from 'black-engine';
 
 export default class RoomObjectAbstract extends THREE.Group {
   constructor(meshesGroup, roomObjectType) {
     super();
+
+    this.events = new MessageDispatcher();
 
     this._meshesGroup = meshesGroup;
     this._roomObjectType = roomObjectType;
@@ -10,6 +13,7 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._meshes = [];
     this._parts = {};
 
+    this._isShowAnimationActive = false;
     this._isInputEnabled = true;
   }
 
@@ -31,6 +35,10 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   isInputEnabled() {
     return this._isInputEnabled;
+  }
+
+  isShowAnimationActive() {
+    return this._isShowAnimationActive;
   }
 
   _initParts(partTypeEnum) {

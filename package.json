@@ -15,6 +15,7 @@
   "dependencies": {
     "@tweakpane/plugin-essentials": "^0.1.8",
     "black-engine": "^0.5.16",
+    "ismobilejs": "^1.1.1",
     "three": "^0.150.1",
     "three-webgl-stats": "^1.0.5",
     "tweakpane": "^3.1.7",
