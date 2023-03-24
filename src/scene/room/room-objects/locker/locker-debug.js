@@ -13,7 +13,7 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
   }
 
   _init() {
-    const roomObjectsFolder = GUIHelper.getFolder('Room objects');
+    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
     const lockerFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Locker',

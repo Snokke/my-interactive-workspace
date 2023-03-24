@@ -10,7 +10,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._meshesGroup = meshesGroup;
     this._roomObjectType = roomObjectType;
 
-    this._meshes = [];
+    this._allMeshes = [];
+    this._activeMeshes = [];
     this._parts = {};
 
     this._isShowAnimationActive = false;
@@ -29,8 +30,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     return this._roomObjectType;
   }
 
-  getAllMeshes() {
-    return this._meshes;
+  getActiveMeshes() {
+    return this._allMeshes;
   }
 
   isInputEnabled() {
@@ -41,17 +42,23 @@ export default class RoomObjectAbstract extends THREE.Group {
     return this._isShowAnimationActive;
   }
 
-  _initParts(partTypeEnum) {
+  _initParts(partTypeEnum, config) {
     for (const partName in partTypeEnum) {
       const part = this._meshesGroup.children.find(child => child.name === partTypeEnum[partName]);
+      const partConfig = config[partTypeEnum[partName]];
 
       this._parts[partTypeEnum[partName]] = part;
 
       part.userData['objectType'] = this._roomObjectType;
       part.userData['partType'] = partTypeEnum[partName];
       part.userData['startPosition'] = part.position.clone();
+      part.userData['isActive'] = partConfig.isActive;
 
-      this._meshes.push(part);
+      this._allMeshes.push(part);
+
+      if (partConfig.isActive) {
+        this._activeMeshes.push(part);
+      }
     }
   }
 

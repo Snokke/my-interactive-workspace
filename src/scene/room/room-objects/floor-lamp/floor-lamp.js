@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RoomObjectAbstract from '../room-object.abstract';
-import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
+import { FLOOR_LAMP_PART_CONFIG, FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import FloorLampDebug from './floor-lamp-debug';
 
 export default class FloorLamp extends RoomObjectAbstract {
@@ -25,11 +25,11 @@ export default class FloorLamp extends RoomObjectAbstract {
   }
 
   getMeshesForOutline(mesh) {
-    return this._meshes;
+    return this._activeMeshes;
   }
 
   _init() {
-    this._initParts(FLOOR_LAMP_PART_TYPE);
+    this._initParts(FLOOR_LAMP_PART_TYPE, FLOOR_LAMP_PART_CONFIG);
     this._addMaterials();
 
     for (let key in this._parts) {

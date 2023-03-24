@@ -63,7 +63,7 @@ export default class RoomDebug {
     });
 
     GUIHelper.getGui().addFolder({
-      title: 'Room objects',
+      title: 'Active room objects',
     });
   }
 }

@@ -9,7 +9,7 @@ export default class FloorLampDebug extends RoomObjectDebugAbstract {
   }
 
   _init() {
-    const roomObjectsFolder = GUIHelper.getFolder('Room objects');
+    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
     const floorLampFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Floor lamp',

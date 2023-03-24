@@ -1,5 +1,5 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_CONFIG, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
 import Delayed from '../../../../core/helpers/delayed-call';
@@ -32,7 +32,7 @@ export default class Locker extends RoomObjectAbstract {
 
       const fallDownTime = 600;
 
-      const body = this._parts[LOCKER_PART_TYPE.BODY];
+      const body = this._parts[LOCKER_PART_TYPE.Body];
       const cases = CASES.map((partType) => this._parts[partType]);
 
       new TWEEN.Tween(body.position)
@@ -74,7 +74,7 @@ export default class Locker extends RoomObjectAbstract {
 
     const partType = roomObject.userData.partType;
 
-    if (partType === LOCKER_PART_TYPE.BODY) {
+    if (partType === LOCKER_PART_TYPE.Body) {
       this.pushAllCases();
     }
 
@@ -125,8 +125,8 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   getMeshesForOutline(mesh) {
-    if (mesh.userData.partType === LOCKER_PART_TYPE.BODY) {
-      return [this._parts[LOCKER_PART_TYPE.BODY]];
+    if (mesh.userData.partType === LOCKER_PART_TYPE.Body) {
+      return [this._parts[LOCKER_PART_TYPE.Body]];
     }
 
     const partName = `case0${mesh.userData.caseId + 1}`;
@@ -192,7 +192,7 @@ export default class Locker extends RoomObjectAbstract {
   _setPositionForShowAnimation() {
     const startPositionY = 10;
 
-    const body = this._parts[LOCKER_PART_TYPE.BODY];
+    const body = this._parts[LOCKER_PART_TYPE.Body];
     body.position.y = body.userData.startPosition.y + startPositionY;
 
     const caseStartPositionZ = 3;
@@ -218,7 +218,7 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _init() {
-    this._initParts(LOCKER_PART_TYPE);
+    this._initParts(LOCKER_PART_TYPE, LOCKER_PART_CONFIG);
     this._addMaterials();
 
     for (let key in this._parts) {

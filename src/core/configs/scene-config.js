@@ -5,7 +5,7 @@ const SCENE_CONFIG = {
     fov: 60,
     near: 0.1,
     far: 500,
-    startPosition: { x: 10, y: 8, z: 10 },
+    startPosition: { x: 14, y: 14, z: 14 },
   },
   lights: {
     ambient: {

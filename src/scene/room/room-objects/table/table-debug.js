@@ -19,7 +19,7 @@ export default class TableDebug extends RoomObjectDebugAbstract {
   }
 
   _init() {
-    const roomObjectsFolder = GUIHelper.getFolder('Room objects');
+    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
     const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Table',

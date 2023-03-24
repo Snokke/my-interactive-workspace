@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
+import { TABLE_HANDLE_STATE, TABLE_PART_CONFIG, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
 import TableDebug from './table-debug';
 import TABLE_CONFIG from './table-config';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -101,7 +101,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   getMeshesForOutline(mesh) {
-    return this._meshes;
+    return this._activeMeshes;
   }
 
   _changeDirection(handle) {
@@ -235,7 +235,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _init() {
-    this._initParts(TABLE_PART_TYPE);
+    this._initParts(TABLE_PART_TYPE, TABLE_PART_CONFIG);
     this._addMaterials();
 
     const topPartsGroup = this._topPartsGroup = this._createTopPartsGroup(this._parts);

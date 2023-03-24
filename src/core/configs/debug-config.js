@@ -3,7 +3,7 @@ const DEBUG_CONFIG = {
   rendererStats: true,
   orbitControls: true,
   wireframe: false,
-  gridHelper: true,
+  gridHelper: false,
 };
 
 export default DEBUG_CONFIG;

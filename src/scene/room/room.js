@@ -33,7 +33,7 @@ export default class Room extends THREE.Group {
   onPointerDown(x, y) {
     const intersectedObject = this._raycaster.checkIntersection(x, y);
 
-    if (intersectedObject) {
+    if (intersectedObject && intersectedObject.userData.isActive) {
       this._roomObject[intersectedObject.userData.objectType].onClick(intersectedObject);
     }
   }
@@ -41,16 +41,24 @@ export default class Room extends THREE.Group {
   show(startDelay = 0) {
     this._roomDebug.disableShowAnimationControllers();
 
-    this._roomObject[ROOM_OBJECT_TYPE.Locker].show(startDelay);
-    this._roomObject[ROOM_OBJECT_TYPE.Table].show(startDelay + 200);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + 200);
+  }
+
+  _showRoomObject(objectType, startDelay = 0) {
+    if (this._roomObject[objectType]) {
+      this._roomObject[objectType].show(startDelay);
+    }
   }
 
   _checkToGlow(mesh) {
-    if (mesh === null || !this._roomObject[mesh.userData.objectType].isInputEnabled()) {
+    if (mesh === null || !mesh.userData.isActive || !this._roomObject[mesh.userData.objectType].isInputEnabled()) {
       this._resetGlow();
 
       return;
     }
+
+    // console.log(mesh.userData.isActive);
 
     const roomObject = this._roomObject[mesh.userData.objectType];
     const meshes = roomObject.getMeshesForOutline(mesh);
@@ -87,11 +95,13 @@ export default class Room extends THREE.Group {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
 
-      const group = roomGroup.getObjectByName(config.groupName);
-      const roomObject = new config.class(group, type);
-      this.add(roomObject);
+      if (config.enabled) {
+        const group = roomGroup.getObjectByName(config.groupName);
+        const roomObject = new config.class(group, type);
+        this.add(roomObject);
 
-      this._roomObject[type] = roomObject;
+        this._roomObject[type] = roomObject;
+      }
     }
   }
 
@@ -111,7 +121,7 @@ export default class Room extends THREE.Group {
     const allMeshes = [];
 
     for (const key in this._roomObject) {
-      allMeshes.push(...this._roomObject[key].getAllMeshes());
+      allMeshes.push(...this._roomObject[key].getActiveMeshes());
     }
 
     this._raycaster.addMeshes(allMeshes);
