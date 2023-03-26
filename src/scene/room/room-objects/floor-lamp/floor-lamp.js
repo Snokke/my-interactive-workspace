@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_CONFIG, FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import FloorLampDebug from './floor-lamp-debug';
@@ -15,6 +17,37 @@ export default class FloorLamp extends RoomObjectAbstract {
   show(delay) {
     super.show();
 
+    this._floorLampDebug.disable();
+    this._setPositionForShowAnimation();
+
+    Delayed.call(delay, () => {
+      const fallDownTime = 600;
+
+      const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
+      const tube = this._parts[FLOOR_LAMP_PART_TYPE.Tube];
+      const lamp = this._parts[FLOOR_LAMP_PART_TYPE.Lamp];
+
+      new TWEEN.Tween(stand.position)
+        .to({ y: stand.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .start();
+
+      new TWEEN.Tween(tube.position)
+        .to({ y: tube.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .delay(250)
+        .start();
+
+      new TWEEN.Tween(lamp.position)
+        .to({ y: lamp.userData.startPosition.y }, fallDownTime)
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .delay(500)
+        .start()
+        .onComplete(() => {
+          this._floorLampDebug.enable();
+          this._onShowAnimationComplete();
+        });
+    });
   }
 
   onClick(roomObject) {
@@ -26,6 +59,15 @@ export default class FloorLamp extends RoomObjectAbstract {
 
   getMeshesForOutline(mesh) {
     return this._activeMeshes;
+  }
+
+  _setPositionForShowAnimation() {
+    const startPositionY = 13;
+
+    for (let key in this._parts) {
+      const part = this._parts[key];
+      part.position.y = part.userData.startPosition.y + startPositionY;
+    }
   }
 
   _init() {

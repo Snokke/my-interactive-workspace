@@ -20,6 +20,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   show() {
     this._isInputEnabled = false;
+    this._isShowAnimationActive = true;
   }
 
   onClick() { }
@@ -40,6 +41,12 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   isShowAnimationActive() {
     return this._isShowAnimationActive;
+  }
+
+  _onShowAnimationComplete() {
+    this._isInputEnabled = true;
+    this._isShowAnimationActive = false;
+    this.events.post('showAnimationComplete');
   }
 
   _initParts(partTypeEnum, config) {

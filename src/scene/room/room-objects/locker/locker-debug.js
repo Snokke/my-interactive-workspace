@@ -41,6 +41,7 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
       view: 'list',
       label: 'All cases animation',
       options: [
+        { text: 'Random animation', value: LOCKER_CASES_RANDOM_ANIMATIONS },
         { text: 'From top', value: LOCKER_CASES_ANIMATION_TYPE.FromTop },
         { text: 'From bottom', value: LOCKER_CASES_ANIMATION_TYPE.FromBottom },
         { text: 'From center', value: LOCKER_CASES_ANIMATION_TYPE.FromCenter },
@@ -50,7 +51,6 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
         { text: 'Random sequence 1', value: LOCKER_CASES_ANIMATION_TYPE.Random01 },
         { text: 'Random sequence 2', value: LOCKER_CASES_ANIMATION_TYPE.Random02 },
         { text: 'Random sequence 3', value: LOCKER_CASES_ANIMATION_TYPE.Random03 },
-        { text: 'Random animation', value: LOCKER_CASES_RANDOM_ANIMATIONS },
       ],
       value: this._allCasesAnimationType,
     }).on('change', (animationType) => {

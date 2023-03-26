@@ -9,13 +9,18 @@ const ROOM_CONFIG = {
 }
 
 const ROOM_OBJECT_TYPE = {
+  Walls: 'WALLS',
   Table: 'TABLE',
   Locker: 'LOCKER',
   FloorLamp: 'FLOOR_LAMP',
-  Walls: 'WALLS',
 }
 
 const ROOM_OBJECT_CONFIG = {
+  [ROOM_OBJECT_TYPE.Walls]: {
+    enabled: true,
+    groupName: 'Walls',
+    class: Walls,
+  },
   [ROOM_OBJECT_TYPE.Table]: {
     enabled: true,
     groupName: 'Table',
@@ -30,11 +35,6 @@ const ROOM_OBJECT_CONFIG = {
     enabled: true,
     groupName: 'Floor_lamp',
     class: FloorLamp,
-  },
-  [ROOM_OBJECT_TYPE.Walls]: {
-    enabled: true,
-    groupName: 'Walls',
-    class: Walls,
   },
 }
 

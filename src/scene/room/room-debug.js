@@ -41,6 +41,7 @@ export default class RoomDebug {
 
     roomFolder.addSeparator();
 
+    // let selectedObjectType = ROOM_OBJECT_TYPE.FloorLamp;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
     this._listShowAnimation = roomFolder.addBlade({
@@ -48,8 +49,10 @@ export default class RoomDebug {
       label: 'Show animation',
       options: [
         { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },
+        { text: 'Walls', value: ROOM_OBJECT_TYPE.Walls },
         { text: 'Table', value: ROOM_OBJECT_TYPE.Table },
         { text: 'Locker', value: ROOM_OBJECT_TYPE.Locker },
+        { text: 'Floor lamp', value: ROOM_OBJECT_TYPE.FloorLamp },
       ],
       value: selectedObjectType,
     }).on('change', (objectType) => {

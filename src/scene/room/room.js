@@ -41,8 +41,9 @@ export default class Room extends THREE.Group {
   show(startDelay = 0) {
     this._roomDebug.disableShowAnimationControllers();
 
-    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + 200);
+    this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + 200);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + 400);
   }
 
   _showRoomObject(objectType, startDelay = 0) {

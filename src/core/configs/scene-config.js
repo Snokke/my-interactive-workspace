@@ -2,8 +2,8 @@ const SCENE_CONFIG = {
   antialias: false,
   backgroundColor: 0xCCCCCC,
   camera: {
-    fov: 60,
-    near: 0.1,
+    fov: 45,
+    near: 1,
     far: 500,
     startPosition: { x: 14, y: 14, z: 14 },
   },
