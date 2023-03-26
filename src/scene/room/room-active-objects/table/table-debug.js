@@ -23,6 +23,7 @@ export default class TableDebug extends RoomObjectDebugAbstract {
 
     const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Table',
+      expanded: false,
     });
 
     this._stateController = tableFolder.addInput(this._currentTableState, 'value', {

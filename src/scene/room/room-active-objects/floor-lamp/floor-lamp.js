@@ -14,8 +14,8 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._init();
   }
 
-  show(delay) {
-    super.show();
+  showWithAnimation(delay) {
+    super.showWithAnimation();
 
     this._floorLampDebug.disable();
     this._setPositionForShowAnimation();

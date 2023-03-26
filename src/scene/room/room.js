@@ -14,7 +14,7 @@ export default class Room extends THREE.Group {
 
     this._roomScene = null;
     this._roomDebug = null;
-    this._roomInactiveObjects = null;
+    this._roomInactiveObjectsClass = null;
 
     this._roomActiveObject = {};
     this._roomInactiveMesh = {};
@@ -43,7 +43,7 @@ export default class Room extends THREE.Group {
     }
   }
 
-  show(startDelay = 0) {
+  showWithAnimation(startDelay = 0) {
     this._roomDebug.disableShowAnimationControllers();
 
     this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay);
@@ -52,13 +52,28 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + 600);
   }
 
+  updateObjectsVisibility() {
+    for (const key in ROOM_OBJECT_TYPE) {
+      const type = ROOM_OBJECT_TYPE[key];
+      const config = ROOM_OBJECT_CONFIG[type];
+
+      if (this._roomActiveObject[type]) {
+        this._roomActiveObject[type].setVisibility(config.visible);
+      }
+
+      if (this._roomInactiveMesh[type]) {
+        this._roomInactiveMesh[type].visible = config.visible;
+      }
+    }
+  }
+
   _showRoomObject(objectType, startDelay = 0) {
     if (this._roomActiveObject[objectType]) {
-      this._roomActiveObject[objectType].show(startDelay);
+      this._roomActiveObject[objectType].showWithAnimation(startDelay);
     }
 
     if (this._roomInactiveMesh[objectType]) {
-      this._roomInactiveObjects.show(objectType, startDelay);
+      this._roomInactiveObjectsClass.showWithAnimation(objectType, startDelay);
     }
   }
 
@@ -92,8 +107,10 @@ export default class Room extends THREE.Group {
     this._initSignals();
     this._configureRaycaster();
 
+    this.updateObjectsVisibility();
+
     if (ROOM_CONFIG.showStartAnimations) {
-      this.show(600);
+      this.showWithAnimation(600);
     }
   }
 
@@ -102,10 +119,14 @@ export default class Room extends THREE.Group {
 
     roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => {
       if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
-        this.show();
+        this.showWithAnimation();
       } else {
-        this._roomActiveObject[selectedObjectType].show();
+        this._roomActiveObject[selectedObjectType].showWithAnimation();
       }
+    });
+
+    roomDebug.events.on('changeObjectVisibility', (msg) => {
+      this.updateObjectsVisibility();
     });
   }
 
@@ -132,7 +153,7 @@ export default class Room extends THREE.Group {
   }
 
   _initInactiveObjects() {
-    const roomInactiveObjects = this._roomInactiveObjects = new RoomInactiveObjects(this._roomScene);
+    const roomInactiveObjects = this._roomInactiveObjectsClass = new RoomInactiveObjects(this._roomScene);
     const inactiveObjects = this._roomInactiveMesh = roomInactiveObjects.getInactiveMeshes();
 
     const inactiveObjectsArray = [];

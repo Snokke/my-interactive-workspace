@@ -10,8 +10,8 @@ export default class Walls extends RoomObjectAbstract {
     this._init();
   }
 
-  show(delay) {
-    super.show();
+  showWithAnimation(delay) {
+    super.showWithAnimation();
 
   }
 

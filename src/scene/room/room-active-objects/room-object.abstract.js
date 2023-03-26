@@ -18,9 +18,21 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isInputEnabled = true;
   }
 
-  show() {
+  showWithAnimation() {
     this._isInputEnabled = false;
     this._isShowAnimationActive = true;
+  }
+
+  show() {
+    this._allMeshes.forEach(mesh => mesh.visible = true);
+  }
+
+  hide() {
+    this._allMeshes.forEach(mesh => mesh.visible = false);
+  }
+
+  setVisibility(isVisible) {
+    this._allMeshes.forEach(mesh => mesh.visible = isVisible);
   }
 
   onClick() { }

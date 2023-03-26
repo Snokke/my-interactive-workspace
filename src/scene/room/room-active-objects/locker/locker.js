@@ -19,8 +19,8 @@ export default class Locker extends RoomObjectAbstract {
     this._init();
   }
 
-  show(delay) {
-    super.show();
+  showWithAnimation(delay) {
+    super.showWithAnimation();
 
     this._lockerDebug.disable();
 

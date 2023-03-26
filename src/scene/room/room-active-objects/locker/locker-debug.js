@@ -17,6 +17,7 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
 
     const lockerFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Locker',
+      expanded: false,
     });
 
     lockerFolder.addBlade({

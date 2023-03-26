@@ -1,6 +1,6 @@
 import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
-import { ROOM_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./room-config";
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./room-config";
 import isMobile from 'ismobilejs';
 
 export default class RoomDebug {
@@ -9,6 +9,7 @@ export default class RoomDebug {
 
     this._listShowAnimation = null;
     this._buttonShowAnimation = null;
+    this._roomFolder = null;
 
     this._init();
   }
@@ -24,7 +25,14 @@ export default class RoomDebug {
   }
 
   _init() {
-    const roomFolder = GUIHelper.getGui().addFolder({
+    this._initRoomDebug();
+    this._initShowAnimationFolder();
+    this._initVisibilityFolder();
+    this._initActiveRoomObjectsFolder();
+  }
+
+  _initRoomDebug() {
+    const roomFolder = this._roomFolder = GUIHelper.getGui().addFolder({
       title: 'Room',
     })
 
@@ -34,17 +42,21 @@ export default class RoomDebug {
     roomFolder.addInput(ROOM_CONFIG, 'outlineEnabled', {
       label: 'Outline',
       disabled: isMobileDevice,
-    })
-      .on('change', (outlineState) => {
+    }).on('change', (outlineState) => {
         ROOM_CONFIG.outlineEnabled = outlineState.value;
       });
+  }
 
-    roomFolder.addSeparator();
+  _initShowAnimationFolder() {
+    const showAnimationFolder = this._roomFolder.addFolder({
+      title: 'Objects show animation',
+      expanded: false,
+    })
 
     // let selectedObjectType = ROOM_OBJECT_TYPE.FloorLamp;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
-    this._listShowAnimation = roomFolder.addBlade({
+    this._listShowAnimation = showAnimationFolder.addBlade({
       view: 'list',
       label: 'Show animation',
       options: [
@@ -59,12 +71,68 @@ export default class RoomDebug {
       selectedObjectType = objectType.value;
     });
 
-    this._buttonShowAnimation = roomFolder.addButton({
+    this._buttonShowAnimation = showAnimationFolder.addButton({
       title: 'Start show animation',
     }).on('click', () => {
       this.events.post('startShowAnimation', selectedObjectType);
     });
+  }
 
+  _initVisibilityFolder() {
+    const visibilityFolder = this._roomFolder.addFolder({
+      title: 'Objects visibility',
+      expanded: false,
+    });
+
+    const visibilityObjectControllers = {};
+
+    const buttonShowAllObjects = visibilityFolder.addButton({
+      title: 'Show all objects',
+      disabled: true,
+    }).on('click', () => {
+      for (const objectType in ROOM_OBJECT_TYPE) {
+        const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+        config.visible = true;
+        visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]].refresh();
+        buttonShowAllObjects.disabled = true;
+      }
+    });
+
+    for (const objectType in ROOM_OBJECT_TYPE) {
+      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+
+      if (!config.visible) {
+        buttonShowAllObjects.disabled = false;
+      }
+
+      visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]] = visibilityFolder.addInput(ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]], 'visible', {
+        label: config.label,
+      }).on('change', (objectVisibleState) => {
+          if (!objectVisibleState.value) {
+            buttonShowAllObjects.disabled = false;
+          }
+
+          if (this._checkAllObjectsVisibility()) {
+            buttonShowAllObjects.disabled = true;
+          }
+
+          this.events.post('changeObjectVisibility');
+        });
+    }
+  }
+
+  _checkAllObjectsVisibility() {
+    for (const objectType in ROOM_OBJECT_TYPE) {
+      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+      if (!config.visible) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  _initActiveRoomObjectsFolder() {
     GUIHelper.getGui().addFolder({
       title: 'Active room objects',
     });

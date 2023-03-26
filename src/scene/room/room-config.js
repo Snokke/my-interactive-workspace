@@ -23,31 +23,41 @@ const ROOM_OBJECT_ACTIVITY_TYPE = {
 
 const ROOM_OBJECT_CONFIG = {
   [ROOM_OBJECT_TYPE.Walls]: {
+    label: 'Walls',
     enabled: true,
+    visible: true,
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Walls',
     class: Walls,
   },
   [ROOM_OBJECT_TYPE.Table]: {
+    label: 'Table',
     enabled: true,
+    visible: true,
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Table',
     class: Table,
   },
   [ROOM_OBJECT_TYPE.Locker]: {
+    label: 'Locker',
     enabled: true,
+    visible: true,
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Locker',
     class: Locker,
   },
   [ROOM_OBJECT_TYPE.FloorLamp]: {
+    label: 'Floor lamp',
     enabled: true,
+    visible: true,
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Floor_lamp',
     class: FloorLamp,
   },
   [ROOM_OBJECT_TYPE.Scales]: {
+    label: 'Scales',
     enabled: true,
+    visible: true,
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Scales',
   },

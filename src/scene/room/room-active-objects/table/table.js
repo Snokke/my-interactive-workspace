@@ -26,8 +26,8 @@ export default class Table extends RoomObjectAbstract {
     this._init();
   }
 
-  show(delay) {
-    super.show();
+  showWithAnimation(delay) {
+    super.showWithAnimation();
 
     this._tableDebug.disable();
 

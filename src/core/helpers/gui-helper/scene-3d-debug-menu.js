@@ -192,14 +192,16 @@ export default class Scene3DDebugMenu {
   }
 
   onRendererStatsClick(rendererStatsState) {
-    if (rendererStatsState) {
-      if (!this._rendererStats) {
-        this._initRendererStats();
-      }
+    if (DEBUG_CONFIG.rendererStats) {
+      if (rendererStatsState) {
+        if (!this._rendererStats) {
+          this._initRendererStats();
+        }
 
-      this._rendererStats.domElement.style.display = 'block';
-    } else {
-      this._rendererStats.domElement.style.display = 'none';
+        this._rendererStats.domElement.style.display = 'block';
+      } else {
+        this._rendererStats.domElement.style.display = 'none';
+      }
     }
   }
 

@@ -14,7 +14,7 @@ export default class RoomInactiveObjects extends THREE.Group {
     this._init();
   }
 
-  show(type, delay) {
+  showWithAnimation(type, delay) {
     const startPositionY = 13;
     const fallDownTime = 600;
 

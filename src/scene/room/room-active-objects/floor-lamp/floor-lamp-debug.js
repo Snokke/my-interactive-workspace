@@ -13,6 +13,7 @@ export default class FloorLampDebug extends RoomObjectDebugAbstract {
 
     const floorLampFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Floor lamp',
+      expanded: false,
     });
 
     floorLampFolder.addButton({
