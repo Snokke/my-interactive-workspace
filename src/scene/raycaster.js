@@ -29,7 +29,7 @@ export default class Raycaster {
   }
 
   addMeshes(meshes) {
-    this._meshes = meshes;
+    this._meshes = [...this._meshes, ...meshes];
   }
 
   _init() {

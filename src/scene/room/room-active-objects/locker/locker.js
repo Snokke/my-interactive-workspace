@@ -28,7 +28,6 @@ export default class Locker extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-
       const fallDownTime = 600;
 
       const body = this._parts[LOCKER_PART_TYPE.Body];

@@ -1,7 +1,7 @@
-import Table from './room-objects/table/table';
-import Locker from './room-objects/locker/locker';
-import FloorLamp from './room-objects/floor-lamp/floor-lamp';
-import Walls from './room-objects/walls/walls';
+import Table from './room-active-objects/table/table';
+import Locker from './room-active-objects/locker/locker';
+import FloorLamp from './room-active-objects/floor-lamp/floor-lamp';
+import Walls from './room-active-objects/walls/walls';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -13,31 +13,46 @@ const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',
   Locker: 'LOCKER',
   FloorLamp: 'FLOOR_LAMP',
+  Scales: 'SCALES',
+}
+
+const ROOM_OBJECT_ACTIVITY_TYPE = {
+  Active: 'ACTIVE',
+  Inactive: 'INACTIVE',
 }
 
 const ROOM_OBJECT_CONFIG = {
   [ROOM_OBJECT_TYPE.Walls]: {
     enabled: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Walls',
     class: Walls,
   },
   [ROOM_OBJECT_TYPE.Table]: {
     enabled: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Table',
     class: Table,
   },
   [ROOM_OBJECT_TYPE.Locker]: {
     enabled: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Locker',
     class: Locker,
   },
   [ROOM_OBJECT_TYPE.FloorLamp]: {
     enabled: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Floor_lamp',
     class: FloorLamp,
+  },
+  [ROOM_OBJECT_TYPE.Scales]: {
+    enabled: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Scales',
   },
 }
 
 const START_ANIMATION_ALL_OBJECTS = 'START_ANIMATION_ALL_OBJECTS';
 
-export { ROOM_CONFIG, ROOM_OBJECT_TYPE, ROOM_OBJECT_CONFIG, START_ANIMATION_ALL_OBJECTS };
+export { ROOM_CONFIG, ROOM_OBJECT_TYPE, ROOM_OBJECT_CONFIG, START_ANIMATION_ALL_OBJECTS, ROOM_OBJECT_ACTIVITY_TYPE };
