@@ -73,14 +73,16 @@ export default class FloorLamp extends RoomObjectAbstract {
   _init() {
     this._initParts(FLOOR_LAMP_PART_TYPE, FLOOR_LAMP_PART_CONFIG);
     this._addMaterials();
+    this._addPartsToScene();
+    this._initDebug();
+  }
 
+  _addPartsToScene() {
     for (let key in this._parts) {
       const part = this._parts[key];
 
       this.add(part);
     }
-
-    this._initDebug();
   }
 
   _initDebug() {

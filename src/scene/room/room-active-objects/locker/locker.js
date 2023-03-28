@@ -215,7 +215,11 @@ export default class Locker extends RoomObjectAbstract {
   _init() {
     this._initParts(LOCKER_PART_TYPE, LOCKER_PART_CONFIG);
     this._addMaterials();
+    this._addPartsToScene();
+    this._initDebug();
+  }
 
+  _addPartsToScene() {
     for (let key in this._parts) {
       const part = this._parts[key];
       const partType = part.userData.partType;
@@ -226,8 +230,6 @@ export default class Locker extends RoomObjectAbstract {
 
       this.add(part);
     }
-
-    this._initDebug();
   }
 
   _initDebug() {

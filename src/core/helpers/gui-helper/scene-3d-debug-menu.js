@@ -122,6 +122,8 @@ export default class Scene3DDebugMenu {
       orbitControls.enableDamping = true;
       orbitControls.rotateSpeed = 0.7;
 
+      orbitControls.target.set(0, 3.5, 0);
+
       if (!this._isAssetsLoaded) {
         orbitControls.enabled = false;
       }

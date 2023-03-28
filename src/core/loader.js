@@ -8,6 +8,7 @@ const textures = [
 
 const models = [
   'room.glb',
+  'room2.glb',
 ];
 
 const images = [

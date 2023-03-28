@@ -50,7 +50,7 @@ export default class RoomDebug {
   _initShowAnimationFolder() {
     const showAnimationFolder = this._roomFolder.addFolder({
       title: 'Objects show animation',
-      expanded: true,
+      expanded: false,
     })
 
     // let selectedObjectType = ROOM_OBJECT_TYPE.Walls;

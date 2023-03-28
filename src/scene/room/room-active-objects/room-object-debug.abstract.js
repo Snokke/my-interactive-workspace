@@ -1,7 +1,10 @@
+import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
 
-export default class RoomObjectDebugAbstract {
+export default class RoomObjectDebugAbstract extends THREE.Group {
   constructor() {
+    super();
+
     this.events = new MessageDispatcher();
 
     this._debugFolder = null;

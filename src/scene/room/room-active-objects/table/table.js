@@ -233,12 +233,18 @@ export default class Table extends RoomObjectAbstract {
   _init() {
     this._initParts(TABLE_PART_TYPE, TABLE_PART_CONFIG);
     this._addMaterials();
+    this._initTopPartsGroup();
+    this._addPartsToScene();
+    this._initDebug();
+  }
 
+  _initTopPartsGroup() {
     const topPartsGroup = this._topPartsGroup = this._createTopPartsGroup(this._parts);
     this.add(topPartsGroup);
-    this.add(this._parts[TABLE_PART_TYPE.Legs]);
+  }
 
-    this._initDebug();
+  _addPartsToScene() {
+    this.add(this._parts[TABLE_PART_TYPE.Legs]);
   }
 
   _createTopPartsGroup(tableParts) {
