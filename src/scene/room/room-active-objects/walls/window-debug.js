@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DEBUG_MENU_START_STATE } from '../../../../core/configs/debug-menu-start-state';
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH } from './walls-data';
@@ -47,7 +48,7 @@ export default class WindowDebug extends RoomObjectDebugAbstract {
 
     const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Window',
-      expanded: false,
+      expanded: DEBUG_MENU_START_STATE.Window,
     });
 
     this._openTypeController = tableFolder.addInput(this._windowOpenType, 'value', {

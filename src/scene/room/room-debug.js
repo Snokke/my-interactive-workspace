@@ -2,6 +2,7 @@ import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./room-config";
 import isMobile from 'ismobilejs';
+import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 
 export default class RoomDebug {
   constructor() {
@@ -34,6 +35,7 @@ export default class RoomDebug {
   _initRoomDebug() {
     const roomFolder = this._roomFolder = GUIHelper.getGui().addFolder({
       title: 'Room',
+      expanded: DEBUG_MENU_START_STATE.Room,
     })
 
     const isMobileDevice = isMobile(window.navigator).any;
@@ -50,7 +52,7 @@ export default class RoomDebug {
   _initShowAnimationFolder() {
     const showAnimationFolder = this._roomFolder.addFolder({
       title: 'Objects show animation',
-      expanded: false,
+      expanded: DEBUG_MENU_START_STATE.ObjectsShowAnimation,
     })
 
     // let selectedObjectType = ROOM_OBJECT_TYPE.Walls;
@@ -81,7 +83,7 @@ export default class RoomDebug {
   _initVisibilityFolder() {
     const visibilityFolder = this._roomFolder.addFolder({
       title: 'Objects visibility',
-      expanded: false,
+      expanded: DEBUG_MENU_START_STATE.ObjectsVisibility,
     });
 
     const visibilityObjectControllers = {};
@@ -135,6 +137,7 @@ export default class RoomDebug {
   _initActiveRoomObjectsFolder() {
     GUIHelper.getGui().addFolder({
       title: 'Active room objects',
+      expanded: DEBUG_MENU_START_STATE.ActiveRoomObjects,
     });
   }
 }

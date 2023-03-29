@@ -121,7 +121,7 @@ export default class Locker extends RoomObjectAbstract {
 
   getMeshesForOutline(mesh) {
     if (mesh.userData.partType === LOCKER_PART_TYPE.Body) {
-      return [this._parts[LOCKER_PART_TYPE.Body]];
+      return Object.values(this._parts);
     }
 
     const partName = `case0${mesh.userData.caseId + 1}`;

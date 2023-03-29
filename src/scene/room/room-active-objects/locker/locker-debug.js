@@ -1,3 +1,4 @@
+import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-start-state";
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import LOCKER_CONFIG from "./locker-config";
@@ -17,7 +18,7 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
 
     const lockerFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Locker',
-      expanded: false,
+      expanded: DEBUG_MENU_START_STATE.Locker,
     });
 
     lockerFolder.addBlade({

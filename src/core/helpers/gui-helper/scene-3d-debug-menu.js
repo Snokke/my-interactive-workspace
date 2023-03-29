@@ -6,6 +6,7 @@ import Stats from '/node_modules/three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from '/node_modules/three/examples/jsm/controls/OrbitControls.js';
 import GUIHelper from "./gui-helper";
 import { GUI_CONFIG } from "./gui-helper-config";
+import { DEBUG_MENU_START_STATE } from "../../configs/debug-menu-start-state";
 
 export default class Scene3DDebugMenu {
   constructor(scene, camera, renderer) {
@@ -145,6 +146,7 @@ export default class Scene3DDebugMenu {
 
     const scene3DFolder = gui.addFolder({
       title: 'Scene',
+      expanded: DEBUG_MENU_START_STATE.Scene,
     });
 
     scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })
