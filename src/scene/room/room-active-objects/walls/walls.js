@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Delayed from '../../../../core/helpers/delayed-call';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
-import { WALLS_PART_CONFIG, WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_STATE } from './walls-data';
+import { WALLS_PART_CONFIG, WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './walls-data';
 import WindowDebug from './window-debug';
 import { WINDOW_CONFIG } from './window-config';
 
@@ -15,11 +15,13 @@ export default class Walls extends RoomObjectAbstract {
 
     this._handleTween = null;
     this._windowTween = null;
+    this._windowDebug = null;
 
     this._windowHandleState = WINDOW_HANDLE_STATE.Idle;
     this._windowState = WINDOW_STATE.Closed;
     this._previousWindowState = this._windowState;
-    this._currentWindowOpenType = WINDOW_OPEN_TYPE.Horizontally;
+    this._windowOpenType = WINDOW_OPEN_TYPE.Horizontally;
+    this._isBothOpenTypeSelected = true;
 
     this._init();
   }
@@ -69,6 +71,7 @@ export default class Walls extends RoomObjectAbstract {
     }
 
     this._stopTweens();
+    this._windowDebug.disableActiveOpenType();
 
     if (this._windowState === WINDOW_STATE.Opening) {
       this._updateWindowState();
@@ -94,7 +97,7 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _startFromHandle() {
-    this._windowState = WINDOW_STATE.Opening;
+    this._setWindowState(WINDOW_STATE.Opening);
 
     this._rotateHandle();
 
@@ -110,7 +113,7 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _startFromWindow() {
-    this._windowState = WINDOW_STATE.Opening;
+    this._setWindowState(WINDOW_STATE.Opening);
 
     this._moveWindow();
 
@@ -130,7 +133,7 @@ export default class Walls extends RoomObjectAbstract {
 
     const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
 
-    const maxAngle = WINDOW_CONFIG[this._currentWindowOpenType].handleAngle * (Math.PI / 180);
+    const maxAngle = WINDOW_CONFIG[this._windowOpenType].handleAngle * (Math.PI / 180);
     const rotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle : 0;
     const remainingRotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle + windowHandle.rotation.z : windowHandle.rotation.z;
     const time = Math.abs(remainingRotationAngle) / WINDOW_CONFIG.handleRotationSpeed * 1000;
@@ -144,22 +147,22 @@ export default class Walls extends RoomObjectAbstract {
   _moveWindow() {
     const window = this._parts[WALLS_PART_TYPE.Window];
 
-    const windowRotationAxis = WINDOW_CONFIG[this._currentWindowOpenType].windowRotationAxis;
+    const windowRotationAxis = WINDOW_CONFIG[this._windowOpenType].windowRotationAxis;
     const startAngle = this._windowGroup.rotation[windowRotationAxis];
 
     const currentAngle = { value: startAngle * (180 / Math.PI) };
     let previousAngle = currentAngle.value;
 
-    const maxAngle = WINDOW_CONFIG[this._currentWindowOpenType].openAngle;
+    const maxAngle = WINDOW_CONFIG[this._windowOpenType].openAngle;
     const rotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? -maxAngle : 0;
     const remainingRotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle + currentAngle.value : currentAngle.value;
     const time = Math.abs(remainingRotationAngle) / WINDOW_CONFIG.windowRotationSpeed * 1000;
 
     const pivot = window.position.clone()
-      .add(WINDOW_CONFIG[this._currentWindowOpenType].pivotOffset);
+      .add(WINDOW_CONFIG[this._windowOpenType].pivotOffset);
 
-    const rotateAxis = WINDOW_CONFIG[this._currentWindowOpenType].rotateAxis;
-    const rotationSign = WINDOW_CONFIG[this._currentWindowOpenType].rotationSign;
+    const rotateAxis = WINDOW_CONFIG[this._windowOpenType].rotateAxis;
+    const rotationSign = WINDOW_CONFIG[this._windowOpenType].rotationSign;
 
     this._windowTween = new TWEEN.Tween(currentAngle)
       .to({ value: rotationSign * rotationAngle }, time)
@@ -174,8 +177,14 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _updateWindowState() {
-    this._windowState = this._previousWindowState === WINDOW_STATE.Closed ? WINDOW_STATE.Opened : WINDOW_STATE.Closed;
+    const newState = this._previousWindowState === WINDOW_STATE.Closed ? WINDOW_STATE.Opened : WINDOW_STATE.Closed;
+    this._setWindowState(newState);
     this._previousWindowState = this._windowState;
+  }
+
+  _setWindowState(state) {
+    this._windowState = state;
+    this._windowDebug.updateWindowState(state);
   }
 
   _rotateAroundPoint(obj, point, axis, theta) {
@@ -192,7 +201,12 @@ export default class Walls extends RoomObjectAbstract {
 
   _checkToChangeWindowOpenType() {
     if (this._windowState === WINDOW_STATE.Closed) {
-      this._currentWindowOpenType = this._currentWindowOpenType === WINDOW_OPEN_TYPE.Horizontally ? WINDOW_OPEN_TYPE.Vertically : WINDOW_OPEN_TYPE.Horizontally;
+      this._windowDebug.enableActiveOpenType();
+
+      if (this._isBothOpenTypeSelected) {
+        this._windowOpenType = this._windowOpenType === WINDOW_OPEN_TYPE.Horizontally ? WINDOW_OPEN_TYPE.Vertically : WINDOW_OPEN_TYPE.Horizontally;
+        this._windowDebug.updateWindowOpenType(this._windowOpenType);
+      }
     }
   }
 
@@ -252,11 +266,22 @@ export default class Walls extends RoomObjectAbstract {
 
   _initWindowDebug() {
     const window = this._parts[WALLS_PART_TYPE.Window];
-    const windowDebug = new WindowDebug(window);
+    const windowDebug = this._windowDebug = new WindowDebug(window);
     this.add(windowDebug);
 
-    windowDebug.events.on('changeState', () => {
-      this.onClick();
+    windowDebug.updateWindowState(this._windowState);
+    windowDebug.updateWindowOpenType(this._windowOpenType);
+
+    windowDebug.events.on('changeState', () => this.onClick());
+    windowDebug.events.on('changeOpenType', (msg, openType) => {
+      if (openType === WINDOW_OPEN_TYPE_BOTH) {
+        this._isBothOpenTypeSelected = true;
+      } else {
+        this._isBothOpenTypeSelected = false;
+        this._windowOpenType = openType;
+      }
+
+      windowDebug.updateWindowOpenType(this._windowOpenType);
     });
   }
 }
