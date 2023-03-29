@@ -32,7 +32,7 @@ export default class RoomObjectAbstract extends THREE.Group {
   }
 
   setVisibility(isVisible) {
-    this._allMeshes.forEach(mesh => mesh.visible = isVisible);
+    // this._allMeshes.forEach(mesh => mesh.visible = isVisible);
   }
 
   onClick() { }
@@ -84,7 +84,7 @@ export default class RoomObjectAbstract extends THREE.Group {
   _addMaterials() {
     for (const partName in this._parts) {
       const part = this._parts[partName];
-      const material = new THREE.MeshLambertMaterial({
+      const material = new THREE.MeshStandardMaterial({
         color: `hsl(${Math.random() * 360}, 80%, 50%)`,
       });
 

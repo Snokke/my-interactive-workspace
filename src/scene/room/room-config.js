@@ -2,6 +2,7 @@ import Table from './room-active-objects/table/table';
 import Locker from './room-active-objects/locker/locker';
 import FloorLamp from './room-active-objects/floor-lamp/floor-lamp';
 import Walls from './room-active-objects/walls/walls';
+import Chair from './room-active-objects/chair/chair';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -13,6 +14,7 @@ const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',
   Locker: 'LOCKER',
   FloorLamp: 'FLOOR_LAMP',
+  Chair: 'CHAIR',
   Scales: 'SCALES',
 }
 
@@ -53,6 +55,14 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Floor_lamp',
     class: FloorLamp,
+  },
+  [ROOM_OBJECT_TYPE.Chair]: {
+    label: 'CHair',
+    enabled: true,
+    visible: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'Chair',
+    class: Chair,
   },
   [ROOM_OBJECT_TYPE.Scales]: {
     label: 'Scales',

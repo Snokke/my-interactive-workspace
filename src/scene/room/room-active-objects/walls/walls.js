@@ -255,11 +255,15 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initGlass() {
-    this._parts[WALLS_PART_TYPE.GlassTop].material.transparent = true;
-    this._parts[WALLS_PART_TYPE.GlassTop].material.opacity = 0.5;
+    const glassMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(0xffffff),
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.DoubleSide,
+    });
 
-    this._parts[WALLS_PART_TYPE.GlassBottom].material.transparent = true;
-    this._parts[WALLS_PART_TYPE.GlassBottom].material.opacity = 0.5;
+    this._parts[WALLS_PART_TYPE.GlassTop].material = glassMaterial;
+    this._parts[WALLS_PART_TYPE.GlassBottom].material = glassMaterial;
   }
 
   _initWindowGroup() {
