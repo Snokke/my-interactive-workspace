@@ -47,7 +47,7 @@ export default class WindowDebug extends RoomObjectDebugAbstract {
 
     const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Window',
-      expanded: true,
+      expanded: false,
     });
 
     this._openTypeController = tableFolder.addInput(this._windowOpenType, 'value', {

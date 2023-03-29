@@ -12,6 +12,7 @@ export default class Walls extends RoomObjectAbstract {
 
     this._floorLampDebug = null;
     this._windowGroup = null;
+    this._rightWallGroup = null;
 
     this._handleTween = null;
     this._windowTween = null;
@@ -28,6 +29,9 @@ export default class Walls extends RoomObjectAbstract {
 
   showWithAnimation(delay) {
     super.showWithAnimation();
+
+    this._windowDebug.disable();
+
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -35,7 +39,6 @@ export default class Walls extends RoomObjectAbstract {
 
       const floor = this._parts[WALLS_PART_TYPE.Floor];
       const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
-      const rightWall = this._parts[WALLS_PART_TYPE.WallRight];
 
       new TWEEN.Tween(floor.position)
         .to({ y: floor.userData.startPosition.y }, fallDownTime)
@@ -54,12 +57,13 @@ export default class Walls extends RoomObjectAbstract {
         .delay(500)
         .start();
 
-      new TWEEN.Tween(rightWall.position)
-        .to({ y: rightWall.userData.startPosition.y }, fallDownTime)
+      new TWEEN.Tween(this._rightWallGroup.position)
+        .to({ y: 0 }, fallDownTime)
         .easing(TWEEN.Easing.Sinusoidal.Out)
         .delay(500)
         .start()
         .onComplete(() => {
+          this._windowDebug.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -221,13 +225,15 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 20;
+    const startPositionY = 13;
 
-    this._parts[WALLS_PART_TYPE.WallLeft].position.y = startPositionY;
-    this._parts[WALLS_PART_TYPE.WallRight].position.y = startPositionY;
+    const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
+
+    leftWall.position.y = leftWall.userData.startPosition.y + startPositionY;
+    this._rightWallGroup.position.y = startPositionY;
     this._windowGroup.position.y = startPositionY;
 
-    this._parts[WALLS_PART_TYPE.Floor].position.y = -35;
+    this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
   }
 
   _init() {
@@ -236,6 +242,7 @@ export default class Walls extends RoomObjectAbstract {
     this._addPartsToScene();
     this._initGlass();
     this._initWindowGroup();
+    this._initRightWallGroup();
     this._initWindowDebug();
   }
 
@@ -262,6 +269,16 @@ export default class Walls extends RoomObjectAbstract {
     windowGroup.add(this._parts[WALLS_PART_TYPE.Window]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.WindowHandle]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.GlassTop]);
+  }
+
+  _initRightWallGroup() {
+    const rightWallGroup = this._rightWallGroup = new THREE.Group();
+    this.add(rightWallGroup);
+
+    rightWallGroup.add(this._parts[WALLS_PART_TYPE.WallRight]);
+    rightWallGroup.add(this._parts[WALLS_PART_TYPE.WindowFrame]);
+    rightWallGroup.add(this._parts[WALLS_PART_TYPE.Windowsill]);
+    rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
   }
 
   _initWindowDebug() {
