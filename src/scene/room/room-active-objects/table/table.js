@@ -100,6 +100,10 @@ export default class Table extends RoomObjectAbstract {
     return this._activeMeshes;
   }
 
+  getTopTableGroup() {
+    return this._topPartsGroup;
+  }
+
   _changeDirection(handle) {
     this._updateTableState();
     this._stopTweens();

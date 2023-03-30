@@ -1,13 +1,13 @@
 const CHAIR_PART_TYPE = {
-  ChairLegs: 'chair-legs',
-  ChairSeat: 'chair-seat',
+  Legs: 'chair-legs',
+  Seat: 'chair-seat',
 }
 
 const CHAIR_PART_CONFIG = {
-  [CHAIR_PART_TYPE.ChairLegs]: {
+  [CHAIR_PART_TYPE.Legs]: {
     isActive: true,
   },
-  [CHAIR_PART_TYPE.ChairSeat]: {
+  [CHAIR_PART_TYPE.Seat]: {
     isActive: true,
   },
 }

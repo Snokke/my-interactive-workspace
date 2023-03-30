@@ -58,16 +58,25 @@ export default class RoomDebug {
     // let selectedObjectType = ROOM_OBJECT_TYPE.Walls;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
+    const options = [
+      { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },
+    ];
+
+    for (const objectType in ROOM_OBJECT_TYPE) {
+      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+
+      if (config.enabled) {
+        options.push({
+          text: config.label,
+          value: ROOM_OBJECT_TYPE[objectType],
+        });
+      }
+    }
+
     this._listShowAnimation = showAnimationFolder.addBlade({
       view: 'list',
       label: 'Show animation',
-      options: [
-        { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },
-        { text: 'Walls', value: ROOM_OBJECT_TYPE.Walls },
-        { text: 'Table', value: ROOM_OBJECT_TYPE.Table },
-        { text: 'Locker', value: ROOM_OBJECT_TYPE.Locker },
-        { text: 'Floor lamp', value: ROOM_OBJECT_TYPE.FloorLamp },
-      ],
+      options,
       value: selectedObjectType,
     }).on('change', (objectType) => {
       selectedObjectType = objectType.value;
@@ -103,23 +112,25 @@ export default class RoomDebug {
     for (const objectType in ROOM_OBJECT_TYPE) {
       const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
 
-      if (!config.visible) {
-        buttonShowAllObjects.disabled = false;
+      if (config.enabled) {
+        if (!config.visible) {
+          buttonShowAllObjects.disabled = false;
+        }
+
+        visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]] = visibilityFolder.addInput(ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]], 'visible', {
+          label: config.label,
+        }).on('change', (objectVisibleState) => {
+            if (!objectVisibleState.value) {
+              buttonShowAllObjects.disabled = false;
+            }
+
+            if (this._checkAllObjectsVisibility()) {
+              buttonShowAllObjects.disabled = true;
+            }
+
+            this.events.post('changeObjectVisibility');
+          });
       }
-
-      visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]] = visibilityFolder.addInput(ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]], 'visible', {
-        label: config.label,
-      }).on('change', (objectVisibleState) => {
-          if (!objectVisibleState.value) {
-            buttonShowAllObjects.disabled = false;
-          }
-
-          if (this._checkAllObjectsVisibility()) {
-            buttonShowAllObjects.disabled = true;
-          }
-
-          this.events.post('changeObjectVisibility');
-        });
     }
   }
 

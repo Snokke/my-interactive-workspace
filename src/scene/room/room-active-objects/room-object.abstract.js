@@ -32,7 +32,7 @@ export default class RoomObjectAbstract extends THREE.Group {
   }
 
   setVisibility(isVisible) {
-    // this._allMeshes.forEach(mesh => mesh.visible = isVisible);
+    this._allMeshes.forEach(mesh => mesh.visible = isVisible);
   }
 
   onClick() { }

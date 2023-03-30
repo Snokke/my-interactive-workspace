@@ -47,5 +47,18 @@ export default class RoomInactiveObjects extends THREE.Group {
         this._inactiveObjects[type] = object;
       }
     }
+
+    this._addMaterials();
+  }
+
+  _addMaterials() {
+    for (const key in this._inactiveObjects) {
+      const mesh = this._inactiveObjects[key];
+      const material = new THREE.MeshStandardMaterial({
+        color: `hsl(${Math.random() * 360}, 80%, 50%)`,
+      });
+
+      mesh.material = material;
+    }
   }
 }

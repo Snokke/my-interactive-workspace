@@ -18,6 +18,7 @@ export default class Room extends THREE.Group {
 
     this._roomActiveObject = {};
     this._roomInactiveMesh = {};
+    this._roomObjectsByActivityType = {};
 
     this._pointerPosition = new THREE.Vector2();
 
@@ -57,23 +58,26 @@ export default class Room extends THREE.Group {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
+      const activityType = config.activityType;
 
-      if (this._roomActiveObject[type]) {
+      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
         this._roomActiveObject[type].setVisibility(config.visible);
       }
 
-      if (this._roomInactiveMesh[type]) {
+      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
         this._roomInactiveMesh[type].visible = config.visible;
       }
     }
   }
 
   _showRoomObject(objectType, startDelay = 0) {
-    if (this._roomActiveObject[objectType]) {
+    const activityType = ROOM_OBJECT_CONFIG[objectType].activityType;
+
+    if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
       this._roomActiveObject[objectType].showWithAnimation(startDelay);
     }
 
-    if (this._roomInactiveMesh[objectType]) {
+    if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
       this._roomInactiveObjectsClass.showWithAnimation(objectType, startDelay);
     }
   }
@@ -122,7 +126,17 @@ export default class Room extends THREE.Group {
       if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
         this.showWithAnimation();
       } else {
-        this._roomActiveObject[selectedObjectType].showWithAnimation();
+
+        const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
+        const roomObjects = this._roomObjectsByActivityType[activityType];
+
+        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
+          roomObjects[selectedObjectType].showWithAnimation();
+        }
+
+        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
+          this._roomInactiveObjectsClass.showWithAnimation(selectedObjectType);
+        }
       }
     });
 
@@ -136,6 +150,7 @@ export default class Room extends THREE.Group {
 
     this._initActiveObjects();
     this._initInactiveObjects();
+    this._addObjectsToTableGroup();
   }
 
   _initActiveObjects() {
@@ -151,11 +166,13 @@ export default class Room extends THREE.Group {
         this._roomActiveObject[type] = roomObject;
       }
     }
+
+    this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Active] = this._roomActiveObject;
   }
 
   _initInactiveObjects() {
-    const roomInactiveObjects = this._roomInactiveObjectsClass = new RoomInactiveObjects(this._roomScene);
-    const inactiveObjects = this._roomInactiveMesh = roomInactiveObjects.getInactiveMeshes();
+    const roomInactiveObjectsClass = this._roomInactiveObjectsClass = new RoomInactiveObjects(this._roomScene);
+    const inactiveObjects = this._roomInactiveMesh = roomInactiveObjectsClass.getInactiveMeshes();
 
     const inactiveObjectsArray = [];
 
@@ -167,6 +184,24 @@ export default class Room extends THREE.Group {
     }
 
     this._raycaster.addMeshes(inactiveObjectsArray);
+
+    this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Inactive] = this._roomInactiveMesh;
+  }
+
+  _addObjectsToTableGroup() {
+    const tableTopGroup = this._roomActiveObject[ROOM_OBJECT_TYPE.Table].getTopTableGroup();
+
+    for (const key in ROOM_OBJECT_TYPE) {
+      const type = ROOM_OBJECT_TYPE[key];
+      const config = ROOM_OBJECT_CONFIG[type];
+
+      if (config.enabled && config.tableGroup) {
+        const roomObjects = this._roomObjectsByActivityType[config.activityType];
+        const roomObject = roomObjects[type];
+
+        tableTopGroup.add(roomObject);
+      }
+    }
   }
 
   _initSignals() {
