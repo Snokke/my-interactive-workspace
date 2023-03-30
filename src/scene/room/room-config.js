@@ -4,6 +4,7 @@ import FloorLamp from './room-active-objects/floor-lamp/floor-lamp';
 import Walls from './room-active-objects/walls/walls';
 import Chair from './room-active-objects/chair/chair';
 import AirConditioner from './room-active-objects/air-conditioner/air-conditioner';
+import Mouse from './room-active-objects/mouse/mouse';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -18,6 +19,7 @@ const ROOM_OBJECT_TYPE = {
   FloorLamp: 'FLOOR_LAMP',
   Chair: 'CHAIR',
   AirConditioner: 'AIR_CONDITIONER',
+  Mouse: 'MOUSE',
 
   // Inactive objects
   Scales: 'SCALES',
@@ -82,6 +84,15 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Air_conditioner',
     class: AirConditioner,
+  },
+  [ROOM_OBJECT_TYPE.Mouse]: {
+    label: 'Mouse',
+    enabled: true,
+    visible: true,
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'Mouse',
+    class: Mouse,
+    tableGroup: true,
   },
 
   // Inactive objects

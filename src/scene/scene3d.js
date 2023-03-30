@@ -1,15 +1,19 @@
 import * as THREE from 'three';
-import Raycaster from './raycaster';
+import RaycasterController from './raycaster-controller';
 import Room from './room/room';
 
 export default class Scene3D extends THREE.Group {
-  constructor(camera, outlinePass) {
+  constructor(data) {
     super();
 
-    this._camera = camera;
-    this._outlinePass = outlinePass;
+    this._data = data,
+    this._scene = data.scene,
+    this._camera = data.camera,
+    this._renderer = data.renderer,
+    this._orbitControls = data.orbitControls,
+    this._outlinePass = data.outlinePass;
 
-    this._raycaster = null;
+    this._raycasterController = null;
     this._room = null;
 
     this._init();
@@ -27,17 +31,21 @@ export default class Scene3D extends THREE.Group {
     this._room.onPointerDown(x, y);
   }
 
+  onPointerUp() {
+    this._room.onPointerUp();
+  }
+
   _init() {
     this._initRaycaster();
     this._initRoom();
   }
 
   _initRaycaster() {
-    this._raycaster = new Raycaster(this._camera);
+    this._raycasterController = new RaycasterController(this._camera);
   }
 
   _initRoom() {
-    const room = this._room = new Room(this._raycaster, this._outlinePass);
+    const room = this._room = new Room(this._data, this._raycasterController);
     this.add(room);
   }
 }

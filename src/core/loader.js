@@ -18,7 +18,7 @@ const images = [
 
 const loadingPercentElement = document.querySelector('.loading-percent');
 let progressRatio = 0;
-const blackAssetsProgressPart = 0.5;
+const blackAssetsProgressPart = 0;
 
 export default class Loader extends GameObject {
   constructor() {
@@ -48,7 +48,7 @@ export default class Loader extends GameObject {
   }
 
   _onBlackAssetsProgress(item, progress) {
-    progressRatio = progress * 0.5;
+    progressRatio = progress;
 
     const percent = Math.floor(progressRatio * 100);
     loadingPercentElement.innerHTML = `${percent}%`;

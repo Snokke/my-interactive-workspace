@@ -4,13 +4,18 @@ import Loader from '../../core/loader';
 import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './room-config';
 import RoomDebug from './room-debug';
 import RoomInactiveObjects from './room-inactive-objects/room-inactive-objects';
+import { Black } from 'black-engine';
 
 export default class Room extends THREE.Group {
-  constructor(raycaster, outlinePass) {
+  constructor(data, raycasterController) {
     super();
 
-    this._raycaster = raycaster;
-    this._outlinePass = outlinePass;
+    this._scene = data.scene;
+    this._camera = data.camera;
+    this._renderer = data.renderer;
+    this._orbitControls = data.orbitControls;
+    this._outlinePass = data.outlinePass;
+    this._raycasterController = raycasterController;
 
     this._roomScene = null;
     this._roomDebug = null;
@@ -21,27 +26,58 @@ export default class Room extends THREE.Group {
     this._roomObjectsByActivityType = {};
 
     this._pointerPosition = new THREE.Vector2();
+    this._isDraggingMouse = false;
 
     this._init();
   }
 
   update(dt) {
     if (ROOM_CONFIG.outlineEnabled) {
-      const intersectedMesh = this._raycaster.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
-      this._checkToGlow(intersectedMesh);
+      const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
+
+      if (intersect && intersect.object && !this._isDraggingMouse) {
+        this._checkToGlow(intersect.object);
+      }
     }
+
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].update(dt);
   }
 
   onPointerMove(x, y) {
     this._pointerPosition.set(x, y);
+
+    if (this._isDraggingMouse) {
+      const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
+      const raycaster = this._raycasterController.getRaycaster();
+      mouse.onPointerMove(raycaster);
+    }
   }
 
   onPointerDown(x, y) {
-    const intersectedObject = this._raycaster.checkIntersection(x, y);
+    const intersect = this._raycasterController.checkIntersection(x, y);
 
-    if (intersectedObject && intersectedObject.userData.isActive) {
-      this._roomActiveObject[intersectedObject.userData.objectType].onClick(intersectedObject);
+    if (!intersect) {
+      return;
     }
+
+    const intersectObject = intersect.object;
+
+    if (intersectObject && intersectObject.userData.isActive) {
+      this._roomActiveObject[intersectObject.userData.objectType].onClick(intersectObject);
+
+      if (intersectObject.userData.objectType === ROOM_OBJECT_TYPE.Mouse) {
+        this._onMouseDragStart(intersect);
+      }
+    }
+  }
+
+  onPointerUp() {
+    if (this._isDraggingMouse) {
+      this._resetGlow();
+    }
+
+    this._isDraggingMouse = false;
+    this._orbitControls.enabled = true;
   }
 
   showWithAnimation(startDelay = 0) {
@@ -54,7 +90,17 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + 1400);
   }
 
-  updateObjectsVisibility() {
+  _onMouseDragStart(intersect) {
+    this._isDraggingMouse = true;
+    this._orbitControls.enabled = false;
+
+    const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
+    mouse.onPointerDown(intersect);
+
+    this._setGlow(mouse.getMeshesForOutline());
+  }
+
+  _updateObjectsVisibility() {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
@@ -85,6 +131,7 @@ export default class Room extends THREE.Group {
   _checkToGlow(mesh) {
     if (mesh === null || !mesh.userData.isActive || !this._roomActiveObject[mesh.userData.objectType].isInputEnabled()) {
       this._resetGlow();
+      Black.engine.containerElement.style.cursor = 'auto';
 
       return;
     }
@@ -92,6 +139,8 @@ export default class Room extends THREE.Group {
     const roomObject = this._roomActiveObject[mesh.userData.objectType];
     const meshes = roomObject.getMeshesForOutline(mesh);
     this._setGlow(meshes);
+
+    Black.engine.containerElement.style.cursor = 'pointer';
   }
 
   _setGlow(items) {
@@ -112,7 +161,7 @@ export default class Room extends THREE.Group {
     this._initSignals();
     this._configureRaycaster();
 
-    this.updateObjectsVisibility();
+    this._updateObjectsVisibility();
 
     if (ROOM_CONFIG.showStartAnimations) {
       this.showWithAnimation(600);
@@ -141,7 +190,7 @@ export default class Room extends THREE.Group {
     });
 
     roomDebug.events.on('changeObjectVisibility', (msg) => {
-      this.updateObjectsVisibility();
+      this._updateObjectsVisibility();
     });
   }
 
@@ -183,7 +232,7 @@ export default class Room extends THREE.Group {
       inactiveObjectsArray.push(roomInactiveObject);
     }
 
-    this._raycaster.addMeshes(inactiveObjectsArray);
+    this._raycasterController.addMeshes(inactiveObjectsArray);
 
     this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Inactive] = this._roomInactiveMesh;
   }
@@ -223,7 +272,7 @@ export default class Room extends THREE.Group {
       allMeshes.push(...this._roomActiveObject[key].getActiveMeshes());
     }
 
-    this._raycaster.addMeshes(allMeshes);
+    this._raycasterController.addMeshes(allMeshes);
   }
 
   _checkIsShowAnimationComplete() {

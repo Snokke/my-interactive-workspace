@@ -23,6 +23,7 @@ export default class BaseScene {
     this._scene3DDebugMenu = null;
     this._effectComposer = null;
     this._outlinePass = null;
+    this._orbitControls = null;
 
     this._windowSizes = {};
     this._isAssetsLoaded = false;
@@ -34,7 +35,9 @@ export default class BaseScene {
     const data = {
       scene: this._scene,
       camera: this._camera,
-      outlinePass: this._outlinePass
+      renderer: this._renderer,
+      orbitControls: this._orbitControls,
+      outlinePass: this._outlinePass,
     };
 
     this._mainScene = new MainScene(data);
@@ -223,6 +226,7 @@ export default class BaseScene {
 
   _initScene3DDebugMenu() {
     this._scene3DDebugMenu = new Scene3DDebugMenu(this._scene, this._camera, this._renderer);
+    this._orbitControls = this._scene3DDebugMenu.getOrbitControls();
   }
 
   _initUpdate() {

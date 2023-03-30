@@ -10,6 +10,7 @@ const DEBUG_MENU_START_STATE = {
     FloorLamp: false,
     Chair: false,
     AirConditioner: false,
+    Mouse: false,
 }
 
 export { DEBUG_MENU_START_STATE };

@@ -1,5 +1,5 @@
 const LOCKER_PART_TYPE = {
-  Body: 'body',
+  Body: 'locker_body',
   Case01: 'case01',
   Case02: 'case02',
   Case03: 'case03',

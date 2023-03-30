@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class Raycaster {
+export default class RaycasterController {
   constructor(camera) {
 
     this._camera = camera;
@@ -9,6 +9,10 @@ export default class Raycaster {
     this._meshes = [];
 
     this._init();
+  }
+
+  getRaycaster() {
+    return this._raycaster;
   }
 
   checkIntersection(x, y) {
@@ -22,7 +26,7 @@ export default class Raycaster {
     let intersectedObject = null;
 
     if (intersects.length > 0) {
-      intersectedObject = intersects[0].object;
+      intersectedObject = intersects[0];
     }
 
     return intersectedObject;

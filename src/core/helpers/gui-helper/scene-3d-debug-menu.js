@@ -66,6 +66,10 @@ export default class Scene3DDebugMenu {
     GUIHelper.instance.showAfterAssetsLoad();
   }
 
+  getOrbitControls() {
+    return this._orbitControls;
+  }
+
   _init() {
     this._checkBuildMode();
 

@@ -5,7 +5,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { AIR_CONDITIONER_PART_CONFIG, AIR_CONDITIONER_PART_TYPE } from './air-conditioner-data';
 import ChairDebug from './air-conditioner-debug';
 
-export default class AirConditioner extends RoomObjectAbstract {
+export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
