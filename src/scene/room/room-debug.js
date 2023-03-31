@@ -55,8 +55,8 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.ObjectsShowAnimation,
     })
 
-    // let selectedObjectType = ROOM_OBJECT_TYPE.Walls;
-    let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
+    let selectedObjectType = ROOM_OBJECT_TYPE.Chair;
+    // let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
     const options = [
       { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },

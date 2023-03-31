@@ -5,6 +5,7 @@ import TableDebug from './table-debug';
 import TABLE_CONFIG from './table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
+import { ROOM_CONFIG } from '../../room-config';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -35,7 +36,7 @@ export default class Table extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-      const fallDownTime = 600;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const legs = this._parts[TABLE_PART_TYPE.Legs];
       const topPart = this._parts[TABLE_PART_TYPE.TopPart];
@@ -44,25 +45,25 @@ export default class Table extends RoomObjectAbstract {
 
       new TWEEN.Tween(legs.position)
         .to({ y: legs.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
 
       new TWEEN.Tween(topPart.position)
         .to({ y: topPart.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(250)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5)
         .start();
 
       new TWEEN.Tween(tableTop.position)
         .to({ y: tableTop.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(500)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5 * 2)
         .start();
 
       const handleScaleTween = new TWEEN.Tween(handle.scale)
         .to({ x: 1, y: 1, z: 1 }, 300)
-        .easing(TWEEN.Easing.Back.Out)
-        .delay(1100)
+        .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
+        .delay(fallDownTime * 0.5 * 3)
         .start();
 
       handleScaleTween.onComplete(() => {
@@ -207,10 +208,8 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 13;
-
     for (let key in this._parts) {
-      this._parts[key].position.y = this._parts[key].userData.startPosition.y + startPositionY;
+      this._parts[key].position.y = this._parts[key].userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
     }
 
     const handle = this._parts[TABLE_PART_TYPE.Handle];

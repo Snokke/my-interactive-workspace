@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from '../room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from '../room-config';
 import Delayed from '../../../core/helpers/delayed-call';
 
 export default class RoomInactiveObjects extends THREE.Group {
@@ -15,16 +15,15 @@ export default class RoomInactiveObjects extends THREE.Group {
   }
 
   showWithAnimation(type, delay) {
-    const startPositionY = 13;
-    const fallDownTime = 600;
+    const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
     const object = this._inactiveObjects[type];
-    object.position.y = object.userData.startPosition.y + startPositionY;
+    object.position.y = object.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
 
     Delayed.call(delay, () => {
       new TWEEN.Tween(object.position)
         .to({ y: object.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
     });
   }

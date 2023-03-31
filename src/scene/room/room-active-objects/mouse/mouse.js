@@ -5,6 +5,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_CONFIG, MOUSE_PART_TYPE } from './mouse-data';
 import MouseDebug from './mouse-debug';
 import MOUSE_CONFIG from './mouse-config';
+import { ROOM_CONFIG } from '../../room-config';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -47,30 +48,18 @@ export default class Mouse extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-      const fallDownTime = 600;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const body = this._parts[MOUSE_PART_TYPE.Body];
 
-      // new TWEEN.Tween(stand.position)
-      //   .to({ y: stand.userData.startPosition.y }, fallDownTime)
-      //   .easing(TWEEN.Easing.Sinusoidal.Out)
-      //   .start();
-
-      // new TWEEN.Tween(tube.position)
-      //   .to({ y: tube.userData.startPosition.y }, fallDownTime)
-      //   .easing(TWEEN.Easing.Sinusoidal.Out)
-      //   .delay(250)
-      //   .start();
-
-      // new TWEEN.Tween(lamp.position)
-      //   .to({ y: lamp.userData.startPosition.y }, fallDownTime)
-      //   .easing(TWEEN.Easing.Sinusoidal.Out)
-      //   .delay(500)
-      //   .start()
-      //   .onComplete(() => {
-      //     this._chairDebug.enable();
-      //     this._onShowAnimationComplete();
-      //   });
+      new TWEEN.Tween(body.position)
+        .to({ y: body.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start()
+        .onComplete(() => {
+          this._mouseDebug.enable();
+          this._onShowAnimationComplete();
+        });
     });
   }
 
@@ -105,11 +94,9 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 13;
-
     for (let key in this._parts) {
       const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + startPositionY;
+      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
     }
   }
 

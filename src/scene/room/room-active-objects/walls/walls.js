@@ -5,6 +5,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_CONFIG, WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './walls-data';
 import WindowDebug from './window-debug';
 import { WINDOW_CONFIG } from './window-config';
+import { ROOM_CONFIG } from '../../room-config';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -35,32 +36,32 @@ export default class Walls extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-      const fallDownTime = 600;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const floor = this._parts[WALLS_PART_TYPE.Floor];
       const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
 
       new TWEEN.Tween(floor.position)
         .to({ y: floor.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
 
       new TWEEN.Tween(leftWall.position)
         .to({ y: leftWall.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(250)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5)
         .start();
 
       new TWEEN.Tween(this._windowGroup.position)
         .to({ y: 0 }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(500)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5 * 2)
         .start();
 
       new TWEEN.Tween(this._rightWallGroup.position)
         .to({ y: 0 }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(500)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5 * 2)
         .start()
         .onComplete(() => {
           this._windowDebug.enable();
@@ -225,7 +226,7 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 13;
+    const startPositionY = ROOM_CONFIG.startAnimation.startPositionY;
 
     const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
 

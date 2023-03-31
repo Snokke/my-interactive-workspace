@@ -82,12 +82,34 @@ export default class Room extends THREE.Group {
 
   showWithAnimation(startDelay = 0) {
     this._roomDebug.disableShowAnimationControllers();
+    const delayBetweenObjects = ROOM_CONFIG.startAnimation.delayBetweenObjects;
+
 
     this._showRoomObject(ROOM_OBJECT_TYPE.Walls, startDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay + 800);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + 1000);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + 1200);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + 1400);
+    const wallShowDelay = 600;
+
+    // floor objects
+    this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay + wallShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + wallShowDelay + delayBetweenObjects);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Pouf, startDelay + wallShowDelay + delayBetweenObjects * 2);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Carpet, startDelay + wallShowDelay + delayBetweenObjects * 3);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Bin, startDelay + wallShowDelay + delayBetweenObjects * 4);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Chair, startDelay + wallShowDelay + delayBetweenObjects * 5);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + wallShowDelay + delayBetweenObjects * 6);
+
+    const leftWallObjectsShowDelay = 1500;
+
+    // left wall objects
+    this._showRoomObject(ROOM_OBJECT_TYPE.Map, startDelay + leftWallObjectsShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.AirConditioner, startDelay + leftWallObjectsShowDelay + delayBetweenObjects);
+
+    const tableShowDelay = 1500;
+    const tableObjectsShowDelay = 2100;
+
+    // table objects
+    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + tableShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.MousePad, startDelay + tableObjectsShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects);
   }
 
   _onMouseDragStart(intersect) {
@@ -163,7 +185,7 @@ export default class Room extends THREE.Group {
 
     this._updateObjectsVisibility();
 
-    if (ROOM_CONFIG.showStartAnimations) {
+    if (ROOM_CONFIG.startAnimation.showOnStart) {
       this.showWithAnimation(600);
     }
   }
@@ -175,7 +197,6 @@ export default class Room extends THREE.Group {
       if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
         this.showWithAnimation();
       } else {
-
         const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
         const roomObjects = this._roomObjectsByActivityType[activityType];
 

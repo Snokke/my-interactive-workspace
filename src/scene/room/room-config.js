@@ -1,3 +1,4 @@
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Table from './room-active-objects/table/table';
 import Locker from './room-active-objects/locker/locker';
 import FloorLamp from './room-active-objects/floor-lamp/floor-lamp';
@@ -8,7 +9,14 @@ import Mouse from './room-active-objects/mouse/mouse';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
-  showStartAnimations: false,
+  startAnimation: {
+    showOnStart: false,
+    startPositionY: 13,
+    delayBetweenObjects: 150,
+    objectFallDownTime: 400,
+    objectFallDownEasing: TWEEN.Easing.Sinusoidal.Out,
+    objectScaleEasing: TWEEN.Easing.Back.Out,
+  }
 }
 
 const ROOM_OBJECT_TYPE = {

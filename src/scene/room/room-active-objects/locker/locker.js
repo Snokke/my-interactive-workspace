@@ -4,6 +4,7 @@ import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
+import { ROOM_CONFIG } from '../../room-config';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -28,14 +29,14 @@ export default class Locker extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-      const fallDownTime = 600;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const body = this._parts[LOCKER_PART_TYPE.Body];
       const cases = CASES.map((partType) => this._parts[partType]);
 
       new TWEEN.Tween(body.position)
         .to({ y: body.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
 
       for (let i = 0; i < cases.length; i += 1) {
@@ -44,18 +45,18 @@ export default class Locker extends RoomObjectAbstract {
         const scaleTween = new TWEEN.Tween(casePart.scale)
           .to({ x: 1, y: 1, z: 1 }, 300)
           .easing(TWEEN.Easing.Back.Out)
-          .delay(500 + i * 100)
+          .delay(fallDownTime * 0.5 + i * 100)
           .start();
 
         scaleTween.onComplete(() => {
           new TWEEN.Tween(casePart.position)
             .to({ z: casePart.userData.startPosition.z }, 300)
-            .easing(TWEEN.Easing.Sinusoidal.Out)
+            .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
             .start();
         });
       }
 
-      Delayed.call(500 + cases.length * 100 + 300 + 300, () => {
+      Delayed.call(fallDownTime * 0.5 + cases.length * 100 + 300 + 300, () => {
         this._lockerDebug.enable();
         this._onShowAnimationComplete();
       })
@@ -185,12 +186,10 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 13;
-
     const body = this._parts[LOCKER_PART_TYPE.Body];
-    body.position.y = body.userData.startPosition.y + startPositionY;
+    body.position.y = body.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
 
-    const caseStartPositionZ = 3;
+    const caseStartPositionZ = 2.5;
     const startScale = 0;
 
     CASES.forEach((partName) => {

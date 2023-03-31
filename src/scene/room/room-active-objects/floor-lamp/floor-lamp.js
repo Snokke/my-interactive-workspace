@@ -4,6 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_CONFIG, FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import FloorLampDebug from './floor-lamp-debug';
+import { ROOM_CONFIG } from '../../room-config';
 
 export default class FloorLamp extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -21,7 +22,7 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
-      const fallDownTime = 600;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
       const tube = this._parts[FLOOR_LAMP_PART_TYPE.Tube];
@@ -29,19 +30,19 @@ export default class FloorLamp extends RoomObjectAbstract {
 
       new TWEEN.Tween(stand.position)
         .to({ y: stand.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
 
       new TWEEN.Tween(tube.position)
         .to({ y: tube.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(250)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5)
         .start();
 
       new TWEEN.Tween(lamp.position)
         .to({ y: lamp.userData.startPosition.y }, fallDownTime)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .delay(500)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5 * 2)
         .start()
         .onComplete(() => {
           this._floorLampDebug.enable();
@@ -62,11 +63,9 @@ export default class FloorLamp extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = 13;
-
     for (let key in this._parts) {
       const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + startPositionY;
+      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
     }
   }
 

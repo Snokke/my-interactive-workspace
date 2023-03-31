@@ -1,9 +1,9 @@
 const AIR_CONDITIONER_PART_TYPE = {
-  Frame: 'air-conditioner-frame',
+  Body: 'air-conditioner-body',
 }
 
 const AIR_CONDITIONER_PART_CONFIG = {
-  [AIR_CONDITIONER_PART_TYPE.Frame]: {
+  [AIR_CONDITIONER_PART_TYPE.Body]: {
     isActive: true,
   },
 }
