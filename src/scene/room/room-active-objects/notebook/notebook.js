@@ -2,15 +2,14 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { CHAIR_PART_TYPE } from './chair-data';
-import ChairDebug from './chair-debug';
 import { ROOM_CONFIG } from '../../room-config';
+import NotebookDebug from './notebook-debug';
 
-export default class Chair extends RoomObjectAbstract {
+export default class Notebook extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
-    this._chairDebug = null;
+    this._notebookDebug = null;
 
     this._init();
   }
@@ -18,35 +17,22 @@ export default class Chair extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._chairDebug.disable();
+    this._notebookDebug.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      const legs = this._parts[CHAIR_PART_TYPE.Legs];
-      const seat = this._parts[CHAIR_PART_TYPE.Seat];
+      // const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
 
-      new TWEEN.Tween(legs.position)
-        .to({ y: legs.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(seat.position)
-        .to({ y: seat.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
-        .start();
-
-      new TWEEN.Tween(seat.rotation)
-        .to({ y: Math.PI * 2 }, fallDownTime * 3)
-        .easing(TWEEN.Easing.Back.Out)
-        .delay(fallDownTime * 0.5)
-        .start()
-        .onComplete(() => {
-          this._chairDebug.enable();
-          this._onShowAnimationComplete();
-        });
+      // new TWEEN.Tween(body.position)
+      //   .to({ y: body.userData.startPosition.y }, fallDownTime)
+      //   .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+      //   .start()
+      //   .onComplete(() => {
+      //     this._speakersDebug.enable();
+      //     this._onShowAnimationComplete();
+      //   });
     });
   }
 
@@ -55,7 +41,7 @@ export default class Chair extends RoomObjectAbstract {
       return;
     }
 
-    console.log('Rotate chair');
+    console.log('Notebook click');
   }
 
   getMeshesForOutline(mesh) {
@@ -67,8 +53,6 @@ export default class Chair extends RoomObjectAbstract {
       const part = this._parts[key];
       part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
     }
-
-    this._parts[CHAIR_PART_TYPE.Seat].rotation.y = 0;
   }
 
   _init() {
@@ -87,9 +71,9 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _initDebug() {
-    const chairDebug = this._chairDebug = new ChairDebug();
+    const notebookDebug = this._notebookDebug = new NotebookDebug();
 
-    chairDebug.events.on('rotate', () => {
+    notebookDebug.events.on('switchOn', () => {
       this.onClick();
     });
   }

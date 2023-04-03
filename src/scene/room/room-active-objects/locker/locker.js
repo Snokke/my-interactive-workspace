@@ -1,5 +1,5 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_CONFIG, LOCKER_PART_TYPE } from './locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import LockerDebug from './locker-debug';
 import Delayed from '../../../../core/helpers/delayed-call';
@@ -212,7 +212,7 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _init() {
-    this._initParts(LOCKER_PART_TYPE, LOCKER_PART_CONFIG);
+    this._initParts();
     this._addMaterials();
     this._addPartsToScene();
     this._initDebug();

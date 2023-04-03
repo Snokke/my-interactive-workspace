@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
+import { ROOM_OBJECT_CONFIG } from '../room-config';
 
 export default class RoomObjectAbstract extends THREE.Group {
   constructor(meshesGroup, roomObjectType) {
@@ -61,15 +62,18 @@ export default class RoomObjectAbstract extends THREE.Group {
     this.events.post('showAnimationComplete');
   }
 
-  _initParts(partTypeEnum, config) {
-    for (const partName in partTypeEnum) {
-      const part = this._meshesGroup.children.find(child => child.name === partTypeEnum[partName]);
-      const partConfig = config[partTypeEnum[partName]];
+  _initParts() {
+    const partTypes = ROOM_OBJECT_CONFIG[this._roomObjectType].partTypes;
+    const config = ROOM_OBJECT_CONFIG[this._roomObjectType].partConfig;
 
-      this._parts[partTypeEnum[partName]] = part;
+    for (const partName in partTypes) {
+      const part = this._meshesGroup.children.find(child => child.name === partTypes[partName]);
+      const partConfig = config[partTypes[partName]];
+
+      this._parts[partTypes[partName]] = part;
 
       part.userData['objectType'] = this._roomObjectType;
-      part.userData['partType'] = partTypeEnum[partName];
+      part.userData['partType'] = partTypes[partName];
       part.userData['startPosition'] = part.position.clone();
       part.userData['isActive'] = partConfig.isActive;
 

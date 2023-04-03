@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { FLOOR_LAMP_PART_CONFIG, FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
+import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import FloorLampDebug from './floor-lamp-debug';
 import { ROOM_CONFIG } from '../../room-config';
 
@@ -56,6 +56,7 @@ export default class FloorLamp extends RoomObjectAbstract {
       return;
     }
 
+    console.log('Switch light');
   }
 
   getMeshesForOutline(mesh) {
@@ -70,7 +71,7 @@ export default class FloorLamp extends RoomObjectAbstract {
   }
 
   _init() {
-    this._initParts(FLOOR_LAMP_PART_TYPE, FLOOR_LAMP_PART_CONFIG);
+    this._initParts();
     this._addMaterials();
     this._addPartsToScene();
     this._initDebug();
@@ -88,7 +89,7 @@ export default class FloorLamp extends RoomObjectAbstract {
     const floorLampDebug = this._floorLampDebug = new FloorLampDebug();
 
     floorLampDebug.events.on('switchLight', () => {
-      console.log('switchLight');
+      this.onClick();
     });
   }
 }

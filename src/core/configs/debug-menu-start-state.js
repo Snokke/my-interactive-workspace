@@ -1,7 +1,7 @@
 const DEBUG_MENU_START_STATE = {
   Scene: false,
   Room: true,
-    ObjectsShowAnimation: true,
+    ObjectsShowAnimation: false,
     ObjectsVisibility: false,
   ActiveRoomObjects: true,
     Window: false,
@@ -11,6 +11,10 @@ const DEBUG_MENU_START_STATE = {
     Chair: false,
     AirConditioner: false,
     Mouse: false,
+    Speakers: false,
+    Keyboard: false,
+    Monitor: false,
+    Notebook: false,
 }
 
 export { DEBUG_MENU_START_STATE };

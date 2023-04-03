@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { MOUSE_PART_CONFIG, MOUSE_PART_TYPE } from './mouse-data';
+import { MOUSE_PART_TYPE } from './mouse-data';
 import MouseDebug from './mouse-debug';
 import MOUSE_CONFIG from './mouse-config';
 import { ROOM_CONFIG } from '../../room-config';
@@ -107,7 +107,7 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   _init() {
-    this._initParts(MOUSE_PART_TYPE, MOUSE_PART_CONFIG);
+    this._initParts();
     this._addMaterials();
     this._addPartsToScene();
     this._calculateMovingArea();
