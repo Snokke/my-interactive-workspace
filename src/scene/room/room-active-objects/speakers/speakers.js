@@ -24,16 +24,23 @@ export default class Speakers extends RoomObjectAbstract {
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      // const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
+      const leftSpeaker = this._parts[SPEAKERS_PART_TYPE.Left];
+      const rightSpeaker = this._parts[SPEAKERS_PART_TYPE.Right];
 
-      // new TWEEN.Tween(body.position)
-      //   .to({ y: body.userData.startPosition.y }, fallDownTime)
-      //   .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-      //   .start()
-      //   .onComplete(() => {
-      //     this._speakersDebug.enable();
-      //     this._onShowAnimationComplete();
-      //   });
+      new TWEEN.Tween(leftSpeaker.position)
+        .to({ y: leftSpeaker.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
+
+      new TWEEN.Tween(rightSpeaker.position)
+        .to({ y: rightSpeaker.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .delay(fallDownTime * 0.5)
+        .start()
+        .onComplete(() => {
+          this._speakersDebug.enable();
+          this._onShowAnimationComplete();
+        });
     });
   }
 

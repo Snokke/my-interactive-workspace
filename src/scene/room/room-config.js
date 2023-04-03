@@ -9,6 +9,7 @@ import { MOUSE_PART_CONFIG, MOUSE_PART_TYPE } from './room-active-objects/mouse/
 import { SPEAKERS_PART_CONFIG, SPEAKERS_PART_TYPE } from './room-active-objects/speakers/speakers-data';
 import { KEYBOARD_PART_CONFIG, KEYBOARD_PART_TYPE } from './room-active-objects/keyboard/keyboard-data';
 import { MONITOR_PART_CONFIG, MONITOR_PART_TYPE } from './room-active-objects/monitor/monitor-data';
+import { NOTEBOOK_PART_CONFIG, NOTEBOOK_PART_TYPE } from './room-active-objects/notebook/notebook-data';
 import Table from './room-active-objects/table/table';
 import Locker from './room-active-objects/locker/locker';
 import FloorLamp from './room-active-objects/floor-lamp/floor-lamp';
@@ -20,7 +21,6 @@ import Speakers from './room-active-objects/speakers/speakers';
 import Keyboard from './room-active-objects/keyboard/keyboard';
 import Monitor from './room-active-objects/monitor/monitor';
 import Notebook from './room-active-objects/notebook/notebook';
-import { NOTEBOOK_PART_CONFIG, NOTEBOOK_PART_TYPE } from './room-active-objects/notebook/notebook-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,

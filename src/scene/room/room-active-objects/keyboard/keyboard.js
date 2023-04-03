@@ -24,16 +24,16 @@ export default class Keyboard extends RoomObjectAbstract {
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      // const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
+      const base = this._parts[KEYBOARD_PART_TYPE.Base];
 
-      // new TWEEN.Tween(body.position)
-      //   .to({ y: body.userData.startPosition.y }, fallDownTime)
-      //   .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-      //   .start()
-      //   .onComplete(() => {
-      //     this._speakersDebug.enable();
-      //     this._onShowAnimationComplete();
-      //   });
+      new TWEEN.Tween(base.position)
+        .to({ y: base.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start()
+        .onComplete(() => {
+          this._keyboardDebug.enable();
+          this._onShowAnimationComplete();
+        });
     });
   }
 

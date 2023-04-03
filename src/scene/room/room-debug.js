@@ -55,7 +55,7 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.ObjectsShowAnimation,
     })
 
-    // let selectedObjectType = ROOM_OBJECT_TYPE.Chair;
+    // let selectedObjectType = ROOM_OBJECT_TYPE.Notebook;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
     const options = [
@@ -75,7 +75,7 @@ export default class RoomDebug {
 
     this._listShowAnimation = showAnimationFolder.addBlade({
       view: 'list',
-      label: 'Show animation',
+      label: 'Object',
       options,
       value: selectedObjectType,
     }).on('change', (objectType) => {

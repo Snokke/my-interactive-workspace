@@ -1,7 +1,7 @@
 const DEBUG_MENU_START_STATE = {
   Scene: false,
   Room: true,
-    ObjectsShowAnimation: false,
+    ObjectsShowAnimation: true,
     ObjectsVisibility: false,
   ActiveRoomObjects: true,
     Window: false,
