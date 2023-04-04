@@ -50,7 +50,7 @@ export default class Chair extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }

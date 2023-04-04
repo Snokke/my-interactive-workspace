@@ -37,7 +37,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }

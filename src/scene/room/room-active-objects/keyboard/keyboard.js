@@ -37,7 +37,7 @@ export default class Keyboard extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }

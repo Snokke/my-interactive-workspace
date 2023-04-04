@@ -51,7 +51,7 @@ export default class FloorLamp extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }

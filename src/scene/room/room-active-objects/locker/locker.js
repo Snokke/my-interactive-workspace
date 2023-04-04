@@ -63,11 +63,12 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }
 
+    const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
 
     if (partType === LOCKER_PART_TYPE.Body) {

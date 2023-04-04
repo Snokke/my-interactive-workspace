@@ -137,6 +137,7 @@ const ROOM_OBJECT_CONFIG = {
     tableGroup: true,
     partTypes: MOUSE_PART_TYPE,
     partConfig: MOUSE_PART_CONFIG,
+    isDraggable: true,
   },
   [ROOM_OBJECT_TYPE.Speakers]: {
     label: 'Speakers',
@@ -170,6 +171,7 @@ const ROOM_OBJECT_CONFIG = {
     tableGroup: true,
     partTypes: MONITOR_PART_TYPE,
     partConfig: MONITOR_PART_CONFIG,
+    isDraggable: true,
   },
   [ROOM_OBJECT_TYPE.Notebook]: {
     label: 'Notebook',

@@ -5,6 +5,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
 import MonitorDebug from './monitor-debug';
 import { MONITOR_PART_TYPE } from './monitor-data';
+import MONITOR_CONFIG from './monitor-config';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -13,7 +14,28 @@ export default class Monitor extends RoomObjectAbstract {
     this._monitorDebug = null;
     this._monitorGroup = null;
 
+    this._plane = new THREE.Plane();
+    this._pNormal = new THREE.Vector3(0, 1, 0);
+    this._shift = new THREE.Vector3();
+    this._currentPositionZ = 0;
+    this._previousPositionZ = 0;
+
     this._init();
+  }
+
+  update(dt) {
+    if (this._currentPositionZ === this._previousPositionZ) {
+      return;
+    }
+
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    const deltaZ = this._currentPositionZ - monitor.userData.startPosition.z;
+    monitor.position.z = this._currentPositionZ;
+
+    this._updateMonitorPosition(deltaZ);
+    this._updateArmMount(deltaZ);
+
+    this._previousPositionZ = this._currentPositionZ;
   }
 
   showWithAnimation(delay) {
@@ -41,16 +63,36 @@ export default class Monitor extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }
 
-    console.log('Monitor click');
+    const pIntersect = new THREE.Vector3().copy(intersect.point);
+    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
+    this._shift.subVectors(this._parts[MONITOR_PART_TYPE.Monitor].position, intersect.point);
+  }
+
+  onPointerMove(raycaster) {
+    const planeIntersect = new THREE.Vector3();
+
+    raycaster.ray.intersectPlane(this._plane, planeIntersect);
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    const startPositionZ = monitor.userData.startPosition.z;
+
+    this._currentPositionZ = planeIntersect.z + this._shift.z;
+    this._currentPositionZ = THREE.MathUtils.clamp(this._currentPositionZ, MONITOR_CONFIG.monitor.minZ + startPositionZ, MONITOR_CONFIG.monitor.maxZ + startPositionZ);
+
+    this._updatePosition();
   }
 
   getMeshesForOutline(mesh) {
     return this._activeMeshes;
+  }
+
+  _updatePosition() {
+    MONITOR_CONFIG.monitor.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
+    this._monitorDebug.updatePosition();
   }
 
   _setPositionForShowAnimation() {
@@ -60,11 +102,50 @@ export default class Monitor extends RoomObjectAbstract {
     }
   }
 
+  _updateMonitorPosition(deltaZ) {
+    const screen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
+    const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
+
+    screen.position.z = screen.userData.startPosition.z + deltaZ;
+    monitorMount.position.z = monitorMount.userData.startPosition.z + deltaZ;
+  }
+
+  _updateArmMount(deltaZ) {
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
+    const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
+    const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
+    const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
+
+    arm01.rotation.y = arm01.userData.startAngle.y - deltaZ * MONITOR_CONFIG.armMount.arm01.angleCoeff;
+    arm02.rotation.y = arm02.userData.startAngle.y - deltaZ * MONITOR_CONFIG.armMount.arm02.angleCoeff;
+
+    arm02.position.x = arm01.position.x + Math.cos(arm01.rotation.y + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm01.shoulderCoeff;
+    arm02.position.z = arm01.position.z + Math.sin(arm01.rotation.y + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm01.shoulderCoeff;
+
+    const bonusAngle = MONITOR_CONFIG.armMount.arm02.bonusAngle * THREE.MathUtils.DEG2RAD;
+    const positionX = arm02.position.x + Math.cos(-arm02.rotation.y - bonusAngle + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm02.shoulderCoeff;
+    monitor.position.x = monitorScreen.position.x = monitorMount.position.x = positionX;
+
+    this._updateArmRotation();
+    this._monitorDebug.updateArmRotation();
+  }
+
+  _updateArmRotation() {
+    const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
+    const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
+
+    MONITOR_CONFIG.armMount.arm01.angle = Math.round(arm01.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
+    MONITOR_CONFIG.armMount.arm02.angle = -Math.round(arm02.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
+  }
+
+
   _init() {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
     this._initGroups();
+    this._updateArmRotation();
     this._initDebug();
   }
 
@@ -90,8 +171,8 @@ export default class Monitor extends RoomObjectAbstract {
   _initDebug() {
     const monitorDebug = this._monitorDebug = new MonitorDebug();
 
-    monitorDebug.events.on('switchOn', () => {
-      this.onClick();
+    monitorDebug.events.on('onPositionChanged', (msg, position) => {
+      this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     });
   }
 }

@@ -75,6 +75,7 @@ export default class RoomObjectAbstract extends THREE.Group {
       part.userData['objectType'] = this._roomObjectType;
       part.userData['partType'] = partTypes[partName];
       part.userData['startPosition'] = part.position.clone();
+      part.userData['startAngle'] = part.rotation.clone();
       part.userData['isActive'] = partConfig.isActive;
 
       this._allMeshes.push(part);

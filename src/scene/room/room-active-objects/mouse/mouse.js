@@ -21,8 +21,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._currentPosition = new THREE.Vector3();
     this._previousPosition = new THREE.Vector3();
 
-    this._isDragging = false;
-
     this._init();
   }
 
@@ -63,14 +61,11 @@ export default class Mouse extends RoomObjectAbstract {
     });
   }
 
-  onClick(roomObject) {
+  onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
     }
 
-  }
-
-  onPointerDown(intersect) {
     const pIntersect = new THREE.Vector3().copy(intersect.point);
     this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
     this._shift.subVectors(intersect.object.position, intersect.point);

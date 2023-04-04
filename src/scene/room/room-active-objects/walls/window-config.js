@@ -6,7 +6,7 @@ const WINDOW_CONFIG = {
   handleRotationSpeed: 5,
   windowRotationSpeed: 30,
   [WINDOW_OPEN_TYPE.Horizontally]: {
-    openAngle: 17,
+    openAngle: 19,
     handleAngle: 90,
     rotateAxis: new THREE.Vector3(0, 1, 0),
     pivotOffset: new THREE.Vector3(-2.3, 0, 0.15),

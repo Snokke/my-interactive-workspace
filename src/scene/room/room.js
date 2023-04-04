@@ -26,7 +26,7 @@ export default class Room extends THREE.Group {
     this._roomObjectsByActivityType = {};
 
     this._pointerPosition = new THREE.Vector2();
-    this._isDraggingMouse = false;
+    this._draggingObject = null;
 
     this._init();
   }
@@ -35,21 +35,21 @@ export default class Room extends THREE.Group {
     if (ROOM_CONFIG.outlineEnabled) {
       const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
 
-      if (intersect && intersect.object && !this._isDraggingMouse) {
+      if (intersect && intersect.object && !this._draggingObject) {
         this._checkToGlow(intersect.object);
       }
     }
 
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].update(dt);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].update(dt);
   }
 
   onPointerMove(x, y) {
     this._pointerPosition.set(x, y);
 
-    if (this._isDraggingMouse) {
-      const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
+    if (this._draggingObject) {
       const raycaster = this._raycasterController.getRaycaster();
-      mouse.onPointerMove(raycaster);
+      this._draggingObject.onPointerMove(raycaster);
     }
   }
 
@@ -63,21 +63,27 @@ export default class Room extends THREE.Group {
     const intersectObject = intersect.object;
 
     if (intersectObject && intersectObject.userData.isActive) {
-      this._roomActiveObject[intersectObject.userData.objectType].onClick(intersectObject);
+      const objectType = intersect.object.userData.objectType;
+      const objectConfig = ROOM_OBJECT_CONFIG[objectType];
 
-      if (intersectObject.userData.objectType === ROOM_OBJECT_TYPE.Mouse) {
-        this._onMouseDragStart(intersect);
+      this._roomActiveObject[objectType].onClick(intersect);
+
+      if (objectConfig.isDraggable) {
+        this._draggingObject = this._roomActiveObject[objectType];
+        this._orbitControls.enabled = false;
+
+        this._setGlow(this._draggingObject.getMeshesForOutline());
       }
     }
   }
 
   onPointerUp() {
-    if (this._isDraggingMouse) {
+    if (this._draggingObject) {
       this._resetGlow();
-    }
 
-    this._isDraggingMouse = false;
-    this._orbitControls.enabled = true;
+      this._draggingObject = null;
+      this._orbitControls.enabled = true;
+    }
   }
 
   showWithAnimation(startDelay = 0) {
@@ -119,28 +125,21 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.Cup, startDelay + tableObjectsShowDelay + delayBetweenObjects * 10);
   }
 
-  _onMouseDragStart(intersect) {
-    this._isDraggingMouse = true;
-    this._orbitControls.enabled = false;
-
-    const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
-    mouse.onPointerDown(intersect);
-
-    this._setGlow(mouse.getMeshesForOutline());
-  }
-
   _updateObjectsVisibility() {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
-      const activityType = config.activityType;
 
-      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-        this._roomActiveObject[type].setVisibility(config.visible);
-      }
+      if (config.enabled) {
+        const activityType = config.activityType;
 
-      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-        this._roomInactiveMesh[type].visible = config.visible;
+        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
+          this._roomActiveObject[type].setVisibility(config.visible);
+        }
+
+        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
+          this._roomInactiveMesh[type].visible = config.visible;
+        }
       }
     }
   }
