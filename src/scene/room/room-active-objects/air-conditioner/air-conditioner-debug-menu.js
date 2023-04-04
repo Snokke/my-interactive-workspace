@@ -2,7 +2,7 @@ import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-star
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 
-export default class FloorLampDebug extends RoomObjectDebugAbstract {
+export default class AirConditionerDebugMenu extends RoomObjectDebugAbstract {
   constructor() {
     super();
 
@@ -12,13 +12,13 @@ export default class FloorLampDebug extends RoomObjectDebugAbstract {
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const floorLampFolder = this._debugFolder = roomObjectsFolder.addFolder({
-      title: 'Floor lamp',
-      expanded: DEBUG_MENU_START_STATE.FloorLamp,
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
+      title: 'Air conditioner',
+      expanded: DEBUG_MENU_START_STATE.AirConditioner,
     });
 
-    floorLampFolder.addButton({
-      title: 'Switch light',
-    }).on('click', () => this.events.post('switchLight'));
+    debugFolder.addButton({
+      title: 'Switch on',
+    }).on('click', () => this.events.post('switchOn'));
   }
 }

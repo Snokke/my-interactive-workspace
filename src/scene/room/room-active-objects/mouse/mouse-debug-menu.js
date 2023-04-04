@@ -4,7 +4,7 @@ import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import MOUSE_CONFIG from "./mouse-config";
 
-export default class MouseDebug extends RoomObjectDebugAbstract {
+export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   constructor(body) {
     super();
 
@@ -28,18 +28,18 @@ export default class MouseDebug extends RoomObjectDebugAbstract {
   _initMenu() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const mouseFolder = this._debugFolder = roomObjectsFolder.addFolder({
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Mouse',
       expanded: DEBUG_MENU_START_STATE.Mouse,
     });
 
-    mouseFolder.addInput(MOUSE_CONFIG.movingArea, 'showDebugPlane', {
+    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'showDebugPlane', {
       label: 'Show area',
     }).on('change', (showDebugPlane) => {
       this._areaPlane.visible = showDebugPlane.value;
     });
 
-    mouseFolder.addInput(MOUSE_CONFIG.movingArea, 'width', {
+    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'width', {
       label: 'Area width',
       min: 0.1,
       max: 5,
@@ -47,7 +47,7 @@ export default class MouseDebug extends RoomObjectDebugAbstract {
       this._onAreaChanged();
     });
 
-    mouseFolder.addInput(MOUSE_CONFIG.movingArea, 'height', {
+    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'height', {
       label: 'Area height',
       min: 0.1,
       max: 5,
@@ -55,7 +55,7 @@ export default class MouseDebug extends RoomObjectDebugAbstract {
       this._onAreaChanged();
     });
 
-    this._positionController = mouseFolder.addInput(MOUSE_CONFIG, 'position', {
+    this._positionController = debugFolder.addInput(MOUSE_CONFIG, 'position', {
       label: 'Current position',
       picker: 'inline',
       expanded: true,

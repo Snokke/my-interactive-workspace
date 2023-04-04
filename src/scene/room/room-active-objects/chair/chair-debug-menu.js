@@ -2,7 +2,7 @@ import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-star
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 
-export default class KeyboardDebug extends RoomObjectDebugAbstract {
+export default class ChairDebugMenu extends RoomObjectDebugAbstract {
   constructor() {
     super();
 
@@ -12,13 +12,13 @@ export default class KeyboardDebug extends RoomObjectDebugAbstract {
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const keyboardFolder = this._debugFolder = roomObjectsFolder.addFolder({
-      title: 'Keyboard',
-      expanded: DEBUG_MENU_START_STATE.Keyboard,
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
+      title: 'Chair',
+      expanded: DEBUG_MENU_START_STATE.Chair,
     });
 
-    keyboardFolder.addButton({
-      title: 'Switch on',
-    }).on('click', () => this.events.post('switchOn'));
+    debugFolder.addButton({
+      title: 'Rotate',
+    }).on('click', () => this.events.post('rotate'));
   }
 }

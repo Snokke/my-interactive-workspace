@@ -4,7 +4,7 @@ import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import LOCKER_CONFIG from "./locker-config";
 import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./locker-data";
 
-export default class LockerDebug extends RoomObjectDebugAbstract {
+export default class LockerDebugMenu extends RoomObjectDebugAbstract {
   constructor(allCasesAnimationType) {
     super();
 
@@ -16,12 +16,12 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const lockerFolder = this._debugFolder = roomObjectsFolder.addFolder({
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Locker',
       expanded: DEBUG_MENU_START_STATE.Locker,
     });
 
-    lockerFolder.addBlade({
+    debugFolder.addBlade({
       view: 'buttongrid',
       size: [3, 2],
       cells: (x, y) => ({
@@ -39,7 +39,7 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
       }
     });
 
-    lockerFolder.addBlade({
+    debugFolder.addBlade({
       view: 'list',
       label: 'All cases animation',
       options: [
@@ -59,19 +59,19 @@ export default class LockerDebug extends RoomObjectDebugAbstract {
       this.events.post('changeAllCasesAnimation', animationType.value);
     });
 
-    lockerFolder.addButton({
+    debugFolder.addButton({
       title: 'Push all cases',
     }).on('click', () => this.events.post('pushAllCases'));
 
-    lockerFolder.addSeparator();
+    debugFolder.addSeparator();
 
-    lockerFolder.addInput(LOCKER_CONFIG, 'caseMoveDistance', {
+    debugFolder.addInput(LOCKER_CONFIG, 'caseMoveDistance', {
       label: 'Move out distance',
       min: 0.1,
       max: 1.5,
     });
 
-    lockerFolder.addInput(LOCKER_CONFIG, 'caseMoveSpeed', {
+    debugFolder.addInput(LOCKER_CONFIG, 'caseMoveSpeed', {
       label: 'Case speed',
       min: 0.5,
       max: 20,

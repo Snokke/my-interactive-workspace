@@ -5,7 +5,7 @@ import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH } from './walls-data';
 import { WINDOW_CONFIG } from "./window-config";
 
-export default class WindowDebug extends RoomObjectDebugAbstract {
+export default class WindowDebugMenu extends RoomObjectDebugAbstract {
   constructor(window) {
     super();
 
@@ -38,6 +38,14 @@ export default class WindowDebug extends RoomObjectDebugAbstract {
     this._activeOpenType.disabled = true;
   }
 
+  openFolder() {
+    this._debugFolder.expanded = true;
+  }
+
+  closeFolder() {
+    this._debugFolder.expanded = false;
+  }
+
   _init() {
     this._initDebugMenu();
     this._initDebugRotateAxis();
@@ -46,17 +54,17 @@ export default class WindowDebug extends RoomObjectDebugAbstract {
   _initDebugMenu() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const tableFolder = this._debugFolder = roomObjectsFolder.addFolder({
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Window',
       expanded: DEBUG_MENU_START_STATE.Window,
     });
 
-    this._openTypeController = tableFolder.addInput(this._windowOpenType, 'value', {
+    this._openTypeController = debugFolder.addInput(this._windowOpenType, 'value', {
       label: 'Open type',
       disabled: true,
     });
 
-    this._activeOpenType = tableFolder.addBlade({
+    this._activeOpenType = debugFolder.addBlade({
       view: 'list',
       label: 'Active type',
       options: [
@@ -69,40 +77,40 @@ export default class WindowDebug extends RoomObjectDebugAbstract {
       this.events.post('changeOpenType', openType.value);
     });
 
-    tableFolder.addSeparator();
+    debugFolder.addSeparator();
 
-    this._stateController = tableFolder.addInput(this._windowState, 'value', {
+    this._stateController = debugFolder.addInput(this._windowState, 'value', {
       label: 'State',
       disabled: true,
     });
 
-    tableFolder.addButton({
+    debugFolder.addButton({
       title: 'Change state',
     }).on('click', () => {
       this.events.post('changeState');
     });
 
-    tableFolder.addSeparator();
+    debugFolder.addSeparator();
 
-    tableFolder.addInput(WINDOW_CONFIG, 'handleRotationSpeed', {
+    debugFolder.addInput(WINDOW_CONFIG, 'handleRotationSpeed', {
       label: 'Handle speed',
       min: 1,
       max: 15,
     });
 
-    tableFolder.addInput(WINDOW_CONFIG, 'windowRotationSpeed', {
+    debugFolder.addInput(WINDOW_CONFIG, 'windowRotationSpeed', {
       label: 'Window speed',
       min: 5,
       max: 100,
     });
 
-    tableFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
+    debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
       label: 'Horizontal open angle',
       min: 1,
       max: 90,
     });
 
-    tableFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
+    debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
       label: 'Vertical open angle',
       min: 1,
       max: 90,

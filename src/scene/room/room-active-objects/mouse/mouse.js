@@ -3,7 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_TYPE } from './mouse-data';
-import MouseDebug from './mouse-debug';
+import MouseDebugMenu from './mouse-debug-menu';
 import MOUSE_CONFIG from './mouse-config';
 import { ROOM_CONFIG } from '../../room-config';
 
@@ -11,7 +11,6 @@ export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
-    this._mouseDebug = null;
     this._minAreaVector = null;
     this._maxAreaVector = null;
 
@@ -42,7 +41,7 @@ export default class Mouse extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._mouseDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -55,7 +54,7 @@ export default class Mouse extends RoomObjectAbstract {
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start()
         .onComplete(() => {
-          this._mouseDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -98,7 +97,7 @@ export default class Mouse extends RoomObjectAbstract {
   _updatePosition() {
     MOUSE_CONFIG.position.x = this._currentPosition.x / MOUSE_CONFIG.movingArea.width * 2;
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
-    this._mouseDebug.updatePosition();
+    this._debugMenu.updatePosition();
   }
 
   _init() {
@@ -107,14 +106,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._addPartsToScene();
     this._calculateMovingArea();
     this._initDebug();
-  }
-
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
   }
 
   _calculateMovingArea() {
@@ -130,21 +121,24 @@ export default class Mouse extends RoomObjectAbstract {
 
   _initDebug() {
     const body = this._parts[MOUSE_PART_TYPE.Body];
-    const mouseDebug = this._mouseDebug = new MouseDebug(body);
-    this.add(mouseDebug);
+    const debugMenu = this._debugMenu = new MouseDebugMenu(body);
+    this.add(debugMenu);
 
-    mouseDebug.events.on('onPositionChanged', (msg, position) => {
-      this._currentPosition.x = position.x * MOUSE_CONFIG.movingArea.width * 0.5;
-      this._currentPosition.z = position.y * MOUSE_CONFIG.movingArea.height * 0.5;
-    });
+    debugMenu.events.on('onPositionChanged', (msg, position) => this._onDebugPositionChanged(position));
+    debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
+  }
 
-    mouseDebug.events.on('onAreaChanged', () => {
-      this._calculateMovingArea();
+  _onDebugPositionChanged(position) {
+    this._currentPosition.x = position.x * MOUSE_CONFIG.movingArea.width * 0.5;
+    this._currentPosition.z = position.y * MOUSE_CONFIG.movingArea.height * 0.5;
+  }
 
-      this._currentPosition.x = 0;
-      this._currentPosition.z = 0;
+  _onDebugAreaChanged() {
+    this._calculateMovingArea();
 
-      this._updatePosition();
-    });
+    this._currentPosition.x = 0;
+    this._currentPosition.z = 0;
+
+    this._updatePosition();
   }
 }

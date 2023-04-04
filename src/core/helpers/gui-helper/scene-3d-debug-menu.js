@@ -148,44 +148,44 @@ export default class Scene3DDebugMenu {
   _initLilGUIHelper() {
     const gui = new GUIHelper();
 
-    const scene3DFolder = gui.addFolder({
-      title: 'Scene',
-      expanded: DEBUG_MENU_START_STATE.Scene,
-    });
+    // const scene3DFolder = gui.addFolder({
+    //   title: 'Scene',
+    //   expanded: DEBUG_MENU_START_STATE.Scene,
+    // });
 
-    scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })
-      .on('change', (statsState) => {
-        this.onFpsMeterClick(statsState.value);
-        this.onRendererStatsClick(statsState.value);
-      });
+    // scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })
+    //   .on('change', (statsState) => {
+    //     this.onFpsMeterClick(statsState.value);
+    //     this.onRendererStatsClick(statsState.value);
+    //   });
 
-    scene3DFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
-      .on('change', (wireframeState) => {
-        if (wireframeState.value) {
-          if (DEBUG_CONFIG.gridHelper) {
-            const gridHelperController = GUIHelper.getController(scene3DFolder, 'Grid');
-            DEBUG_CONFIG.gridHelper = false;
-            gridHelperController.refresh();
-          }
+    // scene3DFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
+    //   .on('change', (wireframeState) => {
+    //     if (wireframeState.value) {
+    //       if (DEBUG_CONFIG.gridHelper) {
+    //         const gridHelperController = GUIHelper.getController(scene3DFolder, 'Grid');
+    //         DEBUG_CONFIG.gridHelper = false;
+    //         gridHelperController.refresh();
+    //       }
 
-          this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
-            color: 0x000000,
-            wireframe: true,
-          });
-        } else {
-          this._scene.overrideMaterial = null;
-        }
-      });
+    //       this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
+    //         color: 0x000000,
+    //         wireframe: true,
+    //       });
+    //     } else {
+    //       this._scene.overrideMaterial = null;
+    //     }
+    //   });
 
     // scene3DFolder.addInput(DEBUG_CONFIG, 'orbitControls', { label: 'Orbit' })
     //   .on('change', (orbitControlsState) => {
     //     this.onOrbitControlsClick(orbitControlsState.value);
     //   });
 
-    scene3DFolder.addInput(DEBUG_CONFIG, 'gridHelper', { label: 'Grid' })
-      .on('change', (gridHelperState) => {
-        this.onGridHelperClick(gridHelperState.value);
-      });
+    // scene3DFolder.addInput(DEBUG_CONFIG, 'gridHelper', { label: 'Grid' })
+    //   .on('change', (gridHelperState) => {
+    //     this.onGridHelperClick(gridHelperState.value);
+    //   });
   }
 
   onFpsMeterClick(fpsMeterState) {

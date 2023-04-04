@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
-import TableDebug from './table-debug';
+import TableDebugMenu from './table-debug-menu';
 import TABLE_CONFIG from './table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
@@ -15,7 +15,6 @@ export default class Table extends RoomObjectAbstract {
     this._currentTableState = { value: TABLE_STATE.SittingMode };
     this._previousTableState = this._currentTableState.value;
 
-    this._tableDebug = null;
     this._topPartsGroup = null;
 
     this._tweenHandleMoveOut = null;
@@ -30,7 +29,7 @@ export default class Table extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._tableDebug.disable();
+    this._debugMenu.disable();
 
     this._reset();
     this._setPositionForShowAnimation();
@@ -73,7 +72,7 @@ export default class Table extends RoomObjectAbstract {
         .start();
 
         handleMoveTween.onComplete(() => {
-          this._tableDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
       });
@@ -204,7 +203,7 @@ export default class Table extends RoomObjectAbstract {
 
   _setTableState(state) {
     this._currentTableState.value = state;
-    this._tableDebug.updateTableState(state);
+    this._debugMenu.updateTableState(state);
   }
 
   _setPositionForShowAnimation() {
@@ -258,8 +257,8 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _initDebug() {
-    const tableDebug = this._tableDebug = new TableDebug(this._currentTableState);
+    const debugMenu = this._debugMenu = new TableDebugMenu(this._currentTableState);
 
-    tableDebug.events.on('changeState', () => this.onClick());
+    debugMenu.events.on('changeState', () => this.onClick());
   }
 }

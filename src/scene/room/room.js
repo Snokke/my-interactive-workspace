@@ -35,12 +35,14 @@ export default class Room extends THREE.Group {
   }
 
   update(dt) {
-    if (ROOM_CONFIG.outlineEnabled) {
-      const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
+    const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
 
-      if (intersect && intersect.object && !this._draggingObject) {
-        this._checkToGlow(intersect.object);
-      }
+    if (intersect && intersect.object && !this._draggingObject) {
+      this._checkToGlow(intersect.object);
+    }
+
+    if (intersect === null) {
+      this._resetGlow();
     }
 
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].update(dt);
@@ -82,8 +84,6 @@ export default class Room extends THREE.Group {
 
   onPointerUp() {
     if (this._draggingObject) {
-      this._resetGlow();
-
       this._draggingObject = null;
       this._orbitControls.enabled = true;
     }
@@ -187,7 +187,7 @@ export default class Room extends THREE.Group {
   }
 
   _setGlow(items) {
-    if (!DEBUG_CONFIG.wireframe) {
+    if (ROOM_CONFIG.outlineEnabled && !DEBUG_CONFIG.wireframe) {
       this._outlinePass.selectedObjects = items;
     }
   }
@@ -218,28 +218,27 @@ export default class Room extends THREE.Group {
   }
 
   _initRoomDebug() {
-    const roomDebug = this._roomDebug = new RoomDebug();
+    const roomDebug = this._roomDebug = new RoomDebug(this._scene);
 
-    roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => {
-      if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
-        this.showWithAnimation();
-      } else {
-        const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
-        const roomObjects = this._roomObjectsByActivityType[activityType];
+    roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
+    roomDebug.events.on('changeObjectVisibility', (msg) => this._updateObjectsVisibility());
+  }
 
-        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-          roomObjects[selectedObjectType].showWithAnimation();
-        }
+  _onDebugStartShowAnimation(selectedObjectType) {
+    if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
+      this.showWithAnimation();
+    } else {
+      const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
+      const roomObjects = this._roomObjectsByActivityType[activityType];
 
-        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-          this._roomInactiveObjectsClass.showWithAnimation(selectedObjectType);
-        }
+      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
+        roomObjects[selectedObjectType].showWithAnimation();
       }
-    });
 
-    roomDebug.events.on('changeObjectVisibility', (msg) => {
-      this._updateObjectsVisibility();
-    });
+      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
+        this._roomInactiveObjectsClass.showWithAnimation(selectedObjectType);
+      }
+    }
   }
 
   _initRoomObjects() {
@@ -334,18 +333,6 @@ export default class Room extends THREE.Group {
   }
 
   _arraysEqual(a, b) {
-    if (a === b) {
-      return true;
-    }
-
-    if (a == null || b == null) {
-      return false;
-    }
-
-    if (a.length !== b.length) {
-      return false;
-    }
-
     for (let i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) {
         return false;

@@ -11,6 +11,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._meshesGroup = meshesGroup;
     this._roomObjectType = roomObjectType;
 
+    this._debugMenu = null;
+
     this._allMeshes = [];
     this._activeMeshes = [];
     this._parts = {};
@@ -103,6 +105,14 @@ export default class RoomObjectAbstract extends THREE.Group {
       });
 
       part.material = material;
+    }
+  }
+
+  _addPartsToScene() {
+    for (let key in this._parts) {
+      const part = this._parts[key];
+
+      this.add(part);
     }
   }
 }

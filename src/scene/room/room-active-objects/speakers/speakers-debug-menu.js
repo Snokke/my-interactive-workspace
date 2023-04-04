@@ -2,7 +2,7 @@ import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-star
 import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 
-export default class SpeakersDebug extends RoomObjectDebugAbstract {
+export default class SpeakersDebugMenu extends RoomObjectDebugAbstract {
   constructor() {
     super();
 
@@ -12,12 +12,12 @@ export default class SpeakersDebug extends RoomObjectDebugAbstract {
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const speakersFolder = this._debugFolder = roomObjectsFolder.addFolder({
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Speakers',
       expanded: DEBUG_MENU_START_STATE.AirConditioner,
     });
 
-    speakersFolder.addButton({
+    debugFolder.addButton({
       title: 'Switch on',
     }).on('click', () => this.events.post('switchOn'));
   }

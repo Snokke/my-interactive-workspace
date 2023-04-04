@@ -1,12 +1,16 @@
+import * as THREE from 'three';
 import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./room-config";
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
+import DEBUG_CONFIG from "../../core/configs/debug-config";
 
 export default class RoomDebug {
-  constructor() {
+  constructor(scene) {
     this.events = new MessageDispatcher();
+
+    this._scene = scene;
 
     this._listShowAnimation = null;
     this._buttonShowAnimation = null;
@@ -36,7 +40,19 @@ export default class RoomDebug {
     const roomFolder = this._roomFolder = GUIHelper.getGui().addFolder({
       title: 'Room',
       expanded: DEBUG_MENU_START_STATE.Room,
-    })
+    });
+
+    roomFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
+      .on('change', (wireframeState) => {
+        if (wireframeState.value) {
+          this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
+            color: 0x000000,
+            wireframe: true,
+          });
+        } else {
+          this._scene.overrideMaterial = null;
+        }
+      });
 
     const isMobileDevice = isMobile(window.navigator).any;
     ROOM_CONFIG.outlineEnabled = !isMobileDevice;

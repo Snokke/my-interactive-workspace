@@ -3,7 +3,7 @@ import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import MONITOR_CONFIG from "./monitor-config";
 
-export default class MonitorDebug extends RoomObjectDebugAbstract {
+export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
   constructor() {
     super();
 
@@ -26,12 +26,12 @@ export default class MonitorDebug extends RoomObjectDebugAbstract {
   _init() {
     const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
 
-    const monitorFolder = this._debugFolder = roomObjectsFolder.addFolder({
+    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: 'Monitor',
       expanded: DEBUG_MENU_START_STATE.Monitor,
     });
 
-    this._positionController = monitorFolder.addInput(MONITOR_CONFIG.monitor, 'positionZ', {
+    this._positionController = debugFolder.addInput(MONITOR_CONFIG.monitor, 'positionZ', {
       label: 'Position z',
       min: MONITOR_CONFIG.monitor.minZ,
       max: MONITOR_CONFIG.monitor.maxZ,
@@ -39,14 +39,14 @@ export default class MonitorDebug extends RoomObjectDebugAbstract {
       this.events.post('onPositionChanged', position.value);
     });
 
-    this._arm01AngleController = monitorFolder.addInput(MONITOR_CONFIG.armMount.arm01, 'angle', {
+    this._arm01AngleController = debugFolder.addInput(MONITOR_CONFIG.armMount.arm01, 'angle', {
       label: 'Bottom arm angle',
       min: 0,
       max: 180,
       disabled: true,
     });
 
-    this._arm02AngleController = monitorFolder.addInput(MONITOR_CONFIG.armMount.arm02, 'angle', {
+    this._arm02AngleController = debugFolder.addInput(MONITOR_CONFIG.armMount.arm02, 'angle', {
       label: 'Top arm angle',
       min: -180,
       max: 0,

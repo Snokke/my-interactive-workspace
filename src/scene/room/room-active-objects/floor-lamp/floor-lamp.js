@@ -3,14 +3,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
-import FloorLampDebug from './floor-lamp-debug';
+import FloorLampDebugMenu from './floor-lamp-debug-menu';
 import { ROOM_CONFIG } from '../../room-config';
 
 export default class FloorLamp extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
-
-    this._floorLampDebug = null;
 
     this._init();
   }
@@ -18,7 +16,7 @@ export default class FloorLamp extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._floorLampDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -45,7 +43,7 @@ export default class FloorLamp extends RoomObjectAbstract {
         .delay(fallDownTime * 0.5 * 2)
         .start()
         .onComplete(() => {
-          this._floorLampDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -77,18 +75,10 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._initDebug();
   }
 
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
-  }
-
   _initDebug() {
-    const floorLampDebug = this._floorLampDebug = new FloorLampDebug();
+    const debugMenu = this._debugMenu = new FloorLampDebugMenu();
 
-    floorLampDebug.events.on('switchLight', () => {
+    debugMenu.events.on('switchLight', () => {
       this.onClick();
     });
   }

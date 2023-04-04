@@ -4,13 +4,11 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
 import { KEYBOARD_PART_TYPE } from './keyboard-data';
-import KeyboardDebug from './keyboard-debug';
+import KeyboardDebugMenu from './keyboard-debug-menu';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
-
-    this._keyboardDebug = null;
 
     this._init();
   }
@@ -18,7 +16,7 @@ export default class Keyboard extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._keyboardDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -31,7 +29,7 @@ export default class Keyboard extends RoomObjectAbstract {
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start()
         .onComplete(() => {
-          this._keyboardDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -63,18 +61,10 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initDebug();
   }
 
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
-  }
-
   _initDebug() {
-    const keyboardDebug = this._keyboardDebug = new KeyboardDebug();
+    const debugMenu = this._debugMenu = new KeyboardDebugMenu();
 
-    keyboardDebug.events.on('switchOn', () => {
+    debugMenu.events.on('switchOn', () => {
       this.onClick();
     });
   }

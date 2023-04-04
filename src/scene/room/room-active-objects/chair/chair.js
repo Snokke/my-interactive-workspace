@@ -3,14 +3,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { CHAIR_PART_TYPE } from './chair-data';
-import ChairDebug from './chair-debug';
+import ChairDebugMenu from './chair-debug-menu';
 import { ROOM_CONFIG } from '../../room-config';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
-
-    this._chairDebug = null;
 
     this._init();
   }
@@ -18,7 +16,7 @@ export default class Chair extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._chairDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -44,7 +42,7 @@ export default class Chair extends RoomObjectAbstract {
         .delay(fallDownTime * 0.5)
         .start()
         .onComplete(() => {
-          this._chairDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -78,18 +76,10 @@ export default class Chair extends RoomObjectAbstract {
     this._initDebug();
   }
 
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
-  }
-
   _initDebug() {
-    const chairDebug = this._chairDebug = new ChairDebug();
+    const debugMenu = this._debugMenu = new ChairDebugMenu();
 
-    chairDebug.events.on('rotate', () => {
+    debugMenu.events.on('rotate', () => {
       this.onClick();
     });
   }

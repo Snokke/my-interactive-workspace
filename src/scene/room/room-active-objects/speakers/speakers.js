@@ -4,13 +4,11 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
 import { SPEAKERS_PART_TYPE } from './speakers-data';
-import SpeakersDebug from './speakers-debug';
+import SpeakersDebugMenu from './speakers-debug-menu';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
-
-    this._speakersDebug = null;
 
     this._init();
   }
@@ -18,7 +16,7 @@ export default class Speakers extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._speakersDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -38,7 +36,7 @@ export default class Speakers extends RoomObjectAbstract {
         .delay(fallDownTime * 0.5)
         .start()
         .onComplete(() => {
-          this._speakersDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -70,18 +68,10 @@ export default class Speakers extends RoomObjectAbstract {
     this._initDebug();
   }
 
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
-  }
-
   _initDebug() {
-    const speakersDebug = this._speakersDebug = new SpeakersDebug();
+    const debugMenu = this._debugMenu = new SpeakersDebugMenu();
 
-    speakersDebug.events.on('switchOn', () => {
+    debugMenu.events.on('switchOn', () => {
       this.onClick();
     });
   }

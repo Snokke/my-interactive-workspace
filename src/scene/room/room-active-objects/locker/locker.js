@@ -1,7 +1,7 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
-import LockerDebug from './locker-debug';
+import LockerDebugMenu from './locker-debug-menu';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
@@ -12,7 +12,6 @@ export default class Locker extends RoomObjectAbstract {
 
     this._currentAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
-    this._lockerDebug = null;
     this._casesState = [];
     this._casesPreviousState = [];
     this._caseMoveTween = [];
@@ -23,7 +22,7 @@ export default class Locker extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._lockerDebug.disable();
+    this._debugMenu.disable();
 
     this._reset();
     this._setPositionForShowAnimation();
@@ -57,7 +56,7 @@ export default class Locker extends RoomObjectAbstract {
       }
 
       Delayed.call(fallDownTime * 0.5 + cases.length * 100 + 300 + 300, () => {
-        this._lockerDebug.enable();
+        this._debugMenu.enable();
         this._onShowAnimationComplete();
       })
     });
@@ -233,10 +232,10 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _initDebug() {
-    const lockerDebug = this._lockerDebug = new LockerDebug(this._currentAnimationType);
+    const debugMenu = this._debugMenu = new LockerDebugMenu(this._currentAnimationType);
 
-    lockerDebug.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
-    lockerDebug.events.on('pushAllCases', () => this.pushAllCases());
-    lockerDebug.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
+    debugMenu.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
+    debugMenu.events.on('pushAllCases', () => this.pushAllCases());
+    debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
   }
 }

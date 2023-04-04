@@ -3,7 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
-import MonitorDebug from './monitor-debug';
+import MonitorDebugMenu from './monitor-debug-menu';
 import { HELP_ARROW_TYPE, MONITOR_PART_TYPE } from './monitor-data';
 import MONITOR_CONFIG from './monitor-config';
 
@@ -11,7 +11,6 @@ export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
-    this._monitorDebug = null;
     this._monitorGroup = null;
     this._arrowsGroup = null;
     this._arrowsTween = null;
@@ -44,7 +43,7 @@ export default class Monitor extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._monitorDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -60,7 +59,7 @@ export default class Monitor extends RoomObjectAbstract {
       }
 
       Delayed.call(fallDownTime, () => {
-        this._monitorDebug.enable();
+        this._debugMenu.enable();
         this._onShowAnimationComplete();
       });
     });
@@ -135,7 +134,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _updatePosition() {
     MONITOR_CONFIG.monitor.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
-    this._monitorDebug.updatePosition();
+    this._debugMenu.updatePosition();
   }
 
   _setPositionForShowAnimation() {
@@ -171,7 +170,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitor.position.x = monitorScreen.position.x = monitorMount.position.x = positionX;
 
     this._updateArmRotation();
-    this._monitorDebug.updateArmRotation();
+    this._debugMenu.updateArmRotation();
   }
 
   _updateArmRotation() {
@@ -195,14 +194,6 @@ export default class Monitor extends RoomObjectAbstract {
     this._updateArmRotation();
     this._initArrows();
     this._initDebug();
-  }
-
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
   }
 
   _initGroups() {
@@ -240,9 +231,9 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _initDebug() {
-    const monitorDebug = this._monitorDebug = new MonitorDebug();
+    const debugMenu = this._debugMenu = new MonitorDebugMenu();
 
-    monitorDebug.events.on('onPositionChanged', (msg, position) => {
+    debugMenu.events.on('onPositionChanged', (msg, position) => {
       this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     });
   }

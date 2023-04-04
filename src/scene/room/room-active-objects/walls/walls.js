@@ -3,7 +3,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './walls-data';
-import WindowDebug from './window-debug';
+import WindowDebugMenu from './window-debug-menu';
 import { WINDOW_CONFIG } from './window-config';
 import { ROOM_CONFIG } from '../../room-config';
 
@@ -17,7 +17,7 @@ export default class Walls extends RoomObjectAbstract {
 
     this._handleTween = null;
     this._windowTween = null;
-    this._windowDebug = null;
+    this._debugMenu = null;
 
     this._windowHandleState = WINDOW_HANDLE_STATE.Idle;
     this._windowState = WINDOW_STATE.Closed;
@@ -31,7 +31,7 @@ export default class Walls extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._windowDebug.disable();
+    this._debugMenu.disable();
 
     this._setPositionForShowAnimation();
 
@@ -64,7 +64,7 @@ export default class Walls extends RoomObjectAbstract {
         .delay(fallDownTime * 0.5 * 2)
         .start()
         .onComplete(() => {
-          this._windowDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -75,8 +75,10 @@ export default class Walls extends RoomObjectAbstract {
       return;
     }
 
+    this._debugMenu.openFolder();
+
     this._stopTweens();
-    this._windowDebug.disableActiveOpenType();
+    this._debugMenu.disableActiveOpenType();
 
     if (this._windowState === WINDOW_STATE.Opening) {
       this._updateWindowState();
@@ -189,7 +191,7 @@ export default class Walls extends RoomObjectAbstract {
 
   _setWindowState(state) {
     this._windowState = state;
-    this._windowDebug.updateWindowState(state);
+    this._debugMenu.updateWindowState(state);
   }
 
   _rotateAroundPoint(obj, point, axis, theta) {
@@ -206,11 +208,11 @@ export default class Walls extends RoomObjectAbstract {
 
   _checkToChangeWindowOpenType() {
     if (this._windowState === WINDOW_STATE.Closed) {
-      this._windowDebug.enableActiveOpenType();
+      this._debugMenu.enableActiveOpenType();
 
       if (this._isBothOpenTypeSelected) {
         this._windowOpenType = this._windowOpenType === WINDOW_OPEN_TYPE.Horizontally ? WINDOW_OPEN_TYPE.Vertically : WINDOW_OPEN_TYPE.Horizontally;
-        this._windowDebug.updateWindowOpenType(this._windowOpenType);
+        this._debugMenu.updateWindowOpenType(this._windowOpenType);
       }
     }
   }
@@ -244,15 +246,7 @@ export default class Walls extends RoomObjectAbstract {
     this._initGlass();
     this._initWindowGroup();
     this._initRightWallGroup();
-    this._initWindowDebug();
-  }
-
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
+    this._initDebugMenu();
   }
 
   _initGlass() {
@@ -286,24 +280,26 @@ export default class Walls extends RoomObjectAbstract {
     rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
   }
 
-  _initWindowDebug() {
+  _initDebugMenu() {
     const window = this._parts[WALLS_PART_TYPE.Window];
-    const windowDebug = this._windowDebug = new WindowDebug(window);
-    this.add(windowDebug);
+    const debugMenu = this._debugMenu = new WindowDebugMenu(window);
+    this.add(debugMenu);
 
-    windowDebug.updateWindowState(this._windowState);
-    windowDebug.updateWindowOpenType(this._windowOpenType);
+    debugMenu.updateWindowState(this._windowState);
+    debugMenu.updateWindowOpenType(this._windowOpenType);
 
-    windowDebug.events.on('changeState', () => this.onClick());
-    windowDebug.events.on('changeOpenType', (msg, openType) => {
-      if (openType === WINDOW_OPEN_TYPE_BOTH) {
-        this._isBothOpenTypeSelected = true;
-      } else {
-        this._isBothOpenTypeSelected = false;
-        this._windowOpenType = openType;
-      }
+    debugMenu.events.on('changeState', () => this.onClick());
+    debugMenu.events.on('changeOpenType', (msg, openType) => this._onDebugChangeOpenType(openType));
+  }
 
-      windowDebug.updateWindowOpenType(this._windowOpenType);
-    });
+  _onDebugChangeOpenType(openType) {
+    if (openType === WINDOW_OPEN_TYPE_BOTH) {
+      this._isBothOpenTypeSelected = true;
+    } else {
+      this._isBothOpenTypeSelected = false;
+      this._windowOpenType = openType;
+    }
+
+    debugMenu.updateWindowOpenType(this._windowOpenType);
   }
 }

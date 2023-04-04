@@ -3,14 +3,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { AIR_CONDITIONER_PART_TYPE } from './air-conditioner-data';
-import ChairDebug from './air-conditioner-debug';
 import { ROOM_CONFIG } from '../../room-config';
+import AirConditionerDebugMenu from './air-conditioner-debug-menu';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
-
-    this._airConditionerDebug = null;
 
     this._init();
   }
@@ -18,7 +16,7 @@ export default class AirConditioner extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._airConditionerDebug.disable();
+    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
@@ -31,7 +29,7 @@ export default class AirConditioner extends RoomObjectAbstract {
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start()
         .onComplete(() => {
-          this._airConditionerDebug.enable();
+          this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
     });
@@ -63,18 +61,10 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._initDebug();
   }
 
-  _addPartsToScene() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-
-      this.add(part);
-    }
-  }
-
   _initDebug() {
-    const airConditionerDebug = this._airConditionerDebug = new ChairDebug();
+    const debugMenu = this._debugMenu = new AirConditionerDebugMenu();
 
-    airConditionerDebug.events.on('switchOn', () => {
+    debugMenu.events.on('switchOn', () => {
       this.onClick();
     });
   }
