@@ -17,6 +17,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
     this._isShowAnimationActive = false;
     this._isInputEnabled = true;
+    this._isPointerOver = false;
   }
 
   showWithAnimation() {
@@ -37,6 +38,14 @@ export default class RoomObjectAbstract extends THREE.Group {
   }
 
   onClick() { }
+
+  onPointerOver() {
+    this._isPointerOver = true;
+  }
+
+  onPointerOut() {
+    this._isPointerOver = false;
+  }
 
   getMeshesForOutline(mesh) { }
 

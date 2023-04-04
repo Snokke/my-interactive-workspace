@@ -1,3 +1,6 @@
+import * as THREE from 'three';
+import { HELP_ARROW_TYPE } from './monitor-data';
+
 const MONITOR_CONFIG = {
   monitor: {
     positionZ: 0,
@@ -17,6 +20,20 @@ const MONITOR_CONFIG = {
       bonusAngle: 5,
     },
   },
+  helpArrows: {
+    [HELP_ARROW_TYPE.Front]: {
+      color: 0x00ff00,
+      direction: new THREE.Vector3(0, 0, 1),
+      offsetZ: 0.3,
+      length: 1,
+    },
+    [HELP_ARROW_TYPE.Back]: {
+      color: 0xff0000,
+      direction: new THREE.Vector3(0, 0, -1),
+      offsetZ: -0.3,
+      length: 1,
+    },
+  }
 }
 
 export default MONITOR_CONFIG;

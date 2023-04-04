@@ -28,6 +28,9 @@ export default class Room extends THREE.Group {
     this._pointerPosition = new THREE.Vector2();
     this._draggingObject = null;
 
+    this._glowMeshesNames = [];
+    this._previousGlowMeshesNames = [];
+
     this._init();
   }
 
@@ -161,14 +164,26 @@ export default class Room extends THREE.Group {
       this._resetGlow();
       Black.engine.containerElement.style.cursor = 'auto';
 
+      this._glowMeshesNames = [];
+      this._previousGlowMeshesNames = [];
+      this._resetRoomObjectsPointerOver();
+
       return;
     }
 
     const roomObject = this._roomActiveObject[mesh.userData.objectType];
     const meshes = roomObject.getMeshesForOutline(mesh);
-    this._setGlow(meshes);
+    this._glowMeshesNames = meshes.map(mesh => mesh.name);
 
-    Black.engine.containerElement.style.cursor = 'pointer';
+    if (!this._arraysEqual(this._glowMeshesNames, this._previousGlowMeshesNames)) {
+      this._resetRoomObjectsPointerOver();
+
+      this._setGlow(meshes);
+      roomObject.onPointerOver();
+      Black.engine.containerElement.style.cursor = 'pointer';
+    }
+
+    this._previousGlowMeshesNames = this._glowMeshesNames;
   }
 
   _setGlow(items) {
@@ -180,6 +195,12 @@ export default class Room extends THREE.Group {
   _resetGlow() {
     if (this._outlinePass.selectedObjects.length > 0) {
       this._outlinePass.selectedObjects = [];
+    }
+  }
+
+  _resetRoomObjectsPointerOver() {
+    for (const key in this._roomActiveObject) {
+      this._roomActiveObject[key].onPointerOut();
     }
   }
 
@@ -305,6 +326,28 @@ export default class Room extends THREE.Group {
   _checkIsShowAnimationComplete() {
     for (const key in this._roomActiveObject) {
       if (this._roomActiveObject[key].isShowAnimationActive()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  _arraysEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+
+    if (a == null || b == null) {
+      return false;
+    }
+
+    if (a.length !== b.length) {
+      return false;
+    }
+
+    for (let i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) {
         return false;
       }
     }

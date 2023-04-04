@@ -4,7 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../room-config';
 import MonitorDebug from './monitor-debug';
-import { MONITOR_PART_TYPE } from './monitor-data';
+import { HELP_ARROW_TYPE, MONITOR_PART_TYPE } from './monitor-data';
 import MONITOR_CONFIG from './monitor-config';
 
 export default class Monitor extends RoomObjectAbstract {
@@ -13,6 +13,8 @@ export default class Monitor extends RoomObjectAbstract {
 
     this._monitorDebug = null;
     this._monitorGroup = null;
+    this._arrowsGroup = null;
+    this._arrowsTween = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -34,6 +36,7 @@ export default class Monitor extends RoomObjectAbstract {
 
     this._updateMonitorPosition(deltaZ);
     this._updateArmMount(deltaZ);
+    this._updateHelpArrows(deltaZ);
 
     this._previousPositionZ = this._currentPositionZ;
   }
@@ -51,9 +54,9 @@ export default class Monitor extends RoomObjectAbstract {
         const part = this._parts[key];
 
         new TWEEN.Tween(part.position)
-        .to({ y: part.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
+          .to({ y: part.userData.startPosition.y }, fallDownTime)
+          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+          .start();
       }
 
       Delayed.call(fallDownTime, () => {
@@ -84,6 +87,46 @@ export default class Monitor extends RoomObjectAbstract {
     this._currentPositionZ = THREE.MathUtils.clamp(this._currentPositionZ, MONITOR_CONFIG.monitor.minZ + startPositionZ, MONITOR_CONFIG.monitor.maxZ + startPositionZ);
 
     this._updatePosition();
+  }
+
+  onPointerOver() {
+    if (this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOver();
+
+    this._arrowsGroup.visible = true;
+
+    if (this._arrowsTween) {
+      this._arrowsTween.stop();
+    }
+
+    this._arrowsGroup.scale.set(0, 0, 0);
+    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
+      .to({ x: 1, y: 1, z: 1 }, 200)
+      .easing(TWEEN.Easing.Back.Out)
+      .start();
+  }
+
+  onPointerOut() {
+    if (!this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOut();
+
+    if (this._arrowsTween) {
+      this._arrowsTween.stop();
+    }
+
+    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
+      .to({ x: 0, y: 0, z: 0 }, 200)
+      .easing(TWEEN.Easing.Back.In)
+      .start()
+      .onComplete(() => {
+        this._arrowsGroup.visible = false;
+      });
   }
 
   getMeshesForOutline(mesh) {
@@ -139,6 +182,10 @@ export default class Monitor extends RoomObjectAbstract {
     MONITOR_CONFIG.armMount.arm02.angle = -Math.round(arm02.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
   }
 
+  _updateHelpArrows(deltaZ) {
+    this._arrowsGroup.position.z = this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z + deltaZ;
+    this._arrowsGroup.position.x = this._parts[MONITOR_PART_TYPE.Monitor].position.x;
+  }
 
   _init() {
     this._initParts();
@@ -146,6 +193,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._addPartsToScene();
     this._initGroups();
     this._updateArmRotation();
+    this._initArrows();
     this._initDebug();
   }
 
@@ -166,6 +214,29 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
 
     monitorGroup.add(monitor, monitorScreen, monitorMount);
+  }
+
+  _initArrows() {
+    const arrowsGroup = this._arrowsGroup = new THREE.Group();
+    this.add(arrowsGroup);
+
+    const frontArrow = this._frontArrow = this._createArrow(HELP_ARROW_TYPE.Front);
+    const backArrow = this._backArrow = this._createArrow(HELP_ARROW_TYPE.Back);
+
+    arrowsGroup.add(frontArrow, backArrow);
+    arrowsGroup.position.copy(this._parts[MONITOR_PART_TYPE.Monitor].position.clone());
+    arrowsGroup.visible = false;
+  }
+
+  _createArrow(type) {
+    const arrow = new THREE.ArrowHelper(
+      MONITOR_CONFIG.helpArrows[type].direction,
+      new THREE.Vector3(0, 0, MONITOR_CONFIG.helpArrows[type].offsetZ),
+      MONITOR_CONFIG.helpArrows[type].length,
+      MONITOR_CONFIG.helpArrows[type].color,
+    );
+
+    return arrow;
   }
 
   _initDebug() {

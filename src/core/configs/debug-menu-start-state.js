@@ -13,7 +13,7 @@ const DEBUG_MENU_START_STATE = {
     Mouse: false,
     Speakers: false,
     Keyboard: false,
-    Monitor: true,
+    Monitor: false,
     Notebook: false,
 }
 
