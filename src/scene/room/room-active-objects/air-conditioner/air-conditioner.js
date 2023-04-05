@@ -42,17 +42,6 @@ export default class AirConditioner extends RoomObjectAbstract {
     console.log('Air conditioner switch on');
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
-  _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
-  }
-
   _init() {
     this._initParts();
     this._addMaterials();

@@ -96,10 +96,6 @@ export default class Walls extends RoomObjectAbstract {
     }
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
   _startFromHandle() {
     this._setWindowState(WINDOW_STATE.Opening);
 

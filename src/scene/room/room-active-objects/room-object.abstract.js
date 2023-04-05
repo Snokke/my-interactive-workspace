@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
-import { ROOM_OBJECT_CONFIG } from '../data/room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
 
 export default class RoomObjectAbstract extends THREE.Group {
@@ -58,7 +58,9 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isPointerOver = false;
   }
 
-  getMeshesForOutline(mesh) { }
+  getMeshesForOutline(mesh) {
+    return this._activeMeshes;
+  }
 
   getObjectType() {
     return this._roomObjectType;
@@ -74,6 +76,13 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   isShowAnimationActive() {
     return this._isShowAnimationActive;
+  }
+
+  _setPositionForShowAnimation() {
+    for (let key in this._parts) {
+      const part = this._parts[key];
+      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
+    }
   }
 
   _onShowAnimationComplete() {

@@ -55,15 +55,8 @@ export default class Chair extends RoomObjectAbstract {
     console.log('Rotate chair');
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
   _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
+    super._setPositionForShowAnimation();
 
     this._parts[CHAIR_PART_TYPE.Seat].rotation.y = 0;
   }

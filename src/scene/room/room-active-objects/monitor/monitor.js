@@ -127,20 +127,9 @@ export default class Monitor extends RoomObjectAbstract {
       });
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
   _updatePosition() {
     MONITOR_CONFIG.monitor.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     this._debugMenu.updatePosition();
-  }
-
-  _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
   }
 
   _updateMonitorPosition(deltaZ) {

@@ -3,7 +3,6 @@ import DEBUG_CONFIG from '../../core/configs/debug-config';
 import Loader from '../../core/loader';
 import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
 import RoomDebug from './room-debug';
-import RoomInactiveObjects from './room-inactive-objects/room-inactive-objects';
 import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
@@ -21,10 +20,9 @@ export default class Room extends THREE.Group {
 
     this._roomScene = null;
     this._roomDebug = null;
-    this._roomInactiveObjectsClass = null;
 
     this._roomActiveObject = {};
-    this._roomInactiveMesh = {};
+    this._roomInactiveObject = {};
     this._roomObjectsByActivityType = {};
 
     this._pointerPosition = new THREE.Vector2();
@@ -146,7 +144,7 @@ export default class Room extends THREE.Group {
         }
 
         if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-          this._roomInactiveMesh[type].visible = isVisible;
+          this._roomInactiveObject[type].setVisibility(isVisible);
         }
       }
     }
@@ -160,7 +158,7 @@ export default class Room extends THREE.Group {
     }
 
     if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-      this._roomInactiveObjectsClass.showWithAnimation(objectType, startDelay);
+      this._roomInactiveObject[objectType].showWithAnimation(startDelay);
     }
   }
 
@@ -249,13 +247,7 @@ export default class Room extends THREE.Group {
       const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
       const roomObjects = this._roomObjectsByActivityType[activityType];
 
-      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-        roomObjects[selectedObjectType].showWithAnimation();
-      }
-
-      if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-        this._roomInactiveObjectsClass.showWithAnimation(selectedObjectType);
-      }
+      roomObjects[selectedObjectType].showWithAnimation();
     }
   }
 
@@ -286,21 +278,20 @@ export default class Room extends THREE.Group {
   }
 
   _initInactiveObjects() {
-    const roomInactiveObjectsClass = this._roomInactiveObjectsClass = new RoomInactiveObjects(this._roomScene);
-    const inactiveObjects = this._roomInactiveMesh = roomInactiveObjectsClass.getInactiveMeshes();
+    for (const key in ROOM_OBJECT_TYPE) {
+      const type = ROOM_OBJECT_TYPE[key];
+      const config = ROOM_OBJECT_CONFIG[type];
+      const objectClass = ROOM_OBJECT_CLASS[type];
 
-    const inactiveObjectsArray = [];
+      if (config.createObject && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
+        const roomObject = new objectClass.object(this._roomScene, type);
+        this.add(roomObject);
 
-    for (const key in inactiveObjects) {
-      const roomInactiveObject = inactiveObjects[key];
-      this.add(roomInactiveObject);
-
-      inactiveObjectsArray.push(roomInactiveObject);
+        this._roomInactiveObject[type] = roomObject;
+      }
     }
 
-    this._raycasterController.addMeshes(inactiveObjectsArray);
-
-    this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Inactive] = this._roomInactiveMesh;
+    this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Inactive] = this._roomInactiveObject;
   }
 
   _addObjectsToTableGroup() {
@@ -336,6 +327,10 @@ export default class Room extends THREE.Group {
 
     for (const key in this._roomActiveObject) {
       allMeshes.push(...this._roomActiveObject[key].getActiveMeshes());
+    }
+
+    for (const key in this._roomInactiveObject) {
+      allMeshes.push(this._roomInactiveObject[key].getMesh());
     }
 
     this._raycasterController.addMeshes(allMeshes);

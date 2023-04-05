@@ -95,10 +95,6 @@ export default class Table extends RoomObjectAbstract {
     this._startFromHandleMoveOut(handle);
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
   getTopTableGroup() {
     return this._topPartsGroup;
   }
@@ -206,9 +202,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      this._parts[key].position.y = this._parts[key].userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
+    super._setPositionForShowAnimation();
 
     const handle = this._parts[TABLE_PART_TYPE.Handle];
     handle.position.copy(handle.userData.startPosition);

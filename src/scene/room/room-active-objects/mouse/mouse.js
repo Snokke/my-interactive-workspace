@@ -82,17 +82,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._updatePosition();
   }
 
-  getMeshesForOutline(mesh) {
-    return this._activeMeshes;
-  }
-
-  _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
-  }
-
   _updatePosition() {
     MOUSE_CONFIG.position.x = this._currentPosition.x / MOUSE_CONFIG.movingArea.width * 2;
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
