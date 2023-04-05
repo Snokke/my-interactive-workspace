@@ -2,14 +2,26 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { CHAIR_PART_TYPE } from './chair-data';
+import { CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, CHAIR_POSITION_TYPE, SEAT_ROTATION_DIRECTION } from './chair-data';
 import { ROOM_CONFIG } from '../../data/room-config';
+import { CHAIR_CONFIG } from './chair-config';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
+    this._moveChairTween = null;
+    this._rotateSeatTween = null;
+
     this._init();
+  }
+
+  update(dt) {
+    if (this._isShowAnimationActive) {
+      return;
+    }
+
+    this._updateSeatRotation(dt);
   }
 
   showWithAnimation(delay) {
@@ -52,7 +64,153 @@ export default class Chair extends RoomObjectAbstract {
       return;
     }
 
-    console.log('Rotate chair');
+    const roomObject = intersect.object;
+    const partType = roomObject.userData.partType;
+
+    if (partType === CHAIR_PART_TYPE.Seat) {
+      this._rotateSeat();
+    } else {
+      this._moveChair();
+    }
+  }
+
+  getMeshesForOutline(mesh) {
+    if (mesh.userData.partType === CHAIR_PART_TYPE.Seat) {
+      return [this._parts[CHAIR_PART_TYPE.Seat]];
+    }
+
+    const legsParts = this._getLegsParts();
+
+    return [...legsParts];
+  }
+
+  _rotateSeat() {
+    if (CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Moving) {
+      const isAroundTable = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable
+        || (CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.NearTable && this.position.z < CHAIR_CONFIG.position.distanceToEnableRotation)
+
+      if (isAroundTable) {
+        return;
+      }
+    }
+
+    if (CHAIR_CONFIG.seatRotation.speed === 0) {
+      this._changeRotationDirection();
+    }
+
+    CHAIR_CONFIG.seatRotation.speed += CHAIR_CONFIG.seatRotation.impulse;
+
+    if (CHAIR_CONFIG.seatRotation.speed > CHAIR_CONFIG.seatRotation.maxSpeed) {
+      CHAIR_CONFIG.seatRotation.speed = CHAIR_CONFIG.seatRotation.maxSpeed;
+    }
+  }
+
+  _moveChair() {
+    if (CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Moving) {
+      this._updatePositionType();
+    }
+
+    this._stopTweens();
+    this._resetSeatRotation();
+
+    CHAIR_CONFIG.position.state = CHAIR_MOVEMENT_STATE.Moving;
+
+    const positionZ = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable ? CHAIR_CONFIG.position.distanceToTablePosition : 0;
+    const time = Math.abs(this.position.z - positionZ) / CHAIR_CONFIG.position.speed * 1000;
+
+    this._moveChairTween = new TWEEN.Tween(this.position)
+      .to({ z: positionZ }, time)
+      .easing(TWEEN.Easing.Cubic.Out)
+      .start()
+      .onComplete(() => {
+        this._updatePositionType();
+
+        CHAIR_CONFIG.position.state = CHAIR_MOVEMENT_STATE.Idle;
+      });
+
+    if (CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable) {
+      this._rotateSeatForward(time);
+    }
+  }
+
+  _updateSeatRotation(dt) {
+    const seat = this._parts[CHAIR_PART_TYPE.Seat];
+    const direction = CHAIR_CONFIG.seatRotation.direction === SEAT_ROTATION_DIRECTION.Clockwise ? -1 : 1;
+
+    seat.rotation.y += direction * CHAIR_CONFIG.seatRotation.speed * dt * 60 * 0.01;
+
+    if (seat.rotation.y > Math.PI * 2) {
+      seat.rotation.y -= Math.PI * 2;
+    }
+
+    if (seat.rotation.y < 0) {
+      seat.rotation.y += Math.PI * 2;
+    }
+
+    if (CHAIR_CONFIG.seatRotation.speed > 0) {
+      CHAIR_CONFIG.seatRotation.speed -= CHAIR_CONFIG.seatRotation.speedDecrease * CHAIR_CONFIG.seatRotation.speedDecrease * dt * 60 * 0.01;
+    } else {
+      CHAIR_CONFIG.seatRotation.speed = 0;
+    }
+
+    this._checkIsRotationNearTable();
+  }
+
+  _checkIsRotationNearTable() {
+    const seat = this._parts[CHAIR_PART_TYPE.Seat];
+
+    const isRotatingNearTable = CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Idle
+    && CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.NearTable
+    && CHAIR_CONFIG.seatRotation.speed > 0;
+
+    if (isRotatingNearTable) {
+      if (seat.rotation.y > CHAIR_CONFIG.seatRotation.maxAngleWhenNearTable && seat.rotation.y < Math.PI) {
+        CHAIR_CONFIG.seatRotation.direction = SEAT_ROTATION_DIRECTION.Clockwise;
+        CHAIR_CONFIG.seatRotation.speed *= CHAIR_CONFIG.seatRotation.hitDampingCoefficient;
+      }
+
+      if (seat.rotation.y < Math.PI * 2 - CHAIR_CONFIG.seatRotation.maxAngleWhenNearTable && seat.rotation.y > Math.PI) {
+        CHAIR_CONFIG.seatRotation.direction = SEAT_ROTATION_DIRECTION.CounterClockwise;
+        CHAIR_CONFIG.seatRotation.speed *= CHAIR_CONFIG.seatRotation.hitDampingCoefficient;
+      }
+    }
+  }
+
+  _rotateSeatForward(time) {
+    const seat = this._parts[CHAIR_PART_TYPE.Seat];
+
+    const rotationY = seat.rotation.y < Math.PI ? 0 : Math.PI * 2;
+
+    this._rotateSeatTween = new TWEEN.Tween(seat.rotation)
+      .to({ y: rotationY }, time * 0.5)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+  }
+
+  _updatePositionType() {
+    CHAIR_CONFIG.position.positionType = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable
+      ? CHAIR_POSITION_TYPE.NearTable
+      : CHAIR_POSITION_TYPE.AwayFromTable;
+  }
+
+  _changeRotationDirection() {
+    CHAIR_CONFIG.seatRotation.direction = CHAIR_CONFIG.seatRotation.direction === SEAT_ROTATION_DIRECTION.Clockwise
+      ? SEAT_ROTATION_DIRECTION.CounterClockwise
+      : SEAT_ROTATION_DIRECTION.Clockwise;
+  }
+
+  _resetSeatRotation() {
+    CHAIR_CONFIG.seatRotation.speed = 0;
+  }
+
+  _stopTweens() {
+    if (this._moveChairTween) {
+      this._moveChairTween.stop();
+    }
+
+    if (this._rotateSeatTween) {
+      this._rotateSeatTween.stop();
+    }
   }
 
   _setPositionForShowAnimation() {
@@ -73,5 +231,23 @@ export default class Chair extends RoomObjectAbstract {
     this._debugMenu.events.on('rotate', () => {
       this.onClick();
     });
+  }
+
+  _getLegsParts() {
+    const parts = [];
+    const legsPartsNames = [
+      CHAIR_PART_TYPE.Legs,
+      CHAIR_PART_TYPE.Wheel01,
+      CHAIR_PART_TYPE.Wheel02,
+      CHAIR_PART_TYPE.Wheel03,
+      CHAIR_PART_TYPE.Wheel04,
+      CHAIR_PART_TYPE.Wheel05,
+    ];
+
+    legsPartsNames.forEach((partName) => {
+      parts.push(this._parts[partName]);
+    });
+
+    return parts;
   }
 }

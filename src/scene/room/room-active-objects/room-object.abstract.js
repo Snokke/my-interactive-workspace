@@ -23,6 +23,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isPointerOver = false;
   }
 
+  update(dt) { }
+
   showWithAnimation() {
     this._isInputEnabled = false;
     this._isShowAnimationActive = true;

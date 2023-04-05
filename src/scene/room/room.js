@@ -45,8 +45,9 @@ export default class Room extends THREE.Group {
       this._resetGlow();
     }
 
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].update(dt);
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].update(dt);
+    for(const objectType in this._roomActiveObject) {
+      this._roomActiveObject[objectType].update(dt);
+    }
   }
 
   onPointerMove(x, y) {
