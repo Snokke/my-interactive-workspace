@@ -3,8 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
-import FloorLampDebugMenu from './floor-lamp-debug-menu';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class FloorLamp extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -72,13 +71,12 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
-  _initDebug() {
-    const debugMenu = this._debugMenu = new FloorLampDebugMenu();
-
-    debugMenu.events.on('switchLight', () => {
+  _initSignals() {
+    this._debugMenu.events.on('switchLight', () => {
       this.onClick();
     });
   }

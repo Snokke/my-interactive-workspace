@@ -1,15 +1,12 @@
 import * as THREE from 'three';
-import { DEBUG_MENU_START_STATE } from '../../../../core/configs/debug-menu-start-state';
-import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH } from './walls-data';
 import { WINDOW_CONFIG } from "./window-config";
 
 export default class WindowDebugMenu extends RoomObjectDebugAbstract {
-  constructor(window) {
-    super();
+  constructor(roomObjectType) {
+    super(roomObjectType);
 
-    this._window = window;
     this._windowState = { value: '' };
     this._windowOpenType = { value: '' };
 
@@ -18,6 +15,7 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
     this._activeOpenType = null;
 
     this._init();
+    this._checkToDisableFolder();
   }
 
   updateWindowState(windowState) {
@@ -38,94 +36,15 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
     this._activeOpenType.disabled = true;
   }
 
-  openFolder() {
-    this._debugFolder.expanded = true;
-  }
-
-  closeFolder() {
-    this._debugFolder.expanded = false;
-  }
-
-  _init() {
-    this._initDebugMenu();
-    this._initDebugRotateAxis();
-  }
-
-  _initDebugMenu() {
-    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
-
-    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
-      title: 'Window',
-      expanded: DEBUG_MENU_START_STATE.Window,
-    });
-
-    this._openTypeController = debugFolder.addInput(this._windowOpenType, 'value', {
-      label: 'Open type',
-      disabled: true,
-    });
-
-    this._activeOpenType = debugFolder.addBlade({
-      view: 'list',
-      label: 'Active type',
-      options: [
-        { text: 'Both', value: WINDOW_OPEN_TYPE_BOTH },
-        { text: 'Horizontally', value: WINDOW_OPEN_TYPE.Horizontally },
-        { text: 'Vertically', value: WINDOW_OPEN_TYPE.Vertically },
-      ],
-      value: WINDOW_OPEN_TYPE_BOTH,
-    }).on('change', (openType) => {
-      this.events.post('changeOpenType', openType.value);
-    });
-
-    debugFolder.addSeparator();
-
-    this._stateController = debugFolder.addInput(this._windowState, 'value', {
-      label: 'State',
-      disabled: true,
-    });
-
-    debugFolder.addButton({
-      title: 'Change state',
-    }).on('click', () => {
-      this.events.post('changeState');
-    });
-
-    debugFolder.addSeparator();
-
-    debugFolder.addInput(WINDOW_CONFIG, 'handleRotationSpeed', {
-      label: 'Handle speed',
-      min: 1,
-      max: 15,
-    });
-
-    debugFolder.addInput(WINDOW_CONFIG, 'windowRotationSpeed', {
-      label: 'Window speed',
-      min: 5,
-      max: 100,
-    });
-
-    debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
-      label: 'Horizontal open angle',
-      min: 1,
-      max: 90,
-    });
-
-    debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
-      label: 'Vertical open angle',
-      min: 1,
-      max: 90,
-    });
-  }
-
-  _initDebugRotateAxis() {
+  initDebugRotateAxis(window) {
     if (!WINDOW_CONFIG.rotateAxisDebug) {
       return;
     }
 
-    const horizontalOpenPivot = this._window.position.clone()
+    const horizontalOpenPivot = window.position.clone()
       .add(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally].pivotOffset);
 
-    const verticalOpenPivot = this._window.position.clone()
+    const verticalOpenPivot = window.position.clone()
       .add(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically].pivotOffset);
 
     const geometry = new THREE.CylinderGeometry(0.05, 0.05, 4);
@@ -145,5 +64,66 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
 
     verticalCylinder.position.copy(verticalOpenPivot);
     verticalCylinder.rotation.z = Math.PI * 0.5;
+  }
+
+  _init() {
+    this._openTypeController = this._debugFolder.addInput(this._windowOpenType, 'value', {
+      label: 'Open type',
+      disabled: true,
+    });
+    this._openTypeController.customDisabled = true;
+
+    this._activeOpenType = this._debugFolder.addBlade({
+      view: 'list',
+      label: 'Active type',
+      options: [
+        { text: 'Both', value: WINDOW_OPEN_TYPE_BOTH },
+        { text: 'Horizontally', value: WINDOW_OPEN_TYPE.Horizontally },
+        { text: 'Vertically', value: WINDOW_OPEN_TYPE.Vertically },
+      ],
+      value: WINDOW_OPEN_TYPE_BOTH,
+    }).on('change', (openType) => {
+      this.events.post('changeOpenType', openType.value);
+    });
+
+    this._debugFolder.addSeparator();
+
+    this._stateController = this._debugFolder.addInput(this._windowState, 'value', {
+      label: 'State',
+      disabled: true,
+    });
+    this._stateController.customDisabled = true;
+
+    this._debugFolder.addButton({
+      title: 'Change state',
+    }).on('click', () => {
+      this.events.post('changeState');
+    });
+
+    this._debugFolder.addSeparator();
+
+    this._debugFolder.addInput(WINDOW_CONFIG, 'handleRotationSpeed', {
+      label: 'Handle speed',
+      min: 1,
+      max: 15,
+    });
+
+    this._debugFolder.addInput(WINDOW_CONFIG, 'windowRotationSpeed', {
+      label: 'Window speed',
+      min: 5,
+      max: 100,
+    });
+
+    this._debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
+      label: 'Horizontal open angle',
+      min: 1,
+      max: 90,
+    });
+
+    this._debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
+      label: 'Vertical open angle',
+      min: 1,
+      max: 90,
+    });
   }
 }

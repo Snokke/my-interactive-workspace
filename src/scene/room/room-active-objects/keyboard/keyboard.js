@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 import { KEYBOARD_PART_TYPE } from './keyboard-data';
-import KeyboardDebugMenu from './keyboard-debug-menu';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -58,13 +57,12 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
-  _initDebug() {
-    const debugMenu = this._debugMenu = new KeyboardDebugMenu();
-
-    debugMenu.events.on('switchOn', () => {
+  _initSignals() {
+    this._debugMenu.events.on('switchOn', () => {
       this.onClick();
     });
   }

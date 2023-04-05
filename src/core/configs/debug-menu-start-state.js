@@ -1,20 +1,21 @@
+import { ROOM_OBJECT_TYPE } from "../../scene/room/data/room-config";
+
 const DEBUG_MENU_START_STATE = {
-  Scene: false,
   Room: true,
     ObjectsShowAnimation: false,
     ObjectsVisibility: false,
   ActiveRoomObjects: true,
-    Window: false,
-    Table: false,
-    Locker: false,
-    FloorLamp: false,
-    Chair: false,
-    AirConditioner: false,
-    Mouse: false,
-    Speakers: false,
-    Keyboard: false,
-    Monitor: false,
-    Notebook: false,
+    [ROOM_OBJECT_TYPE.Walls]: false,
+    [ROOM_OBJECT_TYPE.AirConditioner]: false,
+    [ROOM_OBJECT_TYPE.FloorLamp]: false,
+    [ROOM_OBJECT_TYPE.Locker]: false,
+    [ROOM_OBJECT_TYPE.Chair]: false,
+    [ROOM_OBJECT_TYPE.Table]: false,
+    [ROOM_OBJECT_TYPE.Speakers]: false,
+    [ROOM_OBJECT_TYPE.Monitor]: false,
+    [ROOM_OBJECT_TYPE.Notebook]: false,
+    [ROOM_OBJECT_TYPE.Keyboard]: false,
+    [ROOM_OBJECT_TYPE.Mouse]: false,
 }
 
 export { DEBUG_MENU_START_STATE };

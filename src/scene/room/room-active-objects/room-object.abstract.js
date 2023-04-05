@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
-import { ROOM_OBJECT_CONFIG } from '../room-config';
+import { ROOM_OBJECT_CONFIG } from '../data/room-config';
+import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
 
 export default class RoomObjectAbstract extends THREE.Group {
   constructor(meshesGroup, roomObjectType) {
@@ -37,6 +38,14 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   setVisibility(isVisible) {
     this._allMeshes.forEach(mesh => mesh.visible = isVisible);
+  }
+
+  openDebugMenu() {
+    this._debugMenu.openFolder();
+  }
+
+  closeDebugMenu() {
+    this._debugMenu.closeFolder();
   }
 
   onClick() { }
@@ -114,5 +123,11 @@ export default class RoomObjectAbstract extends THREE.Group {
 
       this.add(part);
     }
+  }
+
+  _initDebugMenu() {
+    const debugMenuClass = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu;
+    const debugMenu = this._debugMenu = new debugMenuClass(this._roomObjectType);
+    this.add(debugMenu);
   }
 }

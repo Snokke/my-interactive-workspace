@@ -3,9 +3,8 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_TYPE } from './mouse-data';
-import MouseDebugMenu from './mouse-debug-menu';
 import MOUSE_CONFIG from './mouse-config';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -105,7 +104,8 @@ export default class Mouse extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._calculateMovingArea();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
   _calculateMovingArea() {
@@ -119,13 +119,16 @@ export default class Mouse extends RoomObjectAbstract {
     this._maxAreaVector = new THREE.Vector3(startPosition.x + halfWidth, body.position.y, startPosition.y + halfHeight);
   }
 
-  _initDebug() {
-    const body = this._parts[MOUSE_PART_TYPE.Body];
-    const debugMenu = this._debugMenu = new MouseDebugMenu(body);
-    this.add(debugMenu);
+  _initDebugMenu() {
+    super._initDebugMenu();
 
-    debugMenu.events.on('onPositionChanged', (msg, position) => this._onDebugPositionChanged(position));
-    debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
+    const startPosition = this._parts[MOUSE_PART_TYPE.Body].userData.startPosition;
+    this._debugMenu.initMovingAreaDebugPlane(startPosition);
+  }
+
+  _initSignals() {
+    this._debugMenu.events.on('onPositionChanged', (msg, position) => this._onDebugPositionChanged(position));
+    this._debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
   }
 
   _onDebugPositionChanged(position) {

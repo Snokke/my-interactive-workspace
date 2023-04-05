@@ -1,19 +1,18 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
-import TableDebugMenu from './table-debug-menu';
 import TABLE_CONFIG from './table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
     super(meshesGroup, roomObjectType);
 
-    this._handleState = { value: TABLE_HANDLE_STATE.Idle };
-    this._currentTableState = { value: TABLE_STATE.SittingMode };
-    this._previousTableState = this._currentTableState.value;
+    this._handleState = TABLE_HANDLE_STATE.Idle;
+    this._currentTableState = TABLE_STATE.SittingMode;
+    this._previousTableState = this._currentTableState;
 
     this._topPartsGroup = null;
 
@@ -86,7 +85,7 @@ export default class Table extends RoomObjectAbstract {
 
     const handle = this._parts[TABLE_PART_TYPE.Handle];
 
-    if (this._currentTableState.value === TABLE_STATE.Moving) {
+    if (this._currentTableState === TABLE_STATE.Moving) {
       this._changeDirection(handle);
 
       return;
@@ -109,7 +108,7 @@ export default class Table extends RoomObjectAbstract {
     this._stopTweens();
     this._setTableState(TABLE_STATE.Moving);
 
-    switch (this._handleState.value) {
+    switch (this._handleState) {
       case TABLE_HANDLE_STATE.MovingOut:
         this._startFromHandleMoveIn(handle);
         break;
@@ -125,7 +124,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _startFromHandleMoveOut(handle) {
-    this._handleState.value = TABLE_HANDLE_STATE.MovingOut;
+    this._handleState = TABLE_HANDLE_STATE.MovingOut;
 
     const positionZ = 0.75;
     const time = Math.abs(handle.userData.startPosition.z + positionZ - handle.position.z) / TABLE_CONFIG.handleMoveOutSpeed * 1000;
@@ -141,7 +140,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _startFromHandleRotation(handle) {
-    this._handleState.value = TABLE_HANDLE_STATE.Rotating;
+    this._handleState = TABLE_HANDLE_STATE.Rotating;
     this._previousHandleAngle = handle.rotation.z;
 
     const maxRotationAngle = Math.PI * 2 * TABLE_CONFIG.handleMaxRotations;
@@ -168,7 +167,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _startFromHandleMoveIn(handle) {
-    this._handleState.value = TABLE_HANDLE_STATE.MovingIn;
+    this._handleState = TABLE_HANDLE_STATE.MovingIn;
 
     const time = Math.abs(handle.userData.startPosition.z - handle.position.z) / TABLE_CONFIG.handleMoveOutSpeed * 1000;
     const tweenHandleMoveIn = this._tweenHandleMoveIn = new TWEEN.Tween(handle.position)
@@ -177,14 +176,14 @@ export default class Table extends RoomObjectAbstract {
       .start();
 
     tweenHandleMoveIn.onComplete(() => {
-      this._handleState.value = TABLE_HANDLE_STATE.Idle;
+      this._handleState = TABLE_HANDLE_STATE.Idle;
       this._updateTableState();
     });
   }
 
   _updateTableState() {
     this._setTableState(this._previousTableState === TABLE_STATE.SittingMode ? TABLE_STATE.StandingMode : TABLE_STATE.SittingMode);
-    this._previousTableState = this._currentTableState.value;
+    this._previousTableState = this._currentTableState;
   }
 
   _stopTweens() {
@@ -202,7 +201,7 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _setTableState(state) {
-    this._currentTableState.value = state;
+    this._currentTableState = state;
     this._debugMenu.updateTableState(state);
   }
 
@@ -220,9 +219,9 @@ export default class Table extends RoomObjectAbstract {
   _reset() {
     this._stopTweens();
 
-    this._handleState = { value: TABLE_HANDLE_STATE.Idle };
+    this._handleState = TABLE_HANDLE_STATE.Idle;
     this._setTableState(TABLE_STATE.SittingMode);
-    this._previousTableState = this._currentTableState.value;
+    this._previousTableState = this._currentTableState;
 
     this._topPartsGroup.position.y = 0;
 
@@ -237,7 +236,8 @@ export default class Table extends RoomObjectAbstract {
     this._addMaterials();
     this._initTopPartsGroup();
     this._addPartsToScene();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
   _initTopPartsGroup() {
@@ -256,9 +256,7 @@ export default class Table extends RoomObjectAbstract {
     return topPartsGroup;
   }
 
-  _initDebug() {
-    const debugMenu = this._debugMenu = new TableDebugMenu(this._currentTableState);
-
-    debugMenu.events.on('changeState', () => this.onClick());
+  _initSignals() {
+    this._debugMenu.events.on('changeState', () => this.onClick());
   }
 }

@@ -1,10 +1,9 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
-import LockerDebugMenu from './locker-debug-menu';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -215,7 +214,8 @@ export default class Locker extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
   _addPartsToScene() {
@@ -231,11 +231,9 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _initDebug() {
-    const debugMenu = this._debugMenu = new LockerDebugMenu(this._currentAnimationType);
-
-    debugMenu.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
-    debugMenu.events.on('pushAllCases', () => this.pushAllCases());
-    debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
+  _initSignals() {
+    this._debugMenu.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
+    this._debugMenu.events.on('pushAllCases', () => this.pushAllCases());
+    this._debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
   }
 }

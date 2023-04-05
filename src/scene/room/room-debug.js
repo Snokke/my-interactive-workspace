@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
-import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./room-config";
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./data/room-config";
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import DEBUG_CONFIG from "../../core/configs/debug-config";
+import { ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -81,7 +82,7 @@ export default class RoomDebug {
     for (const objectType in ROOM_OBJECT_TYPE) {
       const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
 
-      if (config.enabled) {
+      if (config.createObject) {
         options.push({
           text: config.label,
           value: ROOM_OBJECT_TYPE[objectType],
@@ -118,22 +119,22 @@ export default class RoomDebug {
       disabled: true,
     }).on('click', () => {
       for (const objectType in ROOM_OBJECT_TYPE) {
-        const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
-        config.visible = true;
+        ROOM_OBJECT_VISIBILITY_CONFIG[ROOM_OBJECT_TYPE[objectType]] = true;
         visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]].refresh();
         buttonShowAllObjects.disabled = true;
       }
     });
 
     for (const objectType in ROOM_OBJECT_TYPE) {
-      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+      const type = ROOM_OBJECT_TYPE[objectType];
+      const config = ROOM_OBJECT_CONFIG[type];
 
-      if (config.enabled) {
-        if (!config.visible) {
+      if (config.createObject) {
+        if (!ROOM_OBJECT_VISIBILITY_CONFIG[type]) {
           buttonShowAllObjects.disabled = false;
         }
 
-        visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]] = visibilityFolder.addInput(ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]], 'visible', {
+        visibilityObjectControllers[type] = visibilityFolder.addInput(ROOM_OBJECT_VISIBILITY_CONFIG, type, {
           label: config.label,
         }).on('change', (objectVisibleState) => {
             if (!objectVisibleState.value) {
@@ -152,8 +153,9 @@ export default class RoomDebug {
 
   _checkAllObjectsVisibility() {
     for (const objectType in ROOM_OBJECT_TYPE) {
-      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
-      if (!config.visible) {
+      const type = ROOM_OBJECT_TYPE[objectType];
+
+      if (!ROOM_OBJECT_VISIBILITY_CONFIG[type]) {
         return false;
       }
     }
@@ -162,9 +164,13 @@ export default class RoomDebug {
   }
 
   _initActiveRoomObjectsFolder() {
-    GUIHelper.getGui().addFolder({
+    const roomObjectsFolder = GUIHelper.getGui().addFolder({
       title: 'Active room objects',
       expanded: DEBUG_MENU_START_STATE.ActiveRoomObjects,
+    });
+
+    roomObjectsFolder.addInput(ROOM_CONFIG, 'autoOpenDebugFolders', {
+      label: 'Auto open',
     });
   }
 }

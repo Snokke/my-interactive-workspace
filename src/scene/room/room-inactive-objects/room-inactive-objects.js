@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from '../room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from '../data/room-config';
 import Delayed from '../../../core/helpers/delayed-call';
 
 export default class RoomInactiveObjects extends THREE.Group {
@@ -37,7 +37,7 @@ export default class RoomInactiveObjects extends THREE.Group {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
 
-      if (config.enabled && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
+      if (config.createObject && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
         const object = this._roomScene.getObjectByName(config.meshName);
 
         object.userData['objectType'] = type;

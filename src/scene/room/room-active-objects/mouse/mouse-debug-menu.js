@@ -1,72 +1,23 @@
 import * as THREE from 'three';
-import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-start-state";
-import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import MOUSE_CONFIG from "./mouse-config";
 
 export default class MouseDebugMenu extends RoomObjectDebugAbstract {
-  constructor(body) {
-    super();
-
-    this._body = body;
+  constructor(roomObjectType) {
+    super(roomObjectType);
 
     this._areaPlane = null;
     this._positionController = null;
 
     this._init();
+    this._checkToDisableFolder();
   }
 
   updatePosition() {
     this._positionController.refresh();
   }
 
-  _init() {
-    this._initMenu();
-    this._initMovingAreaDebugPlane();
-  }
-
-  _initMenu() {
-    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
-
-    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
-      title: 'Mouse',
-      expanded: DEBUG_MENU_START_STATE.Mouse,
-    });
-
-    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'showDebugPlane', {
-      label: 'Show area',
-    }).on('change', (showDebugPlane) => {
-      this._areaPlane.visible = showDebugPlane.value;
-    });
-
-    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'width', {
-      label: 'Area width',
-      min: 0.1,
-      max: 5,
-    }).on('change', () => {
-      this._onAreaChanged();
-    });
-
-    debugFolder.addInput(MOUSE_CONFIG.movingArea, 'height', {
-      label: 'Area height',
-      min: 0.1,
-      max: 5,
-    }).on('change', () => {
-      this._onAreaChanged();
-    });
-
-    this._positionController = debugFolder.addInput(MOUSE_CONFIG, 'position', {
-      label: 'Current position',
-      picker: 'inline',
-      expanded: true,
-      x: { min: -1, max: 1 },
-      y: { min: -1, max: 1 },
-    }).on('change', (position) => {
-      this.events.post('onPositionChanged', position.value);
-    });
-  }
-
-  _initMovingAreaDebugPlane() {
+  initMovingAreaDebugPlane(startPosition) {
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
       opacity: 0.5,
@@ -78,7 +29,7 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
     this.add(areaPlane);
 
     areaPlane.rotateX(-Math.PI * 0.5);
-    areaPlane.position.copy(this._body.position.clone());
+    areaPlane.position.copy(startPosition);
 
     areaPlane.scale.set(MOUSE_CONFIG.movingArea.width, MOUSE_CONFIG.movingArea.height, 1);
 
@@ -87,6 +38,40 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
     if (MOUSE_CONFIG.movingArea.showDebugPlane) {
       areaPlane.visible = true;
     }
+  }
+
+  _init() {
+    this._debugFolder.addInput(MOUSE_CONFIG.movingArea, 'showDebugPlane', {
+      label: 'Show area',
+    }).on('change', (showDebugPlane) => {
+      this._areaPlane.visible = showDebugPlane.value;
+    });
+
+    this._debugFolder.addInput(MOUSE_CONFIG.movingArea, 'width', {
+      label: 'Area width',
+      min: 0.1,
+      max: 5,
+    }).on('change', () => {
+      this._onAreaChanged();
+    });
+
+    this._debugFolder.addInput(MOUSE_CONFIG.movingArea, 'height', {
+      label: 'Area height',
+      min: 0.1,
+      max: 5,
+    }).on('change', () => {
+      this._onAreaChanged();
+    });
+
+    this._positionController = this._debugFolder.addInput(MOUSE_CONFIG, 'position', {
+      label: 'Current position',
+      picker: 'inline',
+      expanded: true,
+      x: { min: -1, max: 1 },
+      y: { min: -1, max: 1 },
+    }).on('change', (position) => {
+      this.events.post('onPositionChanged', position.value);
+    });
   }
 
   _onAreaChanged() {

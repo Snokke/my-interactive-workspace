@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
 import Loader from '../../core/loader';
-import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
 import RoomDebug from './room-debug';
 import RoomInactiveObjects from './room-inactive-objects/room-inactive-objects';
 import { Black } from 'black-engine';
+import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
+import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -67,14 +69,16 @@ export default class Room extends THREE.Group {
 
     const intersectObject = intersect.object;
 
-    if (intersectObject && intersectObject.userData.isActive) {
+    if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;
       const objectConfig = ROOM_OBJECT_CONFIG[objectType];
+      const roomObject = this._roomActiveObject[objectType];
 
-      this._roomActiveObject[objectType].onClick(intersect);
+      this._checkToOpenDebugFolders(roomObject);
+      roomObject.onClick(intersect);
 
       if (objectConfig.isDraggable) {
-        this._draggingObject = this._roomActiveObject[objectType];
+        this._draggingObject = roomObject;
         this._orbitControls.enabled = false;
 
         this._setGlow(this._draggingObject.getMeshesForOutline());
@@ -132,16 +136,17 @@ export default class Room extends THREE.Group {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
+      const isVisible = ROOM_OBJECT_VISIBILITY_CONFIG[type];
 
-      if (config.enabled) {
+      if (config.createObject) {
         const activityType = config.activityType;
 
         if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-          this._roomActiveObject[type].setVisibility(config.visible);
+          this._roomActiveObject[type].setVisibility(isVisible);
         }
 
         if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-          this._roomInactiveMesh[type].visible = config.visible;
+          this._roomInactiveMesh[type].visible = isVisible;
         }
       }
     }
@@ -160,7 +165,7 @@ export default class Room extends THREE.Group {
   }
 
   _checkToGlow(mesh) {
-    if (mesh === null || !mesh.userData.isActive || !this._roomActiveObject[mesh.userData.objectType].isInputEnabled()) {
+    if (mesh === null || !mesh.userData.isActive || !this._roomActiveObject[mesh.userData.objectType].isInputEnabled() || !ROOM_OBJECT_ENABLED_CONFIG[mesh.userData.objectType]) {
       this._resetGlow();
       Black.engine.containerElement.style.cursor = 'auto';
 
@@ -201,6 +206,19 @@ export default class Room extends THREE.Group {
   _resetRoomObjectsPointerOver() {
     for (const key in this._roomActiveObject) {
       this._roomActiveObject[key].onPointerOut();
+    }
+  }
+
+  _closeAllObjectsDebugMenu() {
+    for (const key in this._roomActiveObject) {
+      this._roomActiveObject[key].closeDebugMenu();
+    }
+  }
+
+  _checkToOpenDebugFolders(roomObject) {
+    if (ROOM_CONFIG.autoOpenDebugFolders) {
+      this._closeAllObjectsDebugMenu();
+      roomObject.openDebugMenu();
     }
   }
 
@@ -253,10 +271,11 @@ export default class Room extends THREE.Group {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
+      const objectClass = ROOM_OBJECT_CLASS[type];
 
-      if (config.enabled && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
+      if (config.createObject && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
         const group = this._roomScene.getObjectByName(config.groupName);
-        const roomObject = new config.class(group, type);
+        const roomObject = new objectClass.object(group, type);
         this.add(roomObject);
 
         this._roomActiveObject[type] = roomObject;
@@ -291,7 +310,7 @@ export default class Room extends THREE.Group {
       const type = ROOM_OBJECT_TYPE[key];
       const config = ROOM_OBJECT_CONFIG[type];
 
-      if (config.enabled && config.tableGroup) {
+      if (config.createObject && config.tableGroup) {
         const roomObjects = this._roomObjectsByActivityType[config.activityType];
         const roomObject = roomObjects[type];
 

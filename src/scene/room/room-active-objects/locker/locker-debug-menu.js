@@ -1,27 +1,19 @@
-import { DEBUG_MENU_START_STATE } from "../../../../core/configs/debug-menu-start-state";
-import GUIHelper from "../../../../core/helpers/gui-helper/gui-helper";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import LOCKER_CONFIG from "./locker-config";
 import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./locker-data";
 
 export default class LockerDebugMenu extends RoomObjectDebugAbstract {
-  constructor(allCasesAnimationType) {
-    super();
+  constructor(roomObjectType) {
+    super(roomObjectType);
 
-    this._allCasesAnimationType = allCasesAnimationType;
+    this._allCasesAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._init();
+    this._checkToDisableFolder();
   }
 
   _init() {
-    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
-
-    const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
-      title: 'Locker',
-      expanded: DEBUG_MENU_START_STATE.Locker,
-    });
-
-    debugFolder.addBlade({
+    this._debugFolder.addBlade({
       view: 'buttongrid',
       size: [3, 2],
       cells: (x, y) => ({
@@ -39,7 +31,7 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
       }
     });
 
-    debugFolder.addBlade({
+    this._debugFolder.addBlade({
       view: 'list',
       label: 'All cases animation',
       options: [
@@ -59,19 +51,19 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
       this.events.post('changeAllCasesAnimation', animationType.value);
     });
 
-    debugFolder.addButton({
+    this._debugFolder.addButton({
       title: 'Push all cases',
     }).on('click', () => this.events.post('pushAllCases'));
 
-    debugFolder.addSeparator();
+    this._debugFolder.addSeparator();
 
-    debugFolder.addInput(LOCKER_CONFIG, 'caseMoveDistance', {
+    this._debugFolder.addInput(LOCKER_CONFIG, 'caseMoveDistance', {
       label: 'Move out distance',
       min: 0.1,
       max: 1.5,
     });
 
-    debugFolder.addInput(LOCKER_CONFIG, 'caseMoveSpeed', {
+    this._debugFolder.addInput(LOCKER_CONFIG, 'caseMoveSpeed', {
       label: 'Case speed',
       min: 0.5,
       max: 20,

@@ -3,9 +3,8 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './walls-data';
-import WindowDebugMenu from './window-debug-menu';
 import { WINDOW_CONFIG } from './window-config';
-import { ROOM_CONFIG } from '../../room-config';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -74,8 +73,6 @@ export default class Walls extends RoomObjectAbstract {
     if (!this._isInputEnabled) {
       return;
     }
-
-    this._debugMenu.openFolder();
 
     this._stopTweens();
     this._debugMenu.disableActiveOpenType();
@@ -247,6 +244,7 @@ export default class Walls extends RoomObjectAbstract {
     this._initWindowGroup();
     this._initRightWallGroup();
     this._initDebugMenu();
+    this._initSignals();
   }
 
   _initGlass() {
@@ -281,15 +279,18 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initDebugMenu() {
+    super._initDebugMenu();
+
     const window = this._parts[WALLS_PART_TYPE.Window];
-    const debugMenu = this._debugMenu = new WindowDebugMenu(window);
-    this.add(debugMenu);
+    this._debugMenu.initDebugRotateAxis(window);
 
-    debugMenu.updateWindowState(this._windowState);
-    debugMenu.updateWindowOpenType(this._windowOpenType);
+    this._debugMenu.updateWindowState(this._windowState);
+    this._debugMenu.updateWindowOpenType(this._windowOpenType);
+  }
 
-    debugMenu.events.on('changeState', () => this.onClick());
-    debugMenu.events.on('changeOpenType', (msg, openType) => this._onDebugChangeOpenType(openType));
+  _initSignals() {
+    this._debugMenu.events.on('changeState', () => this.onClick());
+    this._debugMenu.events.on('changeOpenType', (msg, openType) => this._onDebugChangeOpenType(openType));
   }
 
   _onDebugChangeOpenType(openType) {

@@ -2,8 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../room-config';
-import MonitorDebugMenu from './monitor-debug-menu';
+import { ROOM_CONFIG } from '../../data/room-config';
 import { HELP_ARROW_TYPE, MONITOR_PART_TYPE } from './monitor-data';
 import MONITOR_CONFIG from './monitor-config';
 
@@ -193,7 +192,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._initGroups();
     this._updateArmRotation();
     this._initArrows();
-    this._initDebug();
+    this._initDebugMenu();
+    this._initSignals();
   }
 
   _initGroups() {
@@ -230,10 +230,8 @@ export default class Monitor extends RoomObjectAbstract {
     return arrow;
   }
 
-  _initDebug() {
-    const debugMenu = this._debugMenu = new MonitorDebugMenu();
-
-    debugMenu.events.on('onPositionChanged', (msg, position) => {
+  _initSignals() {
+    this._debugMenu.events.on('onPositionChanged', (msg, position) => {
       this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     });
   }
