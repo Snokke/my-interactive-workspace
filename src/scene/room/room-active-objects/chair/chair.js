@@ -12,6 +12,8 @@ export default class Chair extends RoomObjectAbstract {
 
     this._moveChairTween = null;
     this._rotateSeatTween = null;
+    this._rotateLegsTween = null;
+    this._legsGroup = null;
 
     this._init();
   }
@@ -22,6 +24,7 @@ export default class Chair extends RoomObjectAbstract {
     }
 
     this._updateSeatRotation(dt);
+    this._updateWheelsRotation(dt);
   }
 
   showWithAnimation(delay) {
@@ -85,9 +88,9 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _rotateSeat() {
-    if (CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Moving) {
-      const isAroundTable = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable
-        || (CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.NearTable && this.position.z < CHAIR_CONFIG.position.distanceToEnableRotation)
+    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
+      const isAroundTable = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
+        || (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable && this.position.z < CHAIR_CONFIG.chairMoving.distanceToEnableRotation)
 
       if (isAroundTable) {
         return;
@@ -106,17 +109,17 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _moveChair() {
-    if (CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Moving) {
+    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
       this._updatePositionType();
     }
 
     this._stopTweens();
     this._resetSeatRotation();
 
-    CHAIR_CONFIG.position.state = CHAIR_MOVEMENT_STATE.Moving;
+    CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Moving;
 
-    const positionZ = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable ? CHAIR_CONFIG.position.distanceToTablePosition : 0;
-    const time = Math.abs(this.position.z - positionZ) / CHAIR_CONFIG.position.speed * 1000;
+    const positionZ = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable ? CHAIR_CONFIG.chairMoving.distanceToTablePosition : 0;
+    const time = Math.abs(this.position.z - positionZ) / CHAIR_CONFIG.chairMoving.speed * 1000;
 
     this._moveChairTween = new TWEEN.Tween(this.position)
       .to({ z: positionZ }, time)
@@ -125,10 +128,13 @@ export default class Chair extends RoomObjectAbstract {
       .onComplete(() => {
         this._updatePositionType();
 
-        CHAIR_CONFIG.position.state = CHAIR_MOVEMENT_STATE.Idle;
+        CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Idle;
       });
 
-    if (CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable) {
+    this._setWheelsRandomData();
+    this._rotateLegs(time);
+
+    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable) {
       this._rotateSeatForward(time);
     }
   }
@@ -156,11 +162,26 @@ export default class Chair extends RoomObjectAbstract {
     this._checkIsRotationNearTable();
   }
 
+  _updateWheelsRotation(dt) {
+    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
+      const wheels = this._getWheelsParts();
+
+      const targetAngle = CHAIR_CONFIG.chairMoving.wheels.targetAngle[CHAIR_CONFIG.chairMoving.positionType] - this._legsGroup.rotation.y;
+
+      wheels.forEach(wheel => {
+        const errorAngle = wheel.userData.targetAngleError;
+        const speed = CHAIR_CONFIG.chairMoving.wheels.rotationSpeed + wheel.userData.speedError;
+
+        wheel.rotation.y += (targetAngle + errorAngle - wheel.rotation.y) * speed * dt * 60 * 0.01;
+      });
+    }
+  }
+
   _checkIsRotationNearTable() {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
 
-    const isRotatingNearTable = CHAIR_CONFIG.position.state === CHAIR_MOVEMENT_STATE.Idle
-    && CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.NearTable
+    const isRotatingNearTable = CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Idle
+    && CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable
     && CHAIR_CONFIG.seatRotation.speed > 0;
 
     if (isRotatingNearTable) {
@@ -176,6 +197,27 @@ export default class Chair extends RoomObjectAbstract {
     }
   }
 
+  _setWheelsRandomData() {
+    const wheels = this._getWheelsParts();
+
+    wheels.forEach(wheel => {
+      const sign = Math.random() > 0.5 ? 1 : -1;
+      wheel.userData.targetAngleError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.targetAngleMaxError * THREE.MathUtils.DEG2RAD;
+      wheel.userData.speedError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.rotationSpeedError;
+    });
+  }
+
+  _rotateLegs(time) {
+    const sign = Math.random() > 0.5 ? '+' : '-';
+    const angle = THREE.MathUtils.DEG2RAD * 20 + Math.random() * THREE.MathUtils.DEG2RAD * 30;
+    const timeCoefficient = 0.3 + Math.random() * 0.3;
+
+    this._rotateLegsTween = new TWEEN.Tween(this._legsGroup.rotation)
+      .to({ y: `${sign}${angle}` }, time * timeCoefficient)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+  }
+
   _rotateSeatForward(time) {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
 
@@ -188,7 +230,7 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _updatePositionType() {
-    CHAIR_CONFIG.position.positionType = CHAIR_CONFIG.position.positionType === CHAIR_POSITION_TYPE.AwayFromTable
+    CHAIR_CONFIG.chairMoving.positionType = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
       ? CHAIR_POSITION_TYPE.NearTable
       : CHAIR_POSITION_TYPE.AwayFromTable;
   }
@@ -211,6 +253,10 @@ export default class Chair extends RoomObjectAbstract {
     if (this._rotateSeatTween) {
       this._rotateSeatTween.stop();
     }
+
+    if (this._rotateLegsTween) {
+      this._rotateLegsTween.stop();
+    }
   }
 
   _setPositionForShowAnimation() {
@@ -227,16 +273,44 @@ export default class Chair extends RoomObjectAbstract {
     this._initSignals();
   }
 
+  _addPartsToScene() {
+    const seat = this._parts[CHAIR_PART_TYPE.Seat];
+    this.add(seat);
+
+    const legs = this._parts[CHAIR_PART_TYPE.Legs];
+    const legsPositionZ = legs.position.z;
+    const legsGroup = this._legsGroup = new THREE.Group();
+    this.add(legsGroup);
+
+    const legsParts = this._getLegsParts();
+    legsParts.forEach((part) => {
+      part.position.z -= legsPositionZ;
+      legsGroup.add(part);
+    });
+
+    legsGroup.position.z = legsPositionZ;
+  }
+
   _initSignals() {
     this._debugMenu.events.on('rotate', () => {
-      this.onClick();
+      this._rotateSeat();
+    });
+
+    this._debugMenu.events.on('move', () => {
+      this._moveChair();
     });
   }
 
   _getLegsParts() {
+    const legs = this._parts[CHAIR_PART_TYPE.Legs];
+    const wheels = this._getWheelsParts();
+
+    return [legs, ...wheels];
+  }
+
+  _getWheelsParts() {
     const parts = [];
-    const legsPartsNames = [
-      CHAIR_PART_TYPE.Legs,
+    const wheelsPartsNames = [
       CHAIR_PART_TYPE.Wheel01,
       CHAIR_PART_TYPE.Wheel02,
       CHAIR_PART_TYPE.Wheel03,
@@ -244,7 +318,7 @@ export default class Chair extends RoomObjectAbstract {
       CHAIR_PART_TYPE.Wheel05,
     ];
 
-    legsPartsNames.forEach((partName) => {
+    wheelsPartsNames.forEach((partName) => {
       parts.push(this._parts[partName]);
     });
 

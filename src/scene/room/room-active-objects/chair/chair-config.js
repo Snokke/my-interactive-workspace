@@ -10,12 +10,21 @@ const CHAIR_CONFIG = {
     maxAngleWhenNearTable: 0.78,
     hitDampingCoefficient: 0.9,
   },
-  position: {
+  chairMoving: {
     state: CHAIR_MOVEMENT_STATE.Idle,
     positionType: CHAIR_POSITION_TYPE.AwayFromTable,
     speed: 1.8,
     distanceToTablePosition: -3.3,
     distanceToEnableRotation: -1.7,
+    wheels: {
+      rotationSpeed: 10,
+      rotationSpeedError: 4,
+      targetAngle: {
+        [CHAIR_POSITION_TYPE.AwayFromTable]: Math.PI,
+        [CHAIR_POSITION_TYPE.NearTable]: 0,
+      },
+      targetAngleMaxError: 10,
+    },
   }
 }
 

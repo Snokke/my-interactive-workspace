@@ -12,5 +12,9 @@ export default class ChairDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addButton({
       title: 'Rotate',
     }).on('click', () => this.events.post('rotate'));
+
+    this._debugFolder.addButton({
+      title: 'Move',
+    }).on('click', () => this.events.post('move'));
   }
 }
