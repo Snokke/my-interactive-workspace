@@ -9,7 +9,7 @@ const DEBUG_MENU_START_STATE = {
     [ROOM_OBJECT_TYPE.AirConditioner]: false,
     [ROOM_OBJECT_TYPE.FloorLamp]: false,
     [ROOM_OBJECT_TYPE.Locker]: false,
-    [ROOM_OBJECT_TYPE.Chair]: true,
+    [ROOM_OBJECT_TYPE.Chair]: false,
     [ROOM_OBJECT_TYPE.Table]: false,
     [ROOM_OBJECT_TYPE.Speakers]: false,
     [ROOM_OBJECT_TYPE.Monitor]: false,
