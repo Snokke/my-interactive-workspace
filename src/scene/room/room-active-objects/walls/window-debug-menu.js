@@ -49,7 +49,7 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
 
     const geometry = new THREE.CylinderGeometry(0.05, 0.05, 4);
     const material = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
+      color: 0x00ff00,
       transparent: true,
       opacity: 0.5,
     });
