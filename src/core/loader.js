@@ -3,7 +3,7 @@ import { AssetManager, GameObject } from 'black-engine';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const textures = [
-
+  'cursor.png',
 ];
 
 const models = [

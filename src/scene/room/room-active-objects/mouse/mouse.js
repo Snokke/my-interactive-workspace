@@ -5,6 +5,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_TYPE } from './mouse-data';
 import MOUSE_CONFIG from './mouse-config';
 import { ROOM_CONFIG } from '../../data/room-config';
+import { Vector2 } from 'three';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -80,6 +81,10 @@ export default class Mouse extends RoomObjectAbstract {
     this._currentPosition.sub(body.userData.startPosition);
 
     this._updatePosition();
+  }
+
+  getCurrentPosition() {
+    return new Vector2(this._currentPosition.x, this._currentPosition.z);
   }
 
   _updatePosition() {

@@ -127,6 +127,10 @@ export default class Monitor extends RoomObjectAbstract {
       });
   }
 
+  getScreen() {
+    return this._parts[MONITOR_PART_TYPE.MonitorScreen];
+  }
+
   _updatePosition() {
     MONITOR_CONFIG.monitor.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     this._debugMenu.updatePosition();

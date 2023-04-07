@@ -6,6 +6,7 @@ import RoomDebug from './room-debug';
 import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
+import Cursor from './room-active-objects/mouse/cursor';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -20,6 +21,7 @@ export default class Room extends THREE.Group {
 
     this._roomScene = null;
     this._roomDebug = null;
+    this._cursor = null;
 
     this._roomActiveObject = {};
     this._roomInactiveObject = {};
@@ -45,9 +47,11 @@ export default class Room extends THREE.Group {
       this._resetGlow();
     }
 
-    for(const objectType in this._roomActiveObject) {
+    for (const objectType in this._roomActiveObject) {
       this._roomActiveObject[objectType].update(dt);
     }
+
+    this._cursor.update(dt);
   }
 
   onPointerMove(x, y) {
@@ -258,6 +262,7 @@ export default class Room extends THREE.Group {
     this._initActiveObjects();
     this._initInactiveObjects();
     this._addObjectsToTableGroup();
+    this._initCursor();
   }
 
   _initActiveObjects() {
@@ -309,6 +314,15 @@ export default class Room extends THREE.Group {
         tableTopGroup.add(roomObject);
       }
     }
+  }
+
+  _initCursor() {
+    const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
+    const monitorScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].getScreen();
+    const notebookScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Notebook].getScreen();
+
+    const cursor = this._cursor = new Cursor(mouse, monitorScreen, notebookScreen);
+    this.add(cursor);
   }
 
   _initSignals() {

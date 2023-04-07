@@ -87,6 +87,10 @@ export default class Notebook extends RoomObjectAbstract {
     }
   }
 
+  getScreen() {
+    return this._parts[NOTEBOOK_PART_TYPE.NotebookScreen];
+  }
+
   _notebookInteract() {
     if (NOTEBOOK_CONFIG.state === NOTEBOOK_STATE.Moving) {
       this._updateNotebookPositionType();

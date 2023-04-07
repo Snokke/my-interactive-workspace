@@ -8,4 +8,9 @@ const MOUSE_PART_CONFIG = {
   },
 }
 
-export { MOUSE_PART_TYPE, MOUSE_PART_CONFIG };
+const CURSOR_MONITOR_TYPE = {
+  Monitor: 'MONITOR',
+  Notebook: 'NOTEBOOK',
+}
+
+export { MOUSE_PART_TYPE, MOUSE_PART_CONFIG, CURSOR_MONITOR_TYPE };
