@@ -162,10 +162,10 @@ export default class Cursor extends THREE.Group {
   }
 
   _calculateSizes() {
-    var monitorBoundingBox = new THREE.Box3().setFromObject(this._monitorScreen);
+    const monitorBoundingBox = new THREE.Box3().setFromObject(this._monitorScreen);
     this._monitorSize = monitorBoundingBox.getSize(new THREE.Vector3());
 
-    var notebookBoundingBox = new THREE.Box3().setFromObject(this._notebookScreen);
+    const notebookBoundingBox = new THREE.Box3().setFromObject(this._notebookScreen);
     this._notebookSize = notebookBoundingBox.getSize(new THREE.Vector3());
     this._notebookSize.y = MOUSE_CONFIG.cursor.notebookScreenSizeY;
   }

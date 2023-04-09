@@ -128,6 +128,7 @@ export default class Scene3DDebugMenu {
       orbitControls.rotateSpeed = 0.7;
 
       orbitControls.target.set(0, 3.5, 0);
+      // orbitControls.target.set(-0.5, 3.5, -0.8);
 
       if (!this._isAssetsLoaded) {
         orbitControls.enabled = false;
