@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { MOUSE_PART_TYPE } from './mouse-data';
-import MOUSE_CONFIG from './mouse-config';
+import { MOUSE_HELP_ARROW_TYPE, MOUSE_PART_TYPE } from './mouse-data';
+import { MOUSE_CONFIG } from './mouse-config';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { Vector2 } from 'three';
 
@@ -13,6 +13,7 @@ export default class Mouse extends RoomObjectAbstract {
 
     this._minAreaVector = null;
     this._maxAreaVector = null;
+    this._arrowsGroup = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -35,6 +36,7 @@ export default class Mouse extends RoomObjectAbstract {
       .add(this._currentPosition);
     body.position.copy(newPosition);
 
+    this._arrowsGroup.position.copy(body.position);
     this._previousPosition.copy(this._currentPosition);
   }
 
@@ -87,6 +89,46 @@ export default class Mouse extends RoomObjectAbstract {
     return new Vector2(this._currentPosition.x, this._currentPosition.z);
   }
 
+  onPointerOver() {
+    if (this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOver();
+
+    this._arrowsGroup.visible = true;
+
+    if (this._arrowsTween) {
+      this._arrowsTween.stop();
+    }
+
+    this._arrowsGroup.scale.set(0, 0, 0);
+    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
+      .to({ x: 1, y: 1, z: 1 }, 200)
+      .easing(TWEEN.Easing.Back.Out)
+      .start();
+  }
+
+  onPointerOut() {
+    if (!this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOut();
+
+    if (this._arrowsTween) {
+      this._arrowsTween.stop();
+    }
+
+    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
+      .to({ x: 0, y: 0, z: 0 }, 200)
+      .easing(TWEEN.Easing.Back.In)
+      .start()
+      .onComplete(() => {
+        this._arrowsGroup.visible = false;
+      });
+  }
+
   _updatePosition() {
     MOUSE_CONFIG.position.x = this._currentPosition.x / MOUSE_CONFIG.movingArea.width * 2;
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
@@ -98,6 +140,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._calculateMovingArea();
+    this._initArrows();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -111,6 +154,29 @@ export default class Mouse extends RoomObjectAbstract {
 
     this._minAreaVector = new THREE.Vector3(startPosition.x - halfWidth, body.position.y, startPosition.y - halfHeight);
     this._maxAreaVector = new THREE.Vector3(startPosition.x + halfWidth, body.position.y, startPosition.y + halfHeight);
+  }
+
+  _initArrows() {
+    const arrowsGroup = this._arrowsGroup = new THREE.Group();
+    this.add(arrowsGroup);
+
+    const frontArrow = this._createArrow(MOUSE_HELP_ARROW_TYPE.Front);
+    const backArrow = this._createArrow(MOUSE_HELP_ARROW_TYPE.Right);
+
+    arrowsGroup.add(frontArrow, backArrow);
+    arrowsGroup.position.copy(this._parts[MOUSE_PART_TYPE.Body].position.clone());
+    arrowsGroup.visible = false;
+  }
+
+  _createArrow(type) {
+    const arrow = new THREE.ArrowHelper(
+      MOUSE_CONFIG.helpArrows[type].direction,
+      MOUSE_CONFIG.helpArrows[type].offset,
+      MOUSE_CONFIG.helpArrows[type].length,
+      MOUSE_CONFIG.helpArrows[type].color,
+    );
+
+    return arrow;
   }
 
   _initDebugMenu() {

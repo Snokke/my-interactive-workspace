@@ -41,7 +41,7 @@ const KEYS_POSITION = [
   { position: new THREE.Vector3(1.036 + offsetKeyX * 2, 0, 0) },
   { position: new THREE.Vector3(1.036 + offsetKeyX * 3, 0, 0) },
 
-  // Print Screen | Scroll Lock | Pause Break
+  // Print Screen | Microphone | Highlight
   { position: new THREE.Vector3(1.44, 0, 0) },
   { position: new THREE.Vector3(1.44 + offsetKeyX, 0, 0) },
   { position: new THREE.Vector3(1.44 + offsetKeyX * 2, 0, 0) },
@@ -71,7 +71,7 @@ const KEYS_POSITION = [
   // Backspace
   { position: new THREE.Vector3(offsetKeyX * 13 + 0.05, offsetRowY, -offsetTildeZ) },
 
-  // Insert | Home | Page Up
+  // Delete | Home | Page Up
   { position: new THREE.Vector3(1.44, offsetRowY, -offsetTildeZ) },
   { position: new THREE.Vector3(1.44 + offsetKeyX, offsetRowY, -offsetTildeZ) },
   { position: new THREE.Vector3(1.44 + offsetKeyX * 2, offsetRowY, -offsetTildeZ) },
@@ -99,7 +99,7 @@ const KEYS_POSITION = [
   { position: new THREE.Vector3(0.146 + offsetKeyX * 11, offsetRowY * 2, -(offsetTildeZ + offsetRowZ)) },
   { position: new THREE.Vector3(0.146 + offsetKeyX * 12 + 0.02, offsetRowY * 2, -(offsetTildeZ + offsetRowZ)) },
 
-  // Delete | End | Page Down
+  // Insert | End | Page Down
   { position: new THREE.Vector3(1.44, offsetRowY * 2, -(offsetTildeZ + offsetRowZ)) },
   { position: new THREE.Vector3(1.44 + offsetKeyX, offsetRowY * 2, -(offsetTildeZ + offsetRowZ)) },
   { position: new THREE.Vector3(1.44 + offsetKeyX * 2, offsetRowY * 2, -(offsetTildeZ + offsetRowZ)) },
@@ -149,13 +149,13 @@ const KEYS_POSITION = [
   // Right Shift
   { position: new THREE.Vector3(0.216 + offsetKeyX * 10 + 0.077, offsetRowY * 4, -(offsetTildeZ + offsetRowZ * 3)) },
 
-  // Arrow up
+  // Arrow Up
   { position: new THREE.Vector3(1.44 + offsetKeyX, offsetRowY * 4, -(offsetTildeZ + offsetRowZ * 3)) },
 
   // ------------------------------------------------
   // Row 6
   // ------------------------------------------------
-  // Fn | Left Ctrl | Left Alt
+  // Left Ctrl | Left Option | Left Command
   { position: new THREE.Vector3(0.018, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(0.14, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(0.257, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
@@ -163,13 +163,13 @@ const KEYS_POSITION = [
   // Space
   { position: new THREE.Vector3(0.6, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
 
-  // Right Alt | Fn | Right Ctrl | Menu
+  // Right Command | Right Option | Fn | Right Ctrl
   { position: new THREE.Vector3(0.947, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(1.064, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(1.181, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(1.3, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
 
-  // Arrow left | Arrow down | Arrow right
+  // Arrow Left | Arrow Down | Arrow Right
   { position: new THREE.Vector3(1.44, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(1.44 + offsetKeyX, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
   { position: new THREE.Vector3(1.44 + offsetKeyX * 2, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },

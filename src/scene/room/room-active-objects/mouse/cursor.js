@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import MOUSE_CONFIG from './mouse-config';
+import { MOUSE_CONFIG, CURSOR_CONFIG } from './mouse-config';
 import Loader from '../../../../core/loader';
 import { CURSOR_MONITOR_TYPE } from './mouse-data';
 import { NOTEBOOK_MOUNT_CONFIG } from '../notebook/notebook-config';
@@ -66,7 +66,7 @@ export default class Cursor extends THREE.Group {
     }
 
     if (this._cursorPosition.x < leftEdge) {
-      if (this._cursorPosition.y < MOUSE_CONFIG.cursor.monitorBottomOffsetToNotTransferCursor ) {
+      if (this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor ) {
         this._monitorType = CURSOR_MONITOR_TYPE.Notebook;
         changeScreen = true;
 
@@ -86,7 +86,7 @@ export default class Cursor extends THREE.Group {
     let changeScreen = false;
 
     const screenSize = this._currentMonitorData[this._monitorType].size;
-    const bottomOffset = MOUSE_CONFIG.cursor.notebookScreenBottomOffset;
+    const bottomOffset = CURSOR_CONFIG.notebookScreenBottomOffset;
 
     const topEdge = (-bottomOffset - cursorHalfHeight) / sensitivity;
     const bottomEdge = (-bottomOffset - screenSize.y + cursorHalfHeight) / sensitivity;
@@ -122,21 +122,21 @@ export default class Cursor extends THREE.Group {
       this._view.rotation.copy(new THREE.Euler(0, 0, 0));
     }
 
-    this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), MOUSE_CONFIG.cursor.offsetFromScreen);
+    this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetFromScreen);
   }
 
   _updateViewPosition() {
-    const sensitivity = MOUSE_CONFIG.cursor.sensitivity;
+    const sensitivity = CURSOR_CONFIG.sensitivity;
     this._view.translateOnAxis(new THREE.Vector3(1, 0, 0), this._cursorPosition.x * sensitivity);
     this._view.translateOnAxis(new THREE.Vector3(0, -1, 0), this._cursorPosition.y * sensitivity);
   }
 
   _getCursorData() {
-    const cursorScale = MOUSE_CONFIG.cursor.view.scale;
-    const sensitivity = MOUSE_CONFIG.cursor.sensitivity;
+    const cursorScale = CURSOR_CONFIG.view.scale;
+    const sensitivity = CURSOR_CONFIG.sensitivity;
 
-    const cursorHalfWidth = MOUSE_CONFIG.cursor.view.width * 0.5 * cursorScale;
-    const cursorHalfHeight = MOUSE_CONFIG.cursor.view.height * 0.5 * cursorScale;
+    const cursorHalfWidth = CURSOR_CONFIG.view.width * 0.5 * cursorScale;
+    const cursorHalfHeight = CURSOR_CONFIG.view.height * 0.5 * cursorScale;
 
     return { cursorHalfWidth, cursorHalfHeight, sensitivity };
   }
@@ -150,7 +150,7 @@ export default class Cursor extends THREE.Group {
   _initCursorView() {
     const texture = Loader.assets['cursor'];
 
-    const geometry = new THREE.PlaneGeometry(MOUSE_CONFIG.cursor.view.width, MOUSE_CONFIG.cursor.view.height);
+    const geometry = new THREE.PlaneGeometry(CURSOR_CONFIG.view.width, CURSOR_CONFIG.view.height);
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -158,7 +158,7 @@ export default class Cursor extends THREE.Group {
     const view = this._view = new THREE.Mesh(geometry, material);
     this.add(view);
 
-    view.scale.set(MOUSE_CONFIG.cursor.view.scale, MOUSE_CONFIG.cursor.view.scale, 1);
+    view.scale.set(CURSOR_CONFIG.view.scale, CURSOR_CONFIG.view.scale, 1);
   }
 
   _calculateSizes() {
@@ -167,7 +167,7 @@ export default class Cursor extends THREE.Group {
 
     const notebookBoundingBox = new THREE.Box3().setFromObject(this._notebookScreen);
     this._notebookSize = notebookBoundingBox.getSize(new THREE.Vector3());
-    this._notebookSize.y = MOUSE_CONFIG.cursor.notebookScreenSizeY;
+    this._notebookSize.y = CURSOR_CONFIG.notebookScreenSizeY;
   }
 
   _initCurrentMonitorData() {

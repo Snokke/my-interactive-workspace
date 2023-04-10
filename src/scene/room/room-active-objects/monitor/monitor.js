@@ -3,8 +3,8 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { HELP_ARROW_TYPE, MONITOR_PART_TYPE } from './monitor-data';
-import MONITOR_CONFIG from './monitor-config';
+import { MONITOR_HELP_ARROW_TYPE, MONITOR_PART_TYPE } from './monitor-data';
+import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_CONFIG } from './monitor-config';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -82,7 +82,7 @@ export default class Monitor extends RoomObjectAbstract {
     const startPositionZ = monitor.userData.startPosition.z;
 
     this._currentPositionZ = planeIntersect.z + this._shift.z;
-    this._currentPositionZ = THREE.MathUtils.clamp(this._currentPositionZ, MONITOR_CONFIG.monitor.minZ + startPositionZ, MONITOR_CONFIG.monitor.maxZ + startPositionZ);
+    this._currentPositionZ = THREE.MathUtils.clamp(this._currentPositionZ, MONITOR_CONFIG.minZ + startPositionZ, MONITOR_CONFIG.maxZ + startPositionZ);
 
     this._updatePosition();
   }
@@ -132,7 +132,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _updatePosition() {
-    MONITOR_CONFIG.monitor.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
+    MONITOR_CONFIG.positionZ = this._currentPositionZ - this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     this._debugMenu.updatePosition();
   }
 
@@ -151,14 +151,14 @@ export default class Monitor extends RoomObjectAbstract {
     const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
     const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
 
-    arm01.rotation.y = arm01.userData.startAngle.y - deltaZ * MONITOR_CONFIG.armMount.arm01.angleCoeff;
-    arm02.rotation.y = arm02.userData.startAngle.y - deltaZ * MONITOR_CONFIG.armMount.arm02.angleCoeff;
+    arm01.rotation.y = arm01.userData.startAngle.y - deltaZ * MONITOR_ARM_MOUNT_CONFIG.arm01.angleCoeff;
+    arm02.rotation.y = arm02.userData.startAngle.y - deltaZ * MONITOR_ARM_MOUNT_CONFIG.arm02.angleCoeff;
 
-    arm02.position.x = arm01.position.x + Math.cos(arm01.rotation.y + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm01.shoulderCoeff;
-    arm02.position.z = arm01.position.z + Math.sin(arm01.rotation.y + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm01.shoulderCoeff;
+    arm02.position.x = arm01.position.x + Math.cos(arm01.rotation.y + Math.PI * 0.5) * MONITOR_ARM_MOUNT_CONFIG.arm01.shoulderCoeff;
+    arm02.position.z = arm01.position.z + Math.sin(arm01.rotation.y + Math.PI * 0.5) * MONITOR_ARM_MOUNT_CONFIG.arm01.shoulderCoeff;
 
-    const bonusAngle = MONITOR_CONFIG.armMount.arm02.bonusAngle * THREE.MathUtils.DEG2RAD;
-    const positionX = arm02.position.x + Math.cos(-arm02.rotation.y - bonusAngle + Math.PI * 0.5) * MONITOR_CONFIG.armMount.arm02.shoulderCoeff;
+    const bonusAngle = MONITOR_ARM_MOUNT_CONFIG.arm02.bonusAngle * THREE.MathUtils.DEG2RAD;
+    const positionX = arm02.position.x + Math.cos(-arm02.rotation.y - bonusAngle + Math.PI * 0.5) * MONITOR_ARM_MOUNT_CONFIG.arm02.shoulderCoeff;
     monitor.position.x = monitorScreen.position.x = monitorMount.position.x = positionX;
 
     this._updateArmRotation();
@@ -169,8 +169,8 @@ export default class Monitor extends RoomObjectAbstract {
     const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
     const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
 
-    MONITOR_CONFIG.armMount.arm01.angle = Math.round(arm01.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
-    MONITOR_CONFIG.armMount.arm02.angle = -Math.round(arm02.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
+    MONITOR_ARM_MOUNT_CONFIG.arm01.angle = Math.round(arm01.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
+    MONITOR_ARM_MOUNT_CONFIG.arm02.angle = -Math.round(arm02.rotation.y * THREE.MathUtils.RAD2DEG * 100) / 100;
   }
 
   _updateHelpArrows(deltaZ) {
@@ -204,8 +204,8 @@ export default class Monitor extends RoomObjectAbstract {
     const arrowsGroup = this._arrowsGroup = new THREE.Group();
     this.add(arrowsGroup);
 
-    const frontArrow = this._frontArrow = this._createArrow(HELP_ARROW_TYPE.Front);
-    const backArrow = this._backArrow = this._createArrow(HELP_ARROW_TYPE.Back);
+    const frontArrow = this._createArrow(MONITOR_HELP_ARROW_TYPE.Front);
+    const backArrow = this._createArrow(MONITOR_HELP_ARROW_TYPE.Back);
 
     arrowsGroup.add(frontArrow, backArrow);
     arrowsGroup.position.copy(this._parts[MONITOR_PART_TYPE.Monitor].position.clone());
@@ -215,7 +215,7 @@ export default class Monitor extends RoomObjectAbstract {
   _createArrow(type) {
     const arrow = new THREE.ArrowHelper(
       MONITOR_CONFIG.helpArrows[type].direction,
-      new THREE.Vector3(0, 0, MONITOR_CONFIG.helpArrows[type].offsetZ),
+      MONITOR_CONFIG.helpArrows[type].offset,
       MONITOR_CONFIG.helpArrows[type].length,
       MONITOR_CONFIG.helpArrows[type].color,
     );

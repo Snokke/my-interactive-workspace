@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import MOUSE_CONFIG from "./mouse-config";
+import { MOUSE_CONFIG } from "./mouse-config";
 
 export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
