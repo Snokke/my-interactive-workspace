@@ -133,7 +133,7 @@ export default class Walls extends RoomObjectAbstract {
 
     const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
 
-    const maxAngle = WINDOW_CONFIG[this._windowOpenType].handleAngle * (Math.PI / 180);
+    const maxAngle = WINDOW_CONFIG.openTypes[this._windowOpenType].handleAngle * (Math.PI / 180);
     const rotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle : 0;
     const remainingRotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle + windowHandle.rotation.z : windowHandle.rotation.z;
     const time = Math.abs(remainingRotationAngle) / WINDOW_CONFIG.handleRotationSpeed * 1000;
@@ -147,22 +147,22 @@ export default class Walls extends RoomObjectAbstract {
   _moveWindow() {
     const window = this._parts[WALLS_PART_TYPE.Window];
 
-    const windowRotationAxis = WINDOW_CONFIG[this._windowOpenType].windowRotationAxis;
+    const windowRotationAxis = WINDOW_CONFIG.openTypes[this._windowOpenType].windowRotationAxis;
     const startAngle = this._windowGroup.rotation[windowRotationAxis];
 
     const currentAngle = { value: startAngle * (180 / Math.PI) };
     let previousAngle = currentAngle.value;
 
-    const maxAngle = WINDOW_CONFIG[this._windowOpenType].openAngle;
+    const maxAngle = WINDOW_CONFIG.openTypes[this._windowOpenType].openAngle;
     const rotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? -maxAngle : 0;
     const remainingRotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle + currentAngle.value : currentAngle.value;
     const time = Math.abs(remainingRotationAngle) / WINDOW_CONFIG.windowRotationSpeed * 1000;
 
     const pivot = window.position.clone()
-      .add(WINDOW_CONFIG[this._windowOpenType].pivotOffset);
+      .add(WINDOW_CONFIG.openTypes[this._windowOpenType].pivotOffset);
 
-    const rotateAxis = WINDOW_CONFIG[this._windowOpenType].rotateAxis;
-    const rotationSign = WINDOW_CONFIG[this._windowOpenType].rotationSign;
+    const rotateAxis = WINDOW_CONFIG.openTypes[this._windowOpenType].rotateAxis;
+    const rotationSign = WINDOW_CONFIG.openTypes[this._windowOpenType].rotationSign;
 
     this._windowTween = new TWEEN.Tween(currentAngle)
       .to({ value: rotationSign * rotationAngle }, time)

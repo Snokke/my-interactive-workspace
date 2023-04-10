@@ -42,10 +42,10 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
     }
 
     const horizontalOpenPivot = window.position.clone()
-      .add(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally].pivotOffset);
+      .add(WINDOW_CONFIG.openTypes[WINDOW_OPEN_TYPE.Horizontally].pivotOffset);
 
     const verticalOpenPivot = window.position.clone()
-      .add(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically].pivotOffset);
+      .add(WINDOW_CONFIG.openTypes[WINDOW_OPEN_TYPE.Vertically].pivotOffset);
 
     const geometry = new THREE.CylinderGeometry(0.05, 0.05, 4);
     const material = new THREE.MeshBasicMaterial({
@@ -114,13 +114,13 @@ export default class WindowDebugMenu extends RoomObjectDebugAbstract {
       max: 100,
     });
 
-    this._debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
+    this._debugFolder.addInput(WINDOW_CONFIG.openTypes[WINDOW_OPEN_TYPE.Horizontally], 'openAngle', {
       label: 'Horizontal open angle',
       min: 1,
       max: 90,
     });
 
-    this._debugFolder.addInput(WINDOW_CONFIG[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
+    this._debugFolder.addInput(WINDOW_CONFIG.openTypes[WINDOW_OPEN_TYPE.Vertically], 'openAngle', {
       label: 'Vertical open angle',
       min: 1,
       max: 90,

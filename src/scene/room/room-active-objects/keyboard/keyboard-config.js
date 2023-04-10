@@ -2,15 +2,14 @@ import * as THREE from 'three';
 
 
 const KEYBOARD_CONFIG = {
-  highlight: {
-    size: 0.09,
-    angle: 6.5,
-  },
-  keyboard: {
-    size: new THREE.Vector3(1.8, 0.205, 0.59),
-    offsetLeft: 0.055,
-    offsetTop: 0.056,
-  }
+  size: new THREE.Vector3(1.8, 0.205, 0.59),
+  offsetLeft: 0.055,
+  offsetTop: 0.056,
+}
+
+const KEY_HIGHLIGHT_CONFIG = {
+  size: 0.09,
+  angle: 6.5,
 }
 
 const offsetKeyX = 0.0943;
@@ -175,4 +174,4 @@ const KEYS_POSITION = [
   { position: new THREE.Vector3(1.44 + offsetKeyX * 2, offsetRowY * 5, -(offsetTildeZ + offsetRowZ * 4)) },
 ];
 
-export { KEYBOARD_CONFIG, KEYS_POSITION };
+export { KEYBOARD_CONFIG, KEYS_POSITION, KEY_HIGHLIGHT_CONFIG };

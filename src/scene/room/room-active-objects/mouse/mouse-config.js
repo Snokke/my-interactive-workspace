@@ -1,29 +1,25 @@
 import * as THREE from 'three';
-import { MOUSE_HELP_ARROW_TYPE } from "./mouse-data";
+import { AREA_BORDER_TYPE } from "./mouse-data";
 
 const MOUSE_CONFIG = {
+  size: new THREE.Vector3(0.22, 0.115, 0.32),
+  position: { x: 0, y: 0 },
   movingArea: {
     showDebugPlane: false,
     width: 1.8,
     height: 1.6,
   },
-  position: {
-    x: 0,
-    y: 0,
-  },
-  helpArrows: {
-    [MOUSE_HELP_ARROW_TYPE.Front]: {
-      color: 0xff0000,
-      direction: new THREE.Vector3(0, 0, -1),
-      offset: new THREE.Vector3(0, 0, -0.3),
-      length: 0.7,
-    },
-    [MOUSE_HELP_ARROW_TYPE.Right]: {
-      color: 0x00ff00,
-      direction: new THREE.Vector3(1, 0, 0),
-      offset: new THREE.Vector3(0.2, 0, 0),
-      length: 0.7,
-    },
+}
+
+const MOUSE_AREA_BORDER_CONFIG = {
+  height: 0.15,
+  distanceToShow: 0.3,
+  color: 0xff0000,
+  rotation: {
+    [AREA_BORDER_TYPE.Left]: Math.PI * 0.5,
+    [AREA_BORDER_TYPE.Right]: Math.PI * 0.5,
+    [AREA_BORDER_TYPE.Top]: 0,
+    [AREA_BORDER_TYPE.Bottom]: 0,
   },
 }
 
@@ -37,7 +33,7 @@ const CURSOR_CONFIG = {
   notebookScreenBottomOffset: 0.07,
   notebookScreenSizeY: 1,
   monitorBottomOffsetToNotTransferCursor: 0.06,
-  offsetFromScreen: 0.01,
+  offsetZFromScreen: 0.01,
 }
 
-export { MOUSE_CONFIG, CURSOR_CONFIG };
+export { MOUSE_CONFIG, CURSOR_CONFIG, MOUSE_AREA_BORDER_CONFIG };

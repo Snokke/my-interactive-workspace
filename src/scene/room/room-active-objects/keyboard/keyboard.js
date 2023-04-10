@@ -6,7 +6,7 @@ import { ROOM_CONFIG } from '../../data/room-config';
 import { KEYBOARD_PART_TYPE } from './keyboard-data';
 import vertexShader from './key-highlight-shaders/key-highlight-vertex.glsl';
 import fragmentShader from './key-highlight-shaders/key-highlight-fragment.glsl';
-import { KEYS_POSITION, KEYBOARD_CONFIG } from './keyboard-config';
+import { KEYS_POSITION, KEYBOARD_CONFIG, KEY_HIGHLIGHT_CONFIG } from './keyboard-config';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -76,7 +76,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _initHighlightsInstanceMesh() {
-    const size = KEYBOARD_CONFIG.highlight.size;
+    const size = KEY_HIGHLIGHT_CONFIG.size;
     const geometry = new THREE.PlaneGeometry(size, size);
     const material = new THREE.ShaderMaterial({
       vertexShader: vertexShader,
@@ -97,9 +97,9 @@ export default class Keyboard extends RoomObjectAbstract {
     this._highlights.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     const dummy = new THREE.Object3D();
 
-    const keyboardSize = KEYBOARD_CONFIG.keyboard.size;
-    const offsetLeft = KEYBOARD_CONFIG.keyboard.offsetLeft;
-    const offsetTop = KEYBOARD_CONFIG.keyboard.offsetTop;
+    const keyboardSize = KEYBOARD_CONFIG.size;
+    const offsetLeft = KEYBOARD_CONFIG.offsetLeft;
+    const offsetTop = KEYBOARD_CONFIG.offsetTop;
 
     const leftX = base.position.x - keyboardSize.x * 0.5 + offsetLeft;
     const heightY = base.position.y + keyboardSize.y * 0.5;
@@ -111,7 +111,7 @@ export default class Keyboard extends RoomObjectAbstract {
       const highlightPosition = KEYS_POSITION[i].position;
 
       dummy.position.set(leftX + highlightPosition.x, heightY + highlightPosition.y, topZ - highlightPosition.z);
-      dummy.rotation.x = -Math.PI * 0.5 + KEYBOARD_CONFIG.highlight.angle * THREE.MathUtils.DEG2RAD;
+      dummy.rotation.x = -Math.PI * 0.5 + KEY_HIGHLIGHT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
       dummy.updateMatrix();
 
       this._highlights.setMatrixAt(i, dummy.matrix);

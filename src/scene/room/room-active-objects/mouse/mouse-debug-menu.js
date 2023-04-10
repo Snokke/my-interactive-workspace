@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { MOUSE_CONFIG } from "./mouse-config";
+import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from "./mouse-config";
 
 export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
@@ -31,7 +31,7 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
     areaPlane.rotateX(-Math.PI * 0.5);
     areaPlane.position.copy(startPosition);
 
-    areaPlane.scale.set(MOUSE_CONFIG.movingArea.width, MOUSE_CONFIG.movingArea.height, 1);
+    areaPlane.scale.set(MOUSE_CONFIG.movingArea.width + MOUSE_CONFIG.size.x, MOUSE_CONFIG.movingArea.height + MOUSE_CONFIG.size.z, 1);
 
     areaPlane.visible = false;
 
@@ -63,6 +63,21 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
       this._onAreaChanged();
     });
 
+    this._debugFolder.addInput(MOUSE_AREA_BORDER_CONFIG, 'distanceToShow', {
+      label: 'Distance to border',
+      min: 0.01,
+      max: 1,
+    }).on('change', () => {
+      this.events.post('onDistanceToShowBorderChanged');
+    });
+
+    this._debugFolder.addInput(MOUSE_AREA_BORDER_CONFIG, 'color', {
+      label: 'Border color',
+      view: 'color',
+    }).on('change', () => {
+      this.events.post('onBorderColorUpdated');
+    });
+
     this._positionController = this._debugFolder.addInput(MOUSE_CONFIG, 'position', {
       label: 'Current position',
       picker: 'inline',
@@ -75,7 +90,7 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   }
 
   _onAreaChanged() {
-    this._areaPlane.scale.set(MOUSE_CONFIG.movingArea.width, MOUSE_CONFIG.movingArea.height, 1);
+    this._areaPlane.scale.set(MOUSE_CONFIG.movingArea.width + MOUSE_CONFIG.size.x, MOUSE_CONFIG.movingArea.height + MOUSE_CONFIG.size.z, 1);
     this.events.post('onAreaChanged');
   }
 }

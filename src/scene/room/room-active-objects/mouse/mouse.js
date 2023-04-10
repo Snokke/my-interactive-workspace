@@ -2,10 +2,13 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { MOUSE_HELP_ARROW_TYPE, MOUSE_PART_TYPE } from './mouse-data';
+import { MOUSE_PART_TYPE } from './mouse-data';
 import { MOUSE_CONFIG } from './mouse-config';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { Vector2 } from 'three';
+import MouseAreaBorders from './mouse-area-borders';
+import HelpArrows from '../../help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType) {
@@ -13,7 +16,8 @@ export default class Mouse extends RoomObjectAbstract {
 
     this._minAreaVector = null;
     this._maxAreaVector = null;
-    this._arrowsGroup = null;
+    this._mouseAreaBorders = null;
+    this._helpArrows = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -36,7 +40,7 @@ export default class Mouse extends RoomObjectAbstract {
       .add(this._currentPosition);
     body.position.copy(newPosition);
 
-    this._arrowsGroup.position.copy(body.position);
+    this._helpArrows.position.copy(body.position);
     this._previousPosition.copy(this._currentPosition);
   }
 
@@ -96,17 +100,7 @@ export default class Mouse extends RoomObjectAbstract {
 
     super.onPointerOver();
 
-    this._arrowsGroup.visible = true;
-
-    if (this._arrowsTween) {
-      this._arrowsTween.stop();
-    }
-
-    this._arrowsGroup.scale.set(0, 0, 0);
-    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
-      .to({ x: 1, y: 1, z: 1 }, 200)
-      .easing(TWEEN.Easing.Back.Out)
-      .start();
+    this._helpArrows.show();
   }
 
   onPointerOut() {
@@ -116,22 +110,13 @@ export default class Mouse extends RoomObjectAbstract {
 
     super.onPointerOut();
 
-    if (this._arrowsTween) {
-      this._arrowsTween.stop();
-    }
-
-    this._arrowsTween = new TWEEN.Tween(this._arrowsGroup.scale)
-      .to({ x: 0, y: 0, z: 0 }, 200)
-      .easing(TWEEN.Easing.Back.In)
-      .start()
-      .onComplete(() => {
-        this._arrowsGroup.visible = false;
-      });
+    this._helpArrows.hide();
   }
 
   _updatePosition() {
     MOUSE_CONFIG.position.x = this._currentPosition.x / MOUSE_CONFIG.movingArea.width * 2;
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
+
     this._debugMenu.updatePosition();
   }
 
@@ -140,7 +125,8 @@ export default class Mouse extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._calculateMovingArea();
-    this._initArrows();
+    this._initHelpArrows();
+    this._initMouseAreaBorders();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -156,27 +142,18 @@ export default class Mouse extends RoomObjectAbstract {
     this._maxAreaVector = new THREE.Vector3(startPosition.x + halfWidth, body.position.y, startPosition.y + halfHeight);
   }
 
-  _initArrows() {
-    const arrowsGroup = this._arrowsGroup = new THREE.Group();
-    this.add(arrowsGroup);
+  _initHelpArrows() {
+    const helpArrowsTypes = [HELP_ARROW_TYPE.MouseFront, HELP_ARROW_TYPE.MouseRight];
+    const helpArrows = this._helpArrows = new HelpArrows(helpArrowsTypes);
+    this.add(helpArrows);
 
-    const frontArrow = this._createArrow(MOUSE_HELP_ARROW_TYPE.Front);
-    const backArrow = this._createArrow(MOUSE_HELP_ARROW_TYPE.Right);
-
-    arrowsGroup.add(frontArrow, backArrow);
-    arrowsGroup.position.copy(this._parts[MOUSE_PART_TYPE.Body].position.clone());
-    arrowsGroup.visible = false;
+    helpArrows.position.copy(this._parts[MOUSE_PART_TYPE.Body].position.clone());
   }
 
-  _createArrow(type) {
-    const arrow = new THREE.ArrowHelper(
-      MOUSE_CONFIG.helpArrows[type].direction,
-      MOUSE_CONFIG.helpArrows[type].offset,
-      MOUSE_CONFIG.helpArrows[type].length,
-      MOUSE_CONFIG.helpArrows[type].color,
-    );
-
-    return arrow;
+  _initMouseAreaBorders() {
+    const body = this._parts[MOUSE_PART_TYPE.Body];
+    const mouseAreaBorders = this._mouseAreaBorders = new MouseAreaBorders(body.position);
+    this.add(mouseAreaBorders)
   }
 
   _initDebugMenu() {
@@ -189,11 +166,15 @@ export default class Mouse extends RoomObjectAbstract {
   _initSignals() {
     this._debugMenu.events.on('onPositionChanged', (msg, position) => this._onDebugPositionChanged(position));
     this._debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
+    this._debugMenu.events.on('onDistanceToShowBorderChanged', () => this._onDistanceToShowBorderChanged());
+    this._debugMenu.events.on('onBorderColorUpdated', () => this._onBorderColorUpdated());
   }
 
   _onDebugPositionChanged(position) {
     this._currentPosition.x = position.x * MOUSE_CONFIG.movingArea.width * 0.5;
     this._currentPosition.z = position.y * MOUSE_CONFIG.movingArea.height * 0.5;
+
+    this._mouseAreaBorders.updateMousePosition(this._currentPosition);
   }
 
   _onDebugAreaChanged() {
@@ -203,5 +184,16 @@ export default class Mouse extends RoomObjectAbstract {
     this._currentPosition.z = 0;
 
     this._updatePosition();
+    this._mouseAreaBorders.onAreaChanged();
+
+    this.events.post('onAreaChanged');
+  }
+
+  _onDistanceToShowBorderChanged() {
+    this._mouseAreaBorders.updateMousePosition(this._currentPosition);
+  }
+
+  _onBorderColorUpdated() {
+    this._mouseAreaBorders.onBorderColorUpdated();
   }
 }

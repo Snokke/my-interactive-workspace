@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MOUSE_CONFIG, CURSOR_CONFIG } from './mouse-config';
+import { CURSOR_CONFIG } from './mouse-config';
 import Loader from '../../../../core/loader';
 import { CURSOR_MONITOR_TYPE } from './mouse-data';
 import { NOTEBOOK_MOUNT_CONFIG } from '../notebook/notebook-config';
@@ -35,9 +35,9 @@ export default class Cursor extends THREE.Group {
       this._updateCursorPosition(delta);
     }
 
-    this._updateViewPosition(delta);
+    this._updateViewPosition();
 
-    this._previousMousePosition = this._mousePosition;
+    this._previousMousePosition = this._mousePosition.clone();
   }
 
   _updateCursorPosition(delta) {
@@ -122,7 +122,7 @@ export default class Cursor extends THREE.Group {
       this._view.rotation.copy(new THREE.Euler(0, 0, 0));
     }
 
-    this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetFromScreen);
+    this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
   }
 
   _updateViewPosition() {
@@ -145,6 +145,7 @@ export default class Cursor extends THREE.Group {
     this._initCursorView();
     this._calculateSizes();
     this._initCurrentMonitorData();
+    this._initSignals();
   }
 
   _initCursorView() {
@@ -183,5 +184,21 @@ export default class Cursor extends THREE.Group {
         checkPositionFunction: () => this._checkPositionForNotebook(),
       },
     }
+  }
+
+  _initSignals() {
+    this._mouse.events.on('onAreaChanged', () => this._resetCursor());
+  }
+
+  _resetCursor() {
+    this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+
+    this._cursorPosition.x = 0;
+    this._cursorPosition.y = 0;
+
+    this._mousePosition = this._mouse.getCurrentPosition();
+    this._previousMousePosition = this._mousePosition.clone();
+
+    this.update();
   }
 }
