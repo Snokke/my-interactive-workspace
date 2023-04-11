@@ -162,6 +162,7 @@ const ROOM_OBJECT_CONFIG = {
     tableGroup: true,
     partTypes: NOTEBOOK_PART_TYPE,
     partConfig: NOTEBOOK_PART_CONFIG,
+    isDraggable: true,
   },
 
   // Inactive objects

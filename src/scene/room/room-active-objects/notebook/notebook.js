@@ -14,6 +14,12 @@ export default class Notebook extends RoomObjectAbstract {
     this._armWithNotebookGroup = null;
     this._notebookTween = null;
 
+    this._isMountSelected = false;
+    this._plane = new THREE.Plane();
+    this._pNormal = new THREE.Vector3(0, 1, 0);
+
+    this._previousArmMountAngle = 0;
+
     this._init();
   }
 
@@ -71,8 +77,33 @@ export default class Notebook extends RoomObjectAbstract {
     if (NOTEBOOK_PARTS.includes(partType)) {
       this._notebookInteract();
     } else {
-      this._standInteract();
+      this._standInteract(intersect);
     }
+  }
+
+  onPointerMove(raycaster) {
+    if (!this._isMountSelected) {
+      return;
+    }
+
+    const notebookMount = this._parts[NOTEBOOK_PART_TYPE.NotebookStand];
+    const planeIntersect = new THREE.Vector3();
+    raycaster.ray.intersectPlane(this._plane, planeIntersect);
+
+    const angle = Math.atan2(planeIntersect.z - notebookMount.position.z, planeIntersect.x - notebookMount.position.x);
+    const angleDelta = angle - this._previousArmMountAngle;
+
+    if (Math.abs(angleDelta) < 0.1) {
+      this._armWithNotebookGroup.rotation.y += angleDelta;
+    }
+
+    const leftEdge = NOTEBOOK_MOUNT_CONFIG.leftEdgeAngle * THREE.MathUtils.DEG2RAD;
+    const rightEdge = NOTEBOOK_MOUNT_CONFIG.rightEdgeAngle * THREE.MathUtils.DEG2RAD;
+
+    this._armWithNotebookGroup.rotation.y = THREE.MathUtils.clamp(this._armWithNotebookGroup.rotation.y, leftEdge, rightEdge);
+
+    NOTEBOOK_MOUNT_CONFIG.angle = this._armWithNotebookGroup.rotation.y * THREE.MathUtils.RAD2DEG;
+    this._previousArmMountAngle = angle;
   }
 
   getMeshesForOutline(mesh) {
@@ -92,6 +123,8 @@ export default class Notebook extends RoomObjectAbstract {
   }
 
   _notebookInteract() {
+    this._isMountSelected = false;
+
     if (NOTEBOOK_CONFIG.state === NOTEBOOK_STATE.Moving) {
       this._updateNotebookPositionType();
     }
@@ -132,8 +165,11 @@ export default class Notebook extends RoomObjectAbstract {
     }
   }
 
-  _standInteract() {
-    console.log('stand interact');
+  _standInteract(intersect) {
+    this._isMountSelected = true;
+
+    const pIntersect = new THREE.Vector3().copy(intersect.point);
+    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
   }
 
   _init() {
@@ -178,6 +214,7 @@ export default class Notebook extends RoomObjectAbstract {
     armMountArm02.position.set(0, 0, 0);
 
     armWithNotebookGroup.rotation.y = NOTEBOOK_MOUNT_CONFIG.startAngle * THREE.MathUtils.DEG2RAD;
+    NOTEBOOK_MOUNT_CONFIG.angle = NOTEBOOK_MOUNT_CONFIG.startAngle;
   }
 
   _initNotebookTopGroup() {

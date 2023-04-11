@@ -85,7 +85,7 @@ export default class Room extends THREE.Group {
         this._draggingObject = roomObject;
         this._orbitControls.enabled = false;
 
-        this._setGlow(this._draggingObject.getMeshesForOutline());
+        this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
       }
     }
   }
