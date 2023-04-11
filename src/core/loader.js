@@ -16,6 +16,10 @@ const images = [
   'overlay.png',
 ];
 
+const sounds = [
+  'giorgio.mp3',
+];
+
 const loadingPercentElement = document.querySelector('.loading-percent');
 let progressRatio = 0;
 const blackAssetsProgressPart = 0;
@@ -25,6 +29,8 @@ export default class Loader extends GameObject {
     super();
 
     Loader.assets = {};
+
+    this._isAudioLoaded = false;
 
     this._threeJSManager = new THREE.LoadingManager(this._onThreeJSAssetsLoaded, this._onThreeJSAssetsProgress);
     this._blackManager = new AssetManager();
@@ -62,8 +68,9 @@ export default class Loader extends GameObject {
   _loadThreeJSAssets() {
     this._loadTextures();
     this._loadModels();
+    this._loadAudio();
 
-    if (textures.length === 0 && models.length === 0) {
+    if (textures.length === 0 && models.length === 0 && sounds.length === 0) {
       this._onThreeJSAssetsLoaded();
     }
   }
@@ -111,6 +118,21 @@ export default class Loader extends GameObject {
       const modelFullPath = `${modelsBasePath}${modelFilename}`;
       const modelName = modelFilename.replace(/\.[^/.]+$/, "");
       gltfLoader.load(modelFullPath, (gltfModel) => this._onAssetLoad(gltfModel, modelName));
+    });
+  }
+
+  _loadAudio() {
+    const audioLoader = new THREE.AudioLoader(this._threeJSManager);
+
+    const audioBasePath = '/audio/';
+
+    sounds.forEach((audioFilename) => {
+      const audioFullPath = `${audioBasePath}${audioFilename}`;
+      const audioName = audioFilename.replace(/\.[^/.]+$/, "");
+      audioLoader.load(audioFullPath, (audioBuffer) => {
+        this._onAssetLoad(audioBuffer, audioName)
+        this._isAudioLoaded = true;
+      });
     });
   }
 

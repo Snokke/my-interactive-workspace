@@ -17,6 +17,7 @@ export default class Room extends THREE.Group {
     this._renderer = data.renderer;
     this._orbitControls = data.orbitControls;
     this._outlinePass = data.outlinePass;
+    this._audioListener = data.audioListener,
     this._raycasterController = raycasterController;
 
     this._roomScene = null;
@@ -281,6 +282,8 @@ export default class Room extends THREE.Group {
     }
 
     this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Active] = this._roomActiveObject;
+
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].addAudioListener(this._audioListener);
   }
 
   _initInactiveObjects() {

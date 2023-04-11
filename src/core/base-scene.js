@@ -24,6 +24,7 @@ export default class BaseScene {
     this._effectComposer = null;
     this._outlinePass = null;
     this._orbitControls = null;
+    this._audioListener = null;
 
     this._windowSizes = {};
     this._isAssetsLoaded = false;
@@ -38,6 +39,7 @@ export default class BaseScene {
       renderer: this._renderer,
       orbitControls: this._orbitControls,
       outlinePass: this._outlinePass,
+      audioListener: this._audioListener,
     };
 
     this._mainScene = new MainScene(data);
@@ -81,6 +83,7 @@ export default class BaseScene {
     this._initOnResize();
     this._setupBackgroundColor();
     this._initPostProcessing();
+    this._initAudioListener();
 
     this._initScene3DDebugMenu();
   }
@@ -222,6 +225,11 @@ export default class BaseScene {
   _initGammaCorrectionPass() {
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
     this._effectComposer.addPass(gammaCorrectionPass);
+  }
+
+  _initAudioListener() {
+    const audioListener = this._audioListener = new THREE.AudioListener();
+    this._camera.add(audioListener);
   }
 
   _initScene3DDebugMenu() {
