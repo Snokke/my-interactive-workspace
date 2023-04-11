@@ -3,8 +3,9 @@ import { NOTEBOOK_POSITION_STATE, NOTEBOOK_STATE } from "./notebook-data";
 const NOTEBOOK_CONFIG = {
   state: NOTEBOOK_STATE.Idle,
   positionType: NOTEBOOK_POSITION_STATE.Opened,
-  maxOpenAngle: 123, // 123
+  maxOpenAngle: 123,
   rotationSpeed: 18,
+  angle: 0,
 }
 
 const NOTEBOOK_MOUNT_CONFIG = {

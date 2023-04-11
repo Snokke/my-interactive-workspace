@@ -168,6 +168,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
     this._debugMenu.events.on('onDistanceToShowBorderChanged', () => this._onDistanceToShowBorderChanged());
     this._debugMenu.events.on('onBorderColorUpdated', () => this._onBorderColorUpdated());
+    this._debugMenu.events.on('onCursorScaleChanged', () => this._onCursorScaleChanged());
   }
 
   _onDebugPositionChanged(position) {
@@ -195,5 +196,9 @@ export default class Mouse extends RoomObjectAbstract {
 
   _onBorderColorUpdated() {
     this._mouseAreaBorders.onBorderColorUpdated();
+  }
+
+  _onCursorScaleChanged() {
+    this.events.post('onCursorScaleChanged');
   }
 }

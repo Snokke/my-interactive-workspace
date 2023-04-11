@@ -336,6 +336,9 @@ export default class Room extends THREE.Group {
         }
       });
     }
+
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Notebook].events.on('onNotebookClosed', () => this._cursor.onNotebookClosed());
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
   }
 
   _configureRaycaster() {

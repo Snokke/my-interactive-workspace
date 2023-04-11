@@ -99,8 +99,8 @@ export default class Speakers extends RoomObjectAbstract {
 
     this._musicRight.setDirectionalCone(180, 230, 0.1);
 
-    const helper = new PositionalAudioHelper(this._musicRight, 1);
-    this._rightSpeakerGroup.add(helper);
+    // const helper = new PositionalAudioHelper(this._musicRight, 1);
+    // this._rightSpeakerGroup.add(helper);
 
     Loader.events.on('onAudioLoaded', () => {
       this._musicRight.setBuffer(Loader.assets['giorgio']);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from "./mouse-config";
+import { CURSOR_CONFIG, MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from "./mouse-config";
 
 export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
@@ -63,6 +63,8 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
       this._onAreaChanged();
     });
 
+    this._debugFolder.addSeparator();
+
     this._debugFolder.addInput(MOUSE_AREA_BORDER_CONFIG, 'distanceToShow', {
       label: 'Distance to border',
       min: 0.01,
@@ -77,6 +79,24 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
     }).on('change', () => {
       this.events.post('onBorderColorUpdated');
     });
+
+    this._debugFolder.addSeparator();
+
+    this._debugFolder.addInput(CURSOR_CONFIG, 'sensitivity', {
+      label: 'Cursor sensitivity',
+      min: 0.1,
+      max: 10,
+    });
+
+    this._debugFolder.addInput(CURSOR_CONFIG.view, 'scale', {
+      label: 'Cursor scale',
+      min: 0.5,
+      max: 5,
+    }).on('change', () => {
+      this.events.post('onCursorScaleChanged');
+    });
+
+    this._debugFolder.addSeparator();
 
     this._positionController = this._debugFolder.addInput(MOUSE_CONFIG, 'position', {
       label: 'Current position',

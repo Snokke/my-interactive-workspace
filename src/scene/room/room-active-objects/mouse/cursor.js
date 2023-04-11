@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { CURSOR_CONFIG } from './mouse-config';
 import Loader from '../../../../core/loader';
 import { CURSOR_MONITOR_TYPE } from './mouse-data';
-import { NOTEBOOK_MOUNT_CONFIG } from '../notebook/notebook-config';
+import { NOTEBOOK_CONFIG, NOTEBOOK_MOUNT_CONFIG } from '../notebook/notebook-config';
+import { NOTEBOOK_POSITION_STATE } from '../notebook/notebook-data';
 
 export default class Cursor extends THREE.Group {
   constructor(mouse, monitorScreen, notebookScreen) {
@@ -40,6 +41,27 @@ export default class Cursor extends THREE.Group {
     this._previousMousePosition = this._mousePosition.clone();
   }
 
+  onNotebookClosed() {
+    if (this._monitorType === CURSOR_MONITOR_TYPE.Notebook) {
+      this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+
+      const { cursorHalfWidth, sensitivity } = this._getCursorData();
+      const screenSize = this._currentMonitorData[this._monitorType].size;
+
+      this._cursorPosition.x = (-screenSize.x * 0.5 + cursorHalfWidth) / sensitivity;
+      this._cursorPosition.y += 0.05;
+
+      this._mousePosition = this._mouse.getCurrentPosition();
+      this._previousMousePosition = this._mousePosition.clone();
+
+      this.update();
+    }
+  }
+
+  onCursorScaleChanged() {
+    this._view.scale.set(CURSOR_CONFIG.view.scale, CURSOR_CONFIG.view.scale, 1);
+  }
+
   _updateCursorPosition(delta) {
     this._setCursorStartScreenPosition();
     this._cursorPosition.add(delta);
@@ -66,7 +88,7 @@ export default class Cursor extends THREE.Group {
     }
 
     if (this._cursorPosition.x < leftEdge) {
-      if (this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor ) {
+      if (NOTEBOOK_CONFIG.positionType === NOTEBOOK_POSITION_STATE.Opened && this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor ) {
         this._monitorType = CURSOR_MONITOR_TYPE.Notebook;
         changeScreen = true;
 
@@ -116,8 +138,13 @@ export default class Cursor extends THREE.Group {
     this._view.position.copy(screen.getWorldPosition(new THREE.Vector3()));
 
     if (this._monitorType === CURSOR_MONITOR_TYPE.Notebook) {
-      const mountAngle = NOTEBOOK_MOUNT_CONFIG.startAngle;
-      this._view.rotation.y = mountAngle * THREE.MathUtils.DEG2RAD;
+      const mountAngle = NOTEBOOK_MOUNT_CONFIG.startAngle * THREE.MathUtils.DEG2RAD;
+      const angleX = (NOTEBOOK_CONFIG.maxOpenAngle - NOTEBOOK_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
+
+      const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, mountAngle, 0))
+        .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(angleX, 0, 0)));
+
+      this._view.setRotationFromQuaternion(quaternion);
     } else {
       this._view.rotation.copy(new THREE.Euler(0, 0, 0));
     }

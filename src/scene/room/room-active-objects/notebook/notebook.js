@@ -108,8 +108,15 @@ export default class Notebook extends RoomObjectAbstract {
       .to({ x: -maxAngle * THREE.MathUtils.DEG2RAD }, time)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start()
+      .onUpdate(() => {
+        NOTEBOOK_CONFIG.angle = -this._notebookTopGroup.rotation.x * THREE.MathUtils.RAD2DEG;
+      })
       .onComplete(() => {
         this._updateNotebookPositionType();
+
+        if (NOTEBOOK_CONFIG.positionType === NOTEBOOK_POSITION_STATE.Closed) {
+          this.events.post('onNotebookClosed');
+        }
 
         NOTEBOOK_CONFIG.state = NOTEBOOK_STATE.Idle;
       });
@@ -194,6 +201,8 @@ export default class Notebook extends RoomObjectAbstract {
     notebookScreen.rotation.set(0, 0, 0);
 
     notebookTopGroup.position.sub(startPosition);
+
+    NOTEBOOK_CONFIG.angle = NOTEBOOK_CONFIG.maxOpenAngle;
   }
 
   _getNotebookParts() {
