@@ -11,8 +11,8 @@ import HelpArrows from '../../help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
 
 export default class Mouse extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._minAreaVector = null;
     this._maxAreaVector = null;

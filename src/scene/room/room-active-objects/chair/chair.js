@@ -7,8 +7,8 @@ import { ROOM_CONFIG } from '../../data/room-config';
 import { CHAIR_CONFIG } from './chair-config';
 
 export default class Chair extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._moveChairTween = null;
     this._rotateSeatTween = null;

@@ -7,8 +7,8 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Table extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._handleState = TABLE_HANDLE_STATE.Idle;
     this._currentTableState = TABLE_STATE.SittingMode;

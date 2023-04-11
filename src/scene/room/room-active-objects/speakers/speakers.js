@@ -9,13 +9,12 @@ import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
 
 export default class Speakers extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._leftSpeakerGroup = null;
     this._rightSpeakerGroup = null;
 
-    this._audioListener = null;
     this._musicRight = null;
     this._musicLeft = null;
 
@@ -64,41 +63,16 @@ export default class Speakers extends RoomObjectAbstract {
     this._updatePowerIndicatorColor();
 
     if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      this._musicRight.play();
-      this._musicLeft.play();
+      // if (this._musicRight) {
+        this._musicRight.play();
+      // }
+      // this._musicLeft.play();
     } else {
-      this._musicRight.pause();
-      this._musicLeft.pause();
+      // if (this._musicRight) {
+        this._musicRight.pause();
+      // }
+      // this._musicLeft.pause();
     }
-  }
-
-  addAudioListener(audioListener) {
-    setTimeout(() => {
-      this._audioListener = audioListener;
-
-      this._musicRight = new THREE.PositionalAudio(this._audioListener);
-      this._musicRight.setBuffer(Loader.assets['giorgio']);
-      this._musicRight.setRefDistance(10);
-
-      this._rightSpeakerGroup.add(this._musicRight);
-
-      this._musicRight.setDirectionalCone(180, 230, 0.1);
-
-      const helper = new PositionalAudioHelper(this._musicRight, 1);
-      this._rightSpeakerGroup.add(helper);
-
-
-      this._musicLeft = new THREE.PositionalAudio(this._audioListener);
-      this._musicLeft.setBuffer(Loader.assets['giorgio']);
-      this._musicLeft.setRefDistance(1);
-
-      this._leftSpeakerGroup.add(this._musicLeft);
-
-      this._musicLeft.setDirectionalCone(180, 230, 0.1);
-
-      const helper2 = new PositionalAudioHelper(this._musicLeft, 1);
-      this._leftSpeakerGroup.add(helper2);
-    }, 500);
   }
 
   _updatePowerIndicatorColor() {
@@ -116,6 +90,21 @@ export default class Speakers extends RoomObjectAbstract {
     this._initSignals();
 
     this._updatePowerIndicatorColor();
+
+    this._musicRight = new THREE.PositionalAudio(this._audioListener);
+
+    this._musicRight.setRefDistance(10);
+
+    this._rightSpeakerGroup.add(this._musicRight);
+
+    this._musicRight.setDirectionalCone(180, 230, 0.1);
+
+    const helper = new PositionalAudioHelper(this._musicRight, 1);
+    this._rightSpeakerGroup.add(helper);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._musicRight.setBuffer(Loader.assets['giorgio']);
+    })
   }
 
   _addPartsToScene() {

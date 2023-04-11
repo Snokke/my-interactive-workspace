@@ -9,8 +9,8 @@ import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
 import HelpArrows from '../../help-arrows/help-arrows';
 
 export default class Monitor extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._monitorGroup = null;
     this._arrowsTween = null;

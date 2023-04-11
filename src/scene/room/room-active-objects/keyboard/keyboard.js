@@ -9,8 +9,8 @@ import fragmentShader from './key-highlight-shaders/key-highlight-fragment.glsl'
 import { KEYS_POSITION, KEYBOARD_CONFIG, KEY_HIGHLIGHT_CONFIG } from './keyboard-config';
 
 export default class Keyboard extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._highlights = null;
 

@@ -7,8 +7,8 @@ import { NOTEBOOK_MOUNT_PARTS, NOTEBOOK_PARTS, NOTEBOOK_PART_TYPE, NOTEBOOK_POSI
 import { NOTEBOOK_CONFIG, NOTEBOOK_MOUNT_CONFIG } from './notebook-config';
 
 export default class Notebook extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._notebookTopGroup = null;
     this._armWithNotebookGroup = null;

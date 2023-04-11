@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { AssetManager, GameObject } from 'black-engine';
+import { AssetManager, GameObject, MessageDispatcher } from 'black-engine';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const textures = [
@@ -29,8 +29,7 @@ export default class Loader extends GameObject {
     super();
 
     Loader.assets = {};
-
-    this._isAudioLoaded = false;
+    Loader.events = new MessageDispatcher();
 
     this._threeJSManager = new THREE.LoadingManager(this._onThreeJSAssetsLoaded, this._onThreeJSAssetsProgress);
     this._blackManager = new AssetManager();
@@ -130,8 +129,11 @@ export default class Loader extends GameObject {
       const audioFullPath = `${audioBasePath}${audioFilename}`;
       const audioName = audioFilename.replace(/\.[^/.]+$/, "");
       audioLoader.load(audioFullPath, (audioBuffer) => {
-        this._onAssetLoad(audioBuffer, audioName)
-        this._isAudioLoaded = true;
+        this._onAssetLoad(audioBuffer, audioName);
+
+        if (sounds.indexOf(audioFilename) === sounds.length - 1) {
+          Loader.events.post('onAudioLoaded');
+        }
       });
     });
   }

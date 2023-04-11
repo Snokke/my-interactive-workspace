@@ -7,8 +7,8 @@ import { WINDOW_CONFIG } from './window-config';
 import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class Walls extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._floorLampDebug = null;
     this._windowGroup = null;

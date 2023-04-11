@@ -6,8 +6,8 @@ import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class FloorLamp extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._init();
   }

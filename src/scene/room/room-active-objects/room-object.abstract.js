@@ -4,13 +4,14 @@ import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
 
 export default class RoomObjectAbstract extends THREE.Group {
-  constructor(meshesGroup, roomObjectType) {
+  constructor(meshesGroup, roomObjectType, audioListener) {
     super();
 
     this.events = new MessageDispatcher();
 
     this._meshesGroup = meshesGroup;
     this._roomObjectType = roomObjectType;
+    this._audioListener = audioListener;
 
     this._debugMenu = null;
 

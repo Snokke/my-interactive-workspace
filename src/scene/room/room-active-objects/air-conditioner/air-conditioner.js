@@ -6,8 +6,8 @@ import { AIR_CONDITIONER_PART_TYPE } from './air-conditioner-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class AirConditioner extends RoomObjectAbstract {
-  constructor(meshesGroup, roomObjectType) {
-    super(meshesGroup, roomObjectType);
+  constructor(meshesGroup, roomObjectType, audioListener) {
+    super(meshesGroup, roomObjectType, audioListener);
 
     this._init();
   }

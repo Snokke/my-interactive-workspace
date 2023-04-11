@@ -274,7 +274,7 @@ export default class Room extends THREE.Group {
 
       if (config.createObject && config.activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
         const group = this._roomScene.getObjectByName(config.groupName);
-        const roomObject = new objectClass.object(group, type);
+        const roomObject = new objectClass.object(group, type, this._audioListener);
         this.add(roomObject);
 
         this._roomActiveObject[type] = roomObject;
@@ -282,8 +282,6 @@ export default class Room extends THREE.Group {
     }
 
     this._roomObjectsByActivityType[ROOM_OBJECT_ACTIVITY_TYPE.Active] = this._roomActiveObject;
-
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].addAudioListener(this._audioListener);
   }
 
   _initInactiveObjects() {
