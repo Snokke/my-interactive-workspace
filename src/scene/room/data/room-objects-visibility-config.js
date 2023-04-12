@@ -10,7 +10,7 @@ const ROOM_OBJECT_VISIBILITY_CONFIG = {
   [ROOM_OBJECT_TYPE.Table]: true,
   [ROOM_OBJECT_TYPE.Speakers]: true,
   [ROOM_OBJECT_TYPE.Monitor]: true,
-  [ROOM_OBJECT_TYPE.Notebook]: true,
+  [ROOM_OBJECT_TYPE.Laptop]: true,
   [ROOM_OBJECT_TYPE.Keyboard]: true,
   [ROOM_OBJECT_TYPE.Mouse]: true,
 
@@ -36,7 +36,7 @@ const ROOM_OBJECT_ENABLED_CONFIG = {
   [ROOM_OBJECT_TYPE.Table]: true,
   [ROOM_OBJECT_TYPE.Speakers]: true,
   [ROOM_OBJECT_TYPE.Monitor]: true,
-  [ROOM_OBJECT_TYPE.Notebook]: true,
+  [ROOM_OBJECT_TYPE.Laptop]: true,
   [ROOM_OBJECT_TYPE.Keyboard]: true,
   [ROOM_OBJECT_TYPE.Mouse]: true,
 }

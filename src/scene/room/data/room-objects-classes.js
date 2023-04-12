@@ -12,8 +12,8 @@ import Monitor from "../room-active-objects/monitor/monitor";
 import MonitorDebugMenu from "../room-active-objects/monitor/monitor-debug-menu";
 import Mouse from "../room-active-objects/mouse/mouse";
 import MouseDebugMenu from "../room-active-objects/mouse/mouse-debug-menu";
-import Notebook from "../room-active-objects/notebook/notebook";
-import NotebookDebugMenu from "../room-active-objects/notebook/notebook-debug-menu";
+import Laptop from "../room-active-objects/laptop/laptop";
+import LaptopDebugMenu from "../room-active-objects/laptop/laptop-debug-menu";
 import Speakers from "../room-active-objects/speakers/speakers";
 import SpeakersDebugMenu from "../room-active-objects/speakers/speakers-debug-menu";
 import Table from "../room-active-objects/table/table";
@@ -65,9 +65,9 @@ const ROOM_OBJECT_CLASS = {
     object: Monitor,
     debugMenu: MonitorDebugMenu,
   },
-  [ROOM_OBJECT_TYPE.Notebook]: {
-    object: Notebook,
-    debugMenu: NotebookDebugMenu,
+  [ROOM_OBJECT_TYPE.Laptop]: {
+    object: Laptop,
+    debugMenu: LaptopDebugMenu,
   },
   [ROOM_OBJECT_TYPE.Keyboard]: {
     object: Keyboard,

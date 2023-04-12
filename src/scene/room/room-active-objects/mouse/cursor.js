@@ -2,20 +2,20 @@ import * as THREE from 'three';
 import { CURSOR_CONFIG } from './mouse-config';
 import Loader from '../../../../core/loader';
 import { CURSOR_MONITOR_TYPE } from './mouse-data';
-import { NOTEBOOK_CONFIG, NOTEBOOK_MOUNT_CONFIG } from '../notebook/notebook-config';
-import { NOTEBOOK_POSITION_STATE } from '../notebook/notebook-data';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from '../laptop/laptop-config';
+import { LAPTOP_POSITION_STATE } from '../laptop/laptop-data';
 
 export default class Cursor extends THREE.Group {
-  constructor(mouse, monitorScreen, notebookScreen) {
+  constructor(mouse, monitorScreen, laptopScreen) {
     super();
 
     this._mouse = mouse;
     this._monitorScreen = monitorScreen;
-    this._notebookScreen = notebookScreen;
+    this._laptopScreen = laptopScreen;
 
     this._view = null;
     this._monitorSize = null;
-    this._notebookSize = null;
+    this._laptopSize = null;
     this._mousePosition = null;
     this._currentMonitorData = null;
     this._previousMousePosition = new THREE.Vector2();
@@ -41,8 +41,8 @@ export default class Cursor extends THREE.Group {
     this._previousMousePosition = this._mousePosition.clone();
   }
 
-  onNotebookClosed() {
-    if (this._monitorType === CURSOR_MONITOR_TYPE.Notebook) {
+  onLaptopClosed() {
+    if (this._monitorType === CURSOR_MONITOR_TYPE.Laptop) {
       this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
 
       const { cursorHalfWidth, sensitivity } = this._getCursorData();
@@ -88,12 +88,12 @@ export default class Cursor extends THREE.Group {
     }
 
     if (this._cursorPosition.x < leftEdge) {
-      if (NOTEBOOK_CONFIG.positionType === NOTEBOOK_POSITION_STATE.Opened && this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor ) {
-        this._monitorType = CURSOR_MONITOR_TYPE.Notebook;
+      if (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened && this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor ) {
+        this._monitorType = CURSOR_MONITOR_TYPE.Laptop;
         changeScreen = true;
 
-        const notebookRightEdge = (this._currentMonitorData[this._monitorType].size.x * 0.5 - cursorHalfWidth) / sensitivity;
-        this._cursorPosition.x = notebookRightEdge;
+        const laptopRightEdge = (this._currentMonitorData[this._monitorType].size.x * 0.5 - cursorHalfWidth) / sensitivity;
+        this._cursorPosition.x = laptopRightEdge;
         this._cursorPosition.y -= 0.1;
       } else {
         this._cursorPosition.x = leftEdge;
@@ -103,12 +103,12 @@ export default class Cursor extends THREE.Group {
     return changeScreen;
   }
 
-  _checkPositionForNotebook() {
+  _checkPositionForLaptop() {
     const { cursorHalfWidth, cursorHalfHeight, sensitivity } = this._getCursorData();
     let changeScreen = false;
 
     const screenSize = this._currentMonitorData[this._monitorType].size;
-    const bottomOffset = CURSOR_CONFIG.notebookScreenBottomOffset;
+    const bottomOffset = CURSOR_CONFIG.laptopScreenBottomOffset;
 
     const topEdge = (-bottomOffset - cursorHalfHeight) / sensitivity;
     const bottomEdge = (-bottomOffset - screenSize.y + cursorHalfHeight) / sensitivity;
@@ -137,9 +137,9 @@ export default class Cursor extends THREE.Group {
     const screen = this._currentMonitorData[this._monitorType].screen;
     this._view.position.copy(screen.getWorldPosition(new THREE.Vector3()));
 
-    if (this._monitorType === CURSOR_MONITOR_TYPE.Notebook) {
-      const mountAngle = NOTEBOOK_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
-      const angleX = (NOTEBOOK_CONFIG.defaultAngle - NOTEBOOK_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
+    if (this._monitorType === CURSOR_MONITOR_TYPE.Laptop) {
+      const mountAngle = LAPTOP_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
+      const angleX = (LAPTOP_CONFIG.defaultAngle - LAPTOP_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
 
       const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, mountAngle, 0))
         .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(angleX, 0, 0)));
@@ -193,9 +193,9 @@ export default class Cursor extends THREE.Group {
     const monitorBoundingBox = new THREE.Box3().setFromObject(this._monitorScreen);
     this._monitorSize = monitorBoundingBox.getSize(new THREE.Vector3());
 
-    const notebookBoundingBox = new THREE.Box3().setFromObject(this._notebookScreen);
-    this._notebookSize = notebookBoundingBox.getSize(new THREE.Vector3());
-    this._notebookSize.y = CURSOR_CONFIG.notebookScreenSizeY;
+    const laptopBoundingBox = new THREE.Box3().setFromObject(this._laptopScreen);
+    this._laptopSize = laptopBoundingBox.getSize(new THREE.Vector3());
+    this._laptopSize.y = CURSOR_CONFIG.laptopScreenSizeY;
   }
 
   _initCurrentMonitorData() {
@@ -205,10 +205,10 @@ export default class Cursor extends THREE.Group {
         size: this._monitorSize,
         checkPositionFunction: () => this._checkPositionForMonitor(),
       },
-      [CURSOR_MONITOR_TYPE.Notebook]: {
-        screen: this._notebookScreen,
-        size: this._notebookSize,
-        checkPositionFunction: () => this._checkPositionForNotebook(),
+      [CURSOR_MONITOR_TYPE.Laptop]: {
+        screen: this._laptopScreen,
+        size: this._laptopSize,
+        checkPositionFunction: () => this._checkPositionForLaptop(),
       },
     }
   }

@@ -9,7 +9,7 @@ import { MOUSE_PART_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse
 import { SPEAKERS_PART_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/speakers-data';
 import { KEYBOARD_PART_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/keyboard-data';
 import { MONITOR_PART_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
-import { NOTEBOOK_PART_CONFIG, NOTEBOOK_PART_TYPE } from '../room-active-objects/notebook/notebook-data';
+import { LAPTOP_PART_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -34,7 +34,7 @@ const ROOM_OBJECT_TYPE = {
   Table: 'TABLE',
   Speakers: 'SPEAKERS',
   Monitor: 'MONITOR',
-  Notebook: 'NOTEBOOK',
+  Laptop: 'LAPTOP',
   Keyboard: 'KEYBOARD',
   Mouse: 'MOUSE',
 
@@ -153,15 +153,15 @@ const ROOM_OBJECT_CONFIG = {
     partConfig: MONITOR_PART_CONFIG,
     isDraggable: true,
   },
-  [ROOM_OBJECT_TYPE.Notebook]: {
+  [ROOM_OBJECT_TYPE.Laptop]: {
     createObject: true,
-    label: 'Notebook',
-    debugFolderLabel: 'Notebook',
+    label: 'Laptop',
+    debugFolderLabel: 'Laptop',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
-    groupName: 'Notebook',
+    groupName: 'Laptop',
     tableGroup: true,
-    partTypes: NOTEBOOK_PART_TYPE,
-    partConfig: NOTEBOOK_PART_CONFIG,
+    partTypes: LAPTOP_PART_TYPE,
+    partConfig: LAPTOP_PART_CONFIG,
     isDraggable: true,
   },
 

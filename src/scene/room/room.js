@@ -128,7 +128,7 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.MousePad, startDelay + tableObjectsShowDelay);
     this._showRoomObject(ROOM_OBJECT_TYPE.Speakers, startDelay + tableObjectsShowDelay + delayBetweenObjects);
     this._showRoomObject(ROOM_OBJECT_TYPE.Organizer, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Notebook, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Laptop, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
     this._showRoomObject(ROOM_OBJECT_TYPE.Monitor, startDelay + tableObjectsShowDelay + delayBetweenObjects * 6);
     this._showRoomObject(ROOM_OBJECT_TYPE.Keyboard, startDelay + tableObjectsShowDelay + delayBetweenObjects * 7);
     this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 8);
@@ -320,9 +320,9 @@ export default class Room extends THREE.Group {
   _initCursor() {
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const monitorScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].getScreen();
-    const notebookScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Notebook].getScreen();
+    const laptopScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].getScreen();
 
-    const cursor = this._cursor = new Cursor(mouse, monitorScreen, notebookScreen);
+    const cursor = this._cursor = new Cursor(mouse, monitorScreen, laptopScreen);
     this.add(cursor);
   }
 
@@ -337,7 +337,7 @@ export default class Room extends THREE.Group {
       });
     }
 
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Notebook].events.on('onNotebookClosed', () => this._cursor.onNotebookClosed());
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
   }
 

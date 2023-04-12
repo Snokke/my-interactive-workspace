@@ -72,7 +72,7 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.ObjectsShowAnimation,
     })
 
-    // let selectedObjectType = ROOM_OBJECT_TYPE.Notebook;
+    // let selectedObjectType = ROOM_OBJECT_TYPE.Laptop;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
     const options = [

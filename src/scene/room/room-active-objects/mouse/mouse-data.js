@@ -10,7 +10,7 @@ const MOUSE_PART_CONFIG = {
 
 const CURSOR_MONITOR_TYPE = {
   Monitor: 'MONITOR',
-  Notebook: 'NOTEBOOK',
+  Laptop: 'LAPTOP',
 }
 
 const AREA_BORDER_TYPE = {
