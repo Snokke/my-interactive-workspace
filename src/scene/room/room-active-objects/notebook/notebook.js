@@ -5,6 +5,8 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { NOTEBOOK_MOUNT_PARTS, NOTEBOOK_PARTS, NOTEBOOK_PART_TYPE, NOTEBOOK_POSITION_STATE, NOTEBOOK_STATE } from './notebook-data';
 import { NOTEBOOK_CONFIG, NOTEBOOK_MOUNT_CONFIG } from './notebook-config';
+import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
+import HelpArrows from '../../help-arrows/help-arrows';
 
 export default class Notebook extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -13,6 +15,7 @@ export default class Notebook extends RoomObjectAbstract {
     this._notebookTopGroup = null;
     this._armWithNotebookGroup = null;
     this._notebookTween = null;
+    this._helpArrows = null;
 
     this._isMountSelected = false;
     this._plane = new THREE.Plane();
@@ -94,16 +97,41 @@ export default class Notebook extends RoomObjectAbstract {
     const angleDelta = angle - this._previousArmMountAngle;
 
     if (Math.abs(angleDelta) < 0.1) {
-      this._armWithNotebookGroup.rotation.y += angleDelta;
+      NOTEBOOK_MOUNT_CONFIG.angle += angleDelta * THREE.MathUtils.RAD2DEG;
     }
 
-    const leftEdge = NOTEBOOK_MOUNT_CONFIG.leftEdgeAngle * THREE.MathUtils.DEG2RAD;
-    const rightEdge = NOTEBOOK_MOUNT_CONFIG.rightEdgeAngle * THREE.MathUtils.DEG2RAD;
+    const leftEdge = NOTEBOOK_MOUNT_CONFIG.leftEdgeAngle;
+    const rightEdge = NOTEBOOK_MOUNT_CONFIG.rightEdgeAngle;
 
-    this._armWithNotebookGroup.rotation.y = THREE.MathUtils.clamp(this._armWithNotebookGroup.rotation.y, leftEdge, rightEdge);
+    NOTEBOOK_MOUNT_CONFIG.angle = THREE.MathUtils.clamp(NOTEBOOK_MOUNT_CONFIG.angle, leftEdge, rightEdge);
+    this._onMountAngleChanged();
+    this._debugMenu.updateMountAngle();
 
-    NOTEBOOK_MOUNT_CONFIG.angle = this._armWithNotebookGroup.rotation.y * THREE.MathUtils.RAD2DEG;
     this._previousArmMountAngle = angle;
+  }
+
+  onPointerOver(mesh) {
+    if (this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOver();
+
+    const partType = mesh.userData.partType;
+
+    if (NOTEBOOK_MOUNT_PARTS.includes(partType)) {
+      this._helpArrows.show();
+    }
+  }
+
+  onPointerOut() {
+    if (!this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOut();
+
+    this._helpArrows.hide();
   }
 
   getMeshesForOutline(mesh) {
@@ -129,7 +157,10 @@ export default class Notebook extends RoomObjectAbstract {
       this._updateNotebookPositionType();
     }
 
+    this._debugMenu.updateNotebookButtonTitle();
+
     NOTEBOOK_CONFIG.state = NOTEBOOK_STATE.Moving;
+    this._debugMenu.updateTopPanelState();
     this._stopNotebookTween();
 
     const maxAngle = NOTEBOOK_CONFIG.positionType === NOTEBOOK_POSITION_STATE.Opened ? 0 : NOTEBOOK_CONFIG.maxOpenAngle;
@@ -152,6 +183,7 @@ export default class Notebook extends RoomObjectAbstract {
         }
 
         NOTEBOOK_CONFIG.state = NOTEBOOK_STATE.Idle;
+        this._debugMenu.updateTopPanelState();
       });
   }
 
@@ -176,14 +208,18 @@ export default class Notebook extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
   }
 
   _initSignals() {
-    this._debugMenu.events.on('switchOn', () => {
-      this.onClick();
-    });
+    this._debugMenu.events.on('openNotebook', () => this._notebookInteract());
+    this._debugMenu.events.on('mountAngleChanged', () => this._onMountAngleChanged());
+  }
+
+  _onMountAngleChanged() {
+    this._armWithNotebookGroup.rotation.y = NOTEBOOK_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
   }
 
   _addPartsToScene() {
@@ -229,7 +265,7 @@ export default class Notebook extends RoomObjectAbstract {
 
     notebookTopGroup.add(notebookMonitor, notebookScreen);
 
-    notebookTopGroup.rotation.copy(notebookMonitor.rotation.clone());
+    notebookTopGroup.rotation.x = -NOTEBOOK_CONFIG.maxOpenAngle * THREE.MathUtils.DEG2RAD;
     notebookTopGroup.position.copy(notebookMonitor.position.clone());
 
     notebookMonitor.position.set(0, 0, 0);
@@ -240,6 +276,17 @@ export default class Notebook extends RoomObjectAbstract {
     notebookTopGroup.position.sub(startPosition);
 
     NOTEBOOK_CONFIG.angle = NOTEBOOK_CONFIG.maxOpenAngle;
+  }
+
+  _initHelpArrows() {
+    const helpArrowsTypes = [HELP_ARROW_TYPE.NotebookMountLeft, HELP_ARROW_TYPE.NotebookMountRight];
+    const helpArrows = this._helpArrows = new HelpArrows(helpArrowsTypes);
+    this._armWithNotebookGroup.add(helpArrows);
+
+    const stand = this._parts[NOTEBOOK_PART_TYPE.NotebookStand];
+    helpArrows.position.copy(stand.position.clone());
+    helpArrows.position.z += 0.7;
+    helpArrows.position.y -= 0.27;
   }
 
   _getNotebookParts() {

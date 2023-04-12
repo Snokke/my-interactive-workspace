@@ -53,7 +53,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   onClick() { }
 
-  onPointerOver() {
+  onPointerOver(mesh) {
     this._isPointerOver = true;
   }
 

@@ -188,7 +188,7 @@ export default class Room extends THREE.Group {
       this._resetRoomObjectsPointerOver();
 
       this._setGlow(meshes);
-      roomObject.onPointerOver();
+      roomObject.onPointerOver(mesh);
       Black.engine.containerElement.style.cursor = 'pointer';
     }
 

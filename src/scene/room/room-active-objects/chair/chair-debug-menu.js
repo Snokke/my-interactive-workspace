@@ -46,6 +46,8 @@ export default class ChairDebugMenu extends RoomObjectDebugAbstract {
       title: 'Rotate seat',
     }).on('click', () => this.events.post('rotate'));
 
+    this._debugFolder.addSeparator();
+
     this._debugFolder.addInput(CHAIR_CONFIG.seatRotation, 'impulse', {
       label: 'Impulse',
       min: 2,
@@ -75,6 +77,8 @@ export default class ChairDebugMenu extends RoomObjectDebugAbstract {
     this._moveChairButton = this._debugFolder.addButton({
       title: 'Move chair',
     }).on('click', () => this.events.post('move'));
+
+    this._debugFolder.addSeparator();
 
     this._debugFolder.addInput(CHAIR_CONFIG.chairMoving, 'speed', {
       label: 'Speed',

@@ -5,6 +5,8 @@ const HELP_ARROW_TYPE = {
   MouseRight: 'MOUSE_RIGHT',
   MonitorFront: 'MONITOR_FRONT',
   MonitorBack: 'MONITOR_BACK',
+  NotebookMountLeft: 'NOTEBOOK_MOUNT_LEFT',
+  NotebookMountRight: 'NOTEBOOK_MOUNT_RIGHT',
 }
 
 const HELP_ARROWS_CONFIG = {
@@ -32,6 +34,18 @@ const HELP_ARROWS_CONFIG = {
     direction: new THREE.Vector3(0, 0, -1),
     offset: new THREE.Vector3(0, 0, -0.3),
     length: 1,
+  },
+  [HELP_ARROW_TYPE.NotebookMountLeft]: {
+    color: 0x00ff00,
+    direction: new THREE.Vector3(-1, 0, 0),
+    offset: new THREE.Vector3(-0.8, 0, 0),
+    length: 0.7,
+  },
+  [HELP_ARROW_TYPE.NotebookMountRight]: {
+    color: 0xff0000,
+    direction: new THREE.Vector3(1, 0, 0),
+    offset: new THREE.Vector3(0.8, 0, 0),
+    length: 0.7,
   },
 }
 

@@ -139,7 +139,7 @@ export default class Cursor extends THREE.Group {
 
     if (this._monitorType === CURSOR_MONITOR_TYPE.Notebook) {
       const mountAngle = NOTEBOOK_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
-      const angleX = (NOTEBOOK_CONFIG.maxOpenAngle - NOTEBOOK_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
+      const angleX = (NOTEBOOK_CONFIG.defaultAngle - NOTEBOOK_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
 
       const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, mountAngle, 0))
         .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(angleX, 0, 0)));
