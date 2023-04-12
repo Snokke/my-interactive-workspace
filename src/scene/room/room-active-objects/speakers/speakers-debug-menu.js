@@ -1,4 +1,5 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
+import { SPEAKERS_CONFIG } from "./speakers-config";
 import { SPEAKERS_POWER_STATUS } from "./speakers-data";
 
 export default class SpeakersDebugMenu extends RoomObjectDebugAbstract {
@@ -30,6 +31,10 @@ export default class SpeakersDebugMenu extends RoomObjectDebugAbstract {
     this._powerButton = this._debugFolder.addButton({
       title: 'Turn on',
     }).on('click', () => this.events.post('switch'));
+
+    this._debugFolder.addInput(SPEAKERS_CONFIG, 'helpersEnabled', {
+      label: 'Helpers',
+    }).on('change', () => this.events.post('onHelpersChanged'));
 
     this.updatePowerStatus(this._powerStatus.value);
   }

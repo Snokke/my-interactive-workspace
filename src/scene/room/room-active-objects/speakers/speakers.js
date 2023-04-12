@@ -7,6 +7,8 @@ import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './speakers-data';
 import { SPEAKERS_CONFIG } from './speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
+import vertexShader from './speakers-shaders/speakers-vertex.glsl';
+import fragmentShader from './speakers-shaders/speakers-fragment.glsl';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -17,10 +19,33 @@ export default class Speakers extends RoomObjectAbstract {
 
     this._musicRight = null;
     this._musicLeft = null;
+    this._analyzer = null;
+    this._pointsMaterial = null;
+    this._points = null;
 
+    this._rightHelper = null;
+
+    this._time = 0;
     this._powerStatus = SPEAKERS_POWER_STATUS.Off;
 
     this._init();
+  }
+
+  update(dt) {
+    this._time += dt;
+
+    // this._analyser.getFrequencyData();
+
+
+    // this._pointsMaterial.uniforms.uTime.value = this._time;
+
+
+    // const positions = this._points.geometry.attributes.position;
+    // const py = positions.getY( 0 );
+    // console.log(py);
+
+    // positions.setXYZ(1, 0, this._time * 1, 0);
+    // positions.needsUpdate = true;
   }
 
   showWithAnimation(delay) {
@@ -63,15 +88,9 @@ export default class Speakers extends RoomObjectAbstract {
     this._updatePowerIndicatorColor();
 
     if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      // if (this._musicRight) {
-        this._musicRight.play();
-      // }
-      // this._musicLeft.play();
+      this._musicRight.play();
     } else {
-      // if (this._musicRight) {
-        this._musicRight.pause();
-      // }
-      // this._musicLeft.pause();
+      this._musicRight.pause();
     }
   }
 
@@ -86,25 +105,11 @@ export default class Speakers extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initMusic();
     this._initDebugMenu();
     this._initSignals();
 
     this._updatePowerIndicatorColor();
-
-    this._musicRight = new THREE.PositionalAudio(this._audioListener);
-
-    this._musicRight.setRefDistance(10);
-
-    this._rightSpeakerGroup.add(this._musicRight);
-
-    this._musicRight.setDirectionalCone(180, 230, 0.1);
-
-    // const helper = new PositionalAudioHelper(this._musicRight, 1);
-    // this._rightSpeakerGroup.add(helper);
-
-    Loader.events.on('onAudioLoaded', () => {
-      this._musicRight.setBuffer(Loader.assets['giorgio']);
-    })
   }
 
   _addPartsToScene() {
@@ -130,9 +135,85 @@ export default class Speakers extends RoomObjectAbstract {
     rightSpeaker.position.set(0, 0, 0);
   }
 
+  _initMusic() {
+    this._initRightMusic();
+    // this._initPoints();
+    this._initLoaderSignals();
+
+    this._showHelpers();
+  }
+
+  _initRightMusic() {
+    this._musicRight = new THREE.PositionalAudio(this._audioListener);
+    this._musicRight.setRefDistance(10);
+    this._musicRight.setDirectionalCone(180, 230, 0.1);
+
+    this._rightSpeakerGroup.add(this._musicRight);
+
+
+    const fftSize = 128;
+    const analyser = this._analyser = new THREE.AudioAnalyser(this._musicRight, fftSize);
+  }
+
+  _initPoints() {
+    const geometry = new THREE.BufferGeometry();
+    const count = 32;
+
+    const positionArray = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      positionArray[i * 3 + 0] = i * 0.05;
+      positionArray[i * 3 + 1] = 0;
+      positionArray[i * 3 + 2] = 0.7;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3));
+    geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);
+
+    const material = this._pointsMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uSize: { value: 30 },
+        uTime: { value: 0 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+    });
+
+    const points = this._points = new THREE.Points(geometry, material);
+    this._rightSpeakerGroup.add(points);
+  }
+
+  _initHelpers() {
+    const rightHelper = this._rightHelper = new PositionalAudioHelper(this._musicRight, 1);
+    this._rightSpeakerGroup.add(rightHelper);
+  }
+
+  _initLoaderSignals() {
+    Loader.events.on('onAudioLoaded', () => {
+      this._musicRight.setBuffer(Loader.assets['giorgio']);
+    })
+  }
+
   _initSignals() {
     this._debugMenu.events.on('switch', () => {
       this.onClick();
     });
+
+    this._debugMenu.events.on('onHelpersChanged', () => {
+      this._showHelpers();
+    });
+
+    window.addEventListener('resize', () => {
+      this._pointsMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+    });
+  }
+
+  _showHelpers() {
+    if (!this._rightHelper) {
+      this._initHelpers();
+    }
+
+    this._rightHelper.visible = SPEAKERS_CONFIG.helpersEnabled;
   }
 }
