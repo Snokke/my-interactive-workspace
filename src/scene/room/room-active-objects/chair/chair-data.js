@@ -8,28 +8,14 @@ const CHAIR_PART_TYPE = {
   Wheel05: 'chair-wheel-05',
 }
 
-const CHAIR_PART_CONFIG = {
-  [CHAIR_PART_TYPE.Legs]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Seat]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Wheel01]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Wheel02]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Wheel03]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Wheel04]: {
-    isActive: true,
-  },
-  [CHAIR_PART_TYPE.Wheel05]: {
-    isActive: true,
-  },
+const CHAIR_PART_ACTIVITY_CONFIG = {
+  [CHAIR_PART_TYPE.Legs]: true,
+  [CHAIR_PART_TYPE.Seat]: true,
+  [CHAIR_PART_TYPE.Wheel01]: true,
+  [CHAIR_PART_TYPE.Wheel02]: true,
+  [CHAIR_PART_TYPE.Wheel03]: true,
+  [CHAIR_PART_TYPE.Wheel04]: true,
+  [CHAIR_PART_TYPE.Wheel05]: true,
 }
 
 const SEAT_ROTATION_DIRECTION = {
@@ -47,4 +33,10 @@ const CHAIR_POSITION_TYPE = {
   NearTable: 'NEAR_TABLE',
 }
 
-export { CHAIR_PART_TYPE, CHAIR_PART_CONFIG, SEAT_ROTATION_DIRECTION, CHAIR_MOVEMENT_STATE, CHAIR_POSITION_TYPE };
+export {
+  CHAIR_PART_TYPE,
+  CHAIR_PART_ACTIVITY_CONFIG,
+  SEAT_ROTATION_DIRECTION,
+  CHAIR_MOVEMENT_STATE,
+  CHAIR_POSITION_TYPE,
+};

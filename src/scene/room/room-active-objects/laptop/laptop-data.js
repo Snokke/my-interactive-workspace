@@ -9,31 +9,15 @@ const LAPTOP_PART_TYPE = {
   LaptopMount: 'laptop_mount',
 }
 
-const LAPTOP_PART_CONFIG = {
-  [LAPTOP_PART_TYPE.LaptopKeyboard]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopMonitor]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopScreen]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopStand]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopArmMountBase]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopArmMountArm01]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopArmMountArm02]: {
-    isActive: true,
-  },
-  [LAPTOP_PART_TYPE.LaptopMount]: {
-    isActive: true,
-  },
+const LAPTOP_PART_ACTIVITY_CONFIG = {
+  [LAPTOP_PART_TYPE.LaptopKeyboard]: true,
+  [LAPTOP_PART_TYPE.LaptopMonitor]: true,
+  [LAPTOP_PART_TYPE.LaptopScreen]: true,
+  [LAPTOP_PART_TYPE.LaptopStand]: true,
+  [LAPTOP_PART_TYPE.LaptopArmMountBase]: true,
+  [LAPTOP_PART_TYPE.LaptopArmMountArm01]: true,
+  [LAPTOP_PART_TYPE.LaptopArmMountArm02]: true,
+  [LAPTOP_PART_TYPE.LaptopMount]: true,
 }
 
 const LAPTOP_PARTS = [
@@ -60,4 +44,11 @@ const LAPTOP_POSITION_STATE = {
   Closed: 'CLOSED',
 }
 
-export { LAPTOP_PART_TYPE, LAPTOP_PART_CONFIG, LAPTOP_PARTS, LAPTOP_MOUNT_PARTS, LAPTOP_STATE, LAPTOP_POSITION_STATE }
+export {
+  LAPTOP_PART_TYPE,
+  LAPTOP_PART_ACTIVITY_CONFIG,
+  LAPTOP_PARTS,
+  LAPTOP_MOUNT_PARTS,
+  LAPTOP_STATE,
+  LAPTOP_POSITION_STATE,
+}

@@ -5,19 +5,11 @@ const TABLE_PART_TYPE = {
   Legs: 'legs',
 }
 
-const TABLE_PART_CONFIG = {
-  [TABLE_PART_TYPE.Tabletop]: {
-    isActive: true,
-  },
-  [TABLE_PART_TYPE.TopPart]: {
-    isActive: true,
-  },
-  [TABLE_PART_TYPE.Handle]: {
-    isActive: true,
-  },
-  [TABLE_PART_TYPE.Legs]: {
-    isActive: true,
-  },
+const TABLE_PART_ACTIVITY_CONFIG = {
+  [TABLE_PART_TYPE.Tabletop]: true,
+  [TABLE_PART_TYPE.TopPart]: true,
+  [TABLE_PART_TYPE.Handle]: true,
+  [TABLE_PART_TYPE.Legs]: true,
 }
 
 const TABLE_STATE = {
@@ -33,4 +25,4 @@ const TABLE_HANDLE_STATE = {
   Rotating: 'ROTATING',
 }
 
-export { TABLE_PART_TYPE, TABLE_STATE, TABLE_HANDLE_STATE, TABLE_PART_CONFIG };
+export { TABLE_PART_TYPE, TABLE_STATE, TABLE_HANDLE_STATE, TABLE_PART_ACTIVITY_CONFIG };

@@ -1,15 +1,15 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { TABLE_PART_CONFIG, TABLE_PART_TYPE } from '../room-active-objects/table/table-data';
-import { WALLS_PART_CONFIG, WALLS_PART_TYPE } from '../room-active-objects/walls/walls-data';
-import { LOCKER_PART_CONFIG, LOCKER_PART_TYPE } from '../room-active-objects/locker/locker-data';
-import { FLOOR_LAMP_PART_CONFIG, FLOOR_LAMP_PART_TYPE } from '../room-active-objects/floor-lamp/floor-lamp-data';
-import { CHAIR_PART_CONFIG, CHAIR_PART_TYPE } from '../room-active-objects/chair/chair-data';
-import { AIR_CONDITIONER_PART_CONFIG, AIR_CONDITIONER_PART_TYPE } from '../room-active-objects/air-conditioner/air-conditioner-data';
-import { MOUSE_PART_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse/mouse-data';
-import { SPEAKERS_PART_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/speakers-data';
-import { KEYBOARD_PART_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/keyboard-data';
-import { MONITOR_PART_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
-import { LAPTOP_PART_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
+import { TABLE_PART_ACTIVITY_CONFIG, TABLE_PART_TYPE } from '../room-active-objects/table/table-data';
+import { WALLS_PART_ACTIVITY_CONFIG, WALLS_PART_TYPE } from '../room-active-objects/walls/walls-data';
+import { LOCKER_PART_ACTIVITY_CONFIG, LOCKER_PART_TYPE } from '../room-active-objects/locker/locker-data';
+import { FLOOR_LAMP_PART_ACTIVITY_CONFIG, FLOOR_LAMP_PART_TYPE } from '../room-active-objects/floor-lamp/floor-lamp-data';
+import { CHAIR_PART_ACTIVITY_CONFIG, CHAIR_PART_TYPE } from '../room-active-objects/chair/chair-data';
+import { AIR_CONDITIONER_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_PART_TYPE } from '../room-active-objects/air-conditioner/air-conditioner-data';
+import { MOUSE_PART_ACTIVITY_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse/mouse-data';
+import { SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/speakers-data';
+import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/keyboard-data';
+import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
+import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -64,7 +64,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Walls',
     partTypes: WALLS_PART_TYPE,
-    partConfig: WALLS_PART_CONFIG,
+    partsActiveConfig: WALLS_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Table]: {
     createObject: true,
@@ -73,7 +73,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Table',
     partTypes: TABLE_PART_TYPE,
-    partConfig: TABLE_PART_CONFIG,
+    partsActiveConfig: TABLE_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Locker]: {
     createObject: true,
@@ -82,7 +82,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Locker',
     partTypes: LOCKER_PART_TYPE,
-    partConfig: LOCKER_PART_CONFIG,
+    partsActiveConfig: LOCKER_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.FloorLamp]: {
     createObject: true,
@@ -91,7 +91,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Floor_lamp',
     partTypes: FLOOR_LAMP_PART_TYPE,
-    partConfig: FLOOR_LAMP_PART_CONFIG,
+    partsActiveConfig: FLOOR_LAMP_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Chair]: {
     createObject: true,
@@ -100,7 +100,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Chair',
     partTypes: CHAIR_PART_TYPE,
-    partConfig: CHAIR_PART_CONFIG,
+    partsActiveConfig: CHAIR_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.AirConditioner]: {
     createObject: true,
@@ -109,7 +109,7 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Air_conditioner',
     partTypes: AIR_CONDITIONER_PART_TYPE,
-    partConfig: AIR_CONDITIONER_PART_CONFIG,
+    partsActiveConfig: AIR_CONDITIONER_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Mouse]: {
     createObject: true,
@@ -119,7 +119,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Mouse',
     tableGroup: true,
     partTypes: MOUSE_PART_TYPE,
-    partConfig: MOUSE_PART_CONFIG,
+    partsActiveConfig: MOUSE_PART_ACTIVITY_CONFIG,
     isDraggable: true,
   },
   [ROOM_OBJECT_TYPE.Speakers]: {
@@ -130,7 +130,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Speakers',
     tableGroup: true,
     partTypes: SPEAKERS_PART_TYPE,
-    partConfig: SPEAKERS_PART_CONFIG,
+    partsActiveConfig: SPEAKERS_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Keyboard]: {
     createObject: true,
@@ -140,7 +140,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Keyboard',
     tableGroup: true,
     partTypes: KEYBOARD_PART_TYPE,
-    partConfig: KEYBOARD_PART_CONFIG,
+    partsActiveConfig: KEYBOARD_PART_ACTIVITY_CONFIG,
   },
   [ROOM_OBJECT_TYPE.Monitor]: {
     createObject: true,
@@ -150,7 +150,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Monitor',
     tableGroup: true,
     partTypes: MONITOR_PART_TYPE,
-    partConfig: MONITOR_PART_CONFIG,
+    partsActiveConfig: MONITOR_PART_ACTIVITY_CONFIG,
     isDraggable: true,
   },
   [ROOM_OBJECT_TYPE.Laptop]: {
@@ -161,7 +161,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Laptop',
     tableGroup: true,
     partTypes: LAPTOP_PART_TYPE,
-    partConfig: LAPTOP_PART_CONFIG,
+    partsActiveConfig: LAPTOP_PART_ACTIVITY_CONFIG,
     isDraggable: true,
   },
 

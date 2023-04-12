@@ -96,11 +96,11 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   _initParts() {
     const partTypes = ROOM_OBJECT_CONFIG[this._roomObjectType].partTypes;
-    const config = ROOM_OBJECT_CONFIG[this._roomObjectType].partConfig;
+    const config = ROOM_OBJECT_CONFIG[this._roomObjectType].partsActiveConfig;
 
     for (const partName in partTypes) {
       const part = this._meshesGroup.children.find(child => child.name === partTypes[partName]);
-      const partConfig = config[partTypes[partName]];
+      const partsActiveConfig = config[partTypes[partName]];
 
       this._parts[partTypes[partName]] = part;
 
@@ -108,11 +108,11 @@ export default class RoomObjectAbstract extends THREE.Group {
       part.userData['partType'] = partTypes[partName];
       part.userData['startPosition'] = part.position.clone();
       part.userData['startAngle'] = part.rotation.clone();
-      part.userData['isActive'] = partConfig.isActive;
+      part.userData['isActive'] = partsActiveConfig;
 
       this._allMeshes.push(part);
 
-      if (partConfig.isActive) {
+      if (partsActiveConfig) {
         this._activeMeshes.push(part);
       }
     }

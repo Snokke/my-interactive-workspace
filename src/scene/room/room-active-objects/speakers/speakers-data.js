@@ -4,16 +4,10 @@ const SPEAKERS_PART_TYPE = {
   PowerIndicator: 'power_indicator',
 }
 
-const SPEAKERS_PART_CONFIG = {
-  [SPEAKERS_PART_TYPE.Left]: {
-    isActive: true,
-  },
-  [SPEAKERS_PART_TYPE.Right]: {
-    isActive: true,
-  },
-  [SPEAKERS_PART_TYPE.PowerIndicator]: {
-    isActive: true,
-  },
+const SPEAKERS_PART_ACTIVITY_CONFIG = {
+  [SPEAKERS_PART_TYPE.Left]: true,
+  [SPEAKERS_PART_TYPE.Right]: true,
+  [SPEAKERS_PART_TYPE.PowerIndicator]: true,
 }
 
 const SPEAKERS_POWER_STATUS = {
@@ -21,4 +15,4 @@ const SPEAKERS_POWER_STATUS = {
   Off: 'OFF',
 }
 
-export { SPEAKERS_PART_TYPE, SPEAKERS_PART_CONFIG, SPEAKERS_POWER_STATUS };
+export { SPEAKERS_PART_TYPE, SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_POWER_STATUS };

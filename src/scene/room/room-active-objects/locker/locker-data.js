@@ -8,28 +8,14 @@ const LOCKER_PART_TYPE = {
   Case06: 'case06',
 }
 
-const LOCKER_PART_CONFIG = {
-  [LOCKER_PART_TYPE.Body]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case01]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case02]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case03]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case04]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case05]: {
-    isActive: true,
-  },
-  [LOCKER_PART_TYPE.Case06]: {
-    isActive: true,
-  },
+const LOCKER_PART_ACTIVITY_CONFIG = {
+  [LOCKER_PART_TYPE.Body]: true,
+  [LOCKER_PART_TYPE.Case01]: true,
+  [LOCKER_PART_TYPE.Case02]: true,
+  [LOCKER_PART_TYPE.Case03]: true,
+  [LOCKER_PART_TYPE.Case04]: true,
+  [LOCKER_PART_TYPE.Case05]: true,
+  [LOCKER_PART_TYPE.Case06]: true,
 }
 
 const CASES = [
@@ -104,5 +90,5 @@ export {
   LOCKER_CASES_RANDOM_ANIMATIONS,
   LOCKER_CASES_ANIMATION_SEQUENCE,
   CASES,
-  LOCKER_PART_CONFIG,
+  LOCKER_PART_ACTIVITY_CONFIG,
 };

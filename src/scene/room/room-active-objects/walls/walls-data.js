@@ -28,35 +28,23 @@ const WINDOW_OPEN_TYPE = {
 
 const WINDOW_OPEN_TYPE_BOTH = 'WINDOW_OPEN_TYPE_BOTH';
 
-const WALLS_PART_CONFIG = {
-  [WALLS_PART_TYPE.Floor]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.WallLeft]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.WallRight]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.Windowsill]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.WindowFrame]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.GlassBottom]: {
-    isActive: false,
-  },
-  [WALLS_PART_TYPE.Window]: {
-    isActive: true,
-  },
-  [WALLS_PART_TYPE.WindowHandle]: {
-    isActive: true,
-  },
-  [WALLS_PART_TYPE.GlassTop]: {
-    isActive: true,
-  },
-
+const WALLS_PART_ACTIVITY_CONFIG = {
+  [WALLS_PART_TYPE.Floor]: false,
+  [WALLS_PART_TYPE.WallLeft]: false,
+  [WALLS_PART_TYPE.WallRight]: false,
+  [WALLS_PART_TYPE.Windowsill]: false,
+  [WALLS_PART_TYPE.WindowFrame]: false,
+  [WALLS_PART_TYPE.GlassBottom]: false,
+  [WALLS_PART_TYPE.Window]: true,
+  [WALLS_PART_TYPE.WindowHandle]: true,
+  [WALLS_PART_TYPE.GlassTop]: true,
 }
 
-export { WALLS_PART_TYPE, WALLS_PART_CONFIG, WINDOW_STATE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH };
+export {
+  WALLS_PART_TYPE,
+  WALLS_PART_ACTIVITY_CONFIG,
+  WINDOW_STATE,
+  WINDOW_HANDLE_STATE,
+  WINDOW_OPEN_TYPE,
+  WINDOW_OPEN_TYPE_BOTH,
+};
