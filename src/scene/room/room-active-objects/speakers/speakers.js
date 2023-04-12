@@ -7,8 +7,7 @@ import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './speakers-data';
 import { SPEAKERS_CONFIG } from './speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
-import vertexShader from './speakers-shaders/speakers-vertex.glsl';
-import fragmentShader from './speakers-shaders/speakers-fragment.glsl';
+import SoundParticles from './sound-particels';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -20,32 +19,18 @@ export default class Speakers extends RoomObjectAbstract {
     this._musicRight = null;
     this._musicLeft = null;
     this._analyzer = null;
-    this._pointsMaterial = null;
-    this._points = null;
+
+    this._rightSoundParticles = null;
 
     this._rightHelper = null;
 
-    this._time = 0;
     this._powerStatus = SPEAKERS_POWER_STATUS.Off;
 
     this._init();
   }
 
   update(dt) {
-    this._time += dt;
-
-    // this._analyser.getFrequencyData();
-
-
-    // this._pointsMaterial.uniforms.uTime.value = this._time;
-
-
-    // const positions = this._points.geometry.attributes.position;
-    // const py = positions.getY( 0 );
-    // console.log(py);
-
-    // positions.setXYZ(1, 0, this._time * 1, 0);
-    // positions.needsUpdate = true;
+    this._rightSoundParticles.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -137,7 +122,7 @@ export default class Speakers extends RoomObjectAbstract {
 
   _initMusic() {
     this._initRightMusic();
-    // this._initPoints();
+    this._initParticles();
     this._initLoaderSignals();
 
     this._showHelpers();
@@ -150,38 +135,13 @@ export default class Speakers extends RoomObjectAbstract {
 
     this._rightSpeakerGroup.add(this._musicRight);
 
-
     const fftSize = 128;
-    const analyser = this._analyser = new THREE.AudioAnalyser(this._musicRight, fftSize);
+    this._analyser = new THREE.AudioAnalyser(this._musicRight, fftSize);
   }
 
-  _initPoints() {
-    const geometry = new THREE.BufferGeometry();
-    const count = 32;
-
-    const positionArray = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
-      positionArray[i * 3 + 0] = i * 0.05;
-      positionArray[i * 3 + 1] = 0;
-      positionArray[i * 3 + 2] = 0.7;
-    }
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3));
-    geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);
-
-    const material = this._pointsMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-        uSize: { value: 30 },
-        uTime: { value: 0 },
-      },
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-    });
-
-    const points = this._points = new THREE.Points(geometry, material);
-    this._rightSpeakerGroup.add(points);
+  _initParticles() {
+    const rightSoundParticles = this._rightSoundParticles = new SoundParticles(this._analyser);
+    this._rightSpeakerGroup.add(rightSoundParticles);
   }
 
   _initHelpers() {
@@ -202,10 +162,6 @@ export default class Speakers extends RoomObjectAbstract {
 
     this._debugMenu.events.on('onHelpersChanged', () => {
       this._showHelpers();
-    });
-
-    window.addEventListener('resize', () => {
-      this._pointsMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
     });
   }
 
