@@ -36,17 +36,7 @@ export default class Speakers extends RoomObjectAbstract {
   update(dt) {
     this._rightSoundParticles.update(dt);
     this._leftSoundParticles.update(dt);
-
-
-    if (this._music.isPlaying){
-      this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
-      if (this._audioCurrentTime >= this._music.buffer.duration){
-          console.log('end song');
-      }
-    } else {
-      this._audioPrevTime = this._audioCurrentTime;
-      this._audioContextCurrentTime = this._music.context.currentTime;
-    }
+    this._updateCurrentTime();
   }
 
   showWithAnimation(delay) {
@@ -97,6 +87,20 @@ export default class Speakers extends RoomObjectAbstract {
       this._rightSoundParticles.hide();
       this._leftSoundParticles.hide();
     }
+  }
+
+  _updateCurrentTime() {
+    if (this._music.isPlaying) {
+      this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
+      if (this._audioCurrentTime >= this._music.buffer.duration) {
+        console.log('end song');
+      }
+    } else {
+      this._audioPrevTime = this._audioCurrentTime;
+      this._audioContextCurrentTime = this._music.context.currentTime;
+    }
+
+    this._debugMenu.updateCurrentTime(this._audioCurrentTime);
   }
 
   _updatePowerIndicatorColor() {
@@ -175,6 +179,8 @@ export default class Speakers extends RoomObjectAbstract {
   _initLoaderSignals() {
     Loader.events.on('onAudioLoaded', () => {
       this._music.setBuffer(Loader.assets['giorgio']);
+
+      this._debugMenu.updateDuration(this._music.buffer.duration);
     })
   }
 
