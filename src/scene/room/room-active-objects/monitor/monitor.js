@@ -165,6 +165,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initGroups();
+    this._initVideo();
     this._updateArmRotation();
     this._initArrows();
     this._initDebugMenu();
@@ -180,6 +181,24 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
 
     monitorGroup.add(monitor, monitorScreen, monitorMount);
+  }
+
+  _initVideo() {
+    const videoElement = document.createElement('video');
+    videoElement.muted = true;
+    videoElement.loop = true;
+    videoElement.controls = true;
+    videoElement.playsInline = true;
+    videoElement.autoplay = true;
+    videoElement.src = '/static/video/games_showreel.mp4';
+    videoElement.play();
+
+    const texture = new THREE.VideoTexture(videoElement);
+    texture.encoding = THREE.sRGBEncoding;
+
+    const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
+    monitorScreen.material.color = new THREE.Color(0xffffff);
+    monitorScreen.material.map = texture;
   }
 
   _initArrows() {

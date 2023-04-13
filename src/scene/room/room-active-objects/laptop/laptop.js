@@ -208,6 +208,7 @@ export default class Laptop extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initVideo();
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
@@ -276,6 +277,24 @@ export default class Laptop extends RoomObjectAbstract {
     laptopTopGroup.position.sub(startPosition);
 
     LAPTOP_CONFIG.angle = LAPTOP_CONFIG.maxOpenAngle;
+  }
+
+  _initVideo() {
+    // const videoElement = document.createElement('video');
+    // videoElement.muted = true;
+    // videoElement.loop = true;
+    // videoElement.controls = true;
+    // videoElement.playsInline = true;
+    // videoElement.autoplay = true;
+    // videoElement.src = '/static/video/games_showreel.mp4';
+    // videoElement.play();
+
+    // const texture = new THREE.VideoTexture(videoElement);
+    // texture.encoding = THREE.sRGBEncoding;
+
+    // const laptopScreen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+    // laptopScreen.material.color = new THREE.Color(0xffffff);
+    // laptopScreen.material.map = texture;
   }
 
   _initHelpArrows() {
