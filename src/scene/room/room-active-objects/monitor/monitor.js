@@ -190,7 +190,7 @@ export default class Monitor extends RoomObjectAbstract {
     videoElement.controls = true;
     videoElement.playsInline = true;
     videoElement.autoplay = true;
-    videoElement.src = '/static/video/games_showreel.mp4';
+    videoElement.src = '/video/games_showreel.mp4';
     videoElement.play();
 
     const texture = new THREE.VideoTexture(videoElement);

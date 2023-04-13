@@ -13,6 +13,7 @@ export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
+    this._musicGroup = null;
     this._leftSpeakerGroup = null;
     this._rightSpeakerGroup = null;
 
@@ -22,7 +23,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._rightSoundParticles = null;
     this._leftSoundParticles = null;
 
-    this._rightHelper = null;
+    this._audioHelper = null;
 
     this._powerStatus = SPEAKERS_POWER_STATUS.Off;
 
@@ -89,6 +90,14 @@ export default class Speakers extends RoomObjectAbstract {
     }
   }
 
+  onWindowOpened() {
+    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.openedWindowOuterGain);
+  }
+
+  onWindowClosed() {
+    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.closedWindowOuterGain);
+  }
+
   _updateCurrentTime() {
     if (this._music.isPlaying) {
       this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
@@ -142,6 +151,12 @@ export default class Speakers extends RoomObjectAbstract {
     rightSpeakerGroup.position.copy(rightSpeaker.userData.startPosition);
     powerIndicator.position.sub(rightSpeaker.userData.startPosition);
     rightSpeaker.position.set(0, 0, 0);
+
+    this._musicGroup = new THREE.Group();
+    this.add(this._musicGroup);
+
+    this._musicGroup.position.copy(rightSpeakerGroup.position);
+    this._musicGroup.position.x -= 3.6;
   }
 
   _initMusic() {
@@ -155,9 +170,11 @@ export default class Speakers extends RoomObjectAbstract {
   _initPositionalAudio() {
     this._music = new THREE.PositionalAudio(this._audioListener);
     this._music.setRefDistance(10);
-    this._music.setDirectionalCone(180, 230, 0.1);
+    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.closedWindowOuterGain);
 
-    this._rightSpeakerGroup.add(this._music);
+    this._music.rotation.y = Math.PI * 0.22;
+
+    this._musicGroup.add(this._music);
 
     const fftSize = 128;
     this._analyser = new THREE.AudioAnalyser(this._music, fftSize);
@@ -172,8 +189,10 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initHelpers() {
-    const rightHelper = this._rightHelper = new PositionalAudioHelper(this._music, 1.5);
-    this._rightSpeakerGroup.add(rightHelper);
+    const audioHelper = this._audioHelper = new PositionalAudioHelper(this._music, 2);
+    this._musicGroup.add(audioHelper);
+
+    audioHelper.rotation.y = this._music.rotation.y;
   }
 
   _initLoaderSignals() {
@@ -190,10 +209,10 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _showHelpers() {
-    if (!this._rightHelper) {
+    if (!this._audioHelper) {
       this._initHelpers();
     }
 
-    this._rightHelper.visible = SPEAKERS_CONFIG.helpersEnabled;
+    this._audioHelper.visible = SPEAKERS_CONFIG.helpersEnabled;
   }
 }

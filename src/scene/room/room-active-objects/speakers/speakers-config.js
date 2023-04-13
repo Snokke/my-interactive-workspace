@@ -4,6 +4,8 @@ const SPEAKERS_CONFIG = {
   turnOnColor: 0x00ff00,
   turnOffColor: 0xff0000,
   helpersEnabled: false,
+  closedWindowOuterGain: 0.1,
+  openedWindowOuterGain: 0.6,
 }
 
 const SOUND_PARTICLES_CONFIG = {

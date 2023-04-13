@@ -337,8 +337,12 @@ export default class Room extends THREE.Group {
       });
     }
 
+    const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
+
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowStartOpening', () => speakers.onWindowOpened());
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowClosed', () => speakers.onWindowClosed());
   }
 
   _configureRaycaster() {

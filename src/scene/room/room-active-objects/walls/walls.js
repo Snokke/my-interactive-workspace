@@ -106,6 +106,8 @@ export default class Walls extends RoomObjectAbstract {
       this._moveWindow();
 
       this._windowTween.onComplete(() => {
+
+
         this._updateWindowState();
         this._checkToChangeWindowOpenType();
       });
@@ -118,6 +120,10 @@ export default class Walls extends RoomObjectAbstract {
     this._moveWindow();
 
     this._windowTween.onComplete(() => {
+      if (this._previousWindowState === WINDOW_STATE.Opened) {
+        this.events.post('onWindowClosed');
+      }
+
       this._rotateHandle();
 
       this._handleTween.onComplete(() => {
@@ -174,6 +180,10 @@ export default class Walls extends RoomObjectAbstract {
       this._rotateAroundPoint(this._windowGroup, pivot, rotateAxis, angle);
       previousAngle = currentAngle.value;
     });
+
+    if (this._previousWindowState === WINDOW_STATE.Closed) {
+      this.events.post('onWindowStartOpening');
+    }
   }
 
   _updateWindowState() {
