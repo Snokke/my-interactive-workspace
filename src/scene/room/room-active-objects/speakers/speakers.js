@@ -16,21 +16,37 @@ export default class Speakers extends RoomObjectAbstract {
     this._leftSpeakerGroup = null;
     this._rightSpeakerGroup = null;
 
-    this._musicRight = null;
-    this._musicLeft = null;
+    this._music = null;
     this._analyzer = null;
 
     this._rightSoundParticles = null;
+    this._leftSoundParticles = null;
 
     this._rightHelper = null;
 
     this._powerStatus = SPEAKERS_POWER_STATUS.Off;
+
+    this._audioCurrentTime = 0;
+    this._audioContextCurrentTime = 0;
+    this._audioPrevTime = 0;
 
     this._init();
   }
 
   update(dt) {
     this._rightSoundParticles.update(dt);
+    this._leftSoundParticles.update(dt);
+
+
+    if (this._music.isPlaying){
+      this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
+      if (this._audioCurrentTime >= this._music.buffer.duration){
+          console.log('end song');
+      }
+    } else {
+      this._audioPrevTime = this._audioCurrentTime;
+      this._audioContextCurrentTime = this._music.context.currentTime;
+    }
   }
 
   showWithAnimation(delay) {
@@ -73,9 +89,13 @@ export default class Speakers extends RoomObjectAbstract {
     this._updatePowerIndicatorColor();
 
     if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      this._musicRight.play();
+      this._music.play();
+      this._rightSoundParticles.show();
+      this._leftSoundParticles.show();
     } else {
-      this._musicRight.pause();
+      this._music.pause();
+      this._rightSoundParticles.hide();
+      this._leftSoundParticles.hide();
     }
   }
 
@@ -121,48 +141,46 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initMusic() {
-    this._initRightMusic();
+    this._initPositionalAudio();
     this._initParticles();
     this._initLoaderSignals();
 
     this._showHelpers();
   }
 
-  _initRightMusic() {
-    this._musicRight = new THREE.PositionalAudio(this._audioListener);
-    this._musicRight.setRefDistance(10);
-    this._musicRight.setDirectionalCone(180, 230, 0.1);
+  _initPositionalAudio() {
+    this._music = new THREE.PositionalAudio(this._audioListener);
+    this._music.setRefDistance(10);
+    this._music.setDirectionalCone(180, 230, 0.1);
 
-    this._rightSpeakerGroup.add(this._musicRight);
+    this._rightSpeakerGroup.add(this._music);
 
     const fftSize = 128;
-    this._analyser = new THREE.AudioAnalyser(this._musicRight, fftSize);
+    this._analyser = new THREE.AudioAnalyser(this._music, fftSize);
   }
 
   _initParticles() {
     const rightSoundParticles = this._rightSoundParticles = new SoundParticles(this._analyser);
     this._rightSpeakerGroup.add(rightSoundParticles);
+
+    const leftSoundParticles = this._leftSoundParticles = new SoundParticles(this._analyser);
+    this._leftSpeakerGroup.add(leftSoundParticles);
   }
 
   _initHelpers() {
-    const rightHelper = this._rightHelper = new PositionalAudioHelper(this._musicRight, 1);
+    const rightHelper = this._rightHelper = new PositionalAudioHelper(this._music, 1.5);
     this._rightSpeakerGroup.add(rightHelper);
   }
 
   _initLoaderSignals() {
     Loader.events.on('onAudioLoaded', () => {
-      this._musicRight.setBuffer(Loader.assets['giorgio']);
+      this._music.setBuffer(Loader.assets['giorgio']);
     })
   }
 
   _initSignals() {
-    this._debugMenu.events.on('switch', () => {
-      this.onClick();
-    });
-
-    this._debugMenu.events.on('onHelpersChanged', () => {
-      this._showHelpers();
-    });
+    this._debugMenu.events.on('switch', () => this.onClick());
+    this._debugMenu.events.on('onHelpersChanged', () => this._showHelpers());
   }
 
   _showHelpers() {

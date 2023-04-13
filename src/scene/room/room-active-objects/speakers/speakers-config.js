@@ -7,7 +7,7 @@ const SPEAKERS_CONFIG = {
 }
 
 const SOUND_PARTICLES_CONFIG = {
-  size: 15,
+  size: 60,
   amplitudeCoefficient: 0.004,
   positionOffset: new THREE.Vector3(0, 0.13, 0.8),
   circles: {

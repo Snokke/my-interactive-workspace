@@ -8,7 +8,6 @@ const textures = [
 
 const models = [
   'room.glb',
-  'keyboard_key.glb',
 ];
 
 const images = [
@@ -17,6 +16,7 @@ const images = [
 ];
 
 const sounds = [
+  'come_and_get_your_love.mp3',
   'giorgio.mp3',
 ];
 
@@ -33,6 +33,8 @@ export default class Loader extends GameObject {
 
     this._threeJSManager = new THREE.LoadingManager(this._onThreeJSAssetsLoaded, this._onThreeJSAssetsProgress);
     this._blackManager = new AssetManager();
+
+    this._soundsLoaded = 0;
 
     this._loadBlackAssets();
   }
@@ -131,7 +133,9 @@ export default class Loader extends GameObject {
       audioLoader.load(audioFullPath, (audioBuffer) => {
         this._onAssetLoad(audioBuffer, audioName);
 
-        if (sounds.indexOf(audioFilename) === sounds.length - 1) {
+        this._soundsLoaded += 1;
+
+        if (this._soundsLoaded === sounds.length) {
           Loader.events.post('onAudioLoaded');
         }
       });

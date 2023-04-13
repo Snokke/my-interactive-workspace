@@ -1,7 +1,10 @@
 uniform float uPixelRatio;
 uniform float uSize;
+uniform vec3 uColor;
+uniform float uAlpha;
 
 varying vec3 vColor;
+varying float vAlpha;
 
 void main()
 {
@@ -13,5 +16,6 @@ void main()
   gl_PointSize = uSize * uPixelRatio;
   gl_PointSize *= (1.0 / -viewPosition.z);
 
-  vColor = color;
+  vColor = uColor;
+  vAlpha = uAlpha;
 }
