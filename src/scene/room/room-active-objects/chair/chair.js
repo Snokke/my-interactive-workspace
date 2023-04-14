@@ -195,7 +195,7 @@ export default class Chair extends RoomObjectAbstract {
     let distanceCoeff = (maxDistance - (-this._wrapper.position.z)) / (maxDistance) * (maxDistance / minDistance);
     distanceCoeff = THREE.MathUtils.clamp(distanceCoeff, 0, 1);
 
-    const currentMaxAngle = distanceCoeff * Math.PI * 0.5 * 1.1;
+    const currentMaxAngle = distanceCoeff * Math.PI * 0.5 * 1.03;
 
     const isRotatingNearTable = CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Idle
       && CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable

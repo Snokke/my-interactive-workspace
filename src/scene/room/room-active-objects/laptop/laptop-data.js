@@ -12,7 +12,7 @@ const LAPTOP_PART_TYPE = {
 const LAPTOP_PART_ACTIVITY_CONFIG = {
   [LAPTOP_PART_TYPE.LaptopKeyboard]: true,
   [LAPTOP_PART_TYPE.LaptopMonitor]: true,
-  [LAPTOP_PART_TYPE.LaptopScreen]: true,
+  [LAPTOP_PART_TYPE.LaptopScreen]: false,
   [LAPTOP_PART_TYPE.LaptopStand]: true,
   [LAPTOP_PART_TYPE.LaptopArmMountBase]: true,
   [LAPTOP_PART_TYPE.LaptopArmMountArm01]: true,
