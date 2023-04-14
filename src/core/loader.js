@@ -18,6 +18,7 @@ const images = [
 const sounds = [
   'come_and_get_your_love.mp3',
   'giorgio.mp3',
+  'big_city_life.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

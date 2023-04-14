@@ -15,28 +15,8 @@ const SPEAKERS_POWER_STATUS = {
   Off: 'OFF',
 }
 
-const MUSIC_TYPE = {
-  ComeAndGetYourLove: 'COME_AND_GET_YOUR_LOVE',
-  Giorgio: 'GIORGIO',
-}
-
-const MUSIC_CONFIG = {
-  [MUSIC_TYPE.ComeAndGetYourLove]: {
-    fileName: 'come_and_get_your_love',
-    song: 'Come and get your love',
-    artist: 'Redbone',
-  },
-  [MUSIC_TYPE.Giorgio]: {
-    fileName: 'giorgio',
-    song: 'Giorgio by Moroder',
-    artist: 'Daft Punk',
-  },
-}
-
 export {
   SPEAKERS_PART_TYPE,
   SPEAKERS_PART_ACTIVITY_CONFIG,
   SPEAKERS_POWER_STATUS,
-  MUSIC_TYPE,
-  MUSIC_CONFIG,
 };

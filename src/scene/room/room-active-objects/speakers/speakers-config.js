@@ -18,7 +18,12 @@ const SOUND_PARTICLES_CONFIG = {
     particlesIncrement: 8,
     startRadius: 0.1,
     radiusIncrement: 0.04,
-  }
+  },
+  idleAnimation: {
+    amplitude: 0.02,
+    frequency: 0.8,
+    speed: 2
+  },
 }
 
 export { SPEAKERS_CONFIG, SOUND_PARTICLES_CONFIG };

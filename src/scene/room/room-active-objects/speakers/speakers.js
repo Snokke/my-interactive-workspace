@@ -3,11 +3,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { MUSIC_CONFIG, MUSIC_TYPE, SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './speakers-data';
+import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './speakers-data';
 import { SPEAKERS_CONFIG } from './speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
 import SoundParticles from './sound-particels';
+import { MUSIC_CONFIG, MUSIC_TYPE } from '../laptop/laptop-data';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -22,21 +23,24 @@ export default class Speakers extends RoomObjectAbstract {
     this._leftSoundParticles = null;
     this._audioHelper = null;
 
-    this._powerStatus = SPEAKERS_POWER_STATUS.Off;
+    this._powerStatus = SPEAKERS_POWER_STATUS.On;
 
     this._audioCurrentTime = 0;
     this._audioContextCurrentTime = 0;
     this._audioPrevTime = 0;
-    this._currentMusic = MUSIC_TYPE.Giorgio;
+    this._currentMusicType = MUSIC_TYPE.Giorgio;
+
+    this._time = 0;
+    this._sendSignalTime = 1;
 
     this._init();
   }
 
   update(dt) {
+    this._time += dt;
     this._rightSoundParticles.update(dt);
     this._leftSoundParticles.update(dt);
     this._updateSongCurrentTime();
-    this._debugMenu.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -79,14 +83,40 @@ export default class Speakers extends RoomObjectAbstract {
     this._updatePowerIndicatorColor();
 
     if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      this._music.play();
+      this._music.setVolume(1);
       this._rightSoundParticles.show();
       this._leftSoundParticles.show();
     } else {
-      this._music.pause();
+      this._music.setVolume(0);
       this._rightSoundParticles.hide();
       this._leftSoundParticles.hide();
     }
+  }
+
+  playMusic(musicType) {
+    if (this._currentMusicType === musicType) {
+      if (this._music.isPlaying) {
+        this._music.pause();
+      } else {
+        this._music.play();
+      }
+
+      return;
+    }
+
+    this.changeMusic(musicType);
+    this._music.play();
+  }
+
+  changeMusic(musicType) {
+    this._music.pause();
+    this._audioContextCurrentTime = this._music.context.currentTime;
+    this._audioCurrentTime = 0;
+    this._audioPrevTime = 0;
+
+    this._setCurrentMusic(musicType);
+
+    this._music.stop();
   }
 
   onWindowOpened() {
@@ -108,7 +138,11 @@ export default class Speakers extends RoomObjectAbstract {
       this._audioContextCurrentTime = this._music.context.currentTime;
     }
 
-    this._debugMenu.updateCurrentSongTime(this._audioCurrentTime);
+    if (this._time >= this._sendSignalTime) {
+      this._time = 0;
+
+      this.events.post('updateCurrentSongTime', this._audioCurrentTime);
+    }
   }
 
   _updatePowerIndicatorColor() {
@@ -195,13 +229,12 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initLoaderSignals() {
-    Loader.events.on('onAudioLoaded', () => this._setCurrentMusic(this._currentMusic))
+    Loader.events.on('onAudioLoaded', () => this._setCurrentMusic(this._currentMusicType))
   }
 
   _initSignals() {
     this._debugMenu.events.on('switch', () => this.onClick());
     this._debugMenu.events.on('onHelpersChanged', () => this._showHelpers());
-    this._debugMenu.events.on('switchMusic', (msg, musicType) => this._changeMusic(musicType));
   }
 
   _showHelpers() {
@@ -213,27 +246,11 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _setCurrentMusic(musicType) {
-    this._currentMusic = musicType;
-    const musicName = MUSIC_CONFIG[this._currentMusic].fileName;
+    this._currentMusicType = musicType;
+    const musicName = MUSIC_CONFIG[this._currentMusicType].fileName;
     this._music.setBuffer(Loader.assets[musicName]);
 
-    this._debugMenu.updateDuration(this._music.buffer.duration);
-    this._debugMenu.setCurrentMusic(this._currentMusic);
-    this._debugMenu.updateCurrentSongTime(this._audioCurrentTime);
-  }
-
-  _changeMusic(musicType) {
-    this._music.pause();
-    this._audioContextCurrentTime = this._music.context.currentTime;
-    this._audioCurrentTime = 0;
-    this._audioPrevTime = 0;
-
-    this._setCurrentMusic(musicType);
-
-    this._music.stop();
-
-    if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      this._music.play();
-    }
+    this.events.post('onMusicChanged', this._currentMusicType, this._music.buffer.duration);
+    this.events.post('updateCurrentSongTime', this._audioCurrentTime);
   }
 }

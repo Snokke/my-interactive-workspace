@@ -3,8 +3,8 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_STATE } from './laptop-data';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from './laptop-config';
+import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_BUTTON_TYPE, MUSIC_TYPE } from './laptop-data';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from './laptop-config';
 import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
 import HelpArrows from '../../help-arrows/help-arrows';
 
@@ -24,6 +24,9 @@ export default class Laptop extends RoomObjectAbstract {
     this._previousArmMountAngle = 0;
 
     this._init();
+  }
+  update(dt) {
+    this._debugMenu.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -79,8 +82,15 @@ export default class Laptop extends RoomObjectAbstract {
 
     if (LAPTOP_PARTS.includes(partType)) {
       this._laptopInteract();
-    } else {
+    }
+
+    if (LAPTOP_MOUNT_PARTS.includes(partType)) {
       this._standInteract(intersect);
+    }
+
+    if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
+      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
+      this.events.post(signalName);
     }
   }
 
@@ -144,10 +154,23 @@ export default class Laptop extends RoomObjectAbstract {
     if (LAPTOP_PARTS.includes(partType)) {
       return this._getLaptopParts();
     }
+
+    if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
+      return [mesh];
+    }
   }
 
   getScreen() {
     return this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+  }
+
+  updateCurrentSongTime(time) {
+    this._debugMenu.updateCurrentSongTime(time);
+  }
+
+  onDebugMusicChanged(musicType, musicDuration) {
+    this._debugMenu.updateDuration(musicDuration);
+    this._debugMenu.setCurrentSong(musicType);
   }
 
   _laptopInteract() {
@@ -208,7 +231,6 @@ export default class Laptop extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initVideo();
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
@@ -217,10 +239,26 @@ export default class Laptop extends RoomObjectAbstract {
   _initSignals() {
     this._debugMenu.events.on('openLaptop', () => this._laptopInteract());
     this._debugMenu.events.on('mountAngleChanged', () => this._onMountAngleChanged());
+    this._debugMenu.events.on('playMusic', (msg, musicType) => this._onDebugPlayMusic(musicType));
   }
 
   _onMountAngleChanged() {
     this._armWithLaptopGroup.rotation.y = LAPTOP_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
+  }
+
+  _onDebugPlayMusic(musicType) {
+    let selectedPartType = null;
+
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach(partType => {
+      const config = LAPTOP_SCREEN_MUSIC_CONFIG[partType];
+
+      if (config.musicType === musicType) {
+        selectedPartType = partType;
+      }
+    });
+
+    const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[selectedPartType].signalName;
+    this.events.post(signalName);
   }
 
   _addPartsToScene() {
@@ -258,15 +296,21 @@ export default class Laptop extends RoomObjectAbstract {
     const laptopTopGroup = this._laptopTopGroup = new THREE.Group();
     this._armWithLaptopGroup.add(laptopTopGroup);
 
+    const maxAngleRad = LAPTOP_CONFIG.maxOpenAngle * THREE.MathUtils.DEG2RAD;
     const laptopMonitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
     const laptopScreen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     const armMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
+    const screenMusic01 = this._parts[LAPTOP_PART_TYPE.LaptopScreenMusic01];
+    const screenMusic02 = this._parts[LAPTOP_PART_TYPE.LaptopScreenMusic02];
+    const screenMusic03 = this._parts[LAPTOP_PART_TYPE.LaptopScreenMusic03];
 
     const startPosition = armMountArm02.userData.startPosition.clone();
 
-    laptopTopGroup.add(laptopMonitor, laptopScreen);
+    laptopTopGroup.add(laptopMonitor, laptopScreen, screenMusic01, screenMusic02, screenMusic03);
 
-    laptopTopGroup.rotation.x = -LAPTOP_CONFIG.maxOpenAngle * THREE.MathUtils.DEG2RAD;
+    this._setMusicButtonsPositions();
+
+    laptopTopGroup.rotation.x = -maxAngleRad;
     laptopTopGroup.position.copy(laptopMonitor.position.clone());
 
     laptopMonitor.position.set(0, 0, 0);
@@ -279,22 +323,21 @@ export default class Laptop extends RoomObjectAbstract {
     LAPTOP_CONFIG.angle = LAPTOP_CONFIG.maxOpenAngle;
   }
 
-  _initVideo() {
-    // const videoElement = document.createElement('video');
-    // videoElement.muted = true;
-    // videoElement.loop = true;
-    // videoElement.controls = true;
-    // videoElement.playsInline = true;
-    // videoElement.autoplay = true;
-    // videoElement.src = '/static/video/games_showreel.mp4';
-    // videoElement.play();
+  _setMusicButtonsPositions() {
+    const laptopScreen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+    const maxAngleRad = LAPTOP_CONFIG.maxOpenAngle * THREE.MathUtils.DEG2RAD;
 
-    // const texture = new THREE.VideoTexture(videoElement);
-    // texture.encoding = THREE.sRGBEncoding;
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const part = this._parts[partType];
+      const musicPosition = part.position.clone().sub(laptopScreen.position.clone());
 
-    // const laptopScreen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
-    // laptopScreen.material.color = new THREE.Color(0xffffff);
-    // laptopScreen.material.map = texture;
+      part.rotation.set(0, 0, 0);
+      part.position.set(0, 0, 0);
+
+      part.translateOnAxis(new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), maxAngleRad), musicPosition.x);
+      part.translateOnAxis(new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), maxAngleRad), musicPosition.y);
+      part.translateOnAxis(new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(1, 0, 0), maxAngleRad), musicPosition.z);
+    });
   }
 
   _initHelpArrows() {

@@ -1,4 +1,4 @@
-import { LAPTOP_POSITION_STATE, LAPTOP_STATE } from "./laptop-data";
+import { LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_STATE, MUSIC_BUTTON_TYPE, MUSIC_TYPE } from "./laptop-data";
 
 const LAPTOP_CONFIG = {
   state: LAPTOP_STATE.Idle,
@@ -16,4 +16,22 @@ const LAPTOP_MOUNT_CONFIG = {
   rightEdgeAngle: 35,
 }
 
-export { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG };
+const LAPTOP_SCREEN_MUSIC_CONFIG = {
+  [LAPTOP_PART_TYPE.LaptopScreenMusic01]: {
+    musicButtonType: MUSIC_BUTTON_TYPE.Button01,
+    signalName: 'onLaptopScreenMusic01Click',
+    musicType: MUSIC_TYPE.Giorgio,
+  },
+  [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
+    musicButtonType: MUSIC_BUTTON_TYPE.Button02,
+    signalName: 'onLaptopScreenMusic02Click',
+    musicType: MUSIC_TYPE.ComeAndGetYourLove,
+  },
+  [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
+    musicButtonType: MUSIC_BUTTON_TYPE.Button03,
+    signalName: 'onLaptopScreenMusic03Click',
+    musicType: MUSIC_TYPE.BigCityLife,
+  },
+}
+
+export { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG };

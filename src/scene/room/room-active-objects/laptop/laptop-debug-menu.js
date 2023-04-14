@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from "./laptop-config";
-import { LAPTOP_POSITION_STATE } from "./laptop-data";
+import { LAPTOP_POSITION_STATE, MUSIC_CONFIG, MUSIC_TYPE } from "./laptop-data";
 
 export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
@@ -9,6 +9,21 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
     this._topPanelStateController = null;
     this._topPanelPositionController = null;
     this._mountAngleController = null;
+    this._musicTimeController = null;
+    this._musicTypeController = null;
+
+    this._musicCurrentTime = { value: 0 };
+    this._currentMusicDuration = 0;
+    this._currentMusic = null;
+    this._currentMusicName = { value: '' };
+
+    this._time = 0;
+    this._stepTime = 0.25;
+    this._maxMusicNameLength = 23;
+    this._currentMusicNameOffset = 0;
+    this._currentSong = '';
+    this._songNameDirection = 1;
+    this._longSongName = false;
 
     this._init();
     this._checkToDisableFolder();
@@ -26,7 +41,49 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
     this._mountAngleController.refresh();
   }
 
+  update(dt) {
+    this._updateMusicName(dt);
+  }
+
+  setCurrentSong(musicType) {
+    this._currentMusic = musicType;
+
+    const artist = MUSIC_CONFIG[this._currentMusic].artist;
+    const song = MUSIC_CONFIG[this._currentMusic].song;
+    this._currentSong = ` ${artist} - ${song} `;
+
+    this._longSongName = false;
+
+    if (this._currentSong.length - 2 > this._maxMusicNameLength) {
+      this._longSongName = true;
+      this._time = 0;
+      this._currentMusicNameOffset = 0;
+      this._songNameDirection = 1;
+    } else {
+      this._currentMusicName.value = this._currentSong.slice(1, this._maxMusicNameLength - 1);
+      this._musicTypeController.refresh();
+    }
+  }
+
+  updateCurrentSongTime(currentTime) {
+    this._musicCurrentTime.value = currentTime;
+    this._musicTimeController.refresh();
+  }
+
+  updateDuration(duration) {
+    const stc = this._musicTimeController.controller_.valueController;
+    const sc = stc.sliderController;
+    sc.props.set("maxValue", duration);
+
+    this._musicTimeController.refresh();
+  }
+
   _init() {
+    this._initLaptopDebug();
+    this._initMusicDebug();
+  }
+
+  _initLaptopDebug() {
     this._topPanelStateController = this._debugFolder.addInput(LAPTOP_CONFIG, 'state', {
       label: 'Panel state',
       disabled: true,
@@ -58,5 +115,95 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
       min: 0,
       max: 35,
     }).on('change', () => this.events.post('mountAngleChanged'));
+
+    this._debugFolder.addSeparator();
+  }
+
+  _initMusicDebug() {
+    this._musicTypeController = this._debugFolder.addInput(this._currentMusicName, 'value', {
+      label: 'Music name',
+      disabled: true,
+    });
+    this._musicTypeController.customDisabled = true;
+
+    this._musicTimeController = this._debugFolder.addInput(this._musicCurrentTime, 'value', {
+      label: 'Time',
+      min: 0,
+      max: this._currentMusicDuration,
+      disabled: true,
+      format: (v) => this._formatTime(v),
+    });
+    this._musicTimeController.customDisabled = true;
+
+    this._debugFolder.addSeparator();
+
+    const songComeAndGetYourLove = MUSIC_TYPE.ComeAndGetYourLove;
+    const songGiorgio = MUSIC_TYPE.Giorgio;
+    const songBigCityLife = MUSIC_TYPE.BigCityLife;
+    let selectedMusicType = songGiorgio;
+
+    const songsName = {
+      [songGiorgio]: `${MUSIC_CONFIG[songGiorgio].artist} - ${MUSIC_CONFIG[songGiorgio].song}`,
+      [songComeAndGetYourLove]: `${MUSIC_CONFIG[songComeAndGetYourLove].artist} - ${MUSIC_CONFIG[songComeAndGetYourLove].song}`,
+      [songBigCityLife]: `${MUSIC_CONFIG[songBigCityLife].artist} - ${MUSIC_CONFIG[songBigCityLife].song}`,
+    }
+
+    this._debugFolder.addBlade({
+      view: 'list',
+      label: 'Music',
+      options: [
+        { text: songsName[songGiorgio], value: songGiorgio },
+        { text: songsName[songComeAndGetYourLove], value: songComeAndGetYourLove },
+        { text: songsName[songBigCityLife], value: songBigCityLife },
+      ],
+      value: songGiorgio,
+    }).on('change', (musicType) => {
+      selectedMusicType = musicType.value;
+    });
+
+    this._debugFolder.addButton({
+      title: 'Play music',
+    }).on('click', () => this.events.post('playMusic', selectedMusicType));
+  }
+
+  _updateMusicName(dt) {
+    if (!this._longSongName) {
+      return;
+    }
+
+    this._time += dt;
+
+    if (this._time >= this._stepTime) {
+      this._time = 0;
+
+      const fittedSongName = this._currentSong.slice(this._currentMusicNameOffset, this._maxMusicNameLength + this._currentMusicNameOffset)
+      this._currentMusicName.value = fittedSongName;
+      this._musicTypeController.refresh();
+
+      this._currentMusicNameOffset += this._songNameDirection;
+
+      if (this._currentMusicNameOffset >= this._currentSong.length - this._maxMusicNameLength) {
+        this._songNameDirection = -1;
+      }
+
+      if (this._currentMusicNameOffset <= 0) {
+        this._songNameDirection = 1;
+      }
+    }
+  }
+
+  _formatTime(time) {
+    let minutes = Math.floor(time / 60);
+    let seconds = Math.floor(time - minutes * 60);
+
+    if (minutes < 10) {
+      minutes = `0${minutes}`;
+    }
+
+    if (seconds < 10) {
+      seconds = `0${seconds}`;
+    }
+
+    return `${minutes}:${seconds}`;
   }
 }

@@ -7,6 +7,8 @@ import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
 import Cursor from './room-active-objects/mouse/cursor';
+import { LAPTOP_SCREEN_MUSIC_PARTS } from './room-active-objects/laptop/laptop-data';
+import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -338,11 +340,23 @@ export default class Room extends THREE.Group {
     }
 
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
+    const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
 
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
+    laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
+
     this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowStartOpening', () => speakers.onWindowOpened());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowClosed', () => speakers.onWindowClosed());
+
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
+      const musicType = LAPTOP_SCREEN_MUSIC_CONFIG[partType].musicType;
+
+      laptop.events.on(signalName, () => speakers.playMusic(musicType));
+    });
+
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
   }
 
   _configureRaycaster() {

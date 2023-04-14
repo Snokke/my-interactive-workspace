@@ -14,6 +14,7 @@ export default class SoundParticles extends THREE.Group {
     this._particlesMaterial = null;
     this._showTween = null;
 
+    this._time = 0;
     this._frequencyDataCount = 55; // standard 64
 
     this._init();
@@ -24,6 +25,38 @@ export default class SoundParticles extends THREE.Group {
       return;
     }
 
+    this._time += dt;
+    this._updateParticlesPositionForMusic();
+  }
+
+  show() {
+    this.visible = true;
+
+    if (this._showTween) {
+      this._showTween.stop();
+    }
+
+    this._showTween = new TWEEN.Tween(this._particlesMaterial.uniforms.uAlpha)
+      .to({ value: 1 }, 300)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start();
+  }
+
+  hide() {
+    if (this._showTween) {
+      this._showTween.stop();
+    }
+
+    this._showTween = new TWEEN.Tween(this._particlesMaterial.uniforms.uAlpha)
+      .to({ value: 0 }, 300)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+      .onComplete(() => {
+        this.visible = false;
+      });
+  }
+
+  _updateParticlesPositionForMusic() {
     this._analyser.getFrequencyData();
     const data = [...this._analyser.data];
     const positions = this._particles.geometry.attributes.position;
@@ -53,7 +86,9 @@ export default class SoundParticles extends THREE.Group {
         dataPositionZ /= dataCountForParticles;
         dataPositionZ *= SOUND_PARTICLES_CONFIG.amplitudeCoefficient;
 
-        positions.setZ(j + currentParticlesCount, SOUND_PARTICLES_CONFIG.positionOffset.z + dataPositionZ);
+        const idlePositionZ = Math.sin(this._time * SOUND_PARTICLES_CONFIG.idleAnimation.speed + i * SOUND_PARTICLES_CONFIG.idleAnimation.frequency) * SOUND_PARTICLES_CONFIG.idleAnimation.amplitude;
+
+        positions.setZ(j + currentParticlesCount, SOUND_PARTICLES_CONFIG.positionOffset.z + dataPositionZ + idlePositionZ);
       }
 
       currentParticlesCount += particlesInCurrentCircle;
@@ -63,38 +98,9 @@ export default class SoundParticles extends THREE.Group {
     positions.needsUpdate = true;
   }
 
-  show() {
-    this.visible = true;
-
-    if (this._showTween) {
-      this._showTween.stop();
-    }
-
-    this._showTween = new TWEEN.Tween(this._particlesMaterial.uniforms.uAlpha)
-      .to({ value: 1 }, 300)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start();
-  }
-
-  hide() {
-    if (this._showTween) {
-      this._showTween.stop();
-    }
-
-    this._showTween = new TWEEN.Tween(this._particlesMaterial.uniforms.uAlpha)
-      .to({ value: 0 }, 500)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start()
-      .onComplete(() => {
-        this.visible = false;
-      });
-  }
-
   _init() {
     this._initParticles();
     this._initSignals();
-
-    this.visible = false;
   }
 
   _initParticles() {
@@ -109,7 +115,7 @@ export default class SoundParticles extends THREE.Group {
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
         uSize: { value: SOUND_PARTICLES_CONFIG.size },
         uColor: { value: new THREE.Color(0xffffff) },
-        uAlpha: { value: 0 },
+        uAlpha: { value: 1 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
