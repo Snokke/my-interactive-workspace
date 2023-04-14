@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { CURSOR_CONFIG } from './mouse-config';
 import Loader from '../../../../core/loader';
 import { CURSOR_MONITOR_TYPE } from './mouse-data';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from '../laptop/laptop-config';
-import { LAPTOP_POSITION_STATE } from '../laptop/laptop-data';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '../laptop/laptop-config';
+import { LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE } from '../laptop/laptop-data';
 
 export default class Cursor extends THREE.Group {
   constructor(mouse, monitorScreen, laptopScreen) {
@@ -130,6 +130,19 @@ export default class Cursor extends THREE.Group {
       this._cursorPosition.y += 0.05;
     }
 
+    // const cursorPointCoordinates = new THREE.Vector2(this._cursorPosition.x * sensitivity - cursorHalfWidth, this._cursorPosition.y * sensitivity - cursorHalfHeight);
+
+    // const areaWidth = 0.2;
+    // const areaHeight = 0.1;
+    // const x = 0.2;
+    // const y = 0.3;
+
+    // if (cursorPointCoordinates.x > x - areaWidth * 0.5 && cursorPointCoordinates.x < x + areaWidth * 0.5 &&
+    //   cursorPointCoordinates.y > -(y + bottomOffset) - areaHeight * 0.5 && cursorPointCoordinates.y < -(y + bottomOffset) + areaHeight * 0.5) {
+    //     console.log(123);
+    //   }
+
+
     return changeScreen;
   }
 
@@ -173,6 +186,10 @@ export default class Cursor extends THREE.Group {
     this._calculateSizes();
     this._initCurrentMonitorData();
     this._initSignals();
+
+    // const button = LAPTOP_PART_TYPE.LaptopScreenMusic03;
+    // const { position, size } = LAPTOP_SCREEN_MUSIC_CONFIG[button].area;
+    // this._showDebugButtonsArea(position.x, position.y, size.x, size.y);
   }
 
   _initCursorView() {
@@ -215,6 +232,29 @@ export default class Cursor extends THREE.Group {
 
   _initSignals() {
     this._mouse.events.on('onAreaChanged', () => this._resetCursor());
+  }
+
+  _showDebugButtonsArea(x, y, width, height) {
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const debugArea = new THREE.Mesh(geometry, material);
+    this.add(debugArea);
+
+    debugArea.scale.set(width, height, 1);
+
+    const screen = this._currentMonitorData[CURSOR_MONITOR_TYPE.Laptop].screen;
+    debugArea.position.copy(screen.getWorldPosition(new THREE.Vector3()));
+
+    const mountAngle = LAPTOP_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
+    const angleX = (LAPTOP_CONFIG.defaultAngle - LAPTOP_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
+    const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, mountAngle, 0))
+      .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(angleX, 0, 0)));
+
+    debugArea.setRotationFromQuaternion(quaternion);
+
+    debugArea.translateOnAxis(new THREE.Vector3(1, 0, 0), x);
+    debugArea.translateOnAxis(new THREE.Vector3(0, 1, 0), y + CURSOR_CONFIG.laptopScreenBottomOffset);
+    debugArea.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
   }
 
   _resetCursor() {

@@ -33,7 +33,7 @@ const CURSOR_CONFIG = {
   laptopScreenBottomOffset: 0.09,
   laptopScreenSizeY: 0.965,
   monitorBottomOffsetToNotTransferCursor: 0.06,
-  offsetZFromScreen: 0.01,
+  offsetZFromScreen: 0.001,
 }
 
 export { MOUSE_CONFIG, CURSOR_CONFIG, MOUSE_AREA_BORDER_CONFIG };

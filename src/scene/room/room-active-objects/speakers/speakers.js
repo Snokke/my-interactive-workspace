@@ -8,7 +8,8 @@ import { SPEAKERS_CONFIG } from './speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
 import SoundParticles from './sound-particels';
-import { MUSIC_CONFIG, MUSIC_TYPE } from '../laptop/laptop-data';
+import { MUSIC_TYPE } from '../laptop/laptop-data';
+import { MUSIC_CONFIG } from '../laptop/laptop-config';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {

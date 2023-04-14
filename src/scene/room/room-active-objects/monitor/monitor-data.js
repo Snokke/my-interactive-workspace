@@ -9,7 +9,7 @@ const MONITOR_PART_TYPE = {
 
 const MONITOR_PART_ACTIVITY_CONFIG = {
   [MONITOR_PART_TYPE.Monitor]: true,
-  [MONITOR_PART_TYPE.MonitorScreen]: true,
+  [MONITOR_PART_TYPE.MonitorScreen]: false,
   [MONITOR_PART_TYPE.MonitorArmMountBase]: true,
   [MONITOR_PART_TYPE.MonitorArmMountArm01]: true,
   [MONITOR_PART_TYPE.MonitorArmMountArm02]: true,

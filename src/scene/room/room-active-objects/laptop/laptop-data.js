@@ -55,34 +55,10 @@ const LAPTOP_POSITION_STATE = {
   Closed: 'CLOSED',
 }
 
-const MUSIC_BUTTON_TYPE = {
-  Button01: 'BUTTON_01',
-  Button02: 'BUTTON_02',
-  Button03: 'BUTTON_03',
-}
-
 const MUSIC_TYPE = {
   ComeAndGetYourLove: 'COME_AND_GET_YOUR_LOVE',
   Giorgio: 'GIORGIO',
   BigCityLife: 'BIG_CITY_LIFE',
-}
-
-const MUSIC_CONFIG = {
-  [MUSIC_TYPE.ComeAndGetYourLove]: {
-    fileName: 'come_and_get_your_love',
-    song: 'Come and get your love',
-    artist: 'Redbone',
-  },
-  [MUSIC_TYPE.Giorgio]: {
-    fileName: 'giorgio',
-    song: 'Giorgio by Moroder',
-    artist: 'Daft Punk',
-  },
-  [MUSIC_TYPE.BigCityLife]: {
-    fileName: 'big_city_life',
-    song: 'Big City Life',
-    artist: 'Mattafix',
-  },
 }
 
 export {
@@ -92,8 +68,6 @@ export {
   LAPTOP_MOUNT_PARTS,
   LAPTOP_STATE,
   LAPTOP_POSITION_STATE,
-  MUSIC_BUTTON_TYPE,
   LAPTOP_SCREEN_MUSIC_PARTS,
   MUSIC_TYPE,
-  MUSIC_CONFIG,
 }
