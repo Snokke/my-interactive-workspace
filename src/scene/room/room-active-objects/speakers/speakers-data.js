@@ -23,12 +23,12 @@ const MUSIC_TYPE = {
 const MUSIC_CONFIG = {
   [MUSIC_TYPE.ComeAndGetYourLove]: {
     fileName: 'come_and_get_your_love',
-    name: 'Come and get your love',
+    song: 'Come and get your love',
     artist: 'Redbone',
   },
   [MUSIC_TYPE.Giorgio]: {
     fileName: 'giorgio',
-    name: 'Giorgio by Moroder',
+    song: 'Giorgio by Moroder',
     artist: 'Daft Punk',
   },
 }
