@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_STATE, MUSIC_TYPE } from "./laptop-data";
 
 const LAPTOP_CONFIG = {
+  showDebugButtons: false,
   state: LAPTOP_STATE.Idle,
   positionType: LAPTOP_POSITION_STATE.Opened,
   defaultAngle: 123,

@@ -173,6 +173,40 @@ export default class Laptop extends RoomObjectAbstract {
     this._debugMenu.setCurrentSong(musicType);
   }
 
+  onLeftKeyClick(buttonType) {
+    if (buttonType !== null && LAPTOP_SCREEN_MUSIC_PARTS.includes(buttonType)) {
+      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[buttonType].signalName;
+      this.events.post(signalName);
+    }
+  }
+
+  onButtonOver(buttonType) {
+    const button = this._parts[buttonType];
+
+    if (button.userData.buttonTween) {
+      button.userData.buttonTween.stop();
+    }
+
+    button.userData.buttonTween = new TWEEN.Tween(button.scale)
+      .to({ x: 1.1, y: 1.1, z: 1.1 }, 500)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .yoyo(true)
+      .repeat(Infinity)
+      .start();
+  }
+
+  onButtonOut() {
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const button = this._parts[partType];
+
+      if (button.userData.buttonTween) {
+        button.userData.buttonTween.stop();
+      }
+
+      button.scale.set(1, 1, 1);
+    });
+  }
+
   _laptopInteract() {
     this._isMountSelected = false;
 

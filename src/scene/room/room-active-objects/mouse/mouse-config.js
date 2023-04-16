@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { AREA_BORDER_TYPE } from "./mouse-data";
 
 const MOUSE_CONFIG = {
-  size: new THREE.Vector3(0.22, 0.115, 0.32),
+  size: new THREE.Vector3(0.35, 0.115, 0.54),
   position: { x: 0, y: 0 },
   movingArea: {
     showDebugPlane: false,
@@ -34,6 +34,7 @@ const CURSOR_CONFIG = {
   laptopScreenSizeY: 0.965,
   monitorBottomOffsetToNotTransferCursor: 0.06,
   offsetZFromScreen: 0.001,
+  clickCircleOffsetZFromScreen: 0.01,
 }
 
 export { MOUSE_CONFIG, CURSOR_CONFIG, MOUSE_AREA_BORDER_CONFIG };

@@ -34,11 +34,13 @@ export default class Mouse extends RoomObjectAbstract {
     }
 
     const body = this._parts[MOUSE_PART_TYPE.Body];
+    const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
 
     const newPosition = new THREE.Vector3()
       .copy(body.userData.startPosition)
       .add(this._currentPosition);
     body.position.copy(newPosition);
+    leftKey.position.copy(newPosition).add(this._leftKeyPositionOffset);
 
     this._helpArrows.position.copy(body.position);
     this._previousPosition.copy(this._currentPosition);
@@ -71,9 +73,17 @@ export default class Mouse extends RoomObjectAbstract {
       return;
     }
 
-    const pIntersect = new THREE.Vector3().copy(intersect.point);
-    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
-    this._shift.subVectors(intersect.object.position, intersect.point);
+    const roomObject = intersect.object;
+    const partType = roomObject.userData.partType;
+
+
+    if (partType === MOUSE_PART_TYPE.Body) {
+      this._onMouseClick(intersect);
+    }
+
+    if (partType === MOUSE_PART_TYPE.LeftKey) {
+      this._onLeftKeyClick();
+    }
   }
 
   onPointerMove(raycaster) {
@@ -87,6 +97,18 @@ export default class Mouse extends RoomObjectAbstract {
     this._currentPosition.sub(body.userData.startPosition);
 
     this._updatePosition();
+  }
+
+  getMeshesForOutline(mesh) {
+    const partType = mesh.userData.partType;
+
+    if (partType === MOUSE_PART_TYPE.Body) {
+      return this._activeMeshes;
+    }
+
+    if (partType === MOUSE_PART_TYPE.LeftKey) {
+      return [mesh];
+    }
   }
 
   getCurrentPosition() {
@@ -113,6 +135,16 @@ export default class Mouse extends RoomObjectAbstract {
     this._helpArrows.hide();
   }
 
+  _onMouseClick(intersect) {
+    const pIntersect = new THREE.Vector3().copy(intersect.point);
+    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
+    this._shift.subVectors(intersect.object.position, intersect.point);
+  }
+
+  _onLeftKeyClick() {
+    this.events.post('onLeftKeyClick');
+  }
+
   _updatePosition() {
     MOUSE_CONFIG.position.x = this._currentPosition.x / MOUSE_CONFIG.movingArea.width * 2;
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
@@ -129,6 +161,14 @@ export default class Mouse extends RoomObjectAbstract {
     this._initMouseAreaBorders();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addPartsToScene() {
+    const body = this._parts[MOUSE_PART_TYPE.Body];
+    const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
+    this.add(body, leftKey);
+
+    this._leftKeyPositionOffset = leftKey.position.clone().sub(body.position);
   }
 
   _calculateMovingArea() {

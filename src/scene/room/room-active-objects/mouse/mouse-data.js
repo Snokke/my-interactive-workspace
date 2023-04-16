@@ -1,9 +1,11 @@
 const MOUSE_PART_TYPE = {
   Body: 'mouse_body',
+  LeftKey: 'mouse_left_key',
 }
 
 const MOUSE_PART_ACTIVITY_CONFIG = {
   [MOUSE_PART_TYPE.Body]: true,
+  [MOUSE_PART_TYPE.LeftKey]: true,
 }
 
 const CURSOR_MONITOR_TYPE = {

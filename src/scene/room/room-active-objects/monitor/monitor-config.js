@@ -1,4 +1,5 @@
 const MONITOR_CONFIG = {
+  showDebugButtons: false,
   positionZ: 0,
   minZ: -0.7,
   maxZ: 0.4,

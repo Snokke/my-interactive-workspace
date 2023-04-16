@@ -6,7 +6,7 @@ import RoomDebug from './room-debug';
 import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
-import Cursor from './room-active-objects/mouse/cursor';
+import Cursor from './room-active-objects/mouse/cursor/cursor';
 import { LAPTOP_SCREEN_MUSIC_PARTS } from './room-active-objects/laptop/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
 
@@ -361,10 +361,19 @@ export default class Room extends THREE.Group {
 
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onLeftKeyClick', () => this._onMouseLeftKeyClick());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowStartOpening', () => speakers.onWindowOpened());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowClosed', () => speakers.onWindowClosed());
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
+
+    this._cursor.events.on('onLaptopButtonOver', (msg, buttonType) => laptop.onButtonOver(buttonType));
+    this._cursor.events.on('onLaptopButtonOut', () => laptop.onButtonOut());
+    this._cursor.events.on('onLeftKeyClick', (msg, buttonType) => laptop.onLeftKeyClick(buttonType));
+  }
+
+  _onMouseLeftKeyClick() {
+    this._cursor.onMouseLeftKeyClicked();
   }
 
   _configureRaycaster() {
