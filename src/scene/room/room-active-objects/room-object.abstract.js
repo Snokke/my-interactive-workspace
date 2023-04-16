@@ -51,6 +51,14 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._debugMenu.closeFolder();
   }
 
+  hideDebugMenu() {
+    this._debugMenu.hideFolder();
+  }
+
+  showDebugMenu() {
+    this._debugMenu.showFolder();
+  }
+
   onClick() { }
 
   onPointerOver(mesh) {

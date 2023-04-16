@@ -36,6 +36,8 @@ export default class Room extends THREE.Group {
     this._glowMeshesNames = [];
     this._previousGlowMeshesNames = [];
 
+    this._isAllDebugFoldersShown = true;
+
     this._init();
   }
 
@@ -80,7 +82,7 @@ export default class Room extends THREE.Group {
       const objectConfig = ROOM_OBJECT_CONFIG[objectType];
       const roomObject = this._roomActiveObject[objectType];
 
-      this._checkToOpenDebugFolders(roomObject);
+      this._checkToShowDebugFolders(roomObject);
       roomObject.onClick(intersect);
 
       if (objectConfig.isDraggable) {
@@ -215,16 +217,26 @@ export default class Room extends THREE.Group {
     }
   }
 
-  _closeAllObjectsDebugMenu() {
+  _hideAllOtherObjectsDebugMenu(roomObject) {
     for (const key in this._roomActiveObject) {
-      this._roomActiveObject[key].closeDebugMenu();
+      if (this._roomActiveObject[key] !== roomObject) {
+        this._roomActiveObject[key].hideDebugMenu();
+      }
     }
   }
 
-  _checkToOpenDebugFolders(roomObject) {
-    if (ROOM_CONFIG.autoOpenDebugFolders) {
-      this._closeAllObjectsDebugMenu();
-      roomObject.openDebugMenu();
+  _checkToShowDebugFolders(roomObject) {
+    if (ROOM_CONFIG.showOnlyActiveDebugFolder) {
+      if (this._isAllDebugFoldersShown) {
+        this._isAllDebugFoldersShown = false;
+
+        for (const key in this._roomActiveObject) {
+          this._roomActiveObject[key].openDebugMenu();
+        }
+      }
+
+      this._hideAllOtherObjectsDebugMenu(roomObject);
+      roomObject.showDebugMenu();
     }
   }
 
@@ -246,6 +258,7 @@ export default class Room extends THREE.Group {
 
     roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
     roomDebug.events.on('changeObjectVisibility', (msg) => this._updateObjectsVisibility());
+    roomDebug.events.on('changeShowOnlyActiveState', (msg, showOnlyActiveState) => this._onShowOnlyActiveState(showOnlyActiveState));
   }
 
   _onDebugStartShowAnimation(selectedObjectType) {
@@ -256,6 +269,16 @@ export default class Room extends THREE.Group {
       const roomObjects = this._roomObjectsByActivityType[activityType];
 
       roomObjects[selectedObjectType].showWithAnimation();
+    }
+  }
+
+  _onShowOnlyActiveState(showOnlyActiveState) {
+    if (!showOnlyActiveState) {
+      this._isAllDebugFoldersShown = true;
+      for (const key in this._roomActiveObject) {
+        this._roomActiveObject[key].showDebugMenu();
+        this._roomActiveObject[key].closeDebugMenu();
+      }
     }
   }
 

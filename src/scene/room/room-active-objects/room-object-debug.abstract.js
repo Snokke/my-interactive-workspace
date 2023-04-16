@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
 import GUIHelper from '../../../core/helpers/gui-helper/gui-helper';
-import { ROOM_OBJECT_CONFIG } from '../data/room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { DEBUG_MENU_START_STATE } from '../../../core/configs/debug-menu-start-state';
 import { ROOM_OBJECT_ENABLED_CONFIG } from '../data/room-objects-visibility-config';
 
@@ -49,6 +49,14 @@ export default class RoomObjectDebugAbstract extends THREE.Group {
 
   closeFolder() {
     this._debugFolder.expanded = false;
+  }
+
+  hideFolder() {
+    this._debugFolder.hidden = true;
+  }
+
+  showFolder() {
+    this._debugFolder.hidden = false;
   }
 
   _initDebugFolder() {

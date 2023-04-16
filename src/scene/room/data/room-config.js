@@ -13,7 +13,7 @@ import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-ob
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
-  autoOpenDebugFolders: true,
+  showOnlyActiveDebugFolder: true,
   startAnimation: {
     showOnStart: false,
     startPositionY: 13,
