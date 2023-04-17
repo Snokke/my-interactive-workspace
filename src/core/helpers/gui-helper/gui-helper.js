@@ -5,7 +5,7 @@ import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
 export default class GUIHelper {
   constructor() {
     this.gui = new Pane({
-      title: 'Debug',
+      title: 'Control panel',
     });
 
     this.gui.hidden = true;

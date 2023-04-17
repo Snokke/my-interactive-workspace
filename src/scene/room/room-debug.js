@@ -169,10 +169,8 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.ActiveRoomObjects,
     });
 
-    roomObjectsFolder.addInput(ROOM_CONFIG, 'showOnlyActiveDebugFolder', {
-      label: 'Show active folder',
-    }).on('change', (showOnlyActiveState) => {
-      this.events.post('changeShowOnlyActiveState', showOnlyActiveState.value)
+    roomObjectsFolder.addInput(ROOM_CONFIG, 'autoOpenActiveDebugFolder', {
+      label: 'Auto open folders',
     });
   }
 }

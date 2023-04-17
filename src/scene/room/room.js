@@ -36,8 +36,6 @@ export default class Room extends THREE.Group {
     this._glowMeshesNames = [];
     this._previousGlowMeshesNames = [];
 
-    this._isAllDebugFoldersShown = true;
-
     this._init();
   }
 
@@ -220,23 +218,15 @@ export default class Room extends THREE.Group {
   _hideAllOtherObjectsDebugMenu(roomObject) {
     for (const key in this._roomActiveObject) {
       if (this._roomActiveObject[key] !== roomObject) {
-        this._roomActiveObject[key].hideDebugMenu();
+        this._roomActiveObject[key].closeDebugMenu();
       }
     }
   }
 
   _checkToShowDebugFolders(roomObject) {
-    if (ROOM_CONFIG.showOnlyActiveDebugFolder) {
-      if (this._isAllDebugFoldersShown) {
-        this._isAllDebugFoldersShown = false;
-
-        for (const key in this._roomActiveObject) {
-          this._roomActiveObject[key].openDebugMenu();
-        }
-      }
-
+    if (ROOM_CONFIG.autoOpenActiveDebugFolder) {
       this._hideAllOtherObjectsDebugMenu(roomObject);
-      roomObject.showDebugMenu();
+      roomObject.openDebugMenu();
     }
   }
 
@@ -258,7 +248,6 @@ export default class Room extends THREE.Group {
 
     roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
     roomDebug.events.on('changeObjectVisibility', (msg) => this._updateObjectsVisibility());
-    roomDebug.events.on('changeShowOnlyActiveState', (msg, showOnlyActiveState) => this._onShowOnlyActiveState(showOnlyActiveState));
   }
 
   _onDebugStartShowAnimation(selectedObjectType) {
@@ -269,16 +258,6 @@ export default class Room extends THREE.Group {
       const roomObjects = this._roomObjectsByActivityType[activityType];
 
       roomObjects[selectedObjectType].showWithAnimation();
-    }
-  }
-
-  _onShowOnlyActiveState(showOnlyActiveState) {
-    if (!showOnlyActiveState) {
-      this._isAllDebugFoldersShown = true;
-      for (const key in this._roomActiveObject) {
-        this._roomActiveObject[key].showDebugMenu();
-        this._roomActiveObject[key].closeDebugMenu();
-      }
     }
   }
 

@@ -13,7 +13,7 @@ import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-ob
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
-  showOnlyActiveDebugFolder: true,
+  autoOpenActiveDebugFolder: true,
   startAnimation: {
     showOnStart: false,
     startPositionY: 13,
@@ -26,17 +26,17 @@ const ROOM_CONFIG = {
 
 const ROOM_OBJECT_TYPE = {
   // Active objects
-  Walls: 'WALLS',
-  AirConditioner: 'AIR_CONDITIONER',
-  FloorLamp: 'FLOOR_LAMP',
-  Locker: 'LOCKER',
-  Chair: 'CHAIR',
   Table: 'TABLE',
   Speakers: 'SPEAKERS',
   Monitor: 'MONITOR',
   Laptop: 'LAPTOP',
   Keyboard: 'KEYBOARD',
   Mouse: 'MOUSE',
+  Walls: 'WALLS',
+  AirConditioner: 'AIR_CONDITIONER',
+  Locker: 'LOCKER',
+  Chair: 'CHAIR',
+  FloorLamp: 'FLOOR_LAMP',
 
   // Inactive objects
   Scales: 'SCALES',

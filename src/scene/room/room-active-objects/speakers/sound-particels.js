@@ -15,7 +15,13 @@ export default class SoundParticles extends THREE.Group {
     this._showTween = null;
 
     this._time = 0;
-    this._frequencyDataCount = 55; // standard 64
+    this._frequencyDataCount = Math.max(Math.floor(64 - SOUND_PARTICLES_CONFIG.circles.circlesCount * 0.7), 44);
+
+    this._circlesCount = SOUND_PARTICLES_CONFIG.circles.circlesCount;
+    this._startParticlesCount = SOUND_PARTICLES_CONFIG.circles.startParticlesCount;
+    this._particlesIncrement = SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
+    this._startRadius = SOUND_PARTICLES_CONFIG.circles.startRadius;
+    this._radiusIncrement = SOUND_PARTICLES_CONFIG.circles.radiusIncrement;
 
     this._init();
   }
@@ -56,35 +62,63 @@ export default class SoundParticles extends THREE.Group {
       });
   }
 
+  updateSize() {
+    this._particlesMaterial.uniforms.uSize.value = SOUND_PARTICLES_CONFIG.size;
+  }
+
+  recreate() {
+    this._particlesMaterial.dispose();
+    this._particles.geometry.dispose();
+    this.remove(this._particles);
+
+    this._circlesCount = SOUND_PARTICLES_CONFIG.circles.circlesCount;
+    this._startParticlesCount = SOUND_PARTICLES_CONFIG.circles.startParticlesCount;
+    this._particlesIncrement = SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
+    this._startRadius = SOUND_PARTICLES_CONFIG.circles.startRadius;
+    this._radiusIncrement = SOUND_PARTICLES_CONFIG.circles.radiusIncrement;
+    this._frequencyDataCount = Math.max(Math.floor(64 - SOUND_PARTICLES_CONFIG.circles.circlesCount * 0.7), 44);
+
+    this._initParticles();
+  }
+
   _updateParticlesPositionForMusic() {
     this._analyser.getFrequencyData();
     const data = [...this._analyser.data];
     const positions = this._particles.geometry.attributes.position;
-    const dataCountForParticles = Math.round(this._frequencyDataCount / SOUND_PARTICLES_CONFIG.circles.circlesCount);
+    const dataCountForParticles = Math.round(this._frequencyDataCount / this._circlesCount);
+
+    // const dataForPosition = data.map((item) => {
+    //   if (item < 127) {
+    //     return -item;
+    //   }
+
+    //   return (255 - item) * 0.4 - 50;
+    // });
+
 
     const dataForPosition = data.map((item) => {
-      if (item < 127) {
-        return -item;
+      if (item > 127) {
+        return item * 0.4;
       }
 
-      return (255 - item) * 0.4;
+      return item;
     });
 
-    let particlesInCurrentCircle = SOUND_PARTICLES_CONFIG.circles.startParticlesCount;
+    let particlesInCurrentCircle = this._startParticlesCount;
     let currentParticlesCount = 0;
 
-    for (let i = 0; i < SOUND_PARTICLES_CONFIG.circles.circlesCount; i += 1) {
+    for (let i = 0; i < this._circlesCount; i += 1) {
       for (let j = 0; j < particlesInCurrentCircle; j += 1) {
         let dataPositionZ = 0;
 
         for (let k = 0; k < dataCountForParticles; k += 1) {
           if (i * dataCountForParticles + k < this._frequencyDataCount) {
-            dataPositionZ -= dataForPosition[i * dataCountForParticles + k];
+            dataPositionZ += dataForPosition[i * dataCountForParticles + k];
           }
         }
 
         dataPositionZ /= dataCountForParticles;
-        dataPositionZ *= SOUND_PARTICLES_CONFIG.amplitudeCoefficient;
+        dataPositionZ *= SOUND_PARTICLES_CONFIG.amplitudeCoefficient * 0.001;
 
         const idlePositionZ = Math.sin(this._time * SOUND_PARTICLES_CONFIG.idleAnimation.speed + i * SOUND_PARTICLES_CONFIG.idleAnimation.frequency) * SOUND_PARTICLES_CONFIG.idleAnimation.amplitude;
 
@@ -92,7 +126,7 @@ export default class SoundParticles extends THREE.Group {
       }
 
       currentParticlesCount += particlesInCurrentCircle;
-      particlesInCurrentCircle += SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
+      particlesInCurrentCircle += this._particlesIncrement;
     }
 
     positions.needsUpdate = true;
@@ -132,11 +166,11 @@ export default class SoundParticles extends THREE.Group {
     const particlesCount = this._getParticlesCount();
     const positionArray = new Float32Array(particlesCount * 3);
 
-    let currentRadius = SOUND_PARTICLES_CONFIG.circles.startRadius;
-    let particlesInCurrentCircle = SOUND_PARTICLES_CONFIG.circles.startParticlesCount;
+    let currentRadius = this._startRadius;
+    let particlesInCurrentCircle = this._startParticlesCount;
     let currentParticlesCount = 0;
 
-    for (let i = 0; i < SOUND_PARTICLES_CONFIG.circles.circlesCount; i += 1) {
+    for (let i = 0; i < this._circlesCount; i += 1) {
       for (let j = 0; j < particlesInCurrentCircle; j += 1) {
         const angle = j / particlesInCurrentCircle * Math.PI * 2;
 
@@ -145,9 +179,9 @@ export default class SoundParticles extends THREE.Group {
         positionArray[(j * 3 + 2) + currentParticlesCount * 3] = SOUND_PARTICLES_CONFIG.positionOffset.z;
       }
 
-      currentRadius += SOUND_PARTICLES_CONFIG.circles.radiusIncrement;
+      currentRadius += this._radiusIncrement;
       currentParticlesCount += particlesInCurrentCircle;
-      particlesInCurrentCircle += SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
+      particlesInCurrentCircle += this._particlesIncrement;
     }
 
     return positionArray;
@@ -156,8 +190,8 @@ export default class SoundParticles extends THREE.Group {
   _getParticlesCount() {
     let particlesCount = 0;
 
-    for (let i = 0; i < SOUND_PARTICLES_CONFIG.circles.circlesCount; i += 1) {
-      particlesCount += SOUND_PARTICLES_CONFIG.circles.startParticlesCount + i * SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
+    for (let i = 0; i < this._circlesCount; i += 1) {
+      particlesCount += this._startParticlesCount + i * this._particlesIncrement;
     }
 
     return particlesCount;

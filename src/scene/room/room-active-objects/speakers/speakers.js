@@ -236,6 +236,9 @@ export default class Speakers extends RoomObjectAbstract {
   _initSignals() {
     this._debugMenu.events.on('switch', () => this.onClick());
     this._debugMenu.events.on('onHelpersChanged', () => this._showHelpers());
+    this._debugMenu.events.on('onVolumeChanged', () => this._onVolumeChanged());
+    this._debugMenu.events.on('onParticlesSizeChanged', () => this._onParticlesSizeChanged());
+    this._debugMenu.events.on('onRecreateParticles', () => this._onRecreateParticles());
   }
 
   _showHelpers() {
@@ -244,6 +247,20 @@ export default class Speakers extends RoomObjectAbstract {
     }
 
     this._audioHelper.visible = SPEAKERS_CONFIG.helpersEnabled;
+  }
+
+  _onVolumeChanged() {
+    this._music.setVolume(SPEAKERS_CONFIG.volume);
+  }
+
+  _onParticlesSizeChanged() {
+    this._rightSoundParticles.updateSize();
+    this._leftSoundParticles.updateSize();
+  }
+
+  _onRecreateParticles() {
+    this._rightSoundParticles.recreate();
+    this._leftSoundParticles.recreate();
   }
 
   _setCurrentMusic(musicType) {
