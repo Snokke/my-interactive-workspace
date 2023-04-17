@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const textures = [
   'cursor.png',
+  'temperature.png',
 ];
 
 const models = [
