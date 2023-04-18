@@ -4,9 +4,12 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE } from './laptop-data';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from './laptop-config';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG, SPARKLE_CONFIG } from './laptop-config';
 import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
 import HelpArrows from '../../help-arrows/help-arrows';
+import Loader from '../../../../core/loader';
+import vertexShader from './sparkle-shaders/sparkle-vertex.glsl';
+import fragmentShader from './sparkle-shaders/sparkle-fragment.glsl';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -27,6 +30,11 @@ export default class Laptop extends RoomObjectAbstract {
   }
   update(dt) {
     this._debugMenu.update(dt);
+
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const part = this._parts[partType];
+      part.material.uniforms.uTime.value += dt;
+    });
   }
 
   showWithAnimation(delay) {
@@ -89,8 +97,7 @@ export default class Laptop extends RoomObjectAbstract {
     }
 
     if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
-      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
-      this.events.post(signalName);
+      this._switchMusic(partType);
     }
   }
 
@@ -175,35 +182,19 @@ export default class Laptop extends RoomObjectAbstract {
 
   onLeftKeyClick(buttonType) {
     if (buttonType !== null && LAPTOP_SCREEN_MUSIC_PARTS.includes(buttonType)) {
-      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[buttonType].signalName;
-      this.events.post(signalName);
+      this._switchMusic(buttonType);
     }
   }
 
   onButtonOver(buttonType) {
     const button = this._parts[buttonType];
-
-    if (button.userData.buttonTween) {
-      button.userData.buttonTween.stop();
-    }
-
-    button.userData.buttonTween = new TWEEN.Tween(button.scale)
-      .to({ x: 1.1, y: 1.1, z: 1.1 }, 500)
-      .easing(TWEEN.Easing.Sinusoidal.InOut)
-      .yoyo(true)
-      .repeat(Infinity)
-      .start();
+    button.material.uniforms.uColor.value = new THREE.Color(0x00ff00);
   }
 
   onButtonOut() {
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
-
-      if (button.userData.buttonTween) {
-        button.userData.buttonTween.stop();
-      }
-
-      button.scale.set(1, 1, 1);
+      button.material.uniforms.uColor.value = new THREE.Color(0xffffff);
     });
   }
 
@@ -261,10 +252,44 @@ export default class Laptop extends RoomObjectAbstract {
     this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
   }
 
+  _switchMusic(partType) {
+    const musicType = LAPTOP_SCREEN_MUSIC_CONFIG[partType].musicType;
+
+    if (LAPTOP_CONFIG.currentMusicType === musicType) {
+      LAPTOP_CONFIG.currentMusicType = null;
+      this._setPartTexturePause(partType);
+    } else {
+      if (LAPTOP_CONFIG.currentMusicType) {
+        const previousPartType = this._getPartTypeByMusicType(LAPTOP_CONFIG.currentMusicType);
+        this._setPartTexturePause(previousPartType);
+      }
+
+      LAPTOP_CONFIG.currentMusicType = musicType;
+      this._setPartTexturePlaying(partType)
+    }
+
+    const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
+    this.events.post(signalName);
+  }
+
+  _setPartTexturePause(partType) {
+    const part = this._parts[partType];
+    const texturePause = LAPTOP_SCREEN_MUSIC_CONFIG[partType].texturePause;
+    part.material.uniforms.uTexture.value = Loader.assets[texturePause];
+  }
+
+  _setPartTexturePlaying(partType) {
+    const part = this._parts[partType];
+    const texturePlaying = LAPTOP_SCREEN_MUSIC_CONFIG[partType].texturePlaying;
+    part.material.uniforms.uTexture.value = Loader.assets[texturePlaying];
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initScreenTexture();
+    this._initButtonsWithSparkles();
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
@@ -291,8 +316,7 @@ export default class Laptop extends RoomObjectAbstract {
       }
     });
 
-    const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[selectedPartType].signalName;
-    this.events.post(signalName);
+    this._switchMusic(selectedPartType);
   }
 
   _addPartsToScene() {
@@ -374,6 +398,42 @@ export default class Laptop extends RoomObjectAbstract {
     });
   }
 
+  _initScreenTexture() {
+    const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+    const texture = Loader.assets['laptop-screen'];
+
+    screen.material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+  }
+
+  _initButtonsWithSparkles() {
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType, i) => {
+      const part = this._parts[partType];
+
+      const uniforms = {
+        uTime: { value: 0 },
+        uStartOffset: { value: i / 3 },
+        uTexture: { value: null },
+        uColor: { value: new THREE.Color(0xffffff) },
+        uSparkleColor: { value: SPARKLE_CONFIG.color },
+        uLineThickness: { value: SPARKLE_CONFIG.thickness },
+        uBlurAmount: { value: SPARKLE_CONFIG.blur },
+        uLineAngle: { value: SPARKLE_CONFIG.angle * THREE.MathUtils.DEG2RAD },
+        uSpeed: { value: SPARKLE_CONFIG.speed },
+        uLineMovingWidth: { value: SPARKLE_CONFIG.movingWidth },
+      }
+
+      part.material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+      });
+
+      this._setPartTexturePause(partType);
+    });
+  }
+
   _initHelpArrows() {
     const helpArrowsTypes = [HELP_ARROW_TYPE.LaptopMountLeft, HELP_ARROW_TYPE.LaptopMountRight];
     const helpArrows = this._helpArrows = new HelpArrows(helpArrowsTypes);
@@ -403,5 +463,13 @@ export default class Laptop extends RoomObjectAbstract {
     });
 
     return parts;
+  }
+
+  _getPartTypeByMusicType(musicType) {
+    const partType = Object.keys(LAPTOP_SCREEN_MUSIC_CONFIG).find((key) => {
+      return LAPTOP_SCREEN_MUSIC_CONFIG[key].musicType === musicType;
+    });
+
+    return partType;
   }
 }

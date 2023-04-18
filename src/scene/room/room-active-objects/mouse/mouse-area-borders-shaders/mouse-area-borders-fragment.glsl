@@ -1,17 +1,12 @@
 varying vec2 vUv;
-varying float vCenter;
-varying vec3 vColor;
-varying float vAlpha;
+
+uniform float uCenter;
+uniform vec3 uColor;
+uniform float uAlpha;
 
 void main()
 {
-  float alpha = 0.0;
+  float alpha = mix(1.0, 0.0, abs(vUv.x - uCenter) * 2.0);
 
-  if (vUv.x < vCenter) {
-    alpha = mix(0.0, 1.0, vUv.x * (1.0 / vCenter));
-  } else {
-    alpha = mix(1.0, 0.0, (vUv.x - vCenter) * (1.0 / (1.0 - vCenter)));
-  }
-
-  gl_FragColor = vec4(vColor, alpha * vAlpha);
+  gl_FragColor = vec4(uColor, alpha * uAlpha);
 }

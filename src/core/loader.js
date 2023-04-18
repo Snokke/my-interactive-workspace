@@ -5,6 +5,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const textures = [
   'cursor.png',
   'temperature.png',
+  'laptop-screen.jpg',
+  'laptop-music-01-on.jpg',
+  'laptop-music-01-off.jpg',
 ];
 
 const models = [

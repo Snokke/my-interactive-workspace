@@ -5,6 +5,7 @@ const LAPTOP_CONFIG = {
   showDebugButtons: false,
   state: LAPTOP_STATE.Idle,
   positionType: LAPTOP_POSITION_STATE.Opened,
+  currentMusicType: null,
   defaultAngle: 123,
   maxOpenAngle: 123,
   rotationSpeed: 18,
@@ -18,30 +19,45 @@ const LAPTOP_MOUNT_CONFIG = {
   rightEdgeAngle: 35,
 }
 
+const SPARKLE_CONFIG = {
+  color: new THREE.Color(0xffffff),
+  thickness: 0.03,
+  blur: 0.04,
+  angle: -6,
+  speed: 15,
+  movingWidth: 15,
+}
+
 const LAPTOP_SCREEN_MUSIC_CONFIG = {
   [LAPTOP_PART_TYPE.LaptopScreenMusic01]: {
     signalName: 'onLaptopScreenMusic01Click',
     musicType: MUSIC_TYPE.Giorgio,
     area: {
-      position: new THREE.Vector2(0, 0.58),
-      size: new THREE.Vector2(0.55, 0.1),
+      position: new THREE.Vector2(0.14, 0.67),
+      size: new THREE.Vector2(0.92, 0.14),
     },
+    texturePlaying: 'laptop-music-01-on',
+    texturePause: 'laptop-music-01-off',
   },
   [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
     signalName: 'onLaptopScreenMusic02Click',
     musicType: MUSIC_TYPE.ComeAndGetYourLove,
     area: {
-      position: new THREE.Vector2(0, 0.44),
-      size: new THREE.Vector2(0.55, 0.1),
+      position: new THREE.Vector2(0.14, 0.48),
+      size: new THREE.Vector2(0.92, 0.14),
     },
+    texturePlaying: 'laptop-music-01-on',
+    texturePause: 'laptop-music-01-off',
   },
   [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
     signalName: 'onLaptopScreenMusic03Click',
     musicType: MUSIC_TYPE.BigCityLife,
     area: {
-      position: new THREE.Vector2(0, 0.3),
-      size: new THREE.Vector2(0.55, 0.1),
+      position: new THREE.Vector2(0.14, 0.29),
+      size: new THREE.Vector2(0.92, 0.14),
     },
+    texturePlaying: 'laptop-music-01-on',
+    texturePause: 'laptop-music-01-off',
   },
 }
 
@@ -63,4 +79,10 @@ const MUSIC_CONFIG = {
   },
 }
 
-export { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG, MUSIC_CONFIG };
+export {
+  LAPTOP_CONFIG,
+  LAPTOP_MOUNT_CONFIG,
+  LAPTOP_SCREEN_MUSIC_CONFIG,
+  MUSIC_CONFIG,
+  SPARKLE_CONFIG,
+};
