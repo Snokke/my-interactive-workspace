@@ -6,15 +6,21 @@ import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CO
 import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './air-conditioner-config';
 import Loader from '../../../../core/loader';
+import SnowflakeParticles from './snowflake-particels';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
+    this._snowflakeParticles = null;
     this._airConditionerTween = null;
     this._temperatureTween = null;
 
     this._init();
+  }
+
+  update(dt) {
+    this._snowflakeParticles.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -46,6 +52,10 @@ export default class AirConditioner extends RoomObjectAbstract {
 
     const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
 
+    if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
+      this._snowflakeParticles.hide();
+    }
+
     if (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving) {
       this._updateAirConditionerDoorPositionType();
     }
@@ -71,19 +81,27 @@ export default class AirConditioner extends RoomObjectAbstract {
         AIR_CONDITIONER_CONFIG.doorAngle = door.rotation.z * THREE.MathUtils.RAD2DEG;
       })
       .onComplete(() => {
-        this._updateAirConditionerDoorPositionType();
-
-        AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Idle;
-
-        if (AIR_CONDITIONER_CONFIG.powerState === AIR_CONDITIONER_STATE.PowerOn
-           && AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Closed) {
-          AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOff;
-        }
-
-        // this._debugMenu.updateTopPanelState();
+        this._onConditionerTweenComplete();
       });
 
     this._updateTemperatureVisibility();
+  }
+
+  _onConditionerTweenComplete() {
+    this._updateAirConditionerDoorPositionType();
+
+    AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Idle;
+
+    if (AIR_CONDITIONER_CONFIG.powerState === AIR_CONDITIONER_STATE.PowerOn
+       && AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Closed) {
+      AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOff;
+    }
+
+    if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
+      this._snowflakeParticles.show();
+    }
+
+    // this._debugMenu.updateTopPanelState();
   }
 
   _updateTemperatureVisibility() {
@@ -139,8 +157,9 @@ export default class AirConditioner extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
-    this._initTemperature();
     this._addPartsToScene();
+    this._initTemperature();
+    this._initSnowflakeParticles();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -155,6 +174,13 @@ export default class AirConditioner extends RoomObjectAbstract {
     temperaturePart.material.color = new THREE.Color(0xffffff);
 
     temperaturePart.visible = false;
+  }
+
+  _initSnowflakeParticles() {
+    const snowflakeParticles = this._snowflakeParticles = new SnowflakeParticles();
+    this.add(snowflakeParticles);
+
+    snowflakeParticles.position.copy(this._parts[AIR_CONDITIONER_PART_TYPE.Body].position);
   }
 
   _initSignals() {
