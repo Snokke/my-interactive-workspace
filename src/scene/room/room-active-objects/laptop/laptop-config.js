@@ -19,45 +19,39 @@ const LAPTOP_MOUNT_CONFIG = {
   rightEdgeAngle: 35,
 }
 
-const SPARKLE_CONFIG = {
-  color: new THREE.Color(0xffffff),
-  thickness: 0.03,
-  blur: 0.04,
-  angle: -6,
-  speed: 15,
-  movingWidth: 15,
-}
-
 const LAPTOP_SCREEN_MUSIC_CONFIG = {
-  [LAPTOP_PART_TYPE.LaptopScreenMusic01]: {
-    signalName: 'onLaptopScreenMusic01Click',
-    musicType: MUSIC_TYPE.Giorgio,
-    area: {
-      position: new THREE.Vector2(0.14, 0.67),
-      size: new THREE.Vector2(0.92, 0.14),
+  mouseOverColor: new THREE.Color(0x00ff00),
+  buttons: {
+    [LAPTOP_PART_TYPE.LaptopScreenMusic01]: {
+      signalName: 'onLaptopScreenMusic01Click',
+      musicType: MUSIC_TYPE.Giorgio,
+      area: {
+        position: new THREE.Vector2(0.14, 0.67),
+        size: new THREE.Vector2(0.92, 0.14),
+      },
+      texturePlaying: 'laptop-music-01-playing',
+      texturePause: 'laptop-music-01-pause',
     },
-    texturePlaying: 'laptop-music-01-playing',
-    texturePause: 'laptop-music-01-pause',
-  },
-  [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
-    signalName: 'onLaptopScreenMusic02Click',
-    musicType: MUSIC_TYPE.ComeAndGetYourLove,
-    area: {
-      position: new THREE.Vector2(0.14, 0.48),
-      size: new THREE.Vector2(0.92, 0.14),
+    [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
+      signalName: 'onLaptopScreenMusic02Click',
+      musicType: MUSIC_TYPE.ComeAndGetYourLove,
+      area: {
+        position: new THREE.Vector2(0.14, 0.48),
+        size: new THREE.Vector2(0.92, 0.14),
+      },
+      texturePlaying: 'laptop-music-02-playing',
+      texturePause: 'laptop-music-02-pause',
     },
-    texturePlaying: 'laptop-music-02-playing',
-    texturePause: 'laptop-music-02-pause',
-  },
-  [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
-    signalName: 'onLaptopScreenMusic03Click',
-    musicType: MUSIC_TYPE.September,
-    area: {
-      position: new THREE.Vector2(0.14, 0.29),
-      size: new THREE.Vector2(0.92, 0.14),
+    [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
+      signalName: 'onLaptopScreenMusic03Click',
+      musicType: MUSIC_TYPE.September,
+      area: {
+        position: new THREE.Vector2(0.14, 0.29),
+        size: new THREE.Vector2(0.92, 0.14),
+      },
+      texturePlaying: 'laptop-music-03-playing',
+      texturePause: 'laptop-music-03-pause',
     },
-    texturePlaying: 'laptop-music-03-playing',
-    texturePause: 'laptop-music-03-pause',
   },
 }
 
@@ -84,5 +78,4 @@ export {
   LAPTOP_MOUNT_CONFIG,
   LAPTOP_SCREEN_MUSIC_CONFIG,
   MUSIC_CONFIG,
-  SPARKLE_CONFIG,
 };

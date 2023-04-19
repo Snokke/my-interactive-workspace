@@ -1,12 +1,14 @@
 import * as THREE from 'three';
-import { CURSOR_CONFIG } from '../mouse-config';
 import Loader from '../../../../../core/loader';
-import { CURSOR_MONITOR_TYPE } from '../mouse-data';
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '../../laptop/laptop-config';
 import { LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS } from '../../laptop/laptop-data';
 import ClickCircle from './click-circle';
 import MonitorButtonsDebug from './monitor-buttons-debug';
 import { MessageDispatcher } from 'black-engine';
+import { MONITOR_BUTTONS_CONFIG } from '../../monitor/monitor-config';
+import { MONITOR_SCREEN_BUTTONS } from '../../monitor/monitor-data';
+import { CURSOR_CONFIG } from './cursor-config';
+import { MONITOR_TYPE } from '../../../data/room-config';
 
 export default class Cursor extends THREE.Group {
   constructor(mouse, monitorScreen, laptopScreen) {
@@ -27,7 +29,7 @@ export default class Cursor extends THREE.Group {
     this._previousMousePosition = new THREE.Vector2();
 
     this._cursorPosition = new THREE.Vector2();
-    this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+    this._monitorType = MONITOR_TYPE.Monitor;
     this._currentButtonType = null;
     this._previousButtonType = null;
 
@@ -50,8 +52,8 @@ export default class Cursor extends THREE.Group {
   }
 
   onLaptopClosed() {
-    if (this._monitorType === CURSOR_MONITOR_TYPE.Laptop) {
-      this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+    if (this._monitorType === MONITOR_TYPE.Laptop) {
+      this._monitorType = MONITOR_TYPE.Monitor;
 
       const { cursorHalfWidth, sensitivity } = this._getCursorData();
       const screenSize = this._currentMonitorData[this._monitorType].size;
@@ -102,7 +104,7 @@ export default class Cursor extends THREE.Group {
 
     if (this._cursorPosition.x < leftEdge) {
       if (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened && this._cursorPosition.y < CURSOR_CONFIG.monitorBottomOffsetToNotTransferCursor) {
-        this._monitorType = CURSOR_MONITOR_TYPE.Laptop;
+        this._monitorType = MONITOR_TYPE.Laptop;
         changeScreen = true;
 
         const laptopRightEdge = (this._currentMonitorData[this._monitorType].size.x * 0.5 - cursorHalfWidth) / sensitivity;
@@ -112,6 +114,8 @@ export default class Cursor extends THREE.Group {
         this._cursorPosition.x = leftEdge;
       }
     }
+
+    this._checkMonitorButtons();
 
     return changeScreen;
   }
@@ -135,7 +139,7 @@ export default class Cursor extends THREE.Group {
     }
 
     if (this._cursorPosition.x > rightEdge) {
-      this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+      this._monitorType = MONITOR_TYPE.Monitor;
       changeScreen = true;
 
       const monitorLeftEdge = (-this._currentMonitorData[this._monitorType].size.x * 0.5 + cursorHalfWidth) / sensitivity;
@@ -157,7 +161,7 @@ export default class Cursor extends THREE.Group {
     let isIntersection = false;
 
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((part) => {
-      const areaConfig = LAPTOP_SCREEN_MUSIC_CONFIG[part].area;
+      const areaConfig = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[part].area;
       const bottom = -(areaConfig.position.y + bottomOffset) - areaConfig.size.y * 0.5;
       const top = -(areaConfig.position.y + bottomOffset) + areaConfig.size.y * 0.5;
       const left = areaConfig.position.x - areaConfig.size.x * 0.5;
@@ -167,20 +171,55 @@ export default class Cursor extends THREE.Group {
         this._currentButtonType = part;
         isIntersection = true;
 
-        if (this._currentButtonType !== this._previousButtonType) {
-          this._previousButtonType = this._currentButtonType;
-          this.events.post('onLaptopButtonOver', this._currentButtonType);
-        }
+        this._foundIntersection('onLaptopButtonOver');
       }
     });
 
     if (!isIntersection) {
-      this._currentButtonType = null;
+      this._noIntersection('onLaptopButtonOut');
+    }
+  }
 
-      if (this._currentButtonType !== this._previousButtonType) {
-        this._previousButtonType = this._currentButtonType;
-        this.events.post('onLaptopButtonOut');
+  _checkMonitorButtons() {
+    const { cursorHalfWidth, cursorHalfHeight, sensitivity } = this._getCursorData();
+
+    const cursorPointX = this._cursorPosition.x * sensitivity - cursorHalfWidth;
+    const cursorPointY = this._cursorPosition.y * sensitivity - cursorHalfHeight;
+    let isIntersection = false;
+
+    MONITOR_SCREEN_BUTTONS.forEach((part) => {
+      const areaConfig = MONITOR_BUTTONS_CONFIG.buttons[part].area;
+      const bottom = -areaConfig.position.y - areaConfig.size.y * 0.5;
+      const top = -areaConfig.position.y + areaConfig.size.y * 0.5;
+      const left = areaConfig.position.x - areaConfig.size.x * 0.5;
+      const right = areaConfig.position.x + areaConfig.size.x * 0.5;
+
+      if ((cursorPointX > left && cursorPointX < right) && (cursorPointY > bottom && cursorPointY < top)) {
+        this._currentButtonType = part;
+        isIntersection = true;
+
+        this._foundIntersection('onMonitorButtonOver');
       }
+    });
+
+    if (!isIntersection) {
+      this._noIntersection('onMonitorButtonOut');
+    }
+  }
+
+  _foundIntersection(signalName) {
+    if (this._currentButtonType !== this._previousButtonType) {
+      this._previousButtonType = this._currentButtonType;
+      this.events.post(signalName, this._currentButtonType);
+    }
+  }
+
+  _noIntersection(signalName) {
+    this._currentButtonType = null;
+
+    if (this._currentButtonType !== this._previousButtonType) {
+      this._previousButtonType = this._currentButtonType;
+      this.events.post(signalName);
     }
   }
 
@@ -188,7 +227,7 @@ export default class Cursor extends THREE.Group {
     const screen = this._currentMonitorData[this._monitorType].screen;
     this._view.position.copy(screen.getWorldPosition(new THREE.Vector3()));
 
-    if (this._monitorType === CURSOR_MONITOR_TYPE.Laptop) {
+    if (this._monitorType === MONITOR_TYPE.Laptop) {
       const mountAngle = LAPTOP_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
       const angleX = (LAPTOP_CONFIG.defaultAngle - LAPTOP_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
 
@@ -267,12 +306,12 @@ export default class Cursor extends THREE.Group {
 
   _initCurrentMonitorData() {
     this._currentMonitorData = {
-      [CURSOR_MONITOR_TYPE.Monitor]: {
+      [MONITOR_TYPE.Monitor]: {
         screen: this._monitorScreen,
         size: this._monitorSize,
         checkPositionFunction: () => this._checkPositionForMonitor(),
       },
-      [CURSOR_MONITOR_TYPE.Laptop]: {
+      [MONITOR_TYPE.Laptop]: {
         screen: this._laptopScreen,
         size: this._laptopSize,
         checkPositionFunction: () => this._checkPositionForLaptop(),
@@ -290,7 +329,7 @@ export default class Cursor extends THREE.Group {
   }
 
   _resetCursor() {
-    this._monitorType = CURSOR_MONITOR_TYPE.Monitor;
+    this._monitorType = MONITOR_TYPE.Monitor;
 
     this._cursorPosition.x = 0;
     this._cursorPosition.y = 0;

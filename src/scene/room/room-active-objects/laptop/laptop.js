@@ -2,15 +2,16 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../data/room-config';
+import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_ORDER } from './laptop-data';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG, SPARKLE_CONFIG } from './laptop-config';
-import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
-import HelpArrows from '../../help-arrows/help-arrows';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from './laptop-config';
+import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
+import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
-import vertexShader from './sparkle-shaders/sparkle-vertex.glsl';
-import fragmentShader from './sparkle-shaders/sparkle-fragment.glsl';
+import vertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
+import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
 import LaptopParts from './laptop-parts';
+import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -194,11 +195,17 @@ export default class Laptop extends RoomObjectAbstract {
   }
 
   onButtonOver(buttonType) {
+    this._clearButtonsColor();
+
     const button = this._parts[buttonType];
-    button.material.uniforms.uColor.value = new THREE.Color(0x00ff00);
+    button.material.uniforms.uColor.value = LAPTOP_SCREEN_MUSIC_CONFIG.mouseOverColor;
   }
 
   onButtonOut() {
+    this._clearButtonsColor();
+  }
+
+  _clearButtonsColor() {
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
       button.material.uniforms.uColor.value = new THREE.Color(0xffffff);
@@ -260,7 +267,7 @@ export default class Laptop extends RoomObjectAbstract {
   }
 
   _switchMusic(partType) {
-    const musicType = LAPTOP_SCREEN_MUSIC_CONFIG[partType].musicType;
+    const musicType = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].musicType;
 
     if (LAPTOP_CONFIG.currentMusicType === musicType) {
       LAPTOP_CONFIG.currentMusicType = null;
@@ -275,19 +282,19 @@ export default class Laptop extends RoomObjectAbstract {
       this._setPartTexturePlaying(partType)
     }
 
-    const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
+    const signalName = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].signalName;
     this.events.post(signalName);
   }
 
   _setPartTexturePause(partType) {
     const part = this._parts[partType];
-    const texturePause = LAPTOP_SCREEN_MUSIC_CONFIG[partType].texturePause;
+    const texturePause = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePause;
     part.material.uniforms.uTexture.value = Loader.assets[texturePause];
   }
 
   _setPartTexturePlaying(partType) {
     const part = this._parts[partType];
-    const texturePlaying = LAPTOP_SCREEN_MUSIC_CONFIG[partType].texturePlaying;
+    const texturePlaying = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePlaying;
     part.material.uniforms.uTexture.value = Loader.assets[texturePlaying];
   }
 
@@ -346,6 +353,8 @@ export default class Laptop extends RoomObjectAbstract {
   }
 
   _initButtonsWithSparkles() {
+    const sparkleConfig = SPARKLE_CONFIG[MONITOR_TYPE.Laptop];
+
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType, i) => {
       const part = this._parts[partType];
 
@@ -354,12 +363,12 @@ export default class Laptop extends RoomObjectAbstract {
         uStartOffset: { value: i / 3 },
         uTexture: { value: null },
         uColor: { value: new THREE.Color(0xffffff) },
-        uSparkleColor: { value: SPARKLE_CONFIG.color },
-        uLineThickness: { value: SPARKLE_CONFIG.thickness },
-        uBlurAmount: { value: SPARKLE_CONFIG.blur },
-        uLineAngle: { value: SPARKLE_CONFIG.angle * THREE.MathUtils.DEG2RAD },
-        uSpeed: { value: SPARKLE_CONFIG.speed },
-        uLineMovingWidth: { value: SPARKLE_CONFIG.movingWidth },
+        uSparkleColor: { value: sparkleConfig.color },
+        uLineThickness: { value: sparkleConfig.thickness },
+        uBlurAmount: { value: sparkleConfig.blur },
+        uLineAngle: { value: sparkleConfig.angle * THREE.MathUtils.DEG2RAD },
+        uSpeed: { value: sparkleConfig.speed },
+        uLineMovingWidth: { value: sparkleConfig.movingWidth },
       }
 
       part.material = new THREE.ShaderMaterial({
@@ -404,7 +413,7 @@ export default class Laptop extends RoomObjectAbstract {
   }
 
   _getPartTypeByMusicType(musicType) {
-    const partType = Object.keys(LAPTOP_SCREEN_MUSIC_CONFIG).find((key) => {
+    const partType = Object.keys(LAPTOP_SCREEN_MUSIC_CONFIG.buttons).find((key) => {
       return LAPTOP_SCREEN_MUSIC_CONFIG[key].musicType === musicType;
     });
 

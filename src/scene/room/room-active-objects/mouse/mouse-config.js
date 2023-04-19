@@ -23,18 +23,4 @@ const MOUSE_AREA_BORDER_CONFIG = {
   },
 }
 
-const CURSOR_CONFIG = {
-  sensitivity: 3,
-  view: {
-    width: 0.06,
-    height: 0.087,
-    scale: 1.5,
-  },
-  laptopScreenBottomOffset: 0.09,
-  laptopScreenSizeY: 0.965,
-  monitorBottomOffsetToNotTransferCursor: 0.06,
-  offsetZFromScreen: 0.001,
-  clickCircleOffsetZFromScreen: 0.01,
-}
-
-export { MOUSE_CONFIG, CURSOR_CONFIG, MOUSE_AREA_BORDER_CONFIG };
+export { MOUSE_CONFIG, MOUSE_AREA_BORDER_CONFIG };

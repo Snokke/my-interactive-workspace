@@ -2,17 +2,21 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../data/room-config';
-import { MONITOR_PART_TYPE } from './monitor-data';
-import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_CONFIG } from './monitor-config';
-import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
-import HelpArrows from '../../help-arrows/help-arrows';
+import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
+import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './monitor-data';
+import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './monitor-config';
+import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
+import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
+import Loader from '../../../../core/loader';
+import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
+import vertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
+import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
-    this._monitorGroup = null;
+    this._screenGroup = null;
     this._arrowsTween = null;
     this._helpArrows = null;
 
@@ -22,10 +26,17 @@ export default class Monitor extends RoomObjectAbstract {
     this._currentPositionZ = 0;
     this._previousPositionZ = 0;
 
+    this._isMountSelected = false;
+
     this._init();
   }
 
   update(dt) {
+    MONITOR_SCREEN_BUTTONS.forEach((partType) => {
+      const part = this._parts[partType];
+      part.material.uniforms.uTime.value += dt;
+    });
+
     if (this._currentPositionZ === this._previousPositionZ) {
       return;
     }
@@ -71,12 +82,24 @@ export default class Monitor extends RoomObjectAbstract {
       return;
     }
 
-    const pIntersect = new THREE.Vector3().copy(intersect.point);
-    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
-    this._shift.subVectors(this._parts[MONITOR_PART_TYPE.Monitor].position, intersect.point);
+    const roomObject = intersect.object;
+    const partType = roomObject.userData.partType;
+
+    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
+      this._onMonitorClick(intersect);
+    }
+
+    if (MONITOR_SCREEN_BUTTONS.includes(partType)) {
+      this._onButtonsClick(partType);
+
+    }
   }
 
   onPointerMove(raycaster) {
+    if (!this._isMountSelected) {
+      return;
+    }
+
     const planeIntersect = new THREE.Vector3();
 
     raycaster.ray.intersectPlane(this._plane, planeIntersect);
@@ -89,14 +112,18 @@ export default class Monitor extends RoomObjectAbstract {
     this._updatePosition();
   }
 
-  onPointerOver() {
+  onPointerOver(mesh) {
     if (this._isPointerOver) {
       return;
     }
 
     super.onPointerOver();
 
-    this._helpArrows.show();
+    const partType = mesh.userData.partType;
+
+    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
+      this._helpArrows.show();
+    }
   }
 
   onPointerOut() {
@@ -109,8 +136,57 @@ export default class Monitor extends RoomObjectAbstract {
     this._helpArrows.hide();
   }
 
+  onLeftKeyClick(buttonType) {
+    if (buttonType !== null && MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
+      this._onButtonsClick(buttonType);
+    }
+  }
+
+  onButtonOver(buttonType) {
+    this._clearButtonsColor();
+
+    const button = this._parts[buttonType];
+    button.material.uniforms.uColor.value = MONITOR_BUTTONS_CONFIG.mouseOverColor;
+  }
+
+  onButtonOut() {
+    this._clearButtonsColor();
+  }
+
+  getMeshesForOutline(mesh) {
+    const partType = mesh.userData.partType;
+
+    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
+      return this._getPartsWithoutButtons();
+    }
+
+    if (MONITOR_SCREEN_BUTTONS.includes(partType)) {
+      return [mesh];
+    }
+  }
+
   getScreen() {
     return this._parts[MONITOR_PART_TYPE.MonitorScreen];
+  }
+
+  _clearButtonsColor() {
+    MONITOR_SCREEN_BUTTONS.forEach((partType) => {
+      const button = this._parts[partType];
+      button.material.uniforms.uColor.value = new THREE.Color(0xffffff);
+    });
+  }
+
+  _onMonitorClick(intersect) {
+    this._isMountSelected = true;
+    const pIntersect = new THREE.Vector3().copy(intersect.point);
+    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
+    this._shift.subVectors(this._parts[MONITOR_PART_TYPE.Monitor].position, intersect.point);
+  }
+
+  _onButtonsClick(partType) {
+    this._isMountSelected = false;
+
+    console.log(partType);
   }
 
   _updatePosition() {
@@ -122,13 +198,12 @@ export default class Monitor extends RoomObjectAbstract {
     const screen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
 
-    screen.position.z = screen.userData.startPosition.z + deltaZ;
+    this._screenGroup.position.z = screen.userData.startPosition.z + deltaZ;
     monitorMount.position.z = monitorMount.userData.startPosition.z + deltaZ;
   }
 
   _updateArmMount(deltaZ) {
     const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
-    const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
     const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
     const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
@@ -141,7 +216,7 @@ export default class Monitor extends RoomObjectAbstract {
 
     const bonusAngle = MONITOR_ARM_MOUNT_CONFIG.arm02.bonusAngle * THREE.MathUtils.DEG2RAD;
     const positionX = arm02.position.x + Math.cos(-arm02.rotation.y - bonusAngle + Math.PI * 0.5) * MONITOR_ARM_MOUNT_CONFIG.arm02.shoulderCoeff;
-    monitor.position.x = monitorScreen.position.x = monitorMount.position.x = positionX;
+    monitor.position.x = monitorMount.position.x = this._screenGroup.position.x = positionX;
 
     this._updateArmRotation();
     this._debugMenu.updateArmRotation();
@@ -165,7 +240,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initGroups();
-    this._initVideo();
+    this._initScreenTextures();
     this._updateArmRotation();
     this._initArrows();
     this._initDebugMenu();
@@ -173,32 +248,82 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _initGroups() {
-    const monitorGroup = this._monitorGroup = new THREE.Group();
-    this.add(monitorGroup);
+    const screenGroup = this._screenGroup = new THREE.Group();
+    this.add(screenGroup);
 
-    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
-    const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
+    const monitorScreenShowreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
+    const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCloseIcon);
 
-    monitorGroup.add(monitor, monitorScreen, monitorMount);
+    screenGroup.position.copy(monitorScreen.position);
+
+    const showreelIconOffset = monitorScreenShowreelIcon.position.clone().sub(monitorScreen.position.clone());
+    const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
+
+    monitorScreen.position.set(0, 0, 0);
+    monitorScreenShowreelIcon.position.copy(showreelIconOffset);
+    monitorScreenCloseIcon.position.copy(closeIconOffset);
   }
 
-  _initVideo() {
-    const videoElement = document.createElement('video');
-    videoElement.muted = true;
-    videoElement.loop = true;
-    videoElement.controls = true;
-    videoElement.playsInline = true;
-    videoElement.autoplay = true;
-    videoElement.src = '/video/games_showreel.mp4';
-    videoElement.play();
+  _initScreenTextures() {
+    this._initScreenTexture();
+    this._initButtonsTextures();
+    this._initShowreelVideo();
+  }
 
-    const texture = new THREE.VideoTexture(videoElement);
-    texture.encoding = THREE.sRGBEncoding;
+  _initScreenTexture() {
+    const texture = Loader.assets['monitor-screen'];
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
 
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
-    monitorScreen.material.color = new THREE.Color(0xffffff);
-    monitorScreen.material.map = texture;
+    monitorScreen.material = material;
+  }
+
+  _initButtonsTextures() {
+    const sparkleConfig = SPARKLE_CONFIG[MONITOR_TYPE.Monitor];
+
+    MONITOR_SCREEN_BUTTONS.forEach((partType, i) => {
+      const part = this._parts[partType];
+      const textureName = MONITOR_BUTTONS_CONFIG.buttons[partType].textureName;
+      const texture = Loader.assets[textureName];
+
+      const uniforms = {
+        uTime: { value: 0 },
+        uStartOffset: { value: i / 2 },
+        uTexture: { value: texture },
+        uColor: { value: new THREE.Color(0xffffff) },
+        uSparkleColor: { value: sparkleConfig.color },
+        uLineThickness: { value: sparkleConfig.thickness },
+        uBlurAmount: { value: sparkleConfig.blur },
+        uLineAngle: { value: sparkleConfig.angle * THREE.MathUtils.DEG2RAD },
+        uSpeed: { value: sparkleConfig.speed },
+        uLineMovingWidth: { value: sparkleConfig.movingWidth },
+      }
+
+      part.material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+      });
+    });
+  }
+
+  _initShowreelVideo() {
+    // const videoElement = document.createElement('video');
+    // videoElement.muted = true;
+    // videoElement.loop = true;
+    // videoElement.controls = true;
+    // videoElement.playsInline = true;
+    // videoElement.autoplay = true;
+    // videoElement.src = '/video/games_showreel.mp4';
+    // videoElement.play();
+
+    // const texture = new THREE.VideoTexture(videoElement);
+    // texture.encoding = THREE.sRGBEncoding;
   }
 
   _initArrows() {
@@ -213,5 +338,15 @@ export default class Monitor extends RoomObjectAbstract {
     this._debugMenu.events.on('onPositionChanged', (msg, position) => {
       this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     });
+  }
+
+  _getPartsWithoutButtons() {
+    const parts = [];
+
+    MONITOR_PARTS_WITHOUT_BUTTONS.forEach((partName) => {
+      parts.push(this._parts[partName]);
+    });
+
+    return parts;
   }
 }

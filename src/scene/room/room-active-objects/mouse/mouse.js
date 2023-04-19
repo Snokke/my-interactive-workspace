@@ -7,8 +7,8 @@ import { MOUSE_CONFIG } from './mouse-config';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { Vector2 } from 'three';
 import MouseAreaBorders from './mouse-area-borders';
-import HelpArrows from '../../help-arrows/help-arrows';
-import { HELP_ARROW_TYPE } from '../../help-arrows/help-arrows-config';
+import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {

@@ -9,6 +9,7 @@ import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './dat
 import Cursor from './room-active-objects/mouse/cursor/cursor';
 import { LAPTOP_SCREEN_MUSIC_PARTS } from './room-active-objects/laptop/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
+import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/monitor-data';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -333,6 +334,7 @@ export default class Room extends THREE.Group {
   _initSignals() {
     this._initDebugShowAnimationSignals();
     this._initLaptopMusicSignals();
+    this._initCursorSignals();
     this._initOtherSignals();
   }
 
@@ -353,8 +355,8 @@ export default class Room extends THREE.Group {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
 
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
-      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
-      const musicType = LAPTOP_SCREEN_MUSIC_CONFIG[partType].musicType;
+      const signalName = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].signalName;
+      const musicType = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].musicType;
 
       laptop.events.on(signalName, () => speakers.playMusic(musicType));
     });
@@ -362,6 +364,17 @@ export default class Room extends THREE.Group {
     speakers.events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
     speakers.events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
     speakers.events.on('onSongEnded', () => laptop.onSongEnded());
+  }
+
+  _initCursorSignals() {
+    const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+
+    this._cursor.events.on('onLaptopButtonOver', (msg, buttonType) => laptop.onButtonOver(buttonType));
+    this._cursor.events.on('onLaptopButtonOut', () => laptop.onButtonOut());
+    this._cursor.events.on('onMonitorButtonOver', (msg, buttonType) => monitor.onButtonOver(buttonType));
+    this._cursor.events.on('onMonitorButtonOut', () => monitor.onButtonOut());
+    this._cursor.events.on('onLeftKeyClick', (msg, buttonType) => this._onMouseOnButtonClick(buttonType));
   }
 
   _initOtherSignals() {
@@ -372,17 +385,20 @@ export default class Room extends THREE.Group {
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
-    mouse.events.on('onLeftKeyClick', () => this._onMouseLeftKeyClick());
+    mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => speakers.onWindowOpened());
     walls.events.on('onWindowClosed', () => speakers.onWindowClosed());
-
-    this._cursor.events.on('onLaptopButtonOver', (msg, buttonType) => laptop.onButtonOver(buttonType));
-    this._cursor.events.on('onLaptopButtonOut', () => laptop.onButtonOut());
-    this._cursor.events.on('onLeftKeyClick', (msg, buttonType) => laptop.onLeftKeyClick(buttonType));
   }
 
-  _onMouseLeftKeyClick() {
-    this._cursor.onMouseLeftKeyClicked();
+  _onMouseOnButtonClick(buttonType) {
+    if (LAPTOP_SCREEN_MUSIC_PARTS.includes(buttonType)) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onLeftKeyClick(buttonType)
+    }
+
+    if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].onLeftKeyClick(buttonType)
+    }
+
   }
 
   _configureRaycaster() {

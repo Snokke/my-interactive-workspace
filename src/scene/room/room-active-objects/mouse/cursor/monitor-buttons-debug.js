@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from "../../laptop/laptop-config";
 import { LAPTOP_SCREEN_MUSIC_PARTS } from "../../laptop/laptop-data";
-import { CURSOR_CONFIG } from "../mouse-config";
-import { MONITOR_CONFIG } from "../../monitor/monitor-config";
+import { MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from "../../monitor/monitor-config";
+import { MONITOR_SCREEN_BUTTONS } from "../../monitor/monitor-data";
+import { CURSOR_CONFIG } from "./cursor-config";
 
 export default class MonitorButtonsDebug extends THREE.Group {
   constructor(monitorScreen, laptopScreen) {
@@ -22,26 +23,29 @@ export default class MonitorButtonsDebug extends THREE.Group {
   _initLaptopButtonsDebug() {
     if (LAPTOP_CONFIG.showDebugButtons) {
       LAPTOP_SCREEN_MUSIC_PARTS.forEach((button) => {
-        const { position, size } = LAPTOP_SCREEN_MUSIC_CONFIG[button].area;
-        this._showDebugButtonsArea(this._laptopScreen, position.x, position.y, size.x, size.y);
+        const { position, size } = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[button].area;
+        this._showDebugButtonsAreaForLaptop(position.x, position.y, size.x, size.y);
       });
     }
   }
 
   _initMonitorButtonsDebug() {
     if (MONITOR_CONFIG.showDebugButtons) {
-
+      MONITOR_SCREEN_BUTTONS.forEach((button) => {
+        const { position, size } = MONITOR_BUTTONS_CONFIG.buttons[button].area;
+        this._showDebugButtonsAreaForMonitor(position.x, position.y, size.x, size.y);
+      });
     }
   }
 
-  _showDebugButtonsArea(screen, x, y, width, height) {
+  _showDebugButtonsAreaForLaptop(x, y, width, height) {
     const geometry = new THREE.PlaneGeometry(1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const debugArea = new THREE.Mesh(geometry, material);
     this.add(debugArea);
 
     debugArea.scale.set(width, height, 1);
-    debugArea.position.copy(screen.getWorldPosition(new THREE.Vector3()));
+    debugArea.position.copy(this._laptopScreen.getWorldPosition(new THREE.Vector3()));
 
     const mountAngle = LAPTOP_MOUNT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
     const angleX = (LAPTOP_CONFIG.defaultAngle - LAPTOP_CONFIG.angle) * THREE.MathUtils.DEG2RAD;
@@ -52,6 +56,20 @@ export default class MonitorButtonsDebug extends THREE.Group {
 
     debugArea.translateOnAxis(new THREE.Vector3(1, 0, 0), x);
     debugArea.translateOnAxis(new THREE.Vector3(0, 1, 0), y + CURSOR_CONFIG.laptopScreenBottomOffset);
+    debugArea.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
+  }
+
+  _showDebugButtonsAreaForMonitor(x, y, width, height) {
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const debugArea = new THREE.Mesh(geometry, material);
+    this.add(debugArea);
+
+    debugArea.scale.set(width, height, 1);
+    debugArea.position.copy(this._monitorScreen.getWorldPosition(new THREE.Vector3()));
+
+    debugArea.translateOnAxis(new THREE.Vector3(1, 0, 0), x);
+    debugArea.translateOnAxis(new THREE.Vector3(0, 1, 0), y);
     debugArea.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
   }
 }

@@ -12,6 +12,9 @@ const textures = [
   'laptop-music-02-pause.jpg',
   'laptop-music-03-playing.jpg',
   'laptop-music-03-pause.jpg',
+  'monitor-screen.jpg',
+  'showreel-icon.jpg',
+  'close-icon.jpg',
 ];
 
 const models = [
