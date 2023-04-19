@@ -139,13 +139,13 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
 
     const songComeAndGetYourLove = MUSIC_TYPE.ComeAndGetYourLove;
     const songGiorgio = MUSIC_TYPE.Giorgio;
-    const songBigCityLife = MUSIC_TYPE.BigCityLife;
+    const songSeptember = MUSIC_TYPE.September;
     let selectedMusicType = songGiorgio;
 
     const songsName = {
       [songGiorgio]: `${MUSIC_CONFIG[songGiorgio].artist} - ${MUSIC_CONFIG[songGiorgio].song}`,
       [songComeAndGetYourLove]: `${MUSIC_CONFIG[songComeAndGetYourLove].artist} - ${MUSIC_CONFIG[songComeAndGetYourLove].song}`,
-      [songBigCityLife]: `${MUSIC_CONFIG[songBigCityLife].artist} - ${MUSIC_CONFIG[songBigCityLife].song}`,
+      [songSeptember]: `${MUSIC_CONFIG[songSeptember].artist} - ${MUSIC_CONFIG[songSeptember].song}`,
     }
 
     this._debugFolder.addBlade({
@@ -154,7 +154,7 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
       options: [
         { text: songsName[songGiorgio], value: songGiorgio },
         { text: songsName[songComeAndGetYourLove], value: songComeAndGetYourLove },
-        { text: songsName[songBigCityLife], value: songBigCityLife },
+        { text: songsName[songSeptember], value: songSeptember },
       ],
       value: songGiorgio,
     }).on('change', (musicType) => {
@@ -164,6 +164,10 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addButton({
       title: 'Play music',
     }).on('click', () => this.events.post('playMusic', selectedMusicType));
+
+    this._debugFolder.addButton({
+      title: 'Stop music',
+    }).on('click', () => this.events.post('stopMusic'));
   }
 
   _updateMusicName(dt) {

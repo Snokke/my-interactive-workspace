@@ -36,8 +36,8 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
       position: new THREE.Vector2(0.14, 0.67),
       size: new THREE.Vector2(0.92, 0.14),
     },
-    texturePlaying: 'laptop-music-01-on',
-    texturePause: 'laptop-music-01-off',
+    texturePlaying: 'laptop-music-01-playing',
+    texturePause: 'laptop-music-01-pause',
   },
   [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
     signalName: 'onLaptopScreenMusic02Click',
@@ -46,18 +46,18 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
       position: new THREE.Vector2(0.14, 0.48),
       size: new THREE.Vector2(0.92, 0.14),
     },
-    texturePlaying: 'laptop-music-01-on',
-    texturePause: 'laptop-music-01-off',
+    texturePlaying: 'laptop-music-02-playing',
+    texturePause: 'laptop-music-02-pause',
   },
   [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
     signalName: 'onLaptopScreenMusic03Click',
-    musicType: MUSIC_TYPE.BigCityLife,
+    musicType: MUSIC_TYPE.September,
     area: {
       position: new THREE.Vector2(0.14, 0.29),
       size: new THREE.Vector2(0.92, 0.14),
     },
-    texturePlaying: 'laptop-music-01-on',
-    texturePause: 'laptop-music-01-off',
+    texturePlaying: 'laptop-music-03-playing',
+    texturePause: 'laptop-music-03-pause',
   },
 }
 
@@ -72,10 +72,10 @@ const MUSIC_CONFIG = {
     song: 'Giorgio by Moroder',
     artist: 'Daft Punk',
   },
-  [MUSIC_TYPE.BigCityLife]: {
-    fileName: 'big_city_life',
-    song: 'Big City Life',
-    artist: 'Mattafix',
+  [MUSIC_TYPE.September]: {
+    fileName: 'september',
+    song: 'September',
+    artist: 'Earth, Wind & Fire',
   },
 }
 

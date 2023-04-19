@@ -131,8 +131,8 @@ export default class Speakers extends RoomObjectAbstract {
   _updateSongCurrentTime() {
     if (this._music.isPlaying) {
       this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
-      if (this._audioCurrentTime >= this._music.buffer.duration) {
-        console.log('end song');
+      if (this._audioCurrentTime >= this._music.buffer.duration - 0.05) {
+        this.events.post('onSongEnded');
       }
     } else {
       this._audioPrevTime = this._audioCurrentTime;
@@ -230,7 +230,9 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initLoaderSignals() {
-    Loader.events.on('onAudioLoaded', () => this._setCurrentMusic(this._currentMusicType))
+    Loader.events.on('onAudioLoaded', () => {
+      this._setCurrentMusic(this._currentMusicType)
+    });
   }
 
   _initSignals() {

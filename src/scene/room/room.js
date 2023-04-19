@@ -349,25 +349,32 @@ export default class Room extends THREE.Group {
   }
 
   _initLaptopMusicSignals() {
+    const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
+    const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
+
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const signalName = LAPTOP_SCREEN_MUSIC_CONFIG[partType].signalName;
       const musicType = LAPTOP_SCREEN_MUSIC_CONFIG[partType].musicType;
 
-      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on(signalName, () => this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].playMusic(musicType));
+      laptop.events.on(signalName, () => speakers.playMusic(musicType));
     });
+
+    speakers.events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
+    speakers.events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
+    speakers.events.on('onSongEnded', () => laptop.onSongEnded());
   }
 
   _initOtherSignals() {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
+    const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
+    const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
 
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse].events.on('onLeftKeyClick', () => this._onMouseLeftKeyClick());
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowStartOpening', () => speakers.onWindowOpened());
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].events.on('onWindowClosed', () => speakers.onWindowClosed());
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
+    laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
+    mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
+    mouse.events.on('onLeftKeyClick', () => this._onMouseLeftKeyClick());
+    walls.events.on('onWindowStartOpening', () => speakers.onWindowOpened());
+    walls.events.on('onWindowClosed', () => speakers.onWindowClosed());
 
     this._cursor.events.on('onLaptopButtonOver', (msg, buttonType) => laptop.onButtonOver(buttonType));
     this._cursor.events.on('onLaptopButtonOut', () => laptop.onButtonOut());

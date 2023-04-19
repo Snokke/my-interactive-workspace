@@ -56,10 +56,16 @@ const LAPTOP_POSITION_STATE = {
 }
 
 const MUSIC_TYPE = {
-  ComeAndGetYourLove: 'COME_AND_GET_YOUR_LOVE',
   Giorgio: 'GIORGIO',
-  BigCityLife: 'BIG_CITY_LIFE',
+  ComeAndGetYourLove: 'COME_AND_GET_YOUR_LOVE',
+  September: 'SEPTEMBER',
 }
+
+const MUSIC_ORDER = [
+  MUSIC_TYPE.Giorgio,
+  MUSIC_TYPE.ComeAndGetYourLove,
+  MUSIC_TYPE.September,
+]
 
 export {
   LAPTOP_PART_TYPE,
@@ -70,4 +76,5 @@ export {
   LAPTOP_POSITION_STATE,
   LAPTOP_SCREEN_MUSIC_PARTS,
   MUSIC_TYPE,
+  MUSIC_ORDER,
 }

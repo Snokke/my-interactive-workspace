@@ -6,8 +6,12 @@ const textures = [
   'cursor.png',
   'temperature.png',
   'laptop-screen.jpg',
-  'laptop-music-01-on.jpg',
-  'laptop-music-01-off.jpg',
+  'laptop-music-01-playing.jpg',
+  'laptop-music-01-pause.jpg',
+  'laptop-music-02-playing.jpg',
+  'laptop-music-02-pause.jpg',
+  'laptop-music-03-playing.jpg',
+  'laptop-music-03-pause.jpg',
 ];
 
 const models = [
@@ -22,12 +26,13 @@ const images = [
 const sounds = [
   'come_and_get_your_love.mp3',
   'giorgio.mp3',
-  'big_city_life.mp3',
+  'september.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');
 let progressRatio = 0;
 const blackAssetsProgressPart = 0;
+let isSoundsLoaded = false;
 
 export default class Loader extends GameObject {
   constructor() {
@@ -39,7 +44,7 @@ export default class Loader extends GameObject {
     this._threeJSManager = new THREE.LoadingManager(this._onThreeJSAssetsLoaded, this._onThreeJSAssetsProgress);
     this._blackManager = new AssetManager();
 
-    this._soundsLoaded = 0;
+    this._soundsCountLoaded = 0;
 
     this._loadBlackAssets();
   }
@@ -90,9 +95,14 @@ export default class Loader extends GameObject {
       }, 300);
     }, 300);
 
+
     setTimeout(() => {
       const customEvent = new Event('onLoad');
       document.dispatchEvent(customEvent);
+
+      if (isSoundsLoaded) {
+        Loader.events.post('onAudioLoaded');
+      }
     }, 100);
   }
 
@@ -138,9 +148,10 @@ export default class Loader extends GameObject {
       audioLoader.load(audioFullPath, (audioBuffer) => {
         this._onAssetLoad(audioBuffer, audioName);
 
-        this._soundsLoaded += 1;
+        this._soundsCountLoaded += 1;
 
-        if (this._soundsLoaded === sounds.length) {
+        if (this._soundsCountLoaded === sounds.length) {
+          isSoundsLoaded = true;
           Loader.events.post('onAudioLoaded');
         }
       });
