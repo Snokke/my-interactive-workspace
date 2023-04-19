@@ -30,6 +30,7 @@ const sounds = [
   'come_and_get_your_love.mp3',
   'giorgio.mp3',
   'september.mp3',
+  'the_stomp.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

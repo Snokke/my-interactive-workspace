@@ -7,7 +7,7 @@ import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
 import Cursor from './room-active-objects/mouse/cursor/cursor';
-import { LAPTOP_SCREEN_MUSIC_PARTS } from './room-active-objects/laptop/laptop-data';
+import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
 import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/monitor-data';
 
@@ -382,12 +382,20 @@ export default class Room extends THREE.Group {
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => speakers.onWindowOpened());
     walls.events.on('onWindowClosed', () => speakers.onWindowClosed());
+    monitor.events.on('onShowreelStart', () => this._onShowreelStart());
+    monitor.events.on('onShowreelStop', () => speakers.changeMusic(MUSIC_TYPE.TheStomp));
+  }
+
+  _onShowreelStart() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].stopCurrentMusic();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].playMusic(MUSIC_TYPE.TheStomp);
   }
 
   _onMouseOnButtonClick(buttonType) {

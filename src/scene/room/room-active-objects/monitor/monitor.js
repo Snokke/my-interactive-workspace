@@ -19,6 +19,9 @@ export default class Monitor extends RoomObjectAbstract {
     this._screenGroup = null;
     this._arrowsTween = null;
     this._helpArrows = null;
+    this._screenTexture = null;
+    this._showreelTexture = null;
+    this._showreelVideoElement = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -27,6 +30,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._previousPositionZ = 0;
 
     this._isMountSelected = false;
+    this._isShowreelPlaying = false;
 
     this._init();
   }
@@ -91,7 +95,6 @@ export default class Monitor extends RoomObjectAbstract {
 
     if (MONITOR_SCREEN_BUTTONS.includes(partType)) {
       this._onButtonsClick(partType);
-
     }
   }
 
@@ -186,7 +189,38 @@ export default class Monitor extends RoomObjectAbstract {
   _onButtonsClick(partType) {
     this._isMountSelected = false;
 
-    console.log(partType);
+    if (partType === MONITOR_PART_TYPE.MonitorScreenShowreelIcon && !this._isShowreelPlaying) {
+      this._playShowreel();
+    }
+
+    if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon && this._isShowreelPlaying) {
+      this._stopShowreel();
+    }
+  }
+
+  _playShowreel() {
+    this._isShowreelPlaying = true;
+
+    this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = true;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon].visible = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._showreelTexture;
+
+    this._showreelVideoElement.play();
+
+    this.events.post('onShowreelStart');
+  }
+
+  _stopShowreel() {
+    this._isShowreelPlaying = false;
+
+    this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon].visible = true;
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._screenTexture;
+
+    this._showreelVideoElement.pause();
+    this._showreelVideoElement.currentTime = 0;
+
+    this.events.post('onShowreelStop');
   }
 
   _updatePosition() {
@@ -273,7 +307,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _initScreenTexture() {
-    const texture = Loader.assets['monitor-screen'];
+    const texture = this._screenTexture = Loader.assets['monitor-screen'];
 
     const material = new THREE.MeshBasicMaterial({
       map: texture,
@@ -302,7 +336,7 @@ export default class Monitor extends RoomObjectAbstract {
         uLineAngle: { value: sparkleConfig.angle * THREE.MathUtils.DEG2RAD },
         uSpeed: { value: sparkleConfig.speed },
         uLineMovingWidth: { value: sparkleConfig.movingWidth },
-      }
+      };
 
       part.material = new THREE.ShaderMaterial({
         uniforms,
@@ -310,20 +344,23 @@ export default class Monitor extends RoomObjectAbstract {
         fragmentShader: fragmentShader,
       });
     });
+
+    this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
   }
 
   _initShowreelVideo() {
-    // const videoElement = document.createElement('video');
-    // videoElement.muted = true;
-    // videoElement.loop = true;
-    // videoElement.controls = true;
-    // videoElement.playsInline = true;
-    // videoElement.autoplay = true;
-    // videoElement.src = '/video/games_showreel.mp4';
-    // videoElement.play();
+    const videoElement = this._showreelVideoElement = document.createElement('video');
+    videoElement.muted = true;
+    videoElement.controls = true;
+    videoElement.playsInline = true;
+    videoElement.src = '/video/games_showreel_360.mp4';
 
-    // const texture = new THREE.VideoTexture(videoElement);
-    // texture.encoding = THREE.sRGBEncoding;
+    videoElement.addEventListener('ended', () => {
+      this._stopShowreel();
+    });
+
+    const texture = this._showreelTexture = new THREE.VideoTexture(videoElement);
+    texture.encoding = THREE.sRGBEncoding;
   }
 
   _initArrows() {

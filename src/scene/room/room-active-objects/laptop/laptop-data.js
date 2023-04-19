@@ -59,6 +59,7 @@ const MUSIC_TYPE = {
   Giorgio: 'GIORGIO',
   ComeAndGetYourLove: 'COME_AND_GET_YOUR_LOVE',
   September: 'SEPTEMBER',
+  TheStomp: 'THE_STOMP',
 }
 
 const MUSIC_ORDER = [

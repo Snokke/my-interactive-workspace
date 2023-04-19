@@ -71,6 +71,11 @@ const MUSIC_CONFIG = {
     song: 'September',
     artist: 'Earth, Wind & Fire',
   },
+  [MUSIC_TYPE.TheStomp]: {
+    fileName: 'the_stomp',
+    song: 'Showreel video',
+    artist: '',
+  },
 }
 
 export {

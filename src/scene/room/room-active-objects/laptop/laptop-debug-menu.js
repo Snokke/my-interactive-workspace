@@ -50,7 +50,7 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
 
     const artist = MUSIC_CONFIG[this._currentMusic].artist;
     const song = MUSIC_CONFIG[this._currentMusic].song;
-    this._currentSong = ` ${artist} - ${song} `;
+    this._currentSong = artist === '' ? ` ${song} ` : ` ${artist} - ${song} `;
 
     this._longSongName = false;
 

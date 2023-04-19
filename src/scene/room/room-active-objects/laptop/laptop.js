@@ -179,6 +179,15 @@ export default class Laptop extends RoomObjectAbstract {
     this._switchMusic(partType);
   }
 
+  stopCurrentMusic() {
+    if (LAPTOP_CONFIG.currentMusicType) {
+      const previousPartType = this._getPartTypeByMusicType(LAPTOP_CONFIG.currentMusicType);
+      this._setPartTexturePause(previousPartType);
+
+      LAPTOP_CONFIG.currentMusicType = null;
+    }
+  }
+
   updateCurrentSongTime(time) {
     this._debugMenu.updateCurrentSongTime(time);
   }
@@ -414,7 +423,7 @@ export default class Laptop extends RoomObjectAbstract {
 
   _getPartTypeByMusicType(musicType) {
     const partType = Object.keys(LAPTOP_SCREEN_MUSIC_CONFIG.buttons).find((key) => {
-      return LAPTOP_SCREEN_MUSIC_CONFIG[key].musicType === musicType;
+      return LAPTOP_SCREEN_MUSIC_CONFIG.buttons[key].musicType === musicType;
     });
 
     return partType;
