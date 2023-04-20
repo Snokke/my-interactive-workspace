@@ -125,10 +125,18 @@ export default class Scene3DDebugMenu {
     if (DEBUG_CONFIG.orbitControls) {
       const orbitControls = this._orbitControls = new OrbitControls(this._camera, Black.engine.containerElement);
       orbitControls.enableDamping = true;
-      orbitControls.rotateSpeed = 0.7;
+      orbitControls.dampingFactor = 0.04;
+      orbitControls.rotateSpeed = 0.5;
 
       orbitControls.target.set(0, 3.5, 0);
-      // orbitControls.target.set(-0.5, 3.5, -0.8);
+
+      orbitControls.minPolarAngle = 0;
+      orbitControls.maxPolarAngle = Math.PI * 0.5;
+
+      orbitControls.minDistance = 2;
+      orbitControls.maxDistance = 50;
+
+      orbitControls.panSpeed = 0.5;
 
       if (!this._isAssetsLoaded) {
         orbitControls.enabled = false;
