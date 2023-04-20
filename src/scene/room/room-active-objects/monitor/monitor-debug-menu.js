@@ -8,6 +8,7 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
     this._positionController = null;
     this._arm01AngleController = null;
     this._arm02AngleController = null;
+    this._playShowreelButton = null;
 
     this._init();
     this._checkToDisableFolder();
@@ -22,7 +23,21 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
     this._arm02AngleController.refresh();
   }
 
+  updateShowreelButton(videoPlaying) {
+    if (videoPlaying) {
+      this._playShowreelButton.title = 'Stop Showreel video';
+    } else {
+      this._playShowreelButton.title = 'Play Showreel video';
+    }
+  }
+
   _init() {
+    this._playShowreelButton = this._debugFolder.addButton({
+      title: 'Play Showreel video',
+    }).on('click', () => this.events.post('onPlayShowreelVideo'));
+
+    this._debugFolder.addSeparator();
+
     this._positionController = this._debugFolder.addInput(MONITOR_CONFIG, 'positionZ', {
       label: 'Position z',
       min: MONITOR_CONFIG.minZ,

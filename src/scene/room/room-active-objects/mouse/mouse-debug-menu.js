@@ -42,6 +42,12 @@ export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   }
 
   _init() {
+    this._debugFolder.addButton({
+      title: 'Left key click',
+    }).on('click', () => this.events.post('onLeftKeyClick'));
+
+    this._debugFolder.addSeparator();
+
     this._debugFolder.addInput(MOUSE_CONFIG.movingArea, 'showDebugPlane', {
       label: 'Show area',
     }).on('change', (showDebugPlane) => {

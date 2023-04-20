@@ -235,12 +235,13 @@ export default class Cursor extends THREE.Group {
         .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(angleX, 0, 0)));
 
       this._view.setRotationFromQuaternion(quaternion);
+      this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen - 0.005);
     } else {
       this._view.rotation.copy(new THREE.Euler(0, 0, 0));
+      this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
     }
 
     this._clickCircle.rotation.copy(this._view.rotation);
-    this._view.translateOnAxis(new THREE.Vector3(0, 0, 1), CURSOR_CONFIG.offsetZFromScreen);
   }
 
   _updateViewPosition() {
@@ -251,7 +252,7 @@ export default class Cursor extends THREE.Group {
     const pointerPosition = new THREE.Vector3(
       this._view.position.x - this._getCursorData().cursorHalfWidth + 0.01,
       this._view.position.y + this._getCursorData().cursorHalfHeight,
-      this._view.position.z + CURSOR_CONFIG.clickCircleOffsetZFromScreen,
+      this._view.position.z - CURSOR_CONFIG.clickCircleOffsetZFromScreen,
     );
 
     this._clickCircle.position.copy(pointerPosition);

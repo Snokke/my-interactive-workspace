@@ -25,6 +25,8 @@ export default class Mouse extends RoomObjectAbstract {
     this._currentPosition = new THREE.Vector3();
     this._previousPosition = new THREE.Vector3();
 
+    this._isMouseClick = false;
+
     this._init();
   }
 
@@ -87,6 +89,10 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   onPointerMove(raycaster) {
+    if (!this._isMouseClick) {
+      return;
+    }
+
     const planeIntersect = new THREE.Vector3();
 
     raycaster.ray.intersectPlane(this._plane, planeIntersect);
@@ -115,14 +121,18 @@ export default class Mouse extends RoomObjectAbstract {
     return new Vector2(this._currentPosition.x, this._currentPosition.z);
   }
 
-  onPointerOver() {
+  onPointerOver(mesh) {
     if (this._isPointerOver) {
       return;
     }
 
     super.onPointerOver();
 
-    this._helpArrows.show();
+    const partType = mesh.userData.partType;
+
+    if (partType === MOUSE_PART_TYPE.Body) {
+      this._helpArrows.show();
+    }
   }
 
   onPointerOut() {
@@ -136,12 +146,14 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   _onMouseClick(intersect) {
+    this._isMouseClick = true;
     const pIntersect = new THREE.Vector3().copy(intersect.point);
     this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
     this._shift.subVectors(intersect.object.position, intersect.point);
   }
 
   _onLeftKeyClick() {
+    this._isMouseClick = false;
     this.events.post('onLeftKeyClick');
   }
 
@@ -209,6 +221,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._debugMenu.events.on('onDistanceToShowBorderChanged', () => this._onDistanceToShowBorderChanged());
     this._debugMenu.events.on('onBorderColorUpdated', () => this._onBorderColorUpdated());
     this._debugMenu.events.on('onCursorScaleChanged', () => this._onCursorScaleChanged());
+    this._debugMenu.events.on('onLeftKeyClick', () => this._onLeftKeyClick());
   }
 
   _onDebugPositionChanged(position) {

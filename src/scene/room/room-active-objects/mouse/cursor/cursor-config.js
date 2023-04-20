@@ -9,7 +9,7 @@ const CURSOR_CONFIG = {
   laptopScreenSizeY: 0.965,
   monitorBottomOffsetToNotTransferCursor: 0.06,
   offsetZFromScreen: 0.01,
-  clickCircleOffsetZFromScreen: 0.01,
+  clickCircleOffsetZFromScreen: 0.005,
 }
 
 export { CURSOR_CONFIG };

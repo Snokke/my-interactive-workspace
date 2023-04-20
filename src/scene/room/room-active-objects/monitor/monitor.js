@@ -375,6 +375,18 @@ export default class Monitor extends RoomObjectAbstract {
     this._debugMenu.events.on('onPositionChanged', (msg, position) => {
       this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
     });
+
+    this._debugMenu.events.on('onPlayShowreelVideo', () => this._onDebugPlayShowreelVideo());
+  }
+
+  _onDebugPlayShowreelVideo() {
+    if (this._isShowreelPlaying) {
+      this._stopShowreel();
+    } else {
+      this._playShowreel();
+    }
+
+    this._debugMenu.updateShowreelButton(this._isShowreelPlaying);
   }
 
   _getPartsWithoutButtons() {
