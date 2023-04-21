@@ -31,6 +31,7 @@ export default class Monitor extends RoomObjectAbstract {
 
     this._isMountSelected = false;
     this._isShowreelPlaying = false;
+    this._isShowreelPaused = false;
 
     this._init();
   }
@@ -115,14 +116,14 @@ export default class Monitor extends RoomObjectAbstract {
     this._updatePosition();
   }
 
-  onPointerOver(mesh) {
+  onPointerOver(intersect) {
     if (this._isPointerOver) {
       return;
     }
 
     super.onPointerOver();
 
-    const partType = mesh.userData.partType;
+    const partType = intersect.object.userData.partType;
 
     if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
       this._helpArrows.show();
@@ -154,6 +155,22 @@ export default class Monitor extends RoomObjectAbstract {
 
   onButtonOut() {
     this._clearButtonsColor();
+  }
+
+  stopShowreelVideo() {
+    if (this._isShowreelPlaying) {
+      this._stopShowreel();
+    }
+  }
+
+  pauseShowreelVideo() {
+    if (this._isShowreelPlaying) {
+      if (this._isShowreelPaused) {
+        this._resumeShowreel();
+      } else {
+        this._pauseShowreel();
+      }
+    }
   }
 
   getMeshesForOutline(mesh) {
@@ -212,6 +229,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _stopShowreel() {
     this._isShowreelPlaying = false;
+    this._isShowreelPaused = false;
 
     this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
     this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon].visible = true;
@@ -221,6 +239,20 @@ export default class Monitor extends RoomObjectAbstract {
     this._showreelVideoElement.currentTime = 0;
 
     this.events.post('onShowreelStop');
+  }
+
+  _pauseShowreel() {
+    this._isShowreelPaused = true;
+
+    this._showreelVideoElement.pause();
+    this.events.post('onShowreelPause');
+  }
+
+  _resumeShowreel() {
+    this._isShowreelPaused = false;
+
+    this._showreelVideoElement.play();
+    this.events.post('onShowreelPause');
   }
 
   _updatePosition() {

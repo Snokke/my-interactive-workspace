@@ -129,14 +129,14 @@ export default class Laptop extends RoomObjectAbstract {
     this._previousArmMountAngle = angle;
   }
 
-  onPointerOver(mesh) {
+  onPointerOver(intersect) {
     if (this._isPointerOver) {
       return;
     }
 
     super.onPointerOver();
 
-    const partType = mesh.userData.partType;
+    const partType = intersect.object.userData.partType;
 
     if (LAPTOP_MOUNT_PARTS.includes(partType)) {
       this._helpArrows.show();

@@ -6,7 +6,7 @@ import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CO
 import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './air-conditioner-config';
 import Loader from '../../../../core/loader';
-import SnowflakeParticles from './snowflake-particels';
+import SnowflakeParticles from './snowflake-particles/snowflake-particels';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {

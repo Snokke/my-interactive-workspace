@@ -121,14 +121,14 @@ export default class Mouse extends RoomObjectAbstract {
     return new Vector2(this._currentPosition.x, this._currentPosition.z);
   }
 
-  onPointerOver(mesh) {
+  onPointerOver(intersect) {
     if (this._isPointerOver) {
       return;
     }
 
     super.onPointerOver();
 
-    const partType = mesh.userData.partType;
+    const partType = intersect.object.userData.partType;
 
     if (partType === MOUSE_PART_TYPE.Body) {
       this._helpArrows.show();

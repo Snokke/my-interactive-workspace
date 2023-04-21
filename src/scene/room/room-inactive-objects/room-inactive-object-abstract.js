@@ -15,6 +15,8 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
     this._init();
   }
 
+  update(dt) { }
+
   showWithAnimation(delay) {
     const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 

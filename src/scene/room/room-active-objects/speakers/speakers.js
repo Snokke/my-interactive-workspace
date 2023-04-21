@@ -128,6 +128,18 @@ export default class Speakers extends RoomObjectAbstract {
     this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.closedWindowOuterGain);
   }
 
+  onShowreelPause() {
+    if (this._currentMusicType === MUSIC_TYPE.TheStomp) {
+      this.playMusic(MUSIC_TYPE.TheStomp);
+    }
+  }
+
+  onShowreelStop() {
+    if (this._currentMusicType === MUSIC_TYPE.TheStomp) {
+      this.changeMusic(MUSIC_TYPE.TheStomp);
+    }
+  }
+
   _updateSongCurrentTime() {
     if (this._music.isPlaying) {
       this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;

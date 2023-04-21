@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import vertexShader from './snowflake-particles-shaders/snowflake-particles-vertex.glsl';
 import fragmentShader from './snowflake-particles-shaders/snowflake-particles-fragment.glsl';
-import { SNOWFLAKE_PARTICLES_CONFIG } from './air-conditioner-config';
+import { SNOWFLAKE_PARTICLES_CONFIG } from '../air-conditioner-config';
 
 export default class SnowflakeParticles extends THREE.Group {
   constructor() {

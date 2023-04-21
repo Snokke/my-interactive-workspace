@@ -19,6 +19,7 @@ const textures = [
 
 const models = [
   'room.glb',
+  'keyboard-key.glb',
 ];
 
 const images = [

@@ -3,18 +3,27 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { KEYBOARD_PART_TYPE } from './keyboard-data';
-import vertexShader from './key-highlight-shaders/key-highlight-vertex.glsl';
-import fragmentShader from './key-highlight-shaders/key-highlight-fragment.glsl';
-import { KEYS_POSITION, KEYBOARD_CONFIG, KEY_HIGHLIGHT_CONFIG } from './keyboard-config';
+import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './keyboard-data';
+import KeyHighlights from './key-highlights/key-highlights';
+import Loader from '../../../../core/loader';
+import { KEYS_CONFIG } from './keys-config';
+import { KEYBOARD_CONFIG } from './keyboard-config';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
-    this._highlights = null;
+    this._keysGroup = null;
+    this._keyHighlights = null;
+    this._keysCount = 0;
+    this._keysTweens = [];
+    this._keysHighlightTweens = [];
 
     this._init();
+  }
+
+  update(dt) {
+    this._keyHighlights.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -44,7 +53,140 @@ export default class Keyboard extends RoomObjectAbstract {
       return;
     }
 
-    console.log('Keyboard click');
+    const roomObject = intersect.object;
+    const partType = roomObject.userData.partType;
+
+    if (partType === KEYBOARD_PART_TYPE.Base) {
+      this._keyHighlights.switchType();
+    }
+
+    if (partType === KEYBOARD_PART_TYPE.Keys) {
+      this._onKeyClick(intersect);
+    }
+  }
+
+  onPointerOver(intersect) {
+    if (this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOver();
+
+    const roomObject = intersect.object;
+    const type = roomObject.userData.partType;
+
+    if (type === KEYBOARD_PART_TYPE.Keys) {
+      this._showKeyHighlight(intersect);
+    }
+  }
+
+  onPointerOut() {
+    if (!this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOut();
+
+    this._stopHighlightTweens();
+    this._setKeysDefaultColors();
+  }
+
+  getMeshesForOutline(mesh) {
+    return [mesh];
+  }
+
+  _onKeyClick(intersect) {
+    const keyId = intersect.instanceId;
+
+    if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
+      return;
+    }
+
+    this._onActiveKeysClick(keyId);
+
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const startPosition = new THREE.Vector3();
+    const movingDistance = { value: 0 };
+
+    keys.getMatrixAt(keyId, matrix);
+    position.setFromMatrixPosition(matrix);
+    startPosition.copy(position.clone());
+
+    this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
+      .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .onUpdate(() => {
+        position.y = startPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = startPosition.z - Math.sin(keysAngle) * movingDistance.value;
+        matrix.setPosition(position);
+
+        keys.setMatrixAt(keyId, matrix);
+        keys.instanceMatrix.needsUpdate = true;
+      })
+      .yoyo(true)
+      .repeat(1)
+      .start();
+  }
+
+  _onActiveKeysClick(keyId) {
+    if (keyId === 15) { // change highlight type
+      this._keyHighlights.switchType();
+    }
+
+    if (keyId === 0) { // ESC
+      this.events.post('onKeyboardEscClick');
+    }
+
+    if (keyId === 79) { // Backspace
+      this.events.post('onKeyboardBackspaceClick');
+    }
+  }
+
+  _showKeyHighlight(intersect) {
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const keyId = intersect.instanceId;
+    const keyConfig = KEYS_CONFIG[keyId];
+    const keyColor = KEY_COLOR_CONFIG[keyConfig.colorType];
+    const startColor = new THREE.Color().lerpColors(keyColor, KEYBOARD_CONFIG.keys.highlightColor, 0.2);
+
+    const object = { value: 0 };
+
+    this._keysHighlightTweens[keyId] = new TWEEN.Tween(object)
+      .to({ value: 1 }, 700)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .yoyo(true)
+      .repeat(Infinity)
+      .start()
+      .onUpdate(() => {
+        const color = new THREE.Color().lerpColors(startColor, KEYBOARD_CONFIG.keys.highlightColor, object.value);
+
+        keys.setColorAt(keyId, color);
+        keys.instanceColor.needsUpdate = true;
+      });
+  }
+
+  _setKeysDefaultColors() {
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+
+    for (let i = 0; i < this._keysCount; i++) {
+      const keyConfig = KEYS_CONFIG[i];
+      const color = KEY_COLOR_CONFIG[keyConfig.colorType];
+      keys.setColorAt(i, color);
+    }
+
+    keys.instanceColor.needsUpdate = true;
+  }
+
+  _stopHighlightTweens() {
+    this._keysHighlightTweens.forEach((tween) => {
+      if (tween && tween.isPlaying()) {
+        tween.stop();
+      }
+    });
   }
 
   _init() {
@@ -53,6 +195,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
     this._addMaterials();
     this._addPartsToScene();
+    this._initKeys();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -61,90 +204,102 @@ export default class Keyboard extends RoomObjectAbstract {
     for (const partName in this._parts) {
       const part = this._parts[partName];
       const material = new THREE.MeshStandardMaterial({
-        color: `hsl(${Math.random() * 360}, 80%, 50%)`,
-        transparent: true,
-        // opacity: 0.5,
+        // color: `hsl(${Math.random() * 360}, 80%, 50%)`,
+        color: 0x333333,
       });
 
       part.material = material;
     }
   }
 
-  _initHighlights() {
-    this._initHighlightsInstanceMesh();
-    this._setHighlightsPosition();
+  _initKeys() {
+    this._initKeysGroup();
+    this._initInstancedKeys();
+    this._setKeysPositions();
   }
 
-  _initHighlightsInstanceMesh() {
-    const size = KEY_HIGHLIGHT_CONFIG.size;
-    const geometry = new THREE.PlaneGeometry(size, size);
-    const material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      transparent: true,
-      // depthWrite: false,
-      // alphaTest: 0.9,
-    });
+  _initKeysGroup() {
+    const keysGroup = this._keysGroup = new THREE.Group();
+    this.add(keysGroup);
 
-    const highlightCount = KEYS_POSITION.length;
-    const highlights = this._highlights = new THREE.InstancedMesh(geometry, material, highlightCount);
-    this.add(highlights);
-  }
-
-  _setHighlightsPosition() {
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
+    keysGroup.position.copy(base.position);
+  }
 
-    this._highlights.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  _initInstancedKeys() {
+    const keyModel = Loader.assets['keyboard-key'];
+    const keyMesh = keyModel.scene.children[0];
+    const geometry = keyMesh.geometry;
+
+    const material = new THREE.MeshStandardMaterial();
+
+    const keysCount = this._keysCount = KEYS_CONFIG.length;
+
+    const keys = new THREE.InstancedMesh(geometry, material, keysCount);
+    this._keysGroup.add(keys);
+
+    KEYBOARD_PART_TYPE['Keys'] = 'keyboard_keys';
+    this._parts[KEYBOARD_PART_TYPE.Keys] = keys;
+
+    KEYBOARD_PART_ACTIVITY_CONFIG[KEYBOARD_PART_TYPE.Keys] = true;
+
+    keys.name = KEYBOARD_PART_TYPE.Keys;
+    keys.userData['isActive'] = true;
+    keys.userData['objectType'] = this._roomObjectType;
+    keys.userData['partType'] = KEYBOARD_PART_TYPE.Keys;
+
+    this._allMeshes.push(keys);
+    this._activeMeshes.push(keys);
+  }
+
+  _setKeysPositions() {
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    keys.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
     const dummy = new THREE.Object3D();
 
     const keyboardSize = KEYBOARD_CONFIG.size;
-    const offsetLeft = KEYBOARD_CONFIG.offsetLeft;
-    const offsetTop = KEYBOARD_CONFIG.offsetTop;
+    const offsetLeft = KEYBOARD_CONFIG.keys.offsetX;
+    const offsetTop = KEYBOARD_CONFIG.keys.offsetZ;
 
-    const leftX = base.position.x - keyboardSize.x * 0.5 + offsetLeft;
-    const heightY = base.position.y + keyboardSize.y * 0.5;
-    const topZ = base.position.z - keyboardSize.z * 0.5 + offsetTop;
+    const leftX = -keyboardSize.x * 0.5 + offsetLeft;
+    const heightY = keyboardSize.y * 0.5;
+    const topZ = -keyboardSize.z * 0.5 + offsetTop;
 
-    const highlightCount = KEYS_POSITION.length;
+    for (let i = 0; i < this._keysCount; i += 1) {
+      const keyConfig = KEYS_CONFIG[i];
 
-    for (let i = 0; i < highlightCount; i += 1) {
-      const highlightPosition = KEYS_POSITION[i].position;
+      dummy.position.set(leftX + keyConfig.position.x, heightY + keyConfig.position.y, topZ - keyConfig.position.z);
+      dummy.rotation.x = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+      dummy.scale.set(keyConfig.scaleX, 1, 1);
+      dummy.translateOnAxis(new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD), KEYBOARD_CONFIG.keys.offsetYFromKeyboard);
 
-      dummy.position.set(leftX + highlightPosition.x, heightY + highlightPosition.y, topZ - highlightPosition.z);
-      dummy.rotation.x = -Math.PI * 0.5 + KEY_HIGHLIGHT_CONFIG.angle * THREE.MathUtils.DEG2RAD;
       dummy.updateMatrix();
 
-      this._highlights.setMatrixAt(i, dummy.matrix);
+      keys.setMatrixAt(i, dummy.matrix);
 
-      const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
-      this._highlights.setColorAt(i, randomColor);
+      const color = KEY_COLOR_CONFIG[keyConfig.colorType];
+      keys.setColorAt(i, color);
+
+      this._keysTweens.push();
+      this._keysHighlightTweens.push();
     }
 
-    this._highlights.instanceMatrix.needsUpdate = true;
-    this._highlights.instanceColor.needsUpdate = true;
+    keys.instanceMatrix.needsUpdate = true;
+    keys.instanceColor.needsUpdate = true;
+  }
 
-    // const object = {
-    //   value: 0,
-    // }
+  _initHighlights() {
+    const keyHighlights = this._keyHighlights = new KeyHighlights();
+    this.add(keyHighlights);
 
-    // new TWEEN.Tween(object)
-    //     .to({ value: 1 }, 5000)
-    //     .easing(TWEEN.Easing.Sinusoidal.Out)
-    //     .start()
-    //     .onUpdate(() => {
-    //       const color = new THREE.Color().lerpColors(new THREE.Color(0xff0000), new THREE.Color(0x00ff00), object.value);
-
-    //       for (let i = 0; i < 10; i += 1) {
-    //         highlight.setColorAt(i, color);
-    //       }
-
-    //       highlight.instanceColor.needsUpdate = true;
-    //     });
+    const base = this._parts[KEYBOARD_PART_TYPE.Base];
+    keyHighlights.position.copy(base.position);
   }
 
   _initSignals() {
     this._debugMenu.events.on('switchOn', () => {
-      this.onClick();
+
     });
   }
 }

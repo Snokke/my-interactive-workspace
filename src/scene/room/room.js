@@ -44,15 +44,19 @@ export default class Room extends THREE.Group {
     const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
 
     if (intersect && intersect.object && !this._draggingObject) {
-      this._checkToGlow(intersect.object);
+      this._checkToGlow(intersect);
     }
 
-    if (intersect === null) {
+    if (intersect === null || intersect.instanceId !== undefined) {
       this._resetGlow();
     }
 
     for (const objectType in this._roomActiveObject) {
       this._roomActiveObject[objectType].update(dt);
+    }
+
+    for (const objectType in this._roomInactiveObject) {
+      this._roomInactiveObject[objectType].update(dt);
     }
 
     this._cursor.update(dt);
@@ -171,8 +175,10 @@ export default class Room extends THREE.Group {
     }
   }
 
-  _checkToGlow(mesh) {
-    if (mesh === null || !mesh.userData.isActive || !this._roomActiveObject[mesh.userData.objectType].isInputEnabled() || !ROOM_OBJECT_ENABLED_CONFIG[mesh.userData.objectType]) {
+  _checkToGlow(intersect) {
+    const object = intersect.object;
+
+    if (object === null || !object.userData.isActive || !this._roomActiveObject[object.userData.objectType].isInputEnabled() || !ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType]) {
       this._resetGlow();
       Black.engine.containerElement.style.cursor = 'auto';
 
@@ -183,15 +189,20 @@ export default class Room extends THREE.Group {
       return;
     }
 
-    const roomObject = this._roomActiveObject[mesh.userData.objectType];
-    const meshes = roomObject.getMeshesForOutline(mesh);
-    this._glowMeshesNames = meshes.map(mesh => mesh.name);
+    const roomObject = this._roomActiveObject[object.userData.objectType];
+    const meshes = roomObject.getMeshesForOutline(object);
+
+    if (meshes.length === 1 && this._isInstancedObject(meshes[0])) {
+      this._glowMeshesNames = [`${meshes[0].name}${intersect.instanceId}`];
+    } else {
+      this._glowMeshesNames = meshes.map(mesh => mesh.name);
+    }
 
     if (!this._arraysEqual(this._glowMeshesNames, this._previousGlowMeshesNames)) {
       this._resetRoomObjectsPointerOver();
 
       this._setGlow(meshes);
-      roomObject.onPointerOver(mesh);
+      roomObject.onPointerOver(intersect);
       Black.engine.containerElement.style.cursor = 'pointer';
     }
 
@@ -199,7 +210,7 @@ export default class Room extends THREE.Group {
   }
 
   _setGlow(items) {
-    if (ROOM_CONFIG.outlineEnabled && !DEBUG_CONFIG.wireframe) {
+    if (ROOM_CONFIG.outlineEnabled && !DEBUG_CONFIG.wireframe && !this._isInstancedObject(items[0])) {
       this._outlinePass.selectedObjects = items;
     }
   }
@@ -229,6 +240,10 @@ export default class Room extends THREE.Group {
       this._hideAllOtherObjectsDebugMenu(roomObject);
       roomObject.openDebugMenu();
     }
+  }
+
+  _isInstancedObject(object) {
+    return object instanceof THREE.InstancedMesh;
   }
 
   _init() {
@@ -335,6 +350,7 @@ export default class Room extends THREE.Group {
     this._initDebugShowAnimationSignals();
     this._initLaptopMusicSignals();
     this._initCursorSignals();
+    this._initKeyboardSignals();
     this._initOtherSignals();
   }
 
@@ -377,6 +393,14 @@ export default class Room extends THREE.Group {
     this._cursor.events.on('onLeftKeyClick', (msg, buttonType) => this._onMouseOnButtonClick(buttonType));
   }
 
+  _initKeyboardSignals() {
+    const keyboard = this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard];
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+
+    keyboard.events.on('onKeyboardEscClick', () => monitor.stopShowreelVideo());
+    keyboard.events.on('onKeyboardBackspaceClick', () => monitor.pauseShowreelVideo());
+  }
+
   _initOtherSignals() {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
@@ -390,7 +414,8 @@ export default class Room extends THREE.Group {
     walls.events.on('onWindowStartOpening', () => speakers.onWindowOpened());
     walls.events.on('onWindowClosed', () => speakers.onWindowClosed());
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
-    monitor.events.on('onShowreelStop', () => speakers.changeMusic(MUSIC_TYPE.TheStomp));
+    monitor.events.on('onShowreelStop', () => speakers.onShowreelStop());
+    monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
   }
 
   _onShowreelStart() {
@@ -434,6 +459,10 @@ export default class Room extends THREE.Group {
   }
 
   _arraysEqual(a, b) {
+    if (a.length !== b.length) {
+      return false;
+    }
+
     for (let i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) {
         return false;
