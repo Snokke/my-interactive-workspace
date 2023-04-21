@@ -104,6 +104,7 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     this._onActiveKeysClick(keyId);
+    this._keyHighlights.onKeyClick(keyId);
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
@@ -207,7 +208,7 @@ export default class Keyboard extends RoomObjectAbstract {
       const part = this._parts[partName];
       const material = new THREE.MeshStandardMaterial({
         // color: `hsl(${Math.random() * 360}, 80%, 50%)`,
-        color: 0x333333,
+        color: 0x111111,
       });
 
       part.material = material;
