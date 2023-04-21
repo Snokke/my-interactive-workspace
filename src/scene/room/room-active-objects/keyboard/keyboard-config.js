@@ -8,7 +8,7 @@ const KEYBOARD_CONFIG = {
     angle: 6.5,
     offsetYFromKeyboard: 0.03,
     movingDistance: 0.016,
-    highlightColor: new THREE.Color(0x00ff00),
+    highlightColor: 0x00ff00,
   },
 }
 

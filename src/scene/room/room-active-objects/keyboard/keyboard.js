@@ -18,6 +18,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keysCount = 0;
     this._keysTweens = [];
     this._keysHighlightTweens = [];
+    this._keysStartPosition = [];
 
     this._init();
   }
@@ -99,29 +100,29 @@ export default class Keyboard extends RoomObjectAbstract {
     const keyId = intersect.instanceId;
 
     if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
-      return;
+      this._keysTweens[keyId].stop();
     }
 
     this._onActiveKeysClick(keyId);
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    const keyStartPosition = this._keysStartPosition[keyId];
 
     const matrix = new THREE.Matrix4();
     const position = new THREE.Vector3();
-    const startPosition = new THREE.Vector3();
-    const movingDistance = { value: 0 };
 
     keys.getMatrixAt(keyId, matrix);
     position.setFromMatrixPosition(matrix);
-    startPosition.copy(position.clone());
+
+    const movingDistance = { value: 0 };
 
     this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
       .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
       .easing(TWEEN.Easing.Sinusoidal.InOut)
       .onUpdate(() => {
-        position.y = startPosition.y - Math.cos(keysAngle) * movingDistance.value;
-        position.z = startPosition.z - Math.sin(keysAngle) * movingDistance.value;
+        position.y = keyStartPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = keyStartPosition.z - Math.sin(keysAngle) * movingDistance.value;
         matrix.setPosition(position);
 
         keys.setMatrixAt(keyId, matrix);
@@ -133,7 +134,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _onActiveKeysClick(keyId) {
-    if (keyId === 15) { // change highlight type
+    if (keyId === 15) { // Change highlight type key
       this._keyHighlights.switchType();
     }
 
@@ -141,7 +142,7 @@ export default class Keyboard extends RoomObjectAbstract {
       this.events.post('onKeyboardEscClick');
     }
 
-    if (keyId === 79) { // Backspace
+    if (keyId === 79) { // Space
       this.events.post('onKeyboardBackspaceClick');
     }
   }
@@ -151,7 +152,8 @@ export default class Keyboard extends RoomObjectAbstract {
     const keyId = intersect.instanceId;
     const keyConfig = KEYS_CONFIG[keyId];
     const keyColor = KEY_COLOR_CONFIG[keyConfig.colorType];
-    const startColor = new THREE.Color().lerpColors(keyColor, KEYBOARD_CONFIG.keys.highlightColor, 0.2);
+    const highlightColor = new THREE.Color(KEYBOARD_CONFIG.keys.highlightColor);
+    const startColor = new THREE.Color().lerpColors(keyColor, highlightColor, 0.2);
 
     const object = { value: 0 };
 
@@ -162,7 +164,7 @@ export default class Keyboard extends RoomObjectAbstract {
       .repeat(Infinity)
       .start()
       .onUpdate(() => {
-        const color = new THREE.Color().lerpColors(startColor, KEYBOARD_CONFIG.keys.highlightColor, object.value);
+        const color = new THREE.Color().lerpColors(startColor, highlightColor, object.value);
 
         keys.setColorAt(keyId, color);
         keys.instanceColor.needsUpdate = true;
@@ -283,6 +285,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
       this._keysTweens.push();
       this._keysHighlightTweens.push();
+      this._keysStartPosition.push(dummy.position.clone());
     }
 
     keys.instanceMatrix.needsUpdate = true;

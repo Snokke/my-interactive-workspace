@@ -1,4 +1,5 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
+import { KEYBOARD_CONFIG } from "./keyboard-config";
 
 export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
@@ -9,8 +10,9 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
   }
 
   _init() {
-    this._debugFolder.addButton({
-      title: 'Switch on',
-    }).on('click', () => this.events.post('switchOn'));
+    this._debugFolder.addInput(KEYBOARD_CONFIG.keys, 'highlightColor', {
+      label: 'Pointer over color',
+      view: 'color',
+    });
   }
 }
