@@ -44,41 +44,35 @@ export default class Laptop extends RoomObjectAbstract {
 
     this._debugMenu.disable();
     this._setPositionForShowAnimation();
+    this._instantCloseLaptop();
 
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      const laptopStand = this._parts[LAPTOP_PART_TYPE.LaptopStand];
-      const laptopMount = this._parts[LAPTOP_PART_TYPE.LaptopMount];
       const laptopArmMountBase = this._parts[LAPTOP_PART_TYPE.LaptopArmMountBase];
       const laptopArmMountArm01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
       const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
-      const armMountParts = [laptopStand, laptopMount, laptopArmMountBase, laptopArmMountArm01, laptopArmMountArm02]
 
-      const laptopKeyboard = this._parts[LAPTOP_PART_TYPE.LaptopKeyboard];
-      const laptopMonitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
-      const laptopScreen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
-      const laptopParts = [laptopKeyboard, laptopMonitor, laptopScreen]
+      new TWEEN.Tween(laptopArmMountBase.position)
+        .to({ y: laptopArmMountBase.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
 
-      armMountParts.forEach((part) => {
-        new TWEEN.Tween(part.position)
-          .to({ y: part.userData.startPosition.y }, fallDownTime)
-          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-          .start();
-      });
+      new TWEEN.Tween(laptopArmMountArm01.position)
+        .to({ y: laptopArmMountArm01.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
 
-      laptopParts.forEach((part) => {
-        new TWEEN.Tween(part.position)
-          .to({ y: part.userData.startPosition.y }, fallDownTime)
-          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-          .delay(fallDownTime * 0.5)
-          .start();
-      });
+      new TWEEN.Tween(this._armWithLaptopGroup.position)
+        .to({ y: laptopArmMountArm02.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start()
+        .onComplete(() => {
+          this._laptopInteract();
 
-      Delayed.call(fallDownTime * 0.5 + fallDownTime, () => {
-        this._debugMenu.enable();
-        this._onShowAnimationComplete();
-      });
+          this._debugMenu.enable();
+          this._onShowAnimationComplete();
+        });
     });
   }
 
@@ -226,9 +220,8 @@ export default class Laptop extends RoomObjectAbstract {
 
     if (LAPTOP_CONFIG.state === LAPTOP_STATE.Moving) {
       this._updateLaptopPositionType();
+      this._debugMenu.updateLaptopButtonTitle();
     }
-
-    this._debugMenu.updateLaptopButtonTitle();
 
     LAPTOP_CONFIG.state = LAPTOP_STATE.Moving;
     this._debugMenu.updateTopPanelState();
@@ -248,6 +241,7 @@ export default class Laptop extends RoomObjectAbstract {
       })
       .onComplete(() => {
         this._updateLaptopPositionType();
+        this._debugMenu.updateLaptopButtonTitle();
 
         if (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Closed) {
           this.events.post('onLaptopClosed');
@@ -307,6 +301,25 @@ export default class Laptop extends RoomObjectAbstract {
     part.material.uniforms.uTexture.value = Loader.assets[texturePlaying];
   }
 
+  _setPositionForShowAnimation() {
+    const laptopArmMountBase = this._parts[LAPTOP_PART_TYPE.LaptopArmMountBase];
+    const laptopArmMountArm01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
+    const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
+
+    this._armWithLaptopGroup.position.y = laptopArmMountArm02.userData.startPosition.y +  ROOM_CONFIG.startAnimation.startPositionY;
+    laptopArmMountBase.position.y = laptopArmMountBase.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
+    laptopArmMountArm01.position.y = laptopArmMountArm01.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
+  }
+
+  _instantCloseLaptop() {
+    this._laptopTopGroup.rotation.x = 0;
+
+    LAPTOP_CONFIG.positionType = LAPTOP_POSITION_STATE.Closed;
+    this._debugMenu.updateLaptopButtonTitle();
+
+    this.events.post('onLaptopClosed');
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -316,6 +329,12 @@ export default class Laptop extends RoomObjectAbstract {
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
+
+    this._instantCloseLaptop();
+
+    if (!ROOM_CONFIG.startAnimation.showOnStart) {
+      this._laptopInteract();
+    }
   }
 
   _initSignals() {

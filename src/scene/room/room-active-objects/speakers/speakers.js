@@ -24,8 +24,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._leftSoundParticles = null;
     this._audioHelper = null;
 
-    this._powerStatus = SPEAKERS_POWER_STATUS.On;
-
+    this._powerStatus = SPEAKERS_POWER_STATUS.Off;
     this._audioCurrentTime = 0;
     this._audioContextCurrentTime = 0;
     this._audioPrevTime = 0;
@@ -50,23 +49,27 @@ export default class Speakers extends RoomObjectAbstract {
     this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
+    this._setPowerOff();
+
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const leftSpeaker = this._parts[SPEAKERS_PART_TYPE.Left];
       const rightSpeaker = this._parts[SPEAKERS_PART_TYPE.Right];
 
-      new TWEEN.Tween(leftSpeaker.position)
+      new TWEEN.Tween(this._leftSpeakerGroup.position)
         .to({ y: leftSpeaker.userData.startPosition.y }, fallDownTime)
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start();
 
-      new TWEEN.Tween(rightSpeaker.position)
+      new TWEEN.Tween(this._rightSpeakerGroup.position)
         .to({ y: rightSpeaker.userData.startPosition.y }, fallDownTime)
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .delay(fallDownTime * 0.5)
         .start()
         .onComplete(() => {
+          this._setPowerOn();
+
           this._debugMenu.enable();
           this._onShowAnimationComplete();
         });
@@ -78,19 +81,10 @@ export default class Speakers extends RoomObjectAbstract {
       return;
     }
 
-    this._powerStatus = this._powerStatus === SPEAKERS_POWER_STATUS.On ? SPEAKERS_POWER_STATUS.Off : SPEAKERS_POWER_STATUS.On;
-    this._debugMenu.updatePowerStatus(this._powerStatus);
-
-    this._updatePowerIndicatorColor();
-
-    if (this._powerStatus === SPEAKERS_POWER_STATUS.On) {
-      this._music.setVolume(1);
-      this._rightSoundParticles.show();
-      this._leftSoundParticles.show();
+    if (this._powerStatus === SPEAKERS_POWER_STATUS.Off) {
+      this._setPowerOn();
     } else {
-      this._music.setVolume(0);
-      this._rightSoundParticles.hide();
-      this._leftSoundParticles.hide();
+      this._setPowerOff();
     }
   }
 
@@ -140,6 +134,28 @@ export default class Speakers extends RoomObjectAbstract {
     }
   }
 
+  _setPowerOn() {
+    this._powerStatus = SPEAKERS_POWER_STATUS.On;
+
+    this._music.setVolume(1);
+    this._rightSoundParticles.show();
+    this._leftSoundParticles.show();
+
+    const powerIndicator = this._parts[SPEAKERS_PART_TYPE.PowerIndicator];
+    powerIndicator.material.color = new THREE.Color(SPEAKERS_CONFIG.turnOnColor);
+  }
+
+  _setPowerOff() {
+    this._powerStatus = SPEAKERS_POWER_STATUS.Off;
+
+    this._music.setVolume(0);
+    this._rightSoundParticles.hide();
+    this._leftSoundParticles.hide();
+
+    const powerIndicator = this._parts[SPEAKERS_PART_TYPE.PowerIndicator];
+    powerIndicator.material.color = new THREE.Color(SPEAKERS_CONFIG.turnOffColor);
+  }
+
   _updateSongCurrentTime() {
     if (this._music.isPlaying) {
       this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
@@ -165,6 +181,11 @@ export default class Speakers extends RoomObjectAbstract {
     powerIndicator.material.color = new THREE.Color(powerIndicatorColor);
   }
 
+  _setPositionForShowAnimation() {
+    this._leftSpeakerGroup.position.y = ROOM_CONFIG.startAnimation.startPositionY;
+    this._rightSpeakerGroup.position.y = ROOM_CONFIG.startAnimation.startPositionY;
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -174,6 +195,9 @@ export default class Speakers extends RoomObjectAbstract {
     this._initSignals();
 
     this._updatePowerIndicatorColor();
+    this._music.setVolume(0);
+
+    this._setPowerOn();
   }
 
   _addPartsToScene() {

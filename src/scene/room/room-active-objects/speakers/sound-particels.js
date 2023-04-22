@@ -87,15 +87,6 @@ export default class SoundParticles extends THREE.Group {
     const positions = this._particles.geometry.attributes.position;
     const dataCountForParticles = Math.round(this._frequencyDataCount / this._circlesCount);
 
-    // const dataForPosition = data.map((item) => {
-    //   if (item < 127) {
-    //     return -item;
-    //   }
-
-    //   return (255 - item) * 0.4 - 50;
-    // });
-
-
     const dataForPosition = data.map((item) => {
       if (item > 127) {
         return item * 0.4;
@@ -135,6 +126,8 @@ export default class SoundParticles extends THREE.Group {
   _init() {
     this._initParticles();
     this._initSignals();
+
+    this.visible = false;
   }
 
   _initParticles() {
@@ -149,7 +142,7 @@ export default class SoundParticles extends THREE.Group {
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
         uSize: { value: SOUND_PARTICLES_CONFIG.size },
         uColor: { value: new THREE.Color(0xffffff) },
-        uAlpha: { value: 1 },
+        uAlpha: { value: 0 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,

@@ -30,7 +30,7 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
   }
 
   updateLaptopButtonTitle() {
-    this._openLaptopButton.title = LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened ? 'Open laptop' : 'Close laptop';
+    this._openLaptopButton.title = LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened ? 'Close laptop' : 'Open laptop';
   }
 
   updateTopPanelState() {

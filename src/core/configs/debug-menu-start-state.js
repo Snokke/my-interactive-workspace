@@ -1,8 +1,8 @@
 import { ROOM_OBJECT_TYPE } from "../../scene/room/data/room-config";
 
 const DEBUG_MENU_START_STATE = {
-  Room: false,
-    ObjectsShowAnimation: false,
+  Room: true,
+    ObjectsShowAnimation: true,
     ObjectsVisibility: false,
   ActiveRoomObjects: true,
     [ROOM_OBJECT_TYPE.Walls]: false,

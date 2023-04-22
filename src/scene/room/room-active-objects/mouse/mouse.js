@@ -58,6 +58,12 @@ export default class Mouse extends RoomObjectAbstract {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const body = this._parts[MOUSE_PART_TYPE.Body];
+      const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
+
+      new TWEEN.Tween(leftKey.position)
+        .to({ y: leftKey.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
 
       new TWEEN.Tween(body.position)
         .to({ y: body.userData.startPosition.y }, fallDownTime)

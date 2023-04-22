@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import vertexShader from './keys-backlight-shaders/keys-backlight-vertex.glsl';
 import fragmentShader from './keys-backlight-shaders/keys-backlight-fragment.glsl';
 import { KEYBOARD_CONFIG } from '../keyboard-config';
@@ -8,6 +7,8 @@ import { KEYS_BACKLIGHT_TYPE_CONFIG, KEYS_BACKLIGHT_CONFIG } from './keys-backli
 import { Vector2 } from 'three';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from '../keys-config';
 import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight-data';
+import Delayed from '../../../../../core/helpers/delayed-call';
+import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../keys-helper';
 
 const SCALE_ZERO = 0.01;
 
@@ -35,6 +36,10 @@ export default class KeysBacklight extends THREE.Group {
   }
 
   update(dt) {
+    if (!this.visible) {
+      return;
+    }
+
     const config = KEYS_BACKLIGHT_TYPE_CONFIG[this._currentBacklightType];
 
     if (config.colors.change) {
@@ -57,8 +62,11 @@ export default class KeysBacklight extends THREE.Group {
 
   setBacklightType(type) {
     this._updateBacklightType(type)
-    this._startColorsFunctionByType[type]();
-    this._updateStartColors();
+
+    if (type !== KEYS_BACKLIGHT_TYPE.None) {
+      this._startColorsFunctionByType[type]();
+      this._updateStartColors();
+    }
 
     this._resetScale();
 
@@ -74,6 +82,42 @@ export default class KeysBacklight extends THREE.Group {
     if (this._keyPressedFunctionByType[this._currentBacklightType]) {
       this._keyPressedFunctionByType[this._currentBacklightType](keyId);
     }
+  }
+
+  show() {
+    this.visible = true;
+
+    this._colorsFromLeftToRight();
+    this._updateStartColors();
+
+    const step = 0.09;
+    const startX = KEYBOARD_CONFIG.size.x * 0.5;
+
+    let index = 0;
+
+    for (let x = startX; x < KEYBOARD_CONFIG.size.x; x += step) {
+      this._showBacklightClosestKeyToX(x, index);
+
+      index += 1;
+    }
+
+    index = 1;
+
+    for (let x = startX - step; x > 0; x -= step) {
+      this._showBacklightClosestKeyToX(x, index);
+
+      index += 1;
+    }
+
+    Delayed.call(450 + 300, () => {
+      this.setBacklightType(KEYS_BACKLIGHT_TYPE_ORDER[0]);
+    })
+  }
+
+  hide() {
+    this.visible = false;
+    this.setBacklightType(KEYS_BACKLIGHT_TYPE.None);
+    this._setStartScale(SCALE_ZERO);
   }
 
   _updateColors(dt) {
@@ -175,7 +219,7 @@ export default class KeysBacklight extends THREE.Group {
     this._initStartHSLAngle();
     this._initFunctionsByType();
 
-    this.setBacklightType(this._currentBacklightType);
+    this.hide();
   }
 
   _initKeysBacklightInstanceMesh() {
@@ -306,7 +350,7 @@ export default class KeysBacklight extends THREE.Group {
   }
 
   _pressedKeyBacklight(keyId) {
-    this._showKeyBacklight(keyId, this._toZeroTween, 1, 3000, 0);
+    this._showKeyBacklight(keyId, toZeroTween, 1, 3000, 0);
   }
 
   _pressedKeyToSides(keyId) {
@@ -316,7 +360,7 @@ export default class KeysBacklight extends THREE.Group {
     let index = 0;
 
     for (let x = pressedKeyConfig.position.x; x < KEYBOARD_CONFIG.size.x; x += step) {
-      this._showBacklightClosestKeyToX(x, index);
+      this._showBacklightClosestKeyToXYoyo(x, index);
 
       index += 1;
     }
@@ -324,18 +368,28 @@ export default class KeysBacklight extends THREE.Group {
     index = 1;
 
     for (let x = pressedKeyConfig.position.x - step; x > 0; x -= step) {
-      this._showBacklightClosestKeyToX(x, index);
+      this._showBacklightClosestKeyToXYoyo(x, index);
 
       index += 1;
     }
   }
 
-  _showBacklightClosestKeyToX(x, index) {
+  _showBacklightClosestKeyToXYoyo(x, index) {
     for (let row = 0; row < KEYS_ID_BY_ROW.length; row += 1) {
-      const closestKeyId = this._getClosestKeyByX(x, row);
+      const closestKeyId = getClosestKeyByX(x, row);
 
       if (closestKeyId !== null) {
-        this._showKeyBacklight(closestKeyId, this._from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
+        this._showKeyBacklight(closestKeyId, from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
+      }
+    }
+  }
+
+  _showBacklightClosestKeyToX(x, index) {
+    for (let row = 0; row < KEYS_ID_BY_ROW.length; row += 1) {
+      const closestKeyId = getClosestKeyByX(x, row);
+
+      if (closestKeyId !== null) {
+        this._showKeyBacklight(closestKeyId, from0To1Tween, SCALE_ZERO, 300, index * 50);
       }
     }
   }
@@ -343,13 +397,13 @@ export default class KeysBacklight extends THREE.Group {
   _pressedKeyToSidesSingleRow(keyId) {
     const pressedKeyPosition = KEYS_CONFIG[keyId].position;
 
-    this._showKeyBacklight(keyId, this._from0To1YoyoTween, SCALE_ZERO, 300, 0);
+    this._showKeyBacklight(keyId, from0To1YoyoTween, SCALE_ZERO, 300, 0);
 
     let index = 1;
 
     for (let i = keyId + 1; i < KEYS_CONFIG.length; i++) {
       if (KEYS_CONFIG[i].position.z === pressedKeyPosition.z) {
-        this._showKeyBacklight(i, this._from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
+        this._showKeyBacklight(i, from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
         index += 1;
       } else {
         break;
@@ -360,7 +414,7 @@ export default class KeysBacklight extends THREE.Group {
 
     for (let i = keyId - 1; i > 0; i--) {
       if (KEYS_CONFIG[i].position.z === pressedKeyPosition.z) {
-        this._showKeyBacklight(i, this._from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
+        this._showKeyBacklight(i, from0To1YoyoTween, SCALE_ZERO, 300, index * 50);
         index += 1;
       } else {
         break;
@@ -374,7 +428,7 @@ export default class KeysBacklight extends THREE.Group {
     if (this._time > 0.08) {
       this._time = 0;
 
-      this._showKeyBacklight(this._updateTypeBacklightIndex, this._from0To1YoyoTween, SCALE_ZERO, 1200, 0);
+      this._showKeyBacklight(this._updateTypeBacklightIndex, from0To1YoyoTween, SCALE_ZERO, 1200, 0);
 
       this._updateTypeBacklightIndex += 1;
 
@@ -382,24 +436,6 @@ export default class KeysBacklight extends THREE.Group {
         this._updateTypeBacklightIndex = 0;
       }
     }
-  }
-
-  _toZeroTween(object, time) {
-    return new TWEEN.Tween(object)
-      .to({ value: SCALE_ZERO }, time)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start();
-  }
-
-  _from0To1YoyoTween(object, time, delay) {
-    return new TWEEN.Tween(object)
-      .to({ value: 1 }, time)
-      .easing(TWEEN.Easing.Sinusoidal.InOut)
-      .delay(delay)
-      .repeatDelay(0)
-      .yoyo(true)
-      .repeat(1)
-      .start();
   }
 
   _setColorsArray(callback) {
@@ -427,25 +463,5 @@ export default class KeysBacklight extends THREE.Group {
     }
 
     this._view.instanceColor.needsUpdate = true;
-  }
-
-  _getClosestKeyByX(x, row) {
-    const minDistance = 0.05;
-    const rowIds = KEYS_ID_BY_ROW[row];
-
-    let closestKeyId = null;
-    let distance = Infinity;
-
-    for (let i = rowIds[0]; i <= rowIds[rowIds.length - 1]; i++) {
-      const keyConfig = KEYS_CONFIG[i];
-      const currentDistance = Math.abs(keyConfig.position.x - x);
-
-      if (currentDistance < distance) {
-        distance = currentDistance;
-        closestKeyId = i;
-      }
-    }
-
-    return distance < minDistance ? closestKeyId : null;
   }
 }

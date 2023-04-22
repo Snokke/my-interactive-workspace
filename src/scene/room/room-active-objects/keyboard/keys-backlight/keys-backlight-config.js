@@ -6,6 +6,12 @@ const KEYS_BACKLIGHT_CONFIG = {
 }
 
 const KEYS_BACKLIGHT_TYPE_CONFIG = {
+  [KEYS_BACKLIGHT_TYPE.None]: {
+    colors: {
+      change: false,
+    },
+    scaleChange: true,
+  },
   [KEYS_BACKLIGHT_TYPE.FromLeftToRight]: {
     colors: {
       change: true,

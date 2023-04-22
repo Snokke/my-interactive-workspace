@@ -40,6 +40,16 @@ export default class Chair extends RoomObjectAbstract {
 
       const legs = this._parts[CHAIR_PART_TYPE.Legs];
       const seat = this._parts[CHAIR_PART_TYPE.Seat];
+      const wheels = this._getWheelsParts();
+
+      for (let i = 0; i < wheels.length; i++) {
+        const wheel = wheels[i];
+
+        new TWEEN.Tween(wheel.position)
+          .to({ y: wheel.userData.startPosition.y }, fallDownTime)
+          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+          .start();
+      }
 
       new TWEEN.Tween(legs.position)
         .to({ y: legs.userData.startPosition.y }, fallDownTime)

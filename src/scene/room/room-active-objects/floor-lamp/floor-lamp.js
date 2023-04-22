@@ -22,18 +22,11 @@ export default class FloorLamp extends RoomObjectAbstract {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
-      const tube = this._parts[FLOOR_LAMP_PART_TYPE.Tube];
       const lamp = this._parts[FLOOR_LAMP_PART_TYPE.Lamp];
 
       new TWEEN.Tween(stand.position)
         .to({ y: stand.userData.startPosition.y }, fallDownTime)
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(tube.position)
-        .to({ y: tube.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
         .start();
 
       new TWEEN.Tween(lamp.position)

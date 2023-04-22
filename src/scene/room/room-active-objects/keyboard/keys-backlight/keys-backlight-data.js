@@ -1,4 +1,5 @@
 const KEYS_BACKLIGHT_TYPE = {
+  None: 'NONE',
   FromLeftToRight: 'FROM_LEFT_TO_RIGHT',
   FromTopToBottom: 'FROM_TOP_TO_BOTTOM',
   SameColor: 'SAME_COLOR',

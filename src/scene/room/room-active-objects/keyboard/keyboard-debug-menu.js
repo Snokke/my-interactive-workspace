@@ -37,7 +37,7 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
 
     this._debugFolder.addSeparator();
 
-    let selectedBacklightType = KEYS_BACKLIGHT_CONFIG.currentType;
+    let selectedBacklightType = KEYS_BACKLIGHT_TYPE.FromLeftToRight;
 
     this._debugFolder.addBlade({
       view: 'list',
@@ -53,7 +53,7 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
         { text: 'From pressed key to sides', value: KEYS_BACKLIGHT_TYPE.PressKeyToSides },
         { text: 'From pressed key to sides single row', value: KEYS_BACKLIGHT_TYPE.PressKeyToSidesRow },
       ],
-      value: KEYS_BACKLIGHT_CONFIG.currentType,
+      value: KEYS_BACKLIGHT_TYPE.FromLeftToRight,
     }).on('change', (backlightType) => {
       selectedBacklightType = backlightType.value;
     });

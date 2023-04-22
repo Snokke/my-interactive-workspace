@@ -66,14 +66,10 @@ export default class Monitor extends RoomObjectAbstract {
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      for (let key in this._parts) {
-        const part = this._parts[key];
-
-        new TWEEN.Tween(part.position)
-          .to({ y: part.userData.startPosition.y }, fallDownTime)
-          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-          .start();
-      }
+      new TWEEN.Tween(this.position)
+        .to({ y: 0 }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
 
       Delayed.call(fallDownTime, () => {
         this._debugMenu.enable();
@@ -299,6 +295,10 @@ export default class Monitor extends RoomObjectAbstract {
   _updateHelpArrows(deltaZ) {
     this._helpArrows.position.z = this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z + deltaZ;
     this._helpArrows.position.x = this._parts[MONITOR_PART_TYPE.Monitor].position.x;
+  }
+
+  _setPositionForShowAnimation() {
+    this.position.y = ROOM_CONFIG.startAnimation.startPositionY;
   }
 
   _init() {

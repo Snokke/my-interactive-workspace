@@ -6,8 +6,11 @@ import { ROOM_CONFIG } from '../../data/room-config';
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './keyboard-data';
 import KeysBacklight from './keys-backlight/keys-backlight';
 import Loader from '../../../../core/loader';
-import { KEYS_CONFIG } from './keys-config';
+import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './keys-config';
 import { KEYBOARD_CONFIG } from './keyboard-config';
+import { getClosestKeyByX } from './keys-helper';
+
+const SCALE_ZERO = 0.01;
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -33,6 +36,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
+    this._keysBacklight.hide();
+
     Delayed.call(delay, () => {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
@@ -43,8 +48,7 @@ export default class Keyboard extends RoomObjectAbstract {
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
         .start()
         .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
+          this._showKeysAnimation();
         });
     });
   }
@@ -172,6 +176,82 @@ export default class Keyboard extends RoomObjectAbstract {
       });
   }
 
+  _showKeysAnimation() {
+    this._setKeysScaleZero();
+
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    keys.visible = true;
+
+    const step = 0.09;
+    let index = 0;
+
+    for (let x = 0; x < KEYBOARD_CONFIG.size.x; x += step) {
+      for (let row = 0; row < KEYS_ID_BY_ROW.length; row += 1) {
+        const closestKeyId = getClosestKeyByX(x, row);
+
+        if (closestKeyId !== null) {
+          this._showKey(closestKeyId, index * 40);
+        }
+      }
+
+      index += 1;
+    }
+
+    Delayed.call(720 + 180, () => {
+      this._keysBacklight.show();
+
+      this._debugMenu.enable();
+      this._onShowAnimationComplete();
+    });
+  }
+
+  _showKey(keyId, delay) {
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const rotation = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+    const keyConfig = KEYS_CONFIG[keyId];
+
+    const scaleObject = { value: 0 };
+
+    keys.getMatrixAt(keyId, matrix);
+    matrix.decompose(position, rotation, scale);
+
+    new TWEEN.Tween(scaleObject)
+      .to({ value: 1 }, 180)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(delay)
+      .onUpdate(() => {
+        scale.set(scaleObject.value * keyConfig.scaleX, scaleObject.value, scaleObject.value);
+
+        matrix.compose(position, rotation, scale);
+        keys.setMatrixAt(keyId, matrix);
+        keys.instanceMatrix.needsUpdate = true;
+      })
+      .start();
+  }
+
+  _setKeysScaleZero() {
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const rotation = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+
+    for (let i = 0; i < this._keysCount; i++) {
+      keys.getMatrixAt(i, matrix);
+      matrix.decompose(position, rotation, scale);
+
+      scale.set(SCALE_ZERO, SCALE_ZERO, SCALE_ZERO);
+
+      matrix.compose(position, rotation, scale);
+      keys.setMatrixAt(i, matrix);
+    }
+
+    keys.instanceMatrix.needsUpdate = true;
+  }
+
   _setKeysDefaultColors() {
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
 
@@ -192,6 +272,14 @@ export default class Keyboard extends RoomObjectAbstract {
     });
   }
 
+  _setPositionForShowAnimation() {
+    const base = this._parts[KEYBOARD_PART_TYPE.Base];
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+
+    base.position.y = base.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
+    keys.visible = false;
+  }
+
   _init() {
     this._initParts();
     this._initKeysBacklight();
@@ -201,6 +289,10 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initKeys();
     this._initDebugMenu();
     this._initSignals();
+
+    if (!ROOM_CONFIG.startAnimation.showOnStart) {
+      this._keysBacklight.show();
+    }
   }
 
   _addMaterials() {

@@ -33,6 +33,18 @@ export default class AirConditioner extends RoomObjectAbstract {
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
+      const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
+      const temperature = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
+
+      new TWEEN.Tween(temperature.position)
+        .to({ y: temperature.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
+
+      new TWEEN.Tween(door.position)
+        .to({ y: door.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start();
 
       new TWEEN.Tween(body.position)
         .to({ y: body.userData.startPosition.y }, fallDownTime)
