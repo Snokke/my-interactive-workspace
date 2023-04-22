@@ -28,7 +28,7 @@ const KEYS_CONFIG = [
   { id: 11, position: { x: 1.036 + offsetKeyX * 2, y: 0, z: 0 }, scaleX: 1, colorType: KEY_COLOR_TYPE.Black },
   { id: 12, position: { x: 1.036 + offsetKeyX * 3, y: 0, z: 0 }, scaleX: 1, colorType: KEY_COLOR_TYPE.Black },
 
-  // Print Screen | Microphone | Highlight
+  // Print Screen | Microphone | Backlight
   { id: 13, position: { x: 1.44, y: 0, z: 0 }, scaleX: 1, colorType: KEY_COLOR_TYPE.Gray },
   { id: 14, position: { x: 1.44 + offsetKeyX, y: 0, z: 0 }, scaleX: 1, colorType: KEY_COLOR_TYPE.Gray },
   { id: 15, position: { x: 1.44 + offsetKeyX * 2, y: 0, z: 0 }, scaleX: 1, colorType: KEY_COLOR_TYPE.Red },

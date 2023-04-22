@@ -4,7 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './keyboard-data';
-import KeyHighlights from './key-highlights/key-highlights';
+import KeysBacklight from './keys-backlight/keys-backlight';
 import Loader from '../../../../core/loader';
 import { KEYS_CONFIG } from './keys-config';
 import { KEYBOARD_CONFIG } from './keyboard-config';
@@ -14,7 +14,7 @@ export default class Keyboard extends RoomObjectAbstract {
     super(meshesGroup, roomObjectType, audioListener);
 
     this._keysGroup = null;
-    this._keyHighlights = null;
+    this._keysBacklight = null;
     this._keysCount = 0;
     this._keysTweens = [];
     this._keysHighlightTweens = [];
@@ -24,7 +24,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   update(dt) {
-    this._keyHighlights.update(dt);
+    this._keysBacklight.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -58,7 +58,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const partType = roomObject.userData.partType;
 
     if (partType === KEYBOARD_PART_TYPE.Base) {
-      this._keyHighlights.switchType();
+      this._keysBacklight.switchType();
     }
 
     if (partType === KEYBOARD_PART_TYPE.Keys) {
@@ -104,7 +104,7 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     this._onActiveKeysClick(keyId);
-    this._keyHighlights.onKeyClick(keyId);
+    this._keysBacklight.onKeyClick(keyId);
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
@@ -135,8 +135,8 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _onActiveKeysClick(keyId) {
-    if (keyId === 15) { // Change highlight type key
-      this._keyHighlights.switchType();
+    if (keyId === 15) { // Change backlight type key
+      this._keysBacklight.switchType();
     }
 
     if (keyId === 0) { // ESC
@@ -194,7 +194,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
   _init() {
     this._initParts();
-    this._initHighlights();
+    this._initKeysBacklight();
 
     this._addMaterials();
     this._addPartsToScene();
@@ -293,17 +293,17 @@ export default class Keyboard extends RoomObjectAbstract {
     keys.instanceColor.needsUpdate = true;
   }
 
-  _initHighlights() {
-    const keyHighlights = this._keyHighlights = new KeyHighlights();
-    this.add(keyHighlights);
+  _initKeysBacklight() {
+    const keysBacklight = this._keysBacklight = new KeysBacklight();
+    this.add(keysBacklight);
 
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
-    keyHighlights.position.copy(base.position);
+    keysBacklight.position.copy(base.position);
   }
 
   _initSignals() {
-    this._debugMenu.events.on('switchOn', () => {
-
-    });
+    this._debugMenu.events.on('onChangeBacklightType', () => this._keysBacklight.switchType());
+    this._debugMenu.events.on('onSetBacklightType', (msg, selectedBacklightType) => this._keysBacklight.setBacklightType(selectedBacklightType));
+    this._keysBacklight.events.on('keysBacklightTypeChanged', () => this._debugMenu.updateBacklightType());
   }
 }
