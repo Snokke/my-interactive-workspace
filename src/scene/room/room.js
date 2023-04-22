@@ -5,7 +5,7 @@ import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT
 import RoomDebug from './room-debug';
 import { Black } from 'black-engine';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
-import { ROOM_OBJECT_ENABLED_CONFIG, ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
+import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
 import Cursor from './room-active-objects/mouse/cursor/cursor';
 import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
@@ -142,26 +142,6 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.Cup, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4.5);
   }
 
-  _updateObjectsVisibility() {
-    for (const key in ROOM_OBJECT_TYPE) {
-      const type = ROOM_OBJECT_TYPE[key];
-      const config = ROOM_OBJECT_CONFIG[type];
-      const isVisible = ROOM_OBJECT_VISIBILITY_CONFIG[type];
-
-      if (config.createObject) {
-        const activityType = config.activityType;
-
-        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-          this._roomActiveObject[type].setVisibility(isVisible);
-        }
-
-        if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-          this._roomInactiveObject[type].setVisibility(isVisible);
-        }
-      }
-    }
-  }
-
   _showRoomObject(objectType, startDelay = 0) {
     const activityType = ROOM_OBJECT_CONFIG[objectType].activityType;
 
@@ -251,8 +231,6 @@ export default class Room extends THREE.Group {
     this._initSignals();
     this._configureRaycaster();
 
-    this._updateObjectsVisibility();
-
     if (ROOM_CONFIG.startAnimation.showOnStart) {
       this.showWithAnimation(600);
     }
@@ -262,7 +240,6 @@ export default class Room extends THREE.Group {
     const roomDebug = this._roomDebug = new RoomDebug(this._scene);
 
     roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
-    roomDebug.events.on('changeObjectVisibility', (msg) => this._updateObjectsVisibility());
   }
 
   _onDebugStartShowAnimation(selectedObjectType) {

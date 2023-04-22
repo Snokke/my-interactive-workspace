@@ -34,10 +34,6 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
     return this._mesh;
   }
 
-  setVisibility(isVisible) {
-    this._mesh.visible = isVisible;
-  }
-
   _init() {
     this._initMesh();
     this._addMaterials();

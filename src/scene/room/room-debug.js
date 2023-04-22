@@ -5,7 +5,6 @@ import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import DEBUG_CONFIG from "../../core/configs/debug-config";
-import { ROOM_OBJECT_VISIBILITY_CONFIG } from './data/room-objects-visibility-config';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -33,7 +32,6 @@ export default class RoomDebug {
   _init() {
     this._initRoomDebug();
     this._initShowAnimationFolder();
-    this._initVisibilityFolder();
     this._initActiveRoomObjectsFolder();
   }
 
@@ -67,11 +65,6 @@ export default class RoomDebug {
   }
 
   _initShowAnimationFolder() {
-    const showAnimationFolder = this._roomFolder.addFolder({
-      title: 'Objects show animation',
-      expanded: DEBUG_MENU_START_STATE.ObjectsShowAnimation,
-    })
-
     // let selectedObjectType = ROOM_OBJECT_TYPE.Keyboard;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
@@ -90,77 +83,22 @@ export default class RoomDebug {
       }
     }
 
-    this._listShowAnimation = showAnimationFolder.addBlade({
+    this._roomFolder.addSeparator();
+
+    this._listShowAnimation = this._roomFolder.addBlade({
       view: 'list',
-      label: 'Object',
+      label: 'Show animation object',
       options,
       value: selectedObjectType,
     }).on('change', (objectType) => {
       selectedObjectType = objectType.value;
     });
 
-    this._buttonShowAnimation = showAnimationFolder.addButton({
+    this._buttonShowAnimation = this._roomFolder.addButton({
       title: 'Start show animation',
     }).on('click', () => {
       this.events.post('startShowAnimation', selectedObjectType);
     });
-  }
-
-  _initVisibilityFolder() {
-    const visibilityFolder = this._roomFolder.addFolder({
-      title: 'Objects visibility',
-      expanded: DEBUG_MENU_START_STATE.ObjectsVisibility,
-    });
-
-    const visibilityObjectControllers = {};
-
-    const buttonShowAllObjects = visibilityFolder.addButton({
-      title: 'Show all objects',
-      disabled: true,
-    }).on('click', () => {
-      for (const objectType in ROOM_OBJECT_TYPE) {
-        ROOM_OBJECT_VISIBILITY_CONFIG[ROOM_OBJECT_TYPE[objectType]] = true;
-        visibilityObjectControllers[ROOM_OBJECT_TYPE[objectType]].refresh();
-        buttonShowAllObjects.disabled = true;
-      }
-    });
-
-    for (const objectType in ROOM_OBJECT_TYPE) {
-      const type = ROOM_OBJECT_TYPE[objectType];
-      const config = ROOM_OBJECT_CONFIG[type];
-
-      if (config.createObject) {
-        if (!ROOM_OBJECT_VISIBILITY_CONFIG[type]) {
-          buttonShowAllObjects.disabled = false;
-        }
-
-        visibilityObjectControllers[type] = visibilityFolder.addInput(ROOM_OBJECT_VISIBILITY_CONFIG, type, {
-          label: config.label,
-        }).on('change', (objectVisibleState) => {
-            if (!objectVisibleState.value) {
-              buttonShowAllObjects.disabled = false;
-            }
-
-            if (this._checkAllObjectsVisibility()) {
-              buttonShowAllObjects.disabled = true;
-            }
-
-            this.events.post('changeObjectVisibility');
-          });
-      }
-    }
-  }
-
-  _checkAllObjectsVisibility() {
-    for (const objectType in ROOM_OBJECT_TYPE) {
-      const type = ROOM_OBJECT_TYPE[objectType];
-
-      if (!ROOM_OBJECT_VISIBILITY_CONFIG[type]) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   _initActiveRoomObjectsFolder() {

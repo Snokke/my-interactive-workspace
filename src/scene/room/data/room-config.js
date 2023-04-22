@@ -104,7 +104,7 @@ const ROOM_OBJECT_CONFIG = {
   },
   [ROOM_OBJECT_TYPE.AirConditioner]: {
     createObject: true,
-    label: 'Air cond.',
+    label: 'Air conditioner',
     debugFolderLabel: 'Air conditioner',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
     groupName: 'Air_conditioner',
