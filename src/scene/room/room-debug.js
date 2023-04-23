@@ -5,6 +5,7 @@ import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import DEBUG_CONFIG from "../../core/configs/debug-config";
+import { SOUNDS_CONFIG } from './data/sounds-config';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -31,6 +32,7 @@ export default class RoomDebug {
 
   _init() {
     this._initRoomDebug();
+    this._initSoundsDebug();
     this._initShowAnimationFolder();
     this._initActiveRoomObjectsFolder();
   }
@@ -62,6 +64,30 @@ export default class RoomDebug {
     }).on('change', (outlineState) => {
         ROOM_CONFIG.outlineEnabled = outlineState.value;
       });
+  }
+
+  _initSoundsDebug() {
+    this._roomFolder.addSeparator();
+
+    this._roomFolder.addInput(SOUNDS_CONFIG, 'enabled', {
+      label: 'Sound',
+    }).on('change', () => {
+      this.events.post('soundsEnabledChanged');
+    });
+
+    this._roomFolder.addInput(SOUNDS_CONFIG, 'volume', {
+      label: 'Volume',
+      min: 0,
+      max: 1,
+    }).on('change', () => {
+      this.events.post('volumeChanged');
+    });
+
+    this._roomFolder.addInput(SOUNDS_CONFIG, 'debugHelpers', {
+      label: 'Helpers',
+    }).on('change', () => {
+      this.events.post('debugHelpersChanged');
+    });
   }
 
   _initShowAnimationFolder() {

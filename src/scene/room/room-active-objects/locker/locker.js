@@ -1,9 +1,12 @@
+import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './locker-data';
 import LOCKER_CONFIG from './locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
+import Loader from '../../../../core/loader';
+import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -14,6 +17,8 @@ export default class Locker extends RoomObjectAbstract {
     this._casesState = [];
     this._casesPreviousState = [];
     this._caseMoveTween = [];
+    this._sounds = [];
+    this._soundHelpers = [];
 
     this._init();
   }
@@ -130,6 +135,48 @@ export default class Locker extends RoomObjectAbstract {
     return [casePart];
   }
 
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled) {
+      this._sounds.forEach((sound) => {
+        sound.setVolume(this._volume);
+      });
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._sounds.forEach((sound) => {
+      sound.setVolume(this._volume);
+    });
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._sounds.forEach((sound) => {
+      sound.setVolume(0);
+    });
+  }
+
+  showSoundHelpers() {
+    if (this._soundHelpers) {
+      this._soundHelpers.forEach((soundHelper) => {
+        soundHelper.show();
+      });
+    }
+  }
+
+  hideSoundHelpers() {
+    if (this._soundHelpers) {
+      this._soundHelpers.forEach((soundHelper) => {
+        soundHelper.hide();
+      });
+    }
+  }
+
   _moveCase(caseId, direction, delay = 0) {
     this._stopCaseMoveTween(caseId);
     const endState = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
@@ -151,8 +198,15 @@ export default class Locker extends RoomObjectAbstract {
       .delay(delay)
       .start();
 
+    this._caseMoveTween[caseId].onUpdate(() => {
+      this._sounds[caseId].position.copy(casePart.position);
+      this._sounds[caseId].position.z += 0.8;
+      this._soundHelpers[caseId].position.copy(this._sounds[caseId].position);
+    });
+
     this._caseMoveTween[caseId].onStart(() => {
       this._casesState[caseId] = LOCKER_CASE_STATE.Moving;
+      this._playSound(caseId);
     });
 
     this._caseMoveTween[caseId].onComplete(() => {
@@ -198,6 +252,14 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
+  _playSound(caseId) {
+    if (this._sounds[caseId].isPlaying) {
+      this._sounds[caseId].stop();
+    }
+
+    this._sounds[caseId].play();
+  }
+
   _reset() {
     this._stopTweens();
 
@@ -214,6 +276,7 @@ export default class Locker extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -229,6 +292,43 @@ export default class Locker extends RoomObjectAbstract {
 
       this.add(part);
     }
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    for (const key in CASES) {
+      const sound = new THREE.PositionalAudio(this._audioListener);
+      this.add(sound);
+
+      sound.setRefDistance(10);
+
+      const caseType = CASES[key];
+      const caseObject = this._parts[caseType];
+      sound.position.copy(caseObject.position);
+      sound.position.z += 0.8;
+
+      this._sounds.push(sound);
+    }
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._sounds.forEach((sound) => {
+        sound.setBuffer(Loader.assets['keyboard-key-press'])
+      });
+    });
+  }
+
+  _initSoundHelper() {
+    this._sounds.forEach((sound) => {
+      const soundHelper = new SoundHelper(0.25);
+      this.add(soundHelper);
+
+      soundHelper.position.copy(sound.position);
+      this._soundHelpers.push(soundHelper);
+    });
   }
 
   _initSignals() {

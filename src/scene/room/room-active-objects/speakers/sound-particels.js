@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import vertexShader from './sound-particles-shaders/sound-particles-vertex.glsl';
 import fragmentShader from './sound-particles-shaders/sound-particles-fragment.glsl';
-import { SOUND_PARTICLES_CONFIG } from './speakers-config';
+import { SOUND_PARTICLES_CONFIG, SPEAKERS_CONFIG } from './speakers-config';
 
 export default class SoundParticles extends THREE.Group {
   constructor(analyser) {
@@ -109,7 +109,7 @@ export default class SoundParticles extends THREE.Group {
         }
 
         dataPositionZ /= dataCountForParticles;
-        dataPositionZ *= SOUND_PARTICLES_CONFIG.amplitudeCoefficient * 0.001;
+        dataPositionZ *= SOUND_PARTICLES_CONFIG.amplitudeCoefficient * SPEAKERS_CONFIG.volume * 0.001;
 
         const idlePositionZ = Math.sin(this._time * SOUND_PARTICLES_CONFIG.idleAnimation.speed + i * SOUND_PARTICLES_CONFIG.idleAnimation.frequency) * SOUND_PARTICLES_CONFIG.idleAnimation.amplitude;
 

@@ -5,6 +5,8 @@ import TABLE_CONFIG from './table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
 import { ROOM_CONFIG } from '../../data/room-config';
+import Loader from '../../../../core/loader';
+import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -20,7 +22,11 @@ export default class Table extends RoomObjectAbstract {
     this._tweenHandleMoveIn = null;
     this._tweenHandleRotation = null;
 
+    this._sound = null;
+    this._soundHelper = null;
+
     this._previousHandleAngle = 0;
+    this._current360HandleAngle = 0;
 
     this._init();
   }
@@ -95,6 +101,26 @@ export default class Table extends RoomObjectAbstract {
     this._startFromHandleMoveOut(handle);
   }
 
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled) {
+      this._sound.setVolume(this._volume);
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._sound.setVolume(this._volume);
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._sound.setVolume(0);
+  }
+
   getTopTableGroup() {
     return this._topPartsGroup;
   }
@@ -103,6 +129,7 @@ export default class Table extends RoomObjectAbstract {
     this._updateTableState();
     this._stopTweens();
     this._setTableState(TABLE_STATE.Moving);
+    this._current360HandleAngle = 0;
 
     switch (this._handleState) {
       case TABLE_HANDLE_STATE.MovingOut:
@@ -155,10 +182,21 @@ export default class Table extends RoomObjectAbstract {
 
       const positionDeltaY = angleDelta / Math.PI * TABLE_CONFIG.handle360RotationDeltaY;
       this._topPartsGroup.position.y += positionDeltaY;
+
+      this._sound.position.y += positionDeltaY;
+      this._soundHelper.position.copy(this._sound.position);
+
+      this._current360HandleAngle += Math.abs(angleDelta);
+
+      if (this._current360HandleAngle >= Math.PI * 2) {
+        this._current360HandleAngle = 0;
+        this._playSound();
+      }
     });
 
     tweenHandleRotation.onComplete(() => {
       this._startFromHandleMoveIn(handle);
+      this._current360HandleAngle = 0;
     });
   }
 
@@ -225,11 +263,20 @@ export default class Table extends RoomObjectAbstract {
     handle.position.z = handle.userData.startPosition.z;
   }
 
+  _playSound() {
+    if (this._sound.isPlaying) {
+      this._sound.stop();
+    }
+
+    this._sound.play();
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
     this._initTopPartsGroup();
     this._addPartsToScene();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -248,6 +295,32 @@ export default class Table extends RoomObjectAbstract {
     topPartsGroup.add(tableParts[TABLE_PART_TYPE.Tabletop], tableParts[TABLE_PART_TYPE.TopPart], tableParts[TABLE_PART_TYPE.Handle]);
 
     return topPartsGroup;
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
+    this.add(sound);
+
+    sound.setRefDistance(10);
+
+    const handle = this._parts[TABLE_PART_TYPE.Handle];
+    sound.position.copy(handle.position);
+    sound.position.z += 1.6;
+
+    Loader.events.on('onAudioLoaded', () => {
+      sound.setBuffer(Loader.assets['keyboard-key-press']);
+    });
+  }
+
+  _initSoundHelper() {
+    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    this.add(soundHelper);
+    soundHelper.position.copy(this._sound.position);
   }
 
   _initSignals() {

@@ -47,10 +47,6 @@ export default class SpeakersDebugMenu extends RoomObjectDebugAbstract {
       max: 1,
     }).on('change', () => this.events.post('onVolumeChanged'));
 
-    this._debugFolder.addInput(SPEAKERS_CONFIG, 'helpersEnabled', {
-      label: 'Helpers',
-    }).on('change', () => this.events.post('onHelpersChanged'));
-
     this._debugFolder.addSeparator();
   }
 

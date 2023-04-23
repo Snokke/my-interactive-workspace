@@ -2,15 +2,14 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../data/room-config';
+import { ROOM_CONFIG, SCALE_ZERO } from '../../data/room-config';
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './keyboard-data';
 import KeysBacklight from './keys-backlight/keys-backlight';
 import Loader from '../../../../core/loader';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './keys-config';
 import { KEYBOARD_CONFIG } from './keyboard-config';
 import { getClosestKeyByX } from './keys-helper';
-
-const SCALE_ZERO = 0.01;
+import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -18,6 +17,10 @@ export default class Keyboard extends RoomObjectAbstract {
 
     this._keysGroup = null;
     this._keysBacklight = null;
+    this._soundHelper = null;
+
+    this._keySounds = [];
+    this._keySoundIndex = 0;
     this._keysCount = 0;
     this._keysTweens = [];
     this._keysHighlightTweens = [];
@@ -100,8 +103,35 @@ export default class Keyboard extends RoomObjectAbstract {
     return [mesh];
   }
 
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled) {
+      this._keySounds.forEach((sound) => {
+        sound.setVolume(this._volume);
+      });
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._keySounds.forEach((sound) => {
+      sound.setVolume(this._volume);
+    });
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._keySounds.forEach((sound) => {
+      sound.setVolume(0);
+    });
+  }
+
   _onKeyClick(intersect) {
     const keyId = intersect.instanceId;
+    this._playSound(keyId);
 
     if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
       this._keysTweens[keyId].stop();
@@ -280,6 +310,31 @@ export default class Keyboard extends RoomObjectAbstract {
     keys.visible = false;
   }
 
+  _playSound(keyId) {
+    const sound = this._keySounds[this._keySoundIndex];
+    const keyConfig = KEYS_CONFIG[keyId];
+
+    const keyboardSize = KEYBOARD_CONFIG.size;
+    const leftX = -keyboardSize.x * 0.5 + KEYBOARD_CONFIG.keys.offsetX;
+    const heightY = keyboardSize.y * 0.5;
+    const topZ = -keyboardSize.z * 0.5 + KEYBOARD_CONFIG.keys.offsetZ;
+
+    sound.position.set(leftX + keyConfig.position.x, heightY + keyConfig.position.y, topZ - keyConfig.position.z);
+    this._soundHelper.position.copy(sound.position);
+
+    if (sound.isPlaying) {
+      sound.stop();
+    }
+
+    sound.play();
+
+    this._keySoundIndex += 1;
+
+    if (this._keySoundIndex >= this._keySounds.length) {
+      this._keySoundIndex = 0;
+    }
+  }
+
   _init() {
     this._initParts();
     this._initKeysBacklight();
@@ -287,6 +342,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initKeys();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
 
@@ -391,6 +447,36 @@ export default class Keyboard extends RoomObjectAbstract {
 
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
     keysBacklight.position.copy(base.position);
+  }
+
+  _initSounds() {
+    this._initKeySounds();
+    this._initSoundHelper();
+  }
+
+  _initKeySounds() {
+    const soundsCount = 3;
+
+    for (let i = 0; i < soundsCount; i++) {
+      const sound = new THREE.PositionalAudio(this._audioListener);
+      sound.setRefDistance(10);
+      sound.position.y = 0.1;
+
+      this._keysGroup.add(sound);
+      this._keySounds.push(sound);
+    }
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._keySounds.forEach((sound) => {
+        sound.setBuffer(Loader.assets['keyboard-key-press']);
+      });
+    });
+  }
+
+  _initSoundHelper() {
+    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    this._keysGroup.add(soundHelper);
+    soundHelper.position.copy(this._keySounds[0].position);
   }
 
   _initSignals() {

@@ -57,22 +57,22 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
 
 const MUSIC_CONFIG = {
   [MUSIC_TYPE.ComeAndGetYourLove]: {
-    fileName: 'come_and_get_your_love',
+    fileName: 'music/come-and-get-your-love',
     song: 'Come and get your love',
     artist: 'Redbone',
   },
   [MUSIC_TYPE.Giorgio]: {
-    fileName: 'giorgio',
+    fileName: 'music/giorgio',
     song: 'Giorgio by Moroder',
     artist: 'Daft Punk',
   },
   [MUSIC_TYPE.September]: {
-    fileName: 'september',
+    fileName: 'music/september',
     song: 'September',
     artist: 'Earth, Wind & Fire',
   },
   [MUSIC_TYPE.TheStomp]: {
-    fileName: 'the_stomp',
+    fileName: 'music/the-stomp',
     song: 'Showreel video',
     artist: '',
   },

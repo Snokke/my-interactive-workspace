@@ -10,6 +10,8 @@ import Cursor from './room-active-objects/mouse/cursor/cursor';
 import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/laptop-config';
 import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/monitor-data';
+import { arraysEqual } from './shared-objects/helpers';
+import { SOUNDS_CONFIG } from './data/sounds-config';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -170,8 +172,6 @@ export default class Room extends THREE.Group {
       return;
     }
 
-    // console.log(object.userData.objectType);
-
     const roomObject = this._roomActiveObject[object.userData.objectType];
     const meshes = roomObject.getMeshesForOutline(object);
 
@@ -181,7 +181,7 @@ export default class Room extends THREE.Group {
       this._glowMeshesNames = meshes.map(mesh => mesh.name);
     }
 
-    if (!this._arraysEqual(this._glowMeshesNames, this._previousGlowMeshesNames)) {
+    if (!arraysEqual(this._glowMeshesNames, this._previousGlowMeshesNames)) {
       this._resetRoomObjectsPointerOver();
 
       this._setGlow(meshes);
@@ -237,6 +237,12 @@ export default class Room extends THREE.Group {
 
     if (ROOM_CONFIG.startAnimation.showOnStart) {
       this.showWithAnimation(600);
+    }
+
+    if (SOUNDS_CONFIG.debugHelpers) {
+      for (const key in this._roomActiveObject) {
+        this._roomActiveObject[key].showSoundHelpers();
+      }
     }
   }
 
@@ -331,6 +337,7 @@ export default class Room extends THREE.Group {
     this._initLaptopMusicSignals();
     this._initCursorSignals();
     this._initKeyboardSignals();
+    this._initDebugMenuSignals();
     this._initOtherSignals();
   }
 
@@ -381,6 +388,12 @@ export default class Room extends THREE.Group {
     keyboard.events.on('onKeyboardBackspaceClick', () => monitor.pauseShowreelVideo());
   }
 
+  _initDebugMenuSignals() {
+    this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
+    this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
+    this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
+  }
+
   _initOtherSignals() {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
@@ -391,16 +404,52 @@ export default class Room extends THREE.Group {
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
-    walls.events.on('onWindowStartOpening', () => speakers.onWindowOpened());
-    walls.events.on('onWindowClosed', () => speakers.onWindowClosed());
+    walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
+    walls.events.on('onWindowClosed', () => this._onWindowClosed());
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
     monitor.events.on('onShowreelStop', () => speakers.onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
   }
 
+  _onWindowStartOpening() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].onWindowOpened();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowOpened();
+  }
+
+  _onWindowClosed() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].onWindowClosed();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowClosed();
+  }
+
   _onShowreelStart() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].stopCurrentMusic();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].playMusic(MUSIC_TYPE.TheStomp);
+  }
+
+  _onDebugHelpersChanged() {
+    for (const key in this._roomActiveObject) {
+      if (SOUNDS_CONFIG.debugHelpers) {
+        this._roomActiveObject[key].showSoundHelpers();
+      } else {
+        this._roomActiveObject[key].hideSoundHelpers();
+      }
+    }
+  }
+
+  _onVolumeChanged() {
+    for (const key in this._roomActiveObject) {
+      this._roomActiveObject[key].onVolumeChanged(SOUNDS_CONFIG.volume);
+    }
+  }
+
+  _onSoundsEnabledChanged() {
+    for (const key in this._roomActiveObject) {
+      if (SOUNDS_CONFIG.enabled) {
+        this._roomActiveObject[key].enableSound();
+      } else {
+        this._roomActiveObject[key].disableSound();
+      }
+    }
   }
 
   _onMouseOnButtonClick(buttonType) {
@@ -411,7 +460,6 @@ export default class Room extends THREE.Group {
     if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
       this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].onLeftKeyClick(buttonType)
     }
-
   }
 
   _configureRaycaster() {
@@ -431,20 +479,6 @@ export default class Room extends THREE.Group {
   _checkIsShowAnimationComplete() {
     for (const key in this._roomActiveObject) {
       if (this._roomActiveObject[key].isShowAnimationActive()) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  _arraysEqual(a, b) {
-    if (a.length !== b.length) {
-      return false;
-    }
-
-    for (let i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) {
         return false;
       }
     }

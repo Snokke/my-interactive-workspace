@@ -3,15 +3,12 @@ import * as THREE from 'three';
 const SPEAKERS_CONFIG = {
   turnOnColor: 0x00ff00,
   turnOffColor: 0xff0000,
-  helpersEnabled: false,
-  closedWindowOuterGain: 0.1,
-  openedWindowOuterGain: 0.6,
   volume: 1,
 }
 
 const SOUND_PARTICLES_CONFIG = {
   size: 60,
-  amplitudeCoefficient: 4,
+  amplitudeCoefficient: 6,
   positionOffset: new THREE.Vector3(0, 0.13, 0.8),
   circles: {
     circlesCount: 16,

@@ -5,6 +5,9 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './walls-data';
 import { WINDOW_CONFIG } from './window-config';
 import { ROOM_CONFIG } from '../../data/room-config';
+import SoundHelper from '../../shared-objects/sound-helper';
+import Loader from '../../../../core/loader';
+import { rotateAroundPoint } from '../../shared-objects/helpers';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -17,6 +20,10 @@ export default class Walls extends RoomObjectAbstract {
     this._handleTween = null;
     this._windowTween = null;
     this._debugMenu = null;
+
+    this._openSound = null;
+    this._closeSound = null;
+    this._soundHelper = null;
 
     this._windowHandleState = WINDOW_HANDLE_STATE.Idle;
     this._windowState = WINDOW_STATE.Closed;
@@ -77,7 +84,7 @@ export default class Walls extends RoomObjectAbstract {
     this._stopTweens();
     this._debugMenu.disableActiveOpenType();
 
-    if (this._windowState === WINDOW_STATE.Opening) {
+    if (this._windowState === WINDOW_STATE.Moving) {
       this._updateWindowState();
 
       if (this._windowHandleState === WINDOW_HANDLE_STATE.Rotating) {
@@ -96,9 +103,31 @@ export default class Walls extends RoomObjectAbstract {
     }
   }
 
-  _startFromHandle() {
-    this._setWindowState(WINDOW_STATE.Opening);
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
 
+    if (this._isSoundsEnabled) {
+      this._openSound.setVolume(this._volume);
+      this._closeSound.setVolume(this._volume);
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._openSound.setVolume(this._volume);
+    this._closeSound.setVolume(this._volume);
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._openSound.setVolume(0);
+    this._closeSound.setVolume(0);
+  }
+
+  _startFromHandle() {
+    this._setWindowState(WINDOW_STATE.Moving);
     this._rotateHandle();
 
     this._handleTween.onComplete(() => {
@@ -106,8 +135,6 @@ export default class Walls extends RoomObjectAbstract {
       this._moveWindow();
 
       this._windowTween.onComplete(() => {
-
-
         this._updateWindowState();
         this._checkToChangeWindowOpenType();
       });
@@ -115,7 +142,7 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _startFromWindow() {
-    this._setWindowState(WINDOW_STATE.Opening);
+    this._setWindowState(WINDOW_STATE.Moving);
 
     this._moveWindow();
 
@@ -136,6 +163,12 @@ export default class Walls extends RoomObjectAbstract {
 
   _rotateHandle() {
     this._windowHandleState = WINDOW_HANDLE_STATE.Rotating;
+
+    if (this._previousWindowState === WINDOW_STATE.Opened) {
+      this._playCloseSound();
+    } else {
+      this._playOpenSound();
+    }
 
     const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
 
@@ -177,7 +210,7 @@ export default class Walls extends RoomObjectAbstract {
 
     this._windowTween.onUpdate(() => {
       const angle = (currentAngle.value - previousAngle) * (Math.PI / 180);
-      this._rotateAroundPoint(this._windowGroup, pivot, rotateAxis, angle);
+      rotateAroundPoint(this._windowGroup, pivot, rotateAxis, angle);
       previousAngle = currentAngle.value;
     });
 
@@ -195,18 +228,6 @@ export default class Walls extends RoomObjectAbstract {
   _setWindowState(state) {
     this._windowState = state;
     this._debugMenu.updateWindowState(state);
-  }
-
-  _rotateAroundPoint(obj, point, axis, theta) {
-    obj.parent.localToWorld(obj.position);
-
-    obj.position.sub(point);
-    obj.position.applyAxisAngle(axis, theta);
-    obj.position.add(point);
-
-    obj.parent.worldToLocal(obj.position);
-
-    obj.rotateOnAxis(axis, theta);
   }
 
   _checkToChangeWindowOpenType() {
@@ -242,6 +263,26 @@ export default class Walls extends RoomObjectAbstract {
     this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
   }
 
+  _playOpenSound() {
+    this._stopSounds();
+    this._openSound.play();
+  }
+
+  _playCloseSound() {
+    this._stopSounds();
+    this._closeSound.play();
+  }
+
+  _stopSounds() {
+    if (this._openSound.isPlaying) {
+      this._openSound.stop();
+    }
+
+    if (this._closeSound.isPlaying) {
+      this._closeSound.stop();
+    }
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -249,6 +290,7 @@ export default class Walls extends RoomObjectAbstract {
     this._initGlass();
     this._initWindowGroup();
     this._initRightWallGroup();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -282,6 +324,45 @@ export default class Walls extends RoomObjectAbstract {
     rightWallGroup.add(this._parts[WALLS_PART_TYPE.WindowFrame]);
     rightWallGroup.add(this._parts[WALLS_PART_TYPE.Windowsill]);
     rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    this._initOpenSound();
+    this._initCloseSound();
+
+    const glassTop = this._parts[WALLS_PART_TYPE.GlassTop];
+    this._openSound.position.copy(glassTop.position);
+    this._closeSound.position.copy(glassTop.position);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._openSound.setBuffer(Loader.assets['window-open']);
+      this._closeSound.setBuffer(Loader.assets['window-close']);
+    });
+  }
+
+  _initOpenSound() {
+    const openSound = this._openSound = new THREE.PositionalAudio(this._audioListener);
+    this._windowGroup.add(openSound);
+
+    openSound.setRefDistance(10);
+  }
+
+  _initCloseSound() {
+    const closeSound = this._closeSound = new THREE.PositionalAudio(this._audioListener);
+    this._windowGroup.add(closeSound);
+
+    closeSound.setRefDistance(10);
+  }
+
+  _initSoundHelper() {
+    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    this._windowGroup.add(soundHelper);
+    soundHelper.position.copy(this._openSound.position);
   }
 
   _initDebugMenu() {

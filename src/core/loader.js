@@ -28,10 +28,17 @@ const images = [
 ];
 
 const sounds = [
-  'come_and_get_your_love.mp3',
-  'giorgio.mp3',
-  'september.mp3',
-  'the_stomp.mp3',
+  // Music
+  'music/giorgio.mp3',
+  'music/the-stomp.mp3',
+  'music/september.mp3',
+  'music/come-and-get-your-love.mp3',
+
+  // Sounds
+  'keyboard-key-press.mp3',
+  'air-conditioner.mp3',
+  'window-open.mp3',
+  'window-close.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

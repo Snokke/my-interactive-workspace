@@ -12,7 +12,7 @@ const WALLS_PART_TYPE = {
 
 const WINDOW_STATE = {
   Closed: 'CLOSED',
-  Opening: 'OPENING',
+  Moving: 'OPENING',
   Opened: 'OPENED',
 }
 

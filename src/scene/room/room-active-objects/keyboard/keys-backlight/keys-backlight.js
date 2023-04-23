@@ -9,8 +9,7 @@ import { KEYS_CONFIG, KEYS_ID_BY_ROW } from '../keys-config';
 import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight-data';
 import Delayed from '../../../../../core/helpers/delayed-call';
 import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../keys-helper';
-
-const SCALE_ZERO = 0.01;
+import { SCALE_ZERO } from '../../../data/room-config';
 
 export default class KeysBacklight extends THREE.Group {
   constructor() {

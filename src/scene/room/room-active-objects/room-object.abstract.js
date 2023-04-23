@@ -23,6 +23,10 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isInputEnabled = true;
     this._isPointerOver = false;
 
+    this._soundHelper = null;
+    this._volume = 1;
+    this._isSoundsEnabled = true;
+
     this._hasDebugMenu = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu ? true : false;
   }
 
@@ -89,6 +93,30 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   isShowAnimationActive() {
     return this._isShowAnimationActive;
+  }
+
+  showSoundHelpers() {
+    if (this._soundHelper) {
+      this._soundHelper.show();
+    }
+  }
+
+  hideSoundHelpers() {
+    if (this._soundHelper) {
+      this._soundHelper.hide();
+    }
+  }
+
+  onVolumeChanged(volume) {
+    this._volume = volume;
+  }
+
+  enableSound() {
+    this._isSoundsEnabled = true;
+  }
+
+  disableSound() {
+    this._isSoundsEnabled = false;
   }
 
   _setPositionForShowAnimation() {

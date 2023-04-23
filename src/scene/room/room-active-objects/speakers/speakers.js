@@ -10,6 +10,7 @@ import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelpe
 import SoundParticles from './sound-particels';
 import { MUSIC_TYPE } from '../laptop/laptop-data';
 import { MUSIC_CONFIG } from '../laptop/laptop-config';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -30,6 +31,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._audioPrevTime = 0;
     this._currentMusicType = MUSIC_TYPE.Giorgio;
 
+    this._speakersVolume = 1;
     this._time = 0;
     this._sendSignalTime = 1;
 
@@ -115,11 +117,11 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   onWindowOpened() {
-    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.openedWindowOuterGain);
+    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.openedWindowOuterGain);
   }
 
   onWindowClosed() {
-    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.closedWindowOuterGain);
+    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.closedWindowOuterGain);
   }
 
   onShowreelPause() {
@@ -134,10 +136,42 @@ export default class Speakers extends RoomObjectAbstract {
     }
   }
 
+  showSoundHelpers() {
+    this._audioHelper.visible = true;
+  }
+
+  hideSoundHelpers() {
+    this._audioHelper.visible = false;
+  }
+
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled && this._powerStatus === SPEAKERS_POWER_STATUS.On) {
+      this._changeMusicVolume();
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._changeMusicVolume();
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._music.setVolume(0);
+  }
+
   _setPowerOn() {
     this._powerStatus = SPEAKERS_POWER_STATUS.On;
+    this._debugMenu.updatePowerStatus(this._powerStatus);
 
-    this._music.setVolume(1);
+    if (this._isSoundsEnabled) {
+      this._changeMusicVolume();
+    }
+
     this._rightSoundParticles.show();
     this._leftSoundParticles.show();
 
@@ -147,6 +181,7 @@ export default class Speakers extends RoomObjectAbstract {
 
   _setPowerOff() {
     this._powerStatus = SPEAKERS_POWER_STATUS.Off;
+    this._debugMenu.updatePowerStatus(this._powerStatus);
 
     this._music.setVolume(0);
     this._rightSoundParticles.hide();
@@ -186,12 +221,17 @@ export default class Speakers extends RoomObjectAbstract {
     this._rightSpeakerGroup.position.y = ROOM_CONFIG.startAnimation.startPositionY;
   }
 
+  _changeMusicVolume() {
+    this._music.setVolume(this._volume * this._speakersVolume);
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
     this._initMusic();
     this._initDebugMenu();
+    this._initHelpers();
     this._initSignals();
 
     this._updatePowerIndicatorColor();
@@ -233,14 +273,12 @@ export default class Speakers extends RoomObjectAbstract {
     this._initPositionalAudio();
     this._initParticles();
     this._initLoaderSignals();
-
-    this._showHelpers();
   }
 
   _initPositionalAudio() {
     this._music = new THREE.PositionalAudio(this._audioListener);
     this._music.setRefDistance(10);
-    this._music.setDirectionalCone(120, 160, SPEAKERS_CONFIG.closedWindowOuterGain);
+    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.closedWindowOuterGain);
 
     this._music.rotation.y = Math.PI * 0.22;
 
@@ -263,6 +301,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._musicGroup.add(audioHelper);
 
     audioHelper.rotation.y = this._music.rotation.y;
+    audioHelper.visible = false;
   }
 
   _initLoaderSignals() {
@@ -273,22 +312,17 @@ export default class Speakers extends RoomObjectAbstract {
 
   _initSignals() {
     this._debugMenu.events.on('switch', () => this.onClick());
-    this._debugMenu.events.on('onHelpersChanged', () => this._showHelpers());
     this._debugMenu.events.on('onVolumeChanged', () => this._onVolumeChanged());
     this._debugMenu.events.on('onParticlesSizeChanged', () => this._onParticlesSizeChanged());
     this._debugMenu.events.on('onRecreateParticles', () => this._onRecreateParticles());
   }
 
-  _showHelpers() {
-    if (!this._audioHelper) {
-      this._initHelpers();
-    }
-
-    this._audioHelper.visible = SPEAKERS_CONFIG.helpersEnabled;
-  }
-
   _onVolumeChanged() {
-    this._music.setVolume(SPEAKERS_CONFIG.volume);
+    this._speakersVolume = SPEAKERS_CONFIG.volume;
+
+    if (this._isSoundsEnabled && this._powerStatus === SPEAKERS_POWER_STATUS.On) {
+      this._changeMusicVolume();
+    }
   }
 
   _onParticlesSizeChanged() {

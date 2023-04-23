@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CONDITIONER_PART_TYPE, AIR_CONDITIONER_STATE } from './air-conditioner-data';
@@ -7,6 +8,7 @@ import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './air-conditioner-config';
 import Loader from '../../../../core/loader';
 import SnowflakeParticles from './snowflake-particles/snowflake-particels';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -15,6 +17,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._snowflakeParticles = null;
     this._airConditionerTween = null;
     this._temperatureTween = null;
+    this._sound = null;
 
     this._init();
   }
@@ -66,6 +69,7 @@ export default class AirConditioner extends RoomObjectAbstract {
 
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
       this._snowflakeParticles.hide();
+      this._sound.stop();
     }
 
     if (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving) {
@@ -99,6 +103,42 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._updateTemperatureVisibility();
   }
 
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled) {
+      this._sound.setVolume(this._volume);
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._sound.setVolume(this._volume);
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._sound.setVolume(0);
+  }
+
+  onWindowOpened() {
+    this._sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.openedWindowOuterGain);
+  }
+
+  onWindowClosed() {
+    this._sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.closedWindowOuterGain);
+  }
+
+  showSoundHelpers() {
+    this._soundHelper.visible = true;
+  }
+
+  hideSoundHelpers() {
+    this._soundHelper.visible = false;
+  }
+
   _onConditionerTweenComplete() {
     this._updateAirConditionerDoorPositionType();
 
@@ -111,6 +151,7 @@ export default class AirConditioner extends RoomObjectAbstract {
 
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
       this._snowflakeParticles.show();
+      this._sound.play();
     }
 
     // this._debugMenu.updateTopPanelState();
@@ -172,6 +213,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._addPartsToScene();
     this._initTemperature();
     this._initSnowflakeParticles();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -193,6 +235,38 @@ export default class AirConditioner extends RoomObjectAbstract {
     this.add(snowflakeParticles);
 
     snowflakeParticles.position.copy(this._parts[AIR_CONDITIONER_PART_TYPE.Body].position);
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
+    this.add(sound);
+
+    sound.setRefDistance(10);
+    sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.closedWindowOuterGain);
+    sound.loop = true;
+
+    const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
+    sound.position.copy(door.position);
+
+    sound.rotation.y = 52 * THREE.MathUtils.DEG2RAD;
+
+    Loader.events.on('onAudioLoaded', () => {
+      sound.setBuffer(Loader.assets['air-conditioner']);
+    });
+  }
+
+  _initSoundHelper() {
+    const soundHelper = this._soundHelper = new PositionalAudioHelper(this._sound, 2);
+    this.add(soundHelper);
+
+    soundHelper.position.copy(this._sound.position);
+    soundHelper.rotation.y = this._sound.rotation.y;
+    soundHelper.visible = false;
   }
 
   _initSignals() {

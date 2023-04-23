@@ -5,6 +5,8 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, CHAIR_POSITION_TYPE, SEAT_ROTATION_DIRECTION } from './chair-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { CHAIR_CONFIG } from './chair-config';
+import Loader from '../../../../core/loader';
+import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -14,6 +16,8 @@ export default class Chair extends RoomObjectAbstract {
     this._rotateSeatTween = null;
     this._rotateLegsTween = null;
     this._legsGroup = null;
+    this._sound = null;
+    this._soundHelper = null;
 
     this._wrapper = null;
 
@@ -99,6 +103,26 @@ export default class Chair extends RoomObjectAbstract {
     return [...legsParts];
   }
 
+  onVolumeChanged(volume) {
+    super.onVolumeChanged(volume);
+
+    if (this._isSoundsEnabled) {
+      this._sound.setVolume(this._volume);
+    }
+  }
+
+  enableSound() {
+    super.enableSound();
+
+    this._sound.setVolume(this._volume);
+  }
+
+  disableSound() {
+    super.disableSound();
+
+    this._sound.setVolume(0);
+  }
+
   _rotateSeat() {
     if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
       const isAroundTable = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
@@ -127,6 +151,7 @@ export default class Chair extends RoomObjectAbstract {
 
     this._stopTweens();
     this._resetSeatRotation();
+    this._playSound();
 
     CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Moving;
     this._debugMenu.updateChairState();
@@ -304,10 +329,19 @@ export default class Chair extends RoomObjectAbstract {
     this._parts[CHAIR_PART_TYPE.Seat].rotation.y = 0;
   }
 
+  _playSound() {
+    if (this._sound.isPlaying) {
+      this._sound.stop();
+    }
+
+    this._sound.play();
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
@@ -331,6 +365,30 @@ export default class Chair extends RoomObjectAbstract {
     });
 
     legsGroup.position.z = legsPositionZ;
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
+    this._legsGroup.add(sound);
+
+    sound.setRefDistance(10);
+
+    sound.position.y = 0.5;
+
+    Loader.events.on('onAudioLoaded', () => {
+      sound.setBuffer(Loader.assets['keyboard-key-press']);
+    });
+  }
+
+  _initSoundHelper() {
+    const soundHelper = this._soundHelper = new SoundHelper(0.4);
+    this._legsGroup.add(soundHelper);
+    soundHelper.position.copy(this._sound.position);
   }
 
   _initSignals() {
