@@ -10,6 +10,7 @@ import { SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_PART_TYPE } from '../room-activ
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/keyboard-data';
 import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
 import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
+import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -37,6 +38,7 @@ const ROOM_OBJECT_TYPE = {
   Locker: 'LOCKER',
   Chair: 'CHAIR',
   FloorLamp: 'FLOOR_LAMP',
+  SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
 
   // Inactive objects
   Scales: 'SCALES',
@@ -163,6 +165,15 @@ const ROOM_OBJECT_CONFIG = {
     partTypes: LAPTOP_PART_TYPE,
     partsActiveConfig: LAPTOP_PART_ACTIVITY_CONFIG,
     isDraggable: true,
+  },
+  [ROOM_OBJECT_TYPE.SocialNetworkLogos]: {
+    createObject: true,
+    label: 'Social network logos',
+    debugFolderLabel: 'Social network logos',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'Logos',
+    partTypes: SOCIAL_NETWORK_LOGOS_PART_TYPE,
+    partsActiveConfig: SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG,
   },
 
   // Inactive objects

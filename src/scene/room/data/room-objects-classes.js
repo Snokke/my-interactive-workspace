@@ -30,6 +30,7 @@ import Organizer from "../room-inactive-objects/objects/organizer";
 import Pouf from "../room-inactive-objects/objects/pouf";
 import Scales from "../room-inactive-objects/objects/scales";
 import { ROOM_OBJECT_TYPE } from "./room-config";
+import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -76,6 +77,10 @@ const ROOM_OBJECT_CLASS = {
   [ROOM_OBJECT_TYPE.Mouse]: {
     object: Mouse,
     debugMenu: MouseDebugMenu,
+  },
+  [ROOM_OBJECT_TYPE.SocialNetworkLogos]: {
+    object: SocialNetworkLogos,
+    debugMenu: null,
   },
 
   // Inactive objects

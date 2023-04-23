@@ -140,6 +140,8 @@ export default class Room extends THREE.Group {
     this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Coaster, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
     this._showRoomObject(ROOM_OBJECT_TYPE.Cup, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4.5);
+
+    this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 10);
   }
 
   _showRoomObject(objectType, startDelay = 0) {
@@ -167,6 +169,8 @@ export default class Room extends THREE.Group {
 
       return;
     }
+
+    // console.log(object.userData.objectType);
 
     const roomObject = this._roomActiveObject[object.userData.objectType];
     const meshes = roomObject.getMeshesForOutline(object);
@@ -208,14 +212,14 @@ export default class Room extends THREE.Group {
 
   _hideAllOtherObjectsDebugMenu(roomObject) {
     for (const key in this._roomActiveObject) {
-      if (this._roomActiveObject[key] !== roomObject) {
+      if (this._roomActiveObject[key] !== roomObject && this._roomActiveObject[key].hasDebugMenu()) {
         this._roomActiveObject[key].closeDebugMenu();
       }
     }
   }
 
   _checkToShowDebugFolders(roomObject) {
-    if (ROOM_CONFIG.autoOpenActiveDebugFolder) {
+    if (ROOM_CONFIG.autoOpenActiveDebugFolder && roomObject.hasDebugMenu()) {
       this._hideAllOtherObjectsDebugMenu(roomObject);
       roomObject.openDebugMenu();
     }

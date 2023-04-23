@@ -22,6 +22,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isShowAnimationActive = false;
     this._isInputEnabled = true;
     this._isPointerOver = false;
+
+    this._hasDebugMenu = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu ? true : false;
   }
 
   update(dt) { }
@@ -75,6 +77,10 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   getActiveMeshes() {
     return this._allMeshes;
+  }
+
+  hasDebugMenu() {
+    return this._hasDebugMenu;
   }
 
   isInputEnabled() {

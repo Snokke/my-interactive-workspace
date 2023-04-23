@@ -13,6 +13,7 @@ const ROOM_OBJECT_ENABLED_CONFIG = {
   [ROOM_OBJECT_TYPE.Laptop]: true,
   [ROOM_OBJECT_TYPE.Keyboard]: true,
   [ROOM_OBJECT_TYPE.Mouse]: true,
+  [ROOM_OBJECT_TYPE.SocialNetworkLogos]: true,
 }
 
 export { ROOM_OBJECT_ENABLED_CONFIG };
