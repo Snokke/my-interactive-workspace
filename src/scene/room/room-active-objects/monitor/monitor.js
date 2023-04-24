@@ -11,8 +11,7 @@ import Loader from '../../../../core/loader';
 import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
 import sparkleVertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
 import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
-import volumeVertexShader from './volume-shaders/volume-vertex.glsl';
-import volumeFragmentShader from './volume-shaders/volume-fragment.glsl';
+import VolumeIcon from './volume-icon/volume-icon';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -24,7 +23,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._screenTexture = null;
     this._showreelTexture = null;
     this._showreelVideoElement = null;
-    this._volumeTween = null;
+    this._volumeIcon = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -35,9 +34,6 @@ export default class Monitor extends RoomObjectAbstract {
     this._isMountSelected = false;
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
-
-    this._currentVolume = 10;
-    this._isSoundEnabled = true;
 
     this._init();
   }
@@ -192,28 +188,15 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   onVolumeChanged(volume) {
-    this._currentVolume = (volume * 10).toFixed(0);
-    const currentVolume = this._isSoundEnabled ? this._currentVolume : 0;
-
-    this._showVolume(currentVolume);
+    this._volumeIcon.onVolumeChanged(volume);
   }
 
   enableSound() {
-    this._isSoundEnabled = true;
-    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
-    const texture = Loader.assets['volume'];
-    volumePart.material.uniforms.uTexture.value = texture;
-
-    this._showVolume(this._currentVolume);
+    this._volumeIcon.enableSound();
   }
 
   disableSound() {
-    this._isSoundEnabled = false;
-    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
-    const texture = Loader.assets['volume-muted'];
-    volumePart.material.uniforms.uTexture.value = texture;
-
-    this._showVolume(0);
+    this._volumeIcon.disableSound();
   }
 
   _clearButtonsColor() {
@@ -438,22 +421,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _initVolumeTexture() {
     const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
-    const texture = Loader.assets['volume'];
-
-    const uniforms = {
-      uTexture: { value: texture },
-      uRectsCount: { value: this._currentVolume },
-      uAlpha: { value: 1 },
-    };
-
-    volumePart.material = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader: volumeVertexShader,
-      fragmentShader: volumeFragmentShader,
-      transparent: true,
-    });
-
-    volumePart.visible = false;
+    this._volumeIcon = new VolumeIcon(volumePart);
   }
 
   _initShowreelVideo() {
