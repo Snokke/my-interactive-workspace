@@ -15,6 +15,8 @@ const textures = [
   'monitor-screen.jpg',
   'showreel-icon.jpg',
   'close-icon.jpg',
+  'volume.png',
+  'volume-muted.png',
 ];
 
 const models = [

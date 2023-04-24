@@ -7,6 +7,7 @@ const MONITOR_PART_TYPE = {
   MonitorMount: 'monitor_mount',
   MonitorScreenShowreelIcon: 'monitor_screen_showreel_icon',
   MonitorScreenCloseIcon: 'monitor_screen_close_icon',
+  MonitorScreenVolume: 'monitor_screen_volume',
 }
 
 const MONITOR_PART_ACTIVITY_CONFIG = {
@@ -18,6 +19,7 @@ const MONITOR_PART_ACTIVITY_CONFIG = {
   [MONITOR_PART_TYPE.MonitorMount]: true,
   [MONITOR_PART_TYPE.MonitorScreenShowreelIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: true,
+  [MONITOR_PART_TYPE.MonitorScreenVolume]: false,
 }
 
 const MONITOR_PARTS_WITHOUT_BUTTONS = [

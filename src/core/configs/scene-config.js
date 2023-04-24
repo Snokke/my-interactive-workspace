@@ -5,8 +5,12 @@ const SCENE_CONFIG = {
     fov: 45,
     near: 1,
     far: 500,
-    startPosition: { x: 14, y: 14, z: 14 },
-    // startPosition: { x: 2, y: 6, z: 2 },
+    // startPosition: { x: 14, y: 14, z: 14 },
+    // lookAt: { x: 0, y: 3.5, z: 0 },
+
+    // monitor
+    startPosition: { x: 0, y: 5, z: 2 },
+    lookAt: { x: 0, y: 5, z: -1 },
   },
   lights: {
     ambient: {

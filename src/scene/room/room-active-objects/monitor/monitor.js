@@ -9,8 +9,10 @@ import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-co
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
 import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
-import vertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
-import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
+import sparkleVertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
+import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
+import volumeVertexShader from './volume-shaders/volume-vertex.glsl';
+import volumeFragmentShader from './volume-shaders/volume-fragment.glsl';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -22,6 +24,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._screenTexture = null;
     this._showreelTexture = null;
     this._showreelVideoElement = null;
+    this._volumeTween = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -32,6 +35,9 @@ export default class Monitor extends RoomObjectAbstract {
     this._isMountSelected = false;
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
+
+    this._currentVolume = 10;
+    this._isSoundEnabled = true;
 
     this._init();
   }
@@ -185,6 +191,31 @@ export default class Monitor extends RoomObjectAbstract {
     return this._parts[MONITOR_PART_TYPE.MonitorScreen];
   }
 
+  onVolumeChanged(volume) {
+    this._currentVolume = (volume * 10).toFixed(0);
+    const currentVolume = this._isSoundEnabled ? this._currentVolume : 0;
+
+    this._showVolume(currentVolume);
+  }
+
+  enableSound() {
+    this._isSoundEnabled = true;
+    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    const texture = Loader.assets['volume'];
+    volumePart.material.uniforms.uTexture.value = texture;
+
+    this._showVolume(this._currentVolume);
+  }
+
+  disableSound() {
+    this._isSoundEnabled = false;
+    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    const texture = Loader.assets['volume-muted'];
+    volumePart.material.uniforms.uTexture.value = texture;
+
+    this._showVolume(0);
+  }
+
   _clearButtonsColor() {
     MONITOR_SCREEN_BUTTONS.forEach((partType) => {
       const button = this._parts[partType];
@@ -301,6 +332,27 @@ export default class Monitor extends RoomObjectAbstract {
     this.position.y = ROOM_CONFIG.startAnimation.startPositionY;
   }
 
+  _showVolume(currentVolume) {
+    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    volumePart.visible = true;
+
+    volumePart.material.uniforms.uAlpha.value = 1;
+    volumePart.material.uniforms.uRectsCount.value = currentVolume;
+
+    if (this._volumeTween) {
+      this._volumeTween.stop();
+    }
+
+    this._volumeTween = new TWEEN.Tween(volumePart.material.uniforms.uAlpha)
+      .to({ value: 0 }, 600)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(1000)
+      .start()
+      .onComplete(() => {
+        volumePart.visible = false;
+      });
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -320,21 +372,25 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorScreenShowreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCloseIcon);
+    const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCloseIcon, monitorScreenVolume);
 
     screenGroup.position.copy(monitorScreen.position);
 
     const showreelIconOffset = monitorScreenShowreelIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
+    const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
 
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
+    monitorScreenVolume.position.copy(volumeOffset);
   }
 
   _initScreenTextures() {
     this._initScreenTexture();
     this._initButtonsTextures();
+    this._initVolumeTexture();
     this._initShowreelVideo();
   }
 
@@ -372,12 +428,32 @@ export default class Monitor extends RoomObjectAbstract {
 
       part.material = new THREE.ShaderMaterial({
         uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
+        vertexShader: sparkleVertexShader,
+        fragmentShader: sparkleFragmentShader,
       });
     });
 
     this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
+  }
+
+  _initVolumeTexture() {
+    const volumePart = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    const texture = Loader.assets['volume'];
+
+    const uniforms = {
+      uTexture: { value: texture },
+      uRectsCount: { value: this._currentVolume },
+      uAlpha: { value: 1 },
+    };
+
+    volumePart.material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: volumeVertexShader,
+      fragmentShader: volumeFragmentShader,
+      transparent: true,
+    });
+
+    volumePart.visible = false;
   }
 
   _initShowreelVideo() {

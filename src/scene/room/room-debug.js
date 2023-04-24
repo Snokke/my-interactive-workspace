@@ -79,6 +79,8 @@ export default class RoomDebug {
       label: 'Volume',
       min: 0,
       max: 1,
+      step: 0.1,
+      format: (v) => (v * 100).toFixed(0),
     }).on('change', () => {
       this.events.post('volumeChanged');
     });

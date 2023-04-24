@@ -7,6 +7,7 @@ import { OrbitControls } from '/node_modules/three/examples/jsm/controls/OrbitCo
 import GUIHelper from "./gui-helper";
 import { GUI_CONFIG } from "./gui-helper-config";
 import { DEBUG_MENU_START_STATE } from "../../configs/debug-menu-start-state";
+import SCENE_CONFIG from "../../configs/scene-config";
 
 export default class Scene3DDebugMenu {
   constructor(scene, camera, renderer) {
@@ -128,12 +129,12 @@ export default class Scene3DDebugMenu {
       orbitControls.dampingFactor = 0.04;
       orbitControls.rotateSpeed = 0.5;
 
-      orbitControls.target.set(0, 3.5, 0);
+      orbitControls.target.set(SCENE_CONFIG.camera.lookAt.x, SCENE_CONFIG.camera.lookAt.y, SCENE_CONFIG.camera.lookAt.z);
 
       orbitControls.minPolarAngle = 0;
       orbitControls.maxPolarAngle = Math.PI * 0.5;
 
-      orbitControls.minDistance = 2;
+      // orbitControls.minDistance = 2;
       orbitControls.maxDistance = 50;
 
       orbitControls.panSpeed = 0.5;
