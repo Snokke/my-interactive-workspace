@@ -16,6 +16,8 @@ export default class RoomDebug {
     this._listShowAnimation = null;
     this._buttonShowAnimation = null;
     this._roomFolder = null;
+    this._soundsEnabledController = null;
+    this._soundsVolumeController = null;
 
     this._init();
   }
@@ -28,6 +30,14 @@ export default class RoomDebug {
   disableShowAnimationControllers() {
     this._listShowAnimation.disabled = true;
     this._buttonShowAnimation.disabled = true;
+  }
+
+  updateSoundsEnabledController() {
+    this._soundsEnabledController.refresh();
+  }
+
+  updateSoundsVolumeController() {
+    this._soundsVolumeController.refresh();
   }
 
   _init() {
@@ -69,13 +79,13 @@ export default class RoomDebug {
   _initSoundsDebug() {
     this._roomFolder.addSeparator();
 
-    this._roomFolder.addInput(SOUNDS_CONFIG, 'enabled', {
+    this._soundsEnabledController = this._roomFolder.addInput(SOUNDS_CONFIG, 'enabled', {
       label: 'Sound',
     }).on('change', () => {
       this.events.post('soundsEnabledChanged');
     });
 
-    this._roomFolder.addInput(SOUNDS_CONFIG, 'volume', {
+    this._soundsVolumeController = this._roomFolder.addInput(SOUNDS_CONFIG, 'volume', {
       label: 'Volume',
       min: 0,
       max: 1,

@@ -169,16 +169,22 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _onActiveKeysClick(keyId) {
-    if (keyId === 15) { // Change backlight type key
-      this._keysBacklight.switchType();
-    }
+    const keysAction = {
+      0: () => this.events.post('onKeyboardEscClick'), // ESC
+      79: () => this.events.post('onKeyboardSpaceClick'), // Space
+      15: () => this._keysBacklight.switchType(), // Backlight
 
-    if (keyId === 0) { // ESC
-      this.events.post('onKeyboardEscClick');
-    }
+      10: () => this.events.post('onKeyboardMuteClick'), // F10 - Mute
+      11: () => this.events.post('onKeyboardVolumeDownClick'), // F11 - Volume Down
+      12: () => this.events.post('onKeyboardVolumeUpClick'), // F12 - Volume Up
 
-    if (keyId === 79) { // Space
-      this.events.post('onKeyboardBackspaceClick');
+      7: () => this.events.post('onKeyboardPreviousTrackClick'), // F7 - Previous Track
+      8: () => this.events.post('onKeyboardPlayPauseClick'), // F8 - Play/Pause
+      9: () => this.events.post('onKeyboardNextTrackClick'), // F9 - Next Track
+    };
+
+    if (keysAction[keyId]) {
+      keysAction[keyId]();
     }
   }
 

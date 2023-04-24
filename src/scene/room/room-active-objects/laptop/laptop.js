@@ -27,6 +27,7 @@ export default class Laptop extends RoomObjectAbstract {
     this._pNormal = new THREE.Vector3(0, 1, 0);
 
     this._previousArmMountAngle = 0;
+    this._currentMusicIndex = 0;
 
     this._init();
   }
@@ -173,6 +174,30 @@ export default class Laptop extends RoomObjectAbstract {
     this._switchMusic(partType);
   }
 
+  playNextSong() {
+    this._currentMusicIndex += 1;
+
+    if (this._currentMusicIndex >= MUSIC_ORDER.length) {
+      this._currentMusicIndex = 0;
+    }
+
+    const musicType = MUSIC_ORDER[this._currentMusicIndex];
+    const partType = this._getPartTypeByMusicType(musicType);
+    this._switchMusic(partType);
+  }
+
+  playPreviousSong() {
+    this._currentMusicIndex -= 1;
+
+    if (this._currentMusicIndex < 0) {
+      this._currentMusicIndex = MUSIC_ORDER.length - 1;
+    }
+
+    const musicType = MUSIC_ORDER[this._currentMusicIndex];
+    const partType = this._getPartTypeByMusicType(musicType);
+    this._switchMusic(partType);
+  }
+
   stopCurrentMusic() {
     if (LAPTOP_CONFIG.currentMusicType) {
       const previousPartType = this._getPartTypeByMusicType(LAPTOP_CONFIG.currentMusicType);
@@ -206,6 +231,12 @@ export default class Laptop extends RoomObjectAbstract {
 
   onButtonOut() {
     this._clearButtonsColor();
+  }
+
+  playPauseCurrentMusic() {
+    const musicType = MUSIC_ORDER[this._currentMusicIndex];
+    const partType = this._getPartTypeByMusicType(musicType);
+    this._switchMusic(partType);
   }
 
   _clearButtonsColor() {
@@ -285,8 +316,16 @@ export default class Laptop extends RoomObjectAbstract {
       this._setPartTexturePlaying(partType)
     }
 
+    this._currentMusicIndex = this._getCurrentMusicIndex(partType);
     const signalName = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].signalName;
     this.events.post(signalName);
+  }
+
+  _getCurrentMusicIndex(partType) {
+    const musicType = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].musicType;
+    const musicIndex = MUSIC_ORDER.indexOf(musicType);
+
+    return musicIndex;
   }
 
   _setPartTexturePause(partType) {
@@ -460,6 +499,25 @@ export default class Laptop extends RoomObjectAbstract {
           resultMusicType = nextMusicType;
         } else {
           resultMusicType = MUSIC_ORDER[0];
+        }
+      }
+    });
+
+    return resultMusicType;
+  }
+
+  _getPreviousMusicType() {
+    let resultMusicType = null;
+
+    MUSIC_ORDER.forEach((musicType, index) => {
+      if (musicType === LAPTOP_CONFIG.currentMusicType) {
+        const previosIndex = index - 1;
+        const previosMusicType = MUSIC_ORDER[previosIndex];
+
+        if (previosMusicType) {
+          resultMusicType = previosMusicType;
+        } else {
+          resultMusicType = MUSIC_ORDER[MUSIC_ORDER.length - 1];
         }
       }
     });

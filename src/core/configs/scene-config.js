@@ -9,8 +9,12 @@ const SCENE_CONFIG = {
     // lookAt: { x: 0, y: 3.5, z: 0 },
 
     // monitor
-    startPosition: { x: 0, y: 5, z: 2 },
-    lookAt: { x: 0, y: 5, z: -1 },
+    // startPosition: { x: 0, y: 5, z: 2 },
+    // lookAt: { x: 0, y: 5, z: -1 },
+
+    // keyboard
+    startPosition: { x: 0, y: 6, z: 1 },
+    lookAt: { x: 0, y: 3.5, z: -1 },
   },
   lights: {
     ambient: {

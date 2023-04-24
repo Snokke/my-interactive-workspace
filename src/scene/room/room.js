@@ -383,9 +383,16 @@ export default class Room extends THREE.Group {
   _initKeyboardSignals() {
     const keyboard = this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard];
     const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+    const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
 
     keyboard.events.on('onKeyboardEscClick', () => monitor.stopShowreelVideo());
-    keyboard.events.on('onKeyboardBackspaceClick', () => monitor.pauseShowreelVideo());
+    keyboard.events.on('onKeyboardSpaceClick', () => monitor.pauseShowreelVideo());
+    keyboard.events.on('onKeyboardMuteClick', () => this._onKeyboardMuteClick());
+    keyboard.events.on('onKeyboardVolumeDownClick', () => this._onKeyboardVolumeDownClick());
+    keyboard.events.on('onKeyboardVolumeUpClick', () => this._onKeyboardVolumeUpClick());
+    keyboard.events.on('onKeyboardPreviousTrackClick', () => laptop.playPreviousSong());
+    keyboard.events.on('onKeyboardPlayPauseClick', () => laptop.playPauseCurrentMusic());
+    keyboard.events.on('onKeyboardNextTrackClick', () => laptop.playNextSong());
   }
 
   _initDebugMenuSignals() {
@@ -409,6 +416,33 @@ export default class Room extends THREE.Group {
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
     monitor.events.on('onShowreelStop', () => speakers.onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
+  }
+
+  _onKeyboardMuteClick() {
+    SOUNDS_CONFIG.enabled = !SOUNDS_CONFIG.enabled;
+    this._roomDebug.updateSoundsEnabledController();
+    this._onSoundsEnabledChanged();
+  }
+
+  _onKeyboardVolumeUpClick() {
+    SOUNDS_CONFIG.volume += 0.1;
+
+    if (SOUNDS_CONFIG.volume > 1) {
+      SOUNDS_CONFIG.volume = 1;
+    }
+
+    this._roomDebug.updateSoundsVolumeController();
+    this._onVolumeChanged();
+  }
+
+  _onKeyboardVolumeDownClick() {
+    SOUNDS_CONFIG.volume -= 0.1;
+    if (SOUNDS_CONFIG.volume < 0) {
+      SOUNDS_CONFIG.volume = 0;
+    }
+
+    this._roomDebug.updateSoundsVolumeController();
+    this._onVolumeChanged();
   }
 
   _onWindowStartOpening() {
