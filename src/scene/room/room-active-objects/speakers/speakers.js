@@ -333,6 +333,8 @@ export default class Speakers extends RoomObjectAbstract {
   _onRecreateParticles() {
     this._rightSoundParticles.recreate();
     this._leftSoundParticles.recreate();
+
+    this._setPowerOn();
   }
 
   _setCurrentMusic(musicType) {
