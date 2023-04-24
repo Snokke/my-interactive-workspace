@@ -10,6 +10,7 @@ import MouseAreaBorders from './mouse-area-borders';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
 import Loader from '../../../../core/loader';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Mouse extends RoomObjectAbstract {
@@ -20,8 +21,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._maxAreaVector = null;
     this._mouseAreaBorders = null;
     this._helpArrows = null;
-    this._sound = null;
-    this._soundHelper = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -157,26 +156,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._helpArrows.hide();
   }
 
-  onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
-
-    if (this._isSoundsEnabled) {
-      this._sound.setVolume(this._volume);
-    }
-  }
-
-  enableSound() {
-    super.enableSound();
-
-    this._sound.setVolume(this._volume);
-  }
-
-  disableSound() {
-    super.disableSound();
-
-    this._sound.setVolume(0);
-  }
-
   _onMouseClick(intersect) {
     this._isMouseClick = true;
     const pIntersect = new THREE.Vector3().copy(intersect.point);
@@ -195,14 +174,6 @@ export default class Mouse extends RoomObjectAbstract {
     MOUSE_CONFIG.position.y = this._currentPosition.z / MOUSE_CONFIG.movingArea.height * 2;
 
     this._debugMenu.updatePosition();
-  }
-
-  _playSound() {
-    if (this._sound.isPlaying) {
-      this._sound.stop();
-    }
-
-    this._sound.play();
   }
 
   _init() {
@@ -256,23 +227,29 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
     this.add(sound);
 
-    sound.setRefDistance(10);
+    sound.setRefDistance(soundConfig.refDistance);
 
     const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
-    sound.position.copy(leftKey.position);
+    this._sound.position.copy(leftKey.position);
+
+    sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
-      sound.setBuffer(Loader.assets['keyboard-key-press']);
+      this._sound.setBuffer(Loader.assets['keyboard-key-press']);
     });
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new SoundHelper(0.2);
-    this.add(soundHelper);
-    soundHelper.position.copy(this._sound.position);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    this._soundHelper = new SoundHelper(helperSize);
+    this.add(this._soundHelper);
+
+    this._soundHelper.position.copy(this._sound.position);
   }
 
   _initDebugMenu() {
@@ -287,7 +264,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._debugMenu.events.on('onAreaChanged', () => this._onDebugAreaChanged());
     this._debugMenu.events.on('onDistanceToShowBorderChanged', () => this._onDistanceToShowBorderChanged());
     this._debugMenu.events.on('onBorderColorUpdated', () => this._onBorderColorUpdated());
-    this._debugMenu.events.on('onCursorScaleChanged', () => this._onCursorScaleChanged());
+    this._debugMenu.events.on('onCursorScaleChanged', () => this.events.post('onCursorScaleChanged'));
     this._debugMenu.events.on('onLeftKeyClick', () => this._onLeftKeyClick());
   }
 
@@ -316,9 +293,5 @@ export default class Mouse extends RoomObjectAbstract {
 
   _onBorderColorUpdated() {
     this._mouseAreaBorders.onBorderColorUpdated();
-  }
-
-  _onCursorScaleChanged() {
-    this.events.post('onCursorScaleChanged');
   }
 }

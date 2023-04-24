@@ -6,6 +6,7 @@ import { FLOOR_LAMP_PART_TYPE } from './floor-lamp-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class FloorLamp extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -54,34 +55,6 @@ export default class FloorLamp extends RoomObjectAbstract {
     console.log('Switch light');
   }
 
-  onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
-
-    if (this._isSoundsEnabled) {
-      this._sound.setVolume(this._volume);
-    }
-  }
-
-  enableSound() {
-    super.enableSound();
-
-    this._sound.setVolume(this._volume);
-  }
-
-  disableSound() {
-    super.disableSound();
-
-    this._sound.setVolume(0);
-  }
-
-  _playSound() {
-    if (this._sound.isPlaying) {
-      this._sound.stop();
-    }
-
-    this._sound.play();
-  }
-
   _init() {
     this._initParts();
     this._addMaterials();
@@ -97,14 +70,18 @@ export default class FloorLamp extends RoomObjectAbstract {
   }
 
   _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
     this.add(sound);
 
-    sound.setRefDistance(10);
+    sound.setRefDistance(soundConfig.refDistance);
 
     const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
     sound.position.copy(stand.position);
     sound.position.y = 5;
+
+    sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
       sound.setBuffer(Loader.assets['keyboard-key-press']);
@@ -112,8 +89,10 @@ export default class FloorLamp extends RoomObjectAbstract {
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new SoundHelper(helperSize);
     this.add(soundHelper);
+
     soundHelper.position.copy(this._sound.position);
   }
 

@@ -7,6 +7,7 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -136,25 +137,25 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
+    this._globalVolume = volume;
 
     if (this._isSoundsEnabled) {
       this._sounds.forEach((sound) => {
-        sound.setVolume(this._volume);
+        sound.setVolume(this._globalVolume * this._objectVolume);
       });
     }
   }
 
   enableSound() {
-    super.enableSound();
+    this._isSoundsEnabled = true;
 
     this._sounds.forEach((sound) => {
-      sound.setVolume(this._volume);
+      sound.setVolume(this._globalVolume * this._objectVolume);
     });
   }
 
   disableSound() {
-    super.disableSound();
+    this._isSoundsEnabled = false;
 
     this._sounds.forEach((sound) => {
       sound.setVolume(0);
@@ -300,11 +301,14 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     for (const key in CASES) {
       const sound = new THREE.PositionalAudio(this._audioListener);
       this.add(sound);
 
-      sound.setRefDistance(10);
+      sound.setRefDistance(soundConfig.refDistance);
+      sound.setVolume(this._globalVolume * this._objectVolume);
 
       const caseType = CASES[key];
       const caseObject = this._parts[caseType];
@@ -322,8 +326,10 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _initSoundHelper() {
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+
     this._sounds.forEach((sound) => {
-      const soundHelper = new SoundHelper(0.25);
+      const soundHelper = new SoundHelper(helperSize);
       this.add(soundHelper);
 
       soundHelper.position.copy(sound.position);

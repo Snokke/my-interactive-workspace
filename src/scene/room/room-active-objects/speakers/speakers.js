@@ -117,11 +117,13 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   onWindowOpened() {
-    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.openedWindowOuterGain);
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+    this._music.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.openedWindowOuterGain);
   }
 
   onWindowClosed() {
-    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.closedWindowOuterGain);
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+    this._music.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.closedWindowOuterGain);
   }
 
   onShowreelPause() {
@@ -145,7 +147,7 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
+    this._globalVolume = volume;
 
     if (this._isSoundsEnabled && this._powerStatus === SPEAKERS_POWER_STATUS.On) {
       this._changeMusicVolume();
@@ -153,13 +155,13 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   enableSound() {
-    super.enableSound();
+    this._isSoundsEnabled = true;
 
     this._changeMusicVolume();
   }
 
   disableSound() {
-    super.disableSound();
+    this._isSoundsEnabled = false;
 
     this._music.setVolume(0);
   }
@@ -222,7 +224,7 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _changeMusicVolume() {
-    this._music.setVolume(this._volume * this._speakersVolume);
+    this._music.setVolume(this._globalVolume * this._speakersVolume * this._objectVolume);
   }
 
   _init() {
@@ -276,16 +278,21 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initPositionalAudio() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     this._music = new THREE.PositionalAudio(this._audioListener);
-    this._music.setRefDistance(10);
-    this._music.setDirectionalCone(120, 160, SOUNDS_CONFIG.closedWindowOuterGain);
-
-    this._music.rotation.y = Math.PI * 0.22;
-
     this._musicGroup.add(this._music);
+
+    this._music.setRefDistance(soundConfig.refDistance);
+    this._music.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.closedWindowOuterGain);
+
+    this._music.rotation.y = soundConfig.rotation * THREE.MathUtils.DEG2RAD;
+
+    this._music.setVolume(this._globalVolume * this._speakersVolume * this._objectVolume);
 
     const fftSize = 128;
     this._analyser = new THREE.AudioAnalyser(this._music, fftSize);
+
   }
 
   _initParticles() {
@@ -297,7 +304,8 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _initHelpers() {
-    const audioHelper = this._audioHelper = new PositionalAudioHelper(this._music, 2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const audioHelper = this._audioHelper = new PositionalAudioHelper(this._music, helperSize);
     this._musicGroup.add(audioHelper);
 
     audioHelper.rotation.y = this._music.rotation.y;

@@ -10,6 +10,7 @@ import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './keys-config';
 import { KEYBOARD_CONFIG } from './keyboard-config';
 import { getClosestKeyByX } from './keys-helper';
 import SoundHelper from '../../shared-objects/sound-helper';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -104,25 +105,25 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
+    this._globalVolume = volume;
 
     if (this._isSoundsEnabled) {
       this._keySounds.forEach((sound) => {
-        sound.setVolume(this._volume);
+        sound.setVolume(this._globalVolume * this._objectVolume);
       });
     }
   }
 
   enableSound() {
-    super.enableSound();
+    this._isSoundsEnabled = true;
 
     this._keySounds.forEach((sound) => {
-      sound.setVolume(this._volume);
+      sound.setVolume(this._globalVolume * this._objectVolume);
     });
   }
 
   disableSound() {
-    super.disableSound();
+    this._isSoundsEnabled = false;
 
     this._keySounds.forEach((sound) => {
       sound.setVolume(0);
@@ -461,12 +462,16 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _initKeySounds() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     const soundsCount = 3;
 
     for (let i = 0; i < soundsCount; i++) {
       const sound = new THREE.PositionalAudio(this._audioListener);
-      sound.setRefDistance(10);
+      sound.setRefDistance(soundConfig.refDistance);
       sound.position.y = 0.1;
+
+      sound.setVolume(this._globalVolume * this._objectVolume);
 
       this._keysGroup.add(sound);
       this._keySounds.push(sound);
@@ -480,8 +485,10 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new SoundHelper(helperSize);
     this._keysGroup.add(soundHelper);
+
     soundHelper.position.copy(this._keySounds[0].position);
   }
 

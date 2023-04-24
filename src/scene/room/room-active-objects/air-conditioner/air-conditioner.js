@@ -103,32 +103,14 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._updateTemperatureVisibility();
   }
 
-  onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
-
-    if (this._isSoundsEnabled) {
-      this._sound.setVolume(this._volume);
-    }
-  }
-
-  enableSound() {
-    super.enableSound();
-
-    this._sound.setVolume(this._volume);
-  }
-
-  disableSound() {
-    super.disableSound();
-
-    this._sound.setVolume(0);
-  }
-
   onWindowOpened() {
-    this._sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.openedWindowOuterGain);
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+    this._sound.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.openedWindowOuterGain);
   }
 
   onWindowClosed() {
-    this._sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.closedWindowOuterGain);
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+    this._sound.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.closedWindowOuterGain);
   }
 
   showSoundHelpers() {
@@ -243,17 +225,21 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
     this.add(sound);
 
-    sound.setRefDistance(10);
-    sound.setDirectionalCone(90, 130, SOUNDS_CONFIG.closedWindowOuterGain);
+    sound.setRefDistance(soundConfig.refDistance);
+    sound.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.closedWindowOuterGain);
     sound.loop = true;
 
     const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
     sound.position.copy(door.position);
 
-    sound.rotation.y = 52 * THREE.MathUtils.DEG2RAD;
+    sound.rotation.y = soundConfig.rotation * THREE.MathUtils.DEG2RAD;
+
+    sound.setVolume(this._globalVolume * soundConfig.volume);
 
     Loader.events.on('onAudioLoaded', () => {
       sound.setBuffer(Loader.assets['air-conditioner']);
@@ -261,7 +247,8 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new PositionalAudioHelper(this._sound, 2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new PositionalAudioHelper(this._sound, helperSize);
     this.add(soundHelper);
 
     soundHelper.position.copy(this._sound.position);

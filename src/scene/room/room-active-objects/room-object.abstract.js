@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
+import SoundHelper from '../shared-objects/sound-helper';
+import { SOUNDS_CONFIG } from '../data/sounds-config';
 
 export default class RoomObjectAbstract extends THREE.Group {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -23,8 +25,10 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isInputEnabled = true;
     this._isPointerOver = false;
 
+    this._sound = null;
     this._soundHelper = null;
-    this._volume = 1;
+    this._objectVolume = SOUNDS_CONFIG.objects[roomObjectType] ? SOUNDS_CONFIG.objects[roomObjectType].volume : 1;
+    this._globalVolume = 1;
     this._isSoundsEnabled = true;
 
     this._hasDebugMenu = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu ? true : false;
@@ -108,15 +112,27 @@ export default class RoomObjectAbstract extends THREE.Group {
   }
 
   onVolumeChanged(volume) {
-    this._volume = volume;
+    this._globalVolume = volume;
+
+    if (this._sound && this._isSoundsEnabled) {
+      this._sound.setVolume(this._globalVolume * this._objectVolume);
+    }
   }
 
   enableSound() {
     this._isSoundsEnabled = true;
+
+    if (this._sound) {
+      this._sound.setVolume(this._globalVolume * this._objectVolume);
+    }
   }
 
   disableSound() {
     this._isSoundsEnabled = false;
+
+    if (this._sound) {
+      this._sound.setVolume(0);
+    }
   }
 
   _setPositionForShowAnimation() {
@@ -174,6 +190,28 @@ export default class RoomObjectAbstract extends THREE.Group {
       this.add(part);
     }
   }
+
+  _playSound() {
+    if (this._sound.isPlaying) {
+      this._sound.stop();
+    }
+
+    this._sound.play();
+  }
+
+  // _initSound() {
+  //   const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
+
+  //   const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+  //   sound.setRefDistance(soundConfig.refDistance);
+
+  //   sound.setVolume(this._globalVolume * this._objectVolume);
+  // }
+
+  // _initSoundHelper() {
+  //   const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+  //   this._soundHelper = new SoundHelper(helperSize);
+  // }
 
   _initDebugMenu() {
     const debugMenuClass = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu;

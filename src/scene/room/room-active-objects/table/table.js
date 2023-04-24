@@ -7,6 +7,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -99,26 +100,6 @@ export default class Table extends RoomObjectAbstract {
 
     this._setTableState(TABLE_STATE.Moving);
     this._startFromHandleMoveOut(handle);
-  }
-
-  onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
-
-    if (this._isSoundsEnabled) {
-      this._sound.setVolume(this._volume);
-    }
-  }
-
-  enableSound() {
-    super.enableSound();
-
-    this._sound.setVolume(this._volume);
-  }
-
-  disableSound() {
-    super.disableSound();
-
-    this._sound.setVolume(0);
   }
 
   getTopTableGroup() {
@@ -263,14 +244,6 @@ export default class Table extends RoomObjectAbstract {
     handle.position.z = handle.userData.startPosition.z;
   }
 
-  _playSound() {
-    if (this._sound.isPlaying) {
-      this._sound.stop();
-    }
-
-    this._sound.play();
-  }
-
   _init() {
     this._initParts();
     this._addMaterials();
@@ -303,14 +276,18 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
     const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
     this.add(sound);
 
-    sound.setRefDistance(10);
+    sound.setRefDistance(soundConfig.refDistance);
 
     const handle = this._parts[TABLE_PART_TYPE.Handle];
     sound.position.copy(handle.position);
     sound.position.z += 1.6;
+
+    sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
       sound.setBuffer(Loader.assets['keyboard-key-press']);
@@ -318,8 +295,10 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new SoundHelper(helperSize);
     this.add(soundHelper);
+
     soundHelper.position.copy(this._sound.position);
   }
 

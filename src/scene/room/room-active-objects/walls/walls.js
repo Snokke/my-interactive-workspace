@@ -8,6 +8,7 @@ import { ROOM_CONFIG } from '../../data/room-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 import Loader from '../../../../core/loader';
 import { rotateAroundPoint } from '../../shared-objects/helpers';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -104,23 +105,23 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   onVolumeChanged(volume) {
-    super.onVolumeChanged(volume);
+    this._globalVolume = volume;
 
     if (this._isSoundsEnabled) {
-      this._openSound.setVolume(this._volume);
-      this._closeSound.setVolume(this._volume);
+      this._openSound.setVolume(this._globalVolume * this._objectVolume);
+      this._closeSound.setVolume(this._globalVolume * this._objectVolume);
     }
   }
 
   enableSound() {
-    super.enableSound();
+    this._isSoundsEnabled = true;
 
-    this._openSound.setVolume(this._volume);
-    this._closeSound.setVolume(this._volume);
+    this._openSound.setVolume(this._globalVolume * this._objectVolume);
+    this._closeSound.setVolume(this._globalVolume * this._objectVolume);
   }
 
   disableSound() {
-    super.disableSound();
+    this._isSoundsEnabled = false;
 
     this._openSound.setVolume(0);
     this._closeSound.setVolume(0);
@@ -339,6 +340,9 @@ export default class Walls extends RoomObjectAbstract {
     this._openSound.position.copy(glassTop.position);
     this._closeSound.position.copy(glassTop.position);
 
+    this._openSound.setVolume(this._globalVolume * this._objectVolume);
+    this._closeSound.setVolume(this._globalVolume * this._objectVolume);
+
     Loader.events.on('onAudioLoaded', () => {
       this._openSound.setBuffer(Loader.assets['window-open']);
       this._closeSound.setBuffer(Loader.assets['window-close']);
@@ -346,22 +350,26 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initOpenSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
     const openSound = this._openSound = new THREE.PositionalAudio(this._audioListener);
     this._windowGroup.add(openSound);
 
-    openSound.setRefDistance(10);
+    openSound.setRefDistance(soundConfig.refDistance);
   }
 
   _initCloseSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
     const closeSound = this._closeSound = new THREE.PositionalAudio(this._audioListener);
     this._windowGroup.add(closeSound);
 
-    closeSound.setRefDistance(10);
+    closeSound.setRefDistance(soundConfig.refDistance);
   }
 
   _initSoundHelper() {
-    const soundHelper = this._soundHelper = new SoundHelper(0.2);
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new SoundHelper(helperSize);
     this._windowGroup.add(soundHelper);
+
     soundHelper.position.copy(this._openSound.position);
   }
 

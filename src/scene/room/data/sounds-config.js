@@ -7,55 +7,56 @@ const SOUNDS_CONFIG = {
   closedWindowOuterGain: 0.1,
   openedWindowOuterGain: 0.6,
   objects: {
-    [ROOM_OBJECT_TYPE.AirConditioner]: {
-      enabled: true,
+    [ROOM_OBJECT_TYPE.Speakers]: {
       volume: 1,
       refDistance: 10,
-      helperSize: 0.2,
-      // coneInnerAngle: 0,
-      // coneOuterAngle: 0,
+      rotation: 40,
+      coneInnerAngle: 120,
+      coneOuterAngle: 160,
+      helperSize: 2,
+    },
+    [ROOM_OBJECT_TYPE.AirConditioner]: {
+      volume: 1,
+      refDistance: 10,
+      rotation: 52,
+      coneInnerAngle: 90,
+      coneOuterAngle: 130,
+      helperSize: 2,
     },
     [ROOM_OBJECT_TYPE.Keyboard]: {
-      enabled: true,
       volume: 1,
       refDistance: 10,
-      helperSize: 0.2,
+      helperSize: 0.15,
+    },
+    [ROOM_OBJECT_TYPE.Mouse]: {
+      volume: 1,
+      refDistance: 10,
+      helperSize: 0.15,
     },
     [ROOM_OBJECT_TYPE.Locker]: {
-      enabled: true,
       volume: 1,
       refDistance: 10,
       helperSize: 0.2,
     },
     [ROOM_OBJECT_TYPE.Table]: {
-      enabled: true,
       volume: 1,
       refDistance: 10,
       helperSize: 0.2,
     },
-    [ROOM_OBJECT_TYPE.Window]: {
-      enabled: true,
+    [ROOM_OBJECT_TYPE.Walls]: {
       volume: 1,
       refDistance: 10,
-      helperSize: 0.2,
+      helperSize: 0.4,
     },
     [ROOM_OBJECT_TYPE.Chair]: {
-      enabled: true,
       volume: 1,
       refDistance: 10,
-      helperSize: 0.2,
+      helperSize: 0.4,
     },
-    [ROOM_OBJECT_TYPE.Lamp]: {
-      enabled: true,
+    [ROOM_OBJECT_TYPE.FloorLamp]: {
       volume: 1,
       refDistance: 10,
-      helperSize: 0.2,
-    },
-    [ROOM_OBJECT_TYPE.Mouse]: {
-      enabled: true,
-      volume: 1,
-      refDistance: 10,
-      helperSize: 0.2,
+      helperSize: 0.3,
     },
   }
 }
