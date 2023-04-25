@@ -168,7 +168,7 @@ export default class Walls extends RoomObjectAbstract {
     if (this._previousWindowState === WINDOW_STATE.Opened) {
       this._playCloseSound();
     } else {
-      this._playOpenSound();
+      this._playSound();
     }
 
     const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
@@ -264,7 +264,7 @@ export default class Walls extends RoomObjectAbstract {
     this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
   }
 
-  _playOpenSound() {
+  _playSound() {
     this._stopSounds();
     this._openSound.play();
   }

@@ -240,7 +240,7 @@ export default class Mouse extends RoomObjectAbstract {
     sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
-      this._sound.setBuffer(Loader.assets['keyboard-key-press']);
+      this._sound.setBuffer(Loader.assets['mouse-click']);
     });
   }
 

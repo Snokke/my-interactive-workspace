@@ -41,6 +41,12 @@ const sounds = [
   'air-conditioner.mp3',
   'window-open.mp3',
   'window-close.mp3',
+  'mouse-click.mp3',
+  'lamp-switch.mp3',
+  'chair-rolling.mp3',
+  'open-case.mp3',
+  'close-case.mp3',
+  'table-handle.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

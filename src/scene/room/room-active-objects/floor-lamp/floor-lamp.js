@@ -84,7 +84,7 @@ export default class FloorLamp extends RoomObjectAbstract {
     sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
-      sound.setBuffer(Loader.assets['keyboard-key-press']);
+      sound.setBuffer(Loader.assets['lamp-switch']);
     });
   }
 

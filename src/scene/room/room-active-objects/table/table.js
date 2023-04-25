@@ -144,6 +144,8 @@ export default class Table extends RoomObjectAbstract {
   }
 
   _startFromHandleRotation(handle) {
+    Delayed.call(200, () => this._playSound());
+
     this._handleState = TABLE_HANDLE_STATE.Rotating;
     this._previousHandleAngle = handle.rotation.z;
 
@@ -290,7 +292,7 @@ export default class Table extends RoomObjectAbstract {
     sound.setVolume(this._globalVolume * this._objectVolume);
 
     Loader.events.on('onAudioLoaded', () => {
-      sound.setBuffer(Loader.assets['keyboard-key-press']);
+      sound.setBuffer(Loader.assets['table-handle']);
     });
   }
 

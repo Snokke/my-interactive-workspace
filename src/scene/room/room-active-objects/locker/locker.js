@@ -18,7 +18,8 @@ export default class Locker extends RoomObjectAbstract {
     this._casesState = [];
     this._casesPreviousState = [];
     this._caseMoveTween = [];
-    this._sounds = [];
+    this._openSounds = [];
+    this._closeSounds = [];
     this._soundHelpers = [];
 
     this._init();
@@ -98,8 +99,11 @@ export default class Locker extends RoomObjectAbstract {
       }
     } else {
       for (let i = 0; i < LOCKER_CONFIG.casesCount; i += 1) {
-        this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.In);
+        this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.In, 0, false);
       }
+
+      const time = LOCKER_CONFIG.caseMoveDistance / LOCKER_CONFIG.caseMoveSpeed * 1000;
+      Delayed.call(time, () => this._playCloseSound(0));
     }
   }
 
@@ -140,7 +144,11 @@ export default class Locker extends RoomObjectAbstract {
     this._globalVolume = volume;
 
     if (this._isSoundsEnabled) {
-      this._sounds.forEach((sound) => {
+      this._openSounds.forEach((sound) => {
+        sound.setVolume(this._globalVolume * this._objectVolume);
+      });
+
+      this._closeSounds.forEach((sound) => {
         sound.setVolume(this._globalVolume * this._objectVolume);
       });
     }
@@ -149,7 +157,11 @@ export default class Locker extends RoomObjectAbstract {
   enableSound() {
     this._isSoundsEnabled = true;
 
-    this._sounds.forEach((sound) => {
+    this._openSounds.forEach((sound) => {
+      sound.setVolume(this._globalVolume * this._objectVolume);
+    });
+
+    this._closeSounds.forEach((sound) => {
       sound.setVolume(this._globalVolume * this._objectVolume);
     });
   }
@@ -157,7 +169,11 @@ export default class Locker extends RoomObjectAbstract {
   disableSound() {
     this._isSoundsEnabled = false;
 
-    this._sounds.forEach((sound) => {
+    this._openSounds.forEach((sound) => {
+      sound.setVolume(0);
+    });
+
+    this._closeSounds.forEach((sound) => {
       sound.setVolume(0);
     });
   }
@@ -178,7 +194,7 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _moveCase(caseId, direction, delay = 0) {
+  _moveCase(caseId, direction, delay = 0, playSound = true) {
     this._stopCaseMoveTween(caseId);
     const endState = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
 
@@ -200,19 +216,26 @@ export default class Locker extends RoomObjectAbstract {
       .start();
 
     this._caseMoveTween[caseId].onUpdate(() => {
-      this._sounds[caseId].position.copy(casePart.position);
-      this._sounds[caseId].position.z += 0.8;
-      this._soundHelpers[caseId].position.copy(this._sounds[caseId].position);
+      this._openSounds[caseId].position.copy(casePart.position);
+      this._openSounds[caseId].position.z += 0.8;
+      this._soundHelpers[caseId].position.copy(this._openSounds[caseId].position);
     });
 
     this._caseMoveTween[caseId].onStart(() => {
       this._casesState[caseId] = LOCKER_CASE_STATE.Moving;
-      this._playSound(caseId);
+
+      if (playSound) {
+        this._playOpenSound(caseId);
+      }
     });
 
     this._caseMoveTween[caseId].onComplete(() => {
       this._casesState[caseId] = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
       this._casesPreviousState[caseId] = this._casesState[caseId];
+
+      if (playSound && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+        this._playCloseSound(caseId);
+      }
     });
   }
 
@@ -253,12 +276,20 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
-  _playSound(caseId) {
-    if (this._sounds[caseId].isPlaying) {
-      this._sounds[caseId].stop();
+  _playOpenSound(caseId) {
+    if (this._openSounds[caseId].isPlaying) {
+      this._openSounds[caseId].stop();
     }
 
-    this._sounds[caseId].play();
+    this._openSounds[caseId].play();
+  }
+
+  _playCloseSound(caseId) {
+    if (this._closeSounds[caseId].isPlaying) {
+      this._closeSounds[caseId].stop();
+    }
+
+    this._closeSounds[caseId].play();
   }
 
   _reset() {
@@ -304,23 +335,35 @@ export default class Locker extends RoomObjectAbstract {
     const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
 
     for (const key in CASES) {
-      const sound = new THREE.PositionalAudio(this._audioListener);
-      this.add(sound);
+      const openSound = new THREE.PositionalAudio(this._audioListener);
+      this.add(openSound);
 
-      sound.setRefDistance(soundConfig.refDistance);
-      sound.setVolume(this._globalVolume * this._objectVolume);
+      openSound.setRefDistance(soundConfig.refDistance);
+      openSound.setVolume(this._globalVolume * this._objectVolume);
+
+      const closeSound = new THREE.PositionalAudio(this._audioListener);
+      this.add(closeSound);
+
+      closeSound.setRefDistance(soundConfig.refDistance);
+      closeSound.setVolume(this._globalVolume * this._objectVolume);
 
       const caseType = CASES[key];
       const caseObject = this._parts[caseType];
-      sound.position.copy(caseObject.position);
-      sound.position.z += 0.8;
+      openSound.position.copy(caseObject.position);
+      openSound.position.z += 0.8;
+      closeSound.position.copy(openSound.position);
 
-      this._sounds.push(sound);
+      this._openSounds.push(openSound);
+      this._closeSounds.push(closeSound);
     }
 
     Loader.events.on('onAudioLoaded', () => {
-      this._sounds.forEach((sound) => {
-        sound.setBuffer(Loader.assets['keyboard-key-press'])
+      this._openSounds.forEach((sound) => {
+        sound.setBuffer(Loader.assets['open-case'])
+      });
+
+      this._closeSounds.forEach((sound) => {
+        sound.setBuffer(Loader.assets['close-case'])
       });
     });
   }
@@ -328,7 +371,7 @@ export default class Locker extends RoomObjectAbstract {
   _initSoundHelper() {
     const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
 
-    this._sounds.forEach((sound) => {
+    this._openSounds.forEach((sound) => {
       const soundHelper = new SoundHelper(helperSize);
       this.add(soundHelper);
 
