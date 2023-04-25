@@ -285,6 +285,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._mouseAreaBorders.onAreaChanged();
 
     this.events.post('onAreaChanged');
+    this._mouseAreaBorders.updateMousePosition(this._currentPosition);
   }
 
   _onDistanceToShowBorderChanged() {

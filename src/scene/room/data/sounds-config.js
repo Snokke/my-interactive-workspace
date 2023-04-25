@@ -3,7 +3,7 @@ import { ROOM_OBJECT_TYPE } from "./room-config";
 const SOUNDS_CONFIG = {
   enabled: true,
   volume: 1,
-  debugHelpers: true,
+  debugHelpers: false,
   closedWindowOuterGain: 0.1,
   openedWindowOuterGain: 0.6,
   objects: {

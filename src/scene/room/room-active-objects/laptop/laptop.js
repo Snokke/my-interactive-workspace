@@ -29,6 +29,8 @@ export default class Laptop extends RoomObjectAbstract {
     this._previousArmMountAngle = 0;
     this._currentMusicIndex = 0;
 
+    this._isScreenHided = false;
+
     this._init();
   }
   update(dt) {
@@ -254,6 +256,10 @@ export default class Laptop extends RoomObjectAbstract {
       this._debugMenu.updateLaptopButtonTitle();
     }
 
+    if (this._isScreenHided) {
+      this._showScreen();
+    }
+
     LAPTOP_CONFIG.state = LAPTOP_STATE.Moving;
     this._debugMenu.updateTopPanelState();
     this._stopLaptopTween();
@@ -276,6 +282,7 @@ export default class Laptop extends RoomObjectAbstract {
 
         if (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Closed) {
           this.events.post('onLaptopClosed');
+          this._hideScreen();
         }
 
         LAPTOP_CONFIG.state = LAPTOP_STATE.Idle;
@@ -357,6 +364,30 @@ export default class Laptop extends RoomObjectAbstract {
     this._debugMenu.updateLaptopButtonTitle();
 
     this.events.post('onLaptopClosed');
+  }
+
+  _showScreen() {
+    this._isScreenHided = false;
+
+    const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+    screen.visible = true;
+
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const button = this._parts[partType];
+      button.visible = true;
+    });
+  }
+
+  _hideScreen() {
+    this._isScreenHided = true;
+
+    const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
+    screen.visible = false;
+
+    LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
+      const button = this._parts[partType];
+      button.visible = false;
+    });
   }
 
   _init() {
