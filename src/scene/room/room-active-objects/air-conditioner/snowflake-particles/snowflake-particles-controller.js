@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { AIR_CONDITIONER_CONFIG } from "../air-conditioner-config";
+import { AIR_CONDITIONER_CONFIG } from "../data/air-conditioner-config";
 import SnowflakeParticles from "./snowflake-particles";
 import { SNOWFLAKE_PARTICLES_CONFIG } from "./snowflake-particles-config";
 import { SNOWFLAKE_PARTICLES_TYPE } from "./snowflake-particles-data";

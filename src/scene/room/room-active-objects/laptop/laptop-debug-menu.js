@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, MUSIC_CONFIG } from "./laptop-config";
-import { LAPTOP_POSITION_STATE, MUSIC_TYPE } from "./laptop-data";
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, MUSIC_CONFIG } from "./data/laptop-config";
+import { LAPTOP_POSITION_STATE, MUSIC_TYPE } from "./data/laptop-data";
 
 export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

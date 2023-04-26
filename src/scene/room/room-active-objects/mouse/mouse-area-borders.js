@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { AREA_BORDER_TYPE } from "./mouse-data";
-import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from './mouse-config';
+import { AREA_BORDER_TYPE } from "./data/mouse-data";
+import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from './data/mouse-config';
 import vertexShader from './mouse-area-borders-shaders/mouse-area-borders-vertex.glsl';
 import fragmentShader from './mouse-area-borders-shaders/mouse-area-borders-fragment.glsl';
 

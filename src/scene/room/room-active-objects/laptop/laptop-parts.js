@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { LAPTOP_PART_TYPE, LAPTOP_SCREEN_MUSIC_PARTS } from './laptop-data';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from './laptop-config';
+import { LAPTOP_PART_TYPE, LAPTOP_SCREEN_MUSIC_PARTS } from './data/laptop-data';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG } from './data/laptop-config';
 
 export default class LaptopParts extends THREE.Group {
   constructor(parts) {

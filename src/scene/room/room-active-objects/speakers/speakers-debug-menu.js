@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { SOUND_PARTICLES_CONFIG, SPEAKERS_CONFIG } from "./speakers-config";
-import { SPEAKERS_POWER_STATUS } from "./speakers-data";
+import { SOUND_PARTICLES_CONFIG, SPEAKERS_CONFIG } from "./data/speakers-config";
+import { SPEAKERS_POWER_STATUS } from "./data/speakers-data";
 
 export default class SpeakersDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

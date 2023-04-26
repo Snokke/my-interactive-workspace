@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from "./mouse-config";
-import { CURSOR_CONFIG } from './cursor/cursor-config';
+import { MOUSE_AREA_BORDER_CONFIG, MOUSE_CONFIG } from "./data/mouse-config";
+import { CURSOR_CONFIG } from './cursor/data/cursor-config';
 
 export default class MouseDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

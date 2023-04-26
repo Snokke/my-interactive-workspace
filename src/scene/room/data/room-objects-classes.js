@@ -23,7 +23,7 @@ import WindowDebugMenu from "../room-active-objects/walls/window-debug-menu";
 import Bin from "../room-inactive-objects/objects/bin";
 import Carpet from "../room-inactive-objects/objects/carpet";
 import Coaster from "../room-inactive-objects/objects/coaster";
-import Cup from "../room-inactive-objects/objects/cup";
+import Cup from "../room-inactive-objects/objects/cup/cup";
 import Map from "../room-inactive-objects/objects/map";
 import MousePad from "../room-inactive-objects/objects/mousepad";
 import Organizer from "../room-inactive-objects/objects/organizer";

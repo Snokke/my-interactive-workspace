@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import TABLE_CONFIG from "./table-config";
-import { TABLE_STATE } from "./table-data";
+import TABLE_CONFIG from "./data/table-config";
+import { TABLE_STATE } from "./data/table-data";
 
 export default class TableDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

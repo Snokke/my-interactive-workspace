@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { CHAIR_CONFIG } from "./chair-config";
+import { CHAIR_CONFIG } from "./data/chair-config";
 
 export default class ChairDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

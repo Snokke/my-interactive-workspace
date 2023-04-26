@@ -3,13 +3,13 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './speakers-data';
-import { SPEAKERS_CONFIG } from './speakers-config';
+import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './data/speakers-data';
+import { SPEAKERS_CONFIG } from './data/speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
-import SoundParticles from './sound-particels';
-import { MUSIC_TYPE } from '../laptop/laptop-data';
-import { MUSIC_CONFIG } from '../laptop/laptop-config';
+import SoundParticles from './sound-particles/sound-particels';
+import { MUSIC_TYPE } from '../laptop/data/laptop-data';
+import { MUSIC_CONFIG } from '../laptop/data/laptop-config';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
 export default class Speakers extends RoomObjectAbstract {

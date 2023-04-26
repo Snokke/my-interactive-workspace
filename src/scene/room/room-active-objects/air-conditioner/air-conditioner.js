@@ -3,9 +3,9 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CONDITIONER_PART_TYPE, AIR_CONDITIONER_STATE } from './air-conditioner-data';
+import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CONDITIONER_PART_TYPE, AIR_CONDITIONER_STATE } from './data/air-conditioner-data';
 import { ROOM_CONFIG } from '../../data/room-config';
-import { AIR_CONDITIONER_CONFIG } from './air-conditioner-config';
+import { AIR_CONDITIONER_CONFIG } from './data/air-conditioner-config';
 import Loader from '../../../../core/loader';
 import SnowflakeParticles from './snowflake-particles/snowflake-particles';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';

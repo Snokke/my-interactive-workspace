@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './table-data';
-import TABLE_CONFIG from './table-config';
+import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './data/table-data';
+import TABLE_CONFIG from './data/table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
 import { ROOM_CONFIG } from '../../data/room-config';

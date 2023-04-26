@@ -1,5 +1,5 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_CONFIG } from "./monitor-config";
+import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_CONFIG } from "./data/monitor-config";
 
 export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

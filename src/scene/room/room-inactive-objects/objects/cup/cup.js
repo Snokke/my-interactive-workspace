@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import vertexShader from './steam-particles-shaders/steam-particles-vertex.glsl';
 import fragmentShader from './steam-particles-shaders/steam-particles-fragment.glsl';
-import RoomInactiveObjectAbstract from "../room-inactive-object-abstract";
+import RoomInactiveObjectAbstract from "../../room-inactive-object-abstract";
 
 export default class Cup extends RoomInactiveObjectAbstract {
   constructor(roomScene, roomObjectType) {

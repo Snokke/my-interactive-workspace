@@ -1,15 +1,15 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { TABLE_PART_ACTIVITY_CONFIG, TABLE_PART_TYPE } from '../room-active-objects/table/table-data';
-import { WALLS_PART_ACTIVITY_CONFIG, WALLS_PART_TYPE } from '../room-active-objects/walls/walls-data';
-import { LOCKER_PART_ACTIVITY_CONFIG, LOCKER_PART_TYPE } from '../room-active-objects/locker/locker-data';
-import { FLOOR_LAMP_PART_ACTIVITY_CONFIG, FLOOR_LAMP_PART_TYPE } from '../room-active-objects/floor-lamp/floor-lamp-data';
-import { CHAIR_PART_ACTIVITY_CONFIG, CHAIR_PART_TYPE } from '../room-active-objects/chair/chair-data';
-import { AIR_CONDITIONER_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_PART_TYPE } from '../room-active-objects/air-conditioner/air-conditioner-data';
-import { MOUSE_PART_ACTIVITY_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse/mouse-data';
-import { SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/speakers-data';
+import { TABLE_PART_ACTIVITY_CONFIG, TABLE_PART_TYPE } from '../room-active-objects/table/data/table-data';
+import { WALLS_PART_ACTIVITY_CONFIG, WALLS_PART_TYPE } from '../room-active-objects/walls/data/walls-data';
+import { LOCKER_PART_ACTIVITY_CONFIG, LOCKER_PART_TYPE } from '../room-active-objects/locker/data/locker-data';
+import { FLOOR_LAMP_PART_ACTIVITY_CONFIG, FLOOR_LAMP_PART_TYPE } from '../room-active-objects/floor-lamp/data/floor-lamp-data';
+import { CHAIR_PART_ACTIVITY_CONFIG, CHAIR_PART_TYPE } from '../room-active-objects/chair/data/chair-data';
+import { AIR_CONDITIONER_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_PART_TYPE } from '../room-active-objects/air-conditioner/data/air-conditioner-data';
+import { MOUSE_PART_ACTIVITY_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse/data/mouse-data';
+import { SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/data/speakers-data';
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/data/keyboard-data';
-import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
-import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
+import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/data/monitor-data';
+import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/data/laptop-data';
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
 
 const ROOM_CONFIG = {

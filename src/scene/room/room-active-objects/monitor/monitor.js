@@ -3,8 +3,8 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
-import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './monitor-data';
-import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './monitor-config';
+import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
+import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';

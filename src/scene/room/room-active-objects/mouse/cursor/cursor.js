@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import Loader from '../../../../../core/loader';
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '../../laptop/laptop-config';
-import { LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS } from '../../laptop/laptop-data';
+import { LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS } from '../../laptop/data/laptop-data';
 import ClickCircle from './click-circle';
 import MonitorButtonsDebug from './monitor-buttons-debug';
 import { MessageDispatcher } from 'black-engine';
-import { MONITOR_BUTTONS_CONFIG } from '../../monitor/monitor-config';
-import { MONITOR_SCREEN_BUTTONS } from '../../monitor/monitor-data';
-import { CURSOR_CONFIG } from './cursor-config';
+import { MONITOR_BUTTONS_CONFIG } from '../../monitor/data/monitor-config';
+import { MONITOR_SCREEN_BUTTONS } from '../../monitor/data/monitor-data';
+import { CURSOR_CONFIG } from './data/cursor-config';
 import { MONITOR_TYPE } from '../../../data/room-config';
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '../../laptop/data/laptop-config';
 
 export default class Cursor extends THREE.Group {
   constructor(mouse, monitorScreen, laptopScreen) {

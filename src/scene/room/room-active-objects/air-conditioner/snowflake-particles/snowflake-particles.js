@@ -3,7 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Loader from '../../../../../core/loader';
 import { randomBetween } from '../../../shared-objects/helpers';
 import { SNOWFLAKE_PARTICLES_CONFIG, SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE } from './snowflake-particles-config';
-import { AIR_CONDITIONER_CONFIG } from '../air-conditioner-config';
+import { AIR_CONDITIONER_CONFIG } from '../data/air-conditioner-config';
 
 export default class SnowflakeParticles extends THREE.Group {
   constructor(type) {

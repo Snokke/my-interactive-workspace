@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import LOCKER_CONFIG from "./locker-config";
-import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./locker-data";
+import LOCKER_CONFIG from "./data/locker-config";
+import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./data/locker-data";
 
 export default class LockerDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

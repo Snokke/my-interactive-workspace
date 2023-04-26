@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH } from './walls-data';
-import { WINDOW_CONFIG } from "./window-config";
+import { WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH } from './data/walls-data';
+import { WINDOW_CONFIG } from "./data/window-config";
 
 export default class WindowDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {

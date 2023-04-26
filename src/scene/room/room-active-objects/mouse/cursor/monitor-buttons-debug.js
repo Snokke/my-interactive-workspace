@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from "../../laptop/laptop-config";
-import { LAPTOP_SCREEN_MUSIC_PARTS } from "../../laptop/laptop-data";
-import { MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from "../../monitor/monitor-config";
-import { MONITOR_SCREEN_BUTTONS } from "../../monitor/monitor-data";
-import { CURSOR_CONFIG } from "./cursor-config";
+import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from "../../laptop/data/laptop-config";
+import { LAPTOP_SCREEN_MUSIC_PARTS } from "../../laptop/data/laptop-data";
+import { MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from "../../monitor/data/monitor-config";
+import { MONITOR_SCREEN_BUTTONS } from "../../monitor/data/monitor-data";
+import { CURSOR_CONFIG } from "./data/cursor-config";
 
 export default class MonitorButtonsDebug extends THREE.Group {
   constructor(monitorScreen, laptopScreen) {
