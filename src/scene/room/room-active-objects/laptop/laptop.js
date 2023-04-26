@@ -372,6 +372,9 @@ export default class Laptop extends RoomObjectAbstract {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     screen.visible = true;
 
+    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
+    keyboardSymbols.visible = true;
+
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
       button.visible = true;
@@ -384,6 +387,9 @@ export default class Laptop extends RoomObjectAbstract {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     screen.visible = false;
 
+    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
+    keyboardSymbols.visible = false;
+
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
       button.visible = false;
@@ -395,6 +401,7 @@ export default class Laptop extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initScreenTexture();
+    this._initKeyboardTexture();
     this._initButtonsWithSparkles();
     this._initHelpArrows();
     this._initDebugMenu();
@@ -476,6 +483,17 @@ export default class Laptop extends RoomObjectAbstract {
       });
 
       this._setPartTexturePause(partType);
+    });
+  }
+
+  _initKeyboardTexture() {
+    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
+    const texture = Loader.assets['mac-keyboard'];
+    texture.flipY = false;
+
+    keyboardSymbols.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
     });
   }
 

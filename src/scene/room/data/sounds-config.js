@@ -16,7 +16,7 @@ const SOUNDS_CONFIG = {
       helperSize: 2,
     },
     [ROOM_OBJECT_TYPE.AirConditioner]: {
-      volume: 1,
+      volume: 0,
       refDistance: 10,
       rotation: 52,
       coneInnerAngle: 90,

@@ -23,3 +23,7 @@ export const arraysEqual = (a, b) => {
 
   return true;
 }
+
+export const randomBetween = (a, b) => {
+  return a + Math.random() * (b - a);
+}

@@ -7,14 +7,15 @@ import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CO
 import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './air-conditioner-config';
 import Loader from '../../../../core/loader';
-import SnowflakeParticles from './snowflake-particles/snowflake-particels';
+import SnowflakeParticles from './snowflake-particles/snowflake-particles';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import SnowflakeParticlesController from './snowflake-particles/snowflake-particles-controller';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
-    this._snowflakeParticles = null;
+    this._snowflakeParticlesController = null;
     this._airConditionerTween = null;
     this._temperatureTween = null;
     this._sound = null;
@@ -23,7 +24,7 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   update(dt) {
-    this._snowflakeParticles.update(dt);
+    this._snowflakeParticlesController.update(dt);
   }
 
   showWithAnimation(delay) {
@@ -68,7 +69,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
 
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
-      this._snowflakeParticles.hide();
+      this._snowflakeParticlesController.hide();
       this._sound.stop();
     }
 
@@ -132,7 +133,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     }
 
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
-      this._snowflakeParticles.show();
+      this._snowflakeParticlesController.show();
       this._sound.play();
     }
 
@@ -213,10 +214,10 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _initSnowflakeParticles() {
-    const snowflakeParticles = this._snowflakeParticles = new SnowflakeParticles();
-    this.add(snowflakeParticles);
+    const snowflakeParticlesController = this._snowflakeParticlesController = new SnowflakeParticlesController();
+    this.add(snowflakeParticlesController);
 
-    snowflakeParticles.position.copy(this._parts[AIR_CONDITIONER_PART_TYPE.Body].position);
+    snowflakeParticlesController.position.copy(this._parts[AIR_CONDITIONER_PART_TYPE.Body].position);
   }
 
   _initSounds() {

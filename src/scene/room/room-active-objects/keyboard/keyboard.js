@@ -373,7 +373,7 @@ export default class Keyboard extends RoomObjectAbstract {
   _initKeys() {
     this._initKeysGroup();
     this._initInstancedKeys();
-    this._setKeysPositions();
+    this._setKeysPositionsAndColors();
   }
 
   _initKeysGroup() {
@@ -410,7 +410,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._activeMeshes.push(keys);
   }
 
-  _setKeysPositions() {
+  _setKeysPositionsAndColors() {
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     keys.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 

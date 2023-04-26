@@ -5,6 +5,7 @@ const SCENE_CONFIG = {
     fov: 45,
     near: 1,
     far: 500,
+
     startPosition: { x: 14, y: 14, z: 14 },
     lookAt: { x: 0, y: 3.5, z: 0 },
 
@@ -15,6 +16,10 @@ const SCENE_CONFIG = {
     // keyboard
     // startPosition: { x: 0, y: 6, z: 1 },
     // lookAt: { x: 0, y: 3.5, z: -1 },
+
+    // air conditioner
+    // startPosition: { x: -2, y: 9, z: 5 },
+    // lookAt: { x: -4, y: 7, z: -3 },
   },
   lights: {
     ambient: {

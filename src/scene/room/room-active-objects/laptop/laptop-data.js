@@ -1,5 +1,6 @@
 const LAPTOP_PART_TYPE = {
   LaptopKeyboard: 'laptop_keyboard',
+  LaptopKeyboardSymbols: 'laptop_keyboard_symbols',
   LaptopMonitor: 'laptop_monitor',
   LaptopScreen: 'laptop_screen',
   LaptopStand: 'laptop_stand',
@@ -14,6 +15,7 @@ const LAPTOP_PART_TYPE = {
 
 const LAPTOP_PART_ACTIVITY_CONFIG = {
   [LAPTOP_PART_TYPE.LaptopKeyboard]: true,
+  [LAPTOP_PART_TYPE.LaptopKeyboardSymbols]: true,
   [LAPTOP_PART_TYPE.LaptopMonitor]: true,
   [LAPTOP_PART_TYPE.LaptopScreen]: false,
   [LAPTOP_PART_TYPE.LaptopStand]: true,
@@ -28,6 +30,7 @@ const LAPTOP_PART_ACTIVITY_CONFIG = {
 
 const LAPTOP_PARTS = [
   LAPTOP_PART_TYPE.LaptopKeyboard,
+  LAPTOP_PART_TYPE.LaptopKeyboardSymbols,
   LAPTOP_PART_TYPE.LaptopMonitor,
 ]
 

@@ -1,0 +1,6 @@
+const SNOWFLAKE_PARTICLES_TYPE = {
+  Type01: 'TYPE_01',
+  Type02: 'TYPE_02',
+}
+
+export { SNOWFLAKE_PARTICLES_TYPE };

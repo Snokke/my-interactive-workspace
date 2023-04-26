@@ -10,6 +10,7 @@ import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight
 import Delayed from '../../../../../core/helpers/delayed-call';
 import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../keys-helper';
 import { SCALE_ZERO } from '../../../data/room-config';
+import KeysSymbols from './keys-symbols';
 
 export default class KeysBacklight extends THREE.Group {
   constructor() {
@@ -215,6 +216,7 @@ export default class KeysBacklight extends THREE.Group {
   _init() {
     this._initKeysBacklightInstanceMesh();
     this._setKeysBacklightPosition();
+    this._initKeysSymbols();
     this._initStartHSLAngle();
     this._initFunctionsByType();
 
@@ -261,6 +263,11 @@ export default class KeysBacklight extends THREE.Group {
 
     this._view.instanceMatrix.needsUpdate = true;
     this._view.instanceColor.needsUpdate = true;
+  }
+
+  _initKeysSymbols() {
+    // const keysSymbols = this._keysSymbols = new KeysSymbols();
+    // this.add(keysSymbols);
   }
 
   _setStartScale(scaleValue) {

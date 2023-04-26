@@ -3,8 +3,21 @@ import { AssetManager, GameObject, MessageDispatcher } from 'black-engine';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const textures = [
-  'cursor.png',
+
+  // air conditioner
   'temperature.png',
+  'snowflake-01.png',
+  'snowflake-02.png',
+
+  // monitor
+  'monitor-screen.jpg',
+  'cursor.png',
+  'showreel-icon.jpg',
+  'close-icon.jpg',
+  'volume.png',
+  'volume-muted.png',
+
+  // laptop
   'laptop-screen.jpg',
   'laptop-music-01-playing.jpg',
   'laptop-music-01-pause.jpg',
@@ -12,11 +25,8 @@ const textures = [
   'laptop-music-02-pause.jpg',
   'laptop-music-03-playing.jpg',
   'laptop-music-03-pause.jpg',
-  'monitor-screen.jpg',
-  'showreel-icon.jpg',
-  'close-icon.jpg',
-  'volume.png',
-  'volume-muted.png',
+  'mac-keyboard.png',
+  'keyboard-keys-atlas.png',
 ];
 
 const models = [
