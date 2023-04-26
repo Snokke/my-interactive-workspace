@@ -3,12 +3,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG, SCALE_ZERO } from '../../data/room-config';
-import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './keyboard-data';
+import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './data/keyboard-data';
 import KeysBacklight from './keys-backlight/keys-backlight';
 import Loader from '../../../../core/loader';
-import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './keys-config';
-import { KEYBOARD_CONFIG } from './keyboard-config';
-import { getClosestKeyByX } from './keys-helper';
+import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './data/keys-config';
+import { KEYBOARD_CONFIG } from './data/keyboard-config';
+import { getClosestKeyByX } from './data/keys-helper';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 
@@ -195,7 +195,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const keyConfig = KEYS_CONFIG[keyId];
     const keyColor = KEY_COLOR_CONFIG[keyConfig.colorType];
     const highlightColor = new THREE.Color(KEYBOARD_CONFIG.keys.highlightColor);
-    const startColor = new THREE.Color().lerpColors(keyColor, highlightColor, 0.2);
+    const startColor = new THREE.Color().lerpColors(keyColor, highlightColor, 0.5);
 
     const object = { value: 0 };
 

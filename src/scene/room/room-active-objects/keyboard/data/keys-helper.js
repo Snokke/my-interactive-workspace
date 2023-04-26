@@ -1,6 +1,6 @@
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from "./keys-config";
-import { SCALE_ZERO } from '../../data/room-config';
+import { SCALE_ZERO } from '../../../data/room-config';
 
 export const getClosestKeyByX = (x, row) => {
   const minDistance = 0.05;

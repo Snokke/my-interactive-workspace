@@ -1,6 +1,6 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { KEYS_BACKLIGHT_CONFIG } from "./keys-backlight/keys-backlight-config";
-import { KEYBOARD_CONFIG } from "./keyboard-config";
+import { KEYBOARD_CONFIG } from "./data/keyboard-config";
 import { KEYS_BACKLIGHT_TYPE } from "./keys-backlight/keys-backlight-data";
 
 export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {

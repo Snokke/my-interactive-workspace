@@ -7,7 +7,7 @@ import { CHAIR_PART_ACTIVITY_CONFIG, CHAIR_PART_TYPE } from '../room-active-obje
 import { AIR_CONDITIONER_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_PART_TYPE } from '../room-active-objects/air-conditioner/air-conditioner-data';
 import { MOUSE_PART_ACTIVITY_CONFIG, MOUSE_PART_TYPE } from '../room-active-objects/mouse/mouse-data';
 import { SPEAKERS_PART_ACTIVITY_CONFIG, SPEAKERS_PART_TYPE } from '../room-active-objects/speakers/speakers-data';
-import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/keyboard-data';
+import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-active-objects/keyboard/data/keyboard-data';
 import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/monitor-data';
 import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/laptop-data';
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';

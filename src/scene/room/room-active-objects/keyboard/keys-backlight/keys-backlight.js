@@ -2,15 +2,15 @@ import * as THREE from 'three';
 import { MessageDispatcher } from 'black-engine';
 import vertexShader from './keys-backlight-shaders/keys-backlight-vertex.glsl';
 import fragmentShader from './keys-backlight-shaders/keys-backlight-fragment.glsl';
-import { KEYBOARD_CONFIG } from '../keyboard-config';
+import { KEYBOARD_CONFIG } from '../data/keyboard-config';
 import { KEYS_BACKLIGHT_TYPE_CONFIG, KEYS_BACKLIGHT_CONFIG } from './keys-backlight-config';
 import { Vector2 } from 'three';
-import { KEYS_CONFIG, KEYS_ID_BY_ROW } from '../keys-config';
+import { KEYS_CONFIG, KEYS_ID_BY_ROW } from '../data/keys-config';
 import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight-data';
 import Delayed from '../../../../../core/helpers/delayed-call';
-import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../keys-helper';
+import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../data/keys-helper';
 import { SCALE_ZERO } from '../../../data/room-config';
-import KeysSymbols from './keys-symbols';
+import KeysSymbols from '../keys-symbols/keys-symbols';
 
 export default class KeysBacklight extends THREE.Group {
   constructor() {
@@ -82,6 +82,8 @@ export default class KeysBacklight extends THREE.Group {
     if (this._keyPressedFunctionByType[this._currentBacklightType]) {
       this._keyPressedFunctionByType[this._currentBacklightType](keyId);
     }
+
+    this._keysSymbols.onKeyClick(keyId);
   }
 
   show() {
@@ -138,6 +140,7 @@ export default class KeysBacklight extends THREE.Group {
       this._view.setColorAt(i, color);
     }
 
+    this._keysSymbols.updateHSLAngle(this._HSLAngle);
     this._view.instanceColor.needsUpdate = true;
   }
 
@@ -159,6 +162,7 @@ export default class KeysBacklight extends THREE.Group {
       this._view.setMatrixAt(index, matrix);
     });
 
+    this._keysSymbols.updateSaturation(this._activeBacklightScale);
     this._view.instanceMatrix.needsUpdate = true;
   }
 
@@ -266,8 +270,8 @@ export default class KeysBacklight extends THREE.Group {
   }
 
   _initKeysSymbols() {
-    // const keysSymbols = this._keysSymbols = new KeysSymbols();
-    // this.add(keysSymbols);
+    const keysSymbols = this._keysSymbols = new KeysSymbols();
+    this.add(keysSymbols);
   }
 
   _setStartScale(scaleValue) {
@@ -275,6 +279,7 @@ export default class KeysBacklight extends THREE.Group {
     const position = new THREE.Vector3();
     const rotation = new THREE.Quaternion();
     const scale = new THREE.Vector3();
+    const scaleArray = [];
 
     for (let i = 0; i < this._keysBacklightCount; i += 1) {
       this._view.getMatrixAt(i, matrix);
@@ -284,8 +289,11 @@ export default class KeysBacklight extends THREE.Group {
 
       matrix.compose(position, rotation, scale);
       this._view.setMatrixAt(i, matrix);
+
+      scaleArray.push({ id: i, value: scaleValue });
     }
 
+    this._keysSymbols.updateSaturation(scaleArray);
     this._view.instanceMatrix.needsUpdate = true;
   }
 
@@ -361,7 +369,7 @@ export default class KeysBacklight extends THREE.Group {
 
   _pressedKeyToSides(keyId) {
     const pressedKeyConfig = KEYS_CONFIG[keyId];
-    const step = 0.1;
+    const step = 0.09;
 
     let index = 0;
 
@@ -468,6 +476,7 @@ export default class KeysBacklight extends THREE.Group {
       this._view.setColorAt(i, color);
     }
 
+    this._keysSymbols.updateHSLAngle(this._HSLAngle);
     this._view.instanceColor.needsUpdate = true;
   }
 }
