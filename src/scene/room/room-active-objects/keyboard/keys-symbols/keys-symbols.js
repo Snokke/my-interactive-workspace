@@ -152,7 +152,7 @@ export default class KeysSymbols extends THREE.Group {
     for (let i = 0; i < this._keysCount; i += 1) {
       const keyConfig = KEYS_CONFIG[i];
 
-      dummy.position.set(leftX + keyConfig.position.x - 0.005, heightY + keyConfig.position.y, topZ - keyConfig.position.z + 0.005);
+      dummy.position.set(leftX + keyConfig.position.x - 0.005, heightY + keyConfig.position.y, topZ - keyConfig.position.z + 0.004);
       dummy.rotation.x = -Math.PI * 0.5 + keyboardAngle;
       dummy.translateOnAxis(new THREE.Vector3(0, 0, 1)
         .applyAxisAngle(new THREE.Vector3(0, 1, 0), keyboardAngle), KEYBOARD_CONFIG.keys.offsetYFromKeyboard + KEYS_SYMBOLS_CONFIG.offsetY);
@@ -160,9 +160,7 @@ export default class KeysSymbols extends THREE.Group {
       dummy.updateMatrix();
 
       this._view.setMatrixAt(i, dummy.matrix);
-
-      const randomColor = new THREE.Color('#ffffff');
-      this._view.setColorAt(i, randomColor);
+      this._view.setColorAt(i, new THREE.Color('#ffffff'));
 
       this._keysTweens.push();
       this._keysStartPosition.push(dummy.position.clone());
