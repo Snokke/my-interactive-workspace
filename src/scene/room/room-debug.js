@@ -4,8 +4,8 @@ import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./data/room-config";
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
-import DEBUG_CONFIG from "../../core/configs/debug-config";
 import { SOUNDS_CONFIG } from './data/sounds-config';
+import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -43,27 +43,29 @@ export default class RoomDebug {
   _init() {
     this._initRoomDebug();
     this._initSoundsDebug();
+    this._initCameraDebug();
     this._initShowAnimationFolder();
+    this._initAllObjectsShowFolder();
     this._initActiveRoomObjectsFolder();
   }
 
   _initRoomDebug() {
     const roomFolder = this._roomFolder = GUIHelper.getGui().addFolder({
-      title: 'Room',
+      title: 'Settings',
       expanded: DEBUG_MENU_START_STATE.Room,
     });
 
-    roomFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
-      .on('change', (wireframeState) => {
-        if (wireframeState.value) {
-          this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
-            color: 0x000000,
-            wireframe: true,
-          });
-        } else {
-          this._scene.overrideMaterial = null;
-        }
-      });
+    // roomFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
+    //   .on('change', (wireframeState) => {
+    //     if (wireframeState.value) {
+    //       this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
+    //         color: 0x000000,
+    //         wireframe: true,
+    //       });
+    //     } else {
+    //       this._scene.overrideMaterial = null;
+    //     }
+    //   });
 
     const isMobileDevice = isMobile(window.navigator).any;
     ROOM_CONFIG.outlineEnabled = !isMobileDevice;
@@ -77,15 +79,18 @@ export default class RoomDebug {
   }
 
   _initSoundsDebug() {
-    this._roomFolder.addSeparator();
+    const soundFolder = this._roomFolder.addFolder({
+      title: 'Sound',
+      expanded: DEBUG_MENU_START_STATE.Sound,
+    });
 
-    this._soundsEnabledController = this._roomFolder.addInput(SOUNDS_CONFIG, 'enabled', {
+    this._soundsEnabledController = soundFolder.addInput(SOUNDS_CONFIG, 'enabled', {
       label: 'Sound',
     }).on('change', () => {
       this.events.post('soundsEnabledChanged');
     });
 
-    this._soundsVolumeController = this._roomFolder.addInput(SOUNDS_CONFIG, 'volume', {
+    this._soundsVolumeController = soundFolder.addInput(SOUNDS_CONFIG, 'volume', {
       label: 'Volume',
       min: 0,
       max: 1,
@@ -95,14 +100,52 @@ export default class RoomDebug {
       this.events.post('volumeChanged');
     });
 
-    this._roomFolder.addInput(SOUNDS_CONFIG, 'debugHelpers', {
+    soundFolder.addInput(SOUNDS_CONFIG, 'debugHelpers', {
       label: 'Helpers',
     }).on('change', () => {
       this.events.post('debugHelpersChanged');
     });
   }
 
+  _initCameraDebug() {
+    const cameraFolder = this._roomFolder.addFolder({
+      title: 'Camera',
+      expanded: DEBUG_MENU_START_STATE.Camera,
+    });
+
+    cameraFolder.addInput(CAMERA_CONFIG, 'fov', {
+      label: 'FOV',
+      min: 20,
+      max: 120,
+    }).on('change', () => {
+      this.events.post('onChangeCameraFOV');
+    });
+
+    cameraFolder.addButton({
+      title: 'Monitor focus',
+    }).on('click', () => {
+      this.events.post('onMonitorFocus');
+    });
+
+    cameraFolder.addButton({
+      title: 'Keyboard focus',
+    }).on('click', () => {
+      this.events.post('onKeyboardFocus');
+    });
+
+    cameraFolder.addButton({
+      title: 'Room focus',
+    }).on('click', () => {
+      this.events.post('onRoomFocus');
+    });
+  }
+
   _initShowAnimationFolder() {
+    const showAnimationFolder = this._roomFolder.addFolder({
+      title: 'Start appearance animation',
+      expanded: DEBUG_MENU_START_STATE.ShowAnimation,
+    });
+
     // let selectedObjectType = ROOM_OBJECT_TYPE.Keyboard;
     let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
 
@@ -121,21 +164,32 @@ export default class RoomDebug {
       }
     }
 
-    this._roomFolder.addSeparator();
-
-    this._listShowAnimation = this._roomFolder.addBlade({
+    this._listShowAnimation = showAnimationFolder.addBlade({
       view: 'list',
-      label: 'Show animation object',
+      label: 'Object',
       options,
       value: selectedObjectType,
     }).on('change', (objectType) => {
       selectedObjectType = objectType.value;
     });
 
-    this._buttonShowAnimation = this._roomFolder.addButton({
-      title: 'Start show animation',
+    this._buttonShowAnimation = showAnimationFolder.addButton({
+      title: 'Start animation',
     }).on('click', () => {
       this.events.post('startShowAnimation', selectedObjectType);
+    });
+  }
+
+  _initAllObjectsShowFolder() {
+    const allObjectsInteractionFolder = this._roomFolder.addFolder({
+      title: 'All objects interaction',
+      expanded: DEBUG_MENU_START_STATE.AllObjectsInteraction,
+    });
+
+    allObjectsInteractionFolder.addButton({
+      title: 'Show all objects interaction',
+    }).on('click', () => {
+      this.events.post('allObjectsInteraction');
     });
   }
 

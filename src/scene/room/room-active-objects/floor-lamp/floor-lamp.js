@@ -24,6 +24,8 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];

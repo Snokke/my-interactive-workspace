@@ -18,6 +18,8 @@ export default class SocialNetworkLogos extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const github = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Github];
       const linkedin = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Linkedin];
 

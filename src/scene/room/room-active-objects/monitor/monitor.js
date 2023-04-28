@@ -24,6 +24,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._showreelTexture = null;
     this._showreelVideoElement = null;
     this._volumeIcon = null;
+    this._focusObject = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -66,6 +67,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       new TWEEN.Tween(this.position)
@@ -197,6 +200,13 @@ export default class Monitor extends RoomObjectAbstract {
 
   disableSound() {
     this._volumeIcon.disableSound();
+  }
+
+  getFocusPosition() {
+    const monitorGlobalPosition = new THREE.Vector3();
+    this._focusObject.getWorldPosition(monitorGlobalPosition);
+
+    return monitorGlobalPosition;
   }
 
   _clearButtonsColor() {
@@ -341,6 +351,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initGroups();
+    this._initFocusObject();
     this._initScreenTextures();
     this._updateArmRotation();
     this._initArrows();
@@ -368,6 +379,14 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
     monitorScreenVolume.position.copy(volumeOffset);
+  }
+
+  _initFocusObject() {
+    const focusObject = this._focusObject = new THREE.Object3D();
+    this.add(focusObject);
+
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    focusObject.position.copy(monitor.position);
   }
 
   _initScreenTextures() {

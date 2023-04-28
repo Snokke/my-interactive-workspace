@@ -3,11 +3,11 @@ import { Black } from 'black-engine';
 import DEBUG_CONFIG from "../../configs/debug-config";
 import RendererStats from 'three-webgl-stats';
 import Stats from '/node_modules/three/examples/jsm/libs/stats.module.js';
-import { OrbitControls } from '/node_modules/three/examples/jsm/controls/OrbitControls.js';
 import GUIHelper from "./gui-helper";
 import { GUI_CONFIG } from "./gui-helper-config";
-import { DEBUG_MENU_START_STATE } from "../../configs/debug-menu-start-state";
-import SCENE_CONFIG from "../../configs/scene-config";
+import { CAMERA_FOCUS_OBJECT_TYPE } from "../../../scene/room/camera-controller/data/camera-data";
+import { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";
+import { OrbitControls } from "../../OrbitControls";
 
 export default class Scene3DDebugMenu {
   constructor(scene, camera, renderer) {
@@ -40,7 +40,7 @@ export default class Scene3DDebugMenu {
   }
 
   update() {
-    if (DEBUG_CONFIG.orbitControls) {
+    if (ORBIT_CONTROLS_CONFIG.enabled) {
       this._orbitControls.update();
     }
 
@@ -60,7 +60,7 @@ export default class Scene3DDebugMenu {
       this._rendererStats.domElement.style.visibility = 'visible';
     }
 
-    if (DEBUG_CONFIG.orbitControls) {
+    if (ORBIT_CONTROLS_CONFIG.enabled) {
       this._orbitControls.enabled = true;
     }
 
@@ -123,21 +123,21 @@ export default class Scene3DDebugMenu {
   }
 
   _initOrbitControls() {
-    if (DEBUG_CONFIG.orbitControls) {
+    if (ORBIT_CONTROLS_CONFIG.enabled) {
       const orbitControls = this._orbitControls = new OrbitControls(this._camera, Black.engine.containerElement);
-      orbitControls.enableDamping = true;
-      orbitControls.dampingFactor = 0.04;
-      orbitControls.rotateSpeed = 0.5;
 
-      orbitControls.target.set(SCENE_CONFIG.camera.lookAt.x, SCENE_CONFIG.camera.lookAt.y, SCENE_CONFIG.camera.lookAt.z);
+      const cameraFocusType = CAMERA_FOCUS_OBJECT_TYPE.Room;
+      const lookAt = CAMERA_FOCUS_POSITION_CONFIG[cameraFocusType].focus.lookAt;
+      orbitControls.target.set(lookAt.x, lookAt.y, lookAt.z);
 
-      orbitControls.minPolarAngle = 0;
-      orbitControls.maxPolarAngle = Math.PI * 0.5;
-
-      // orbitControls.minDistance = 2;
-      orbitControls.maxDistance = 50;
-
-      orbitControls.panSpeed = 0.5;
+      orbitControls.enableDamping = ORBIT_CONTROLS_CONFIG.enableDamping;
+      orbitControls.dampingFactor = ORBIT_CONTROLS_CONFIG.dampingFactor;
+      orbitControls.rotateSpeed = ORBIT_CONTROLS_CONFIG.rotateSpeed;
+      orbitControls.minPolarAngle = ORBIT_CONTROLS_CONFIG.minPolarAngle;
+      orbitControls.maxPolarAngle = ORBIT_CONTROLS_CONFIG.maxPolarAngle;
+      orbitControls.minDistance = ORBIT_CONTROLS_CONFIG.minDistance;
+      orbitControls.maxDistance = ORBIT_CONTROLS_CONFIG.maxDistance;
+      orbitControls.panSpeed = ORBIT_CONTROLS_CONFIG.panSpeed;
 
       if (!this._isAssetsLoaded) {
         orbitControls.enabled = false;

@@ -8,6 +8,7 @@ import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
+import { CAMERA_FOCUS_OBJECT_TYPE } from './camera-controller/data/camera-data';
 
 export default class RoomController {
   constructor(data) {
@@ -18,6 +19,7 @@ export default class RoomController {
     this._orbitControls = data.orbitControls;
     this._outlinePass = data.outlinePass;
     this._audioListener = data.audioListener,
+    this._cameraController = data.cameraController;
     this._raycasterController = data.raycasterController;
 
     this._roomScene = data.roomScene;
@@ -57,10 +59,12 @@ export default class RoomController {
     }
 
     this._cursor.update(dt);
+    this._cameraController.update(dt);
   }
 
   onPointerMove(x, y) {
     this._pointerPosition.set(x, y);
+    this._cameraController.onPointerMove(x, y);
 
     if (this._draggingObject) {
       const raycaster = this._raycasterController.getRaycaster();
@@ -87,7 +91,7 @@ export default class RoomController {
 
       if (objectConfig.isDraggable) {
         this._draggingObject = roomObject;
-        this._orbitControls.enabled = false;
+        this._cameraController.disableOrbitControls();
 
         this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
       }
@@ -97,8 +101,12 @@ export default class RoomController {
   onPointerUp() {
     if (this._draggingObject) {
       this._draggingObject = null;
-      this._orbitControls.enabled = true;
+      this._cameraController.enableOrbitControls();
     }
+  }
+
+  onPointerLeave() {
+    this._cameraController.onPointerLeave();
   }
 
   showWithAnimation(startDelay = 0) {
@@ -133,6 +141,7 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.Organizer, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Laptop, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2);
     this._showRoomObject(ROOM_OBJECT_TYPE.Monitor, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
+    this._cursor.show(startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Keyboard, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3);
     this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Coaster, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
@@ -316,6 +325,11 @@ export default class RoomController {
     this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
     this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
     this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
+    this._roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
+    this._roomDebug.events.on('onMonitorFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor));
+    this._roomDebug.events.on('onKeyboardFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard));
+    this._roomDebug.events.on('onRoomFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room));
+    this._roomDebug.events.on('onChangeCameraFOV', () => this._cameraController.changeFOV());
   }
 
   _initOtherSignals() {

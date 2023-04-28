@@ -54,6 +54,8 @@ export default class Speakers extends RoomObjectAbstract {
     this._setPowerOff();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const leftSpeaker = this._parts[SPEAKERS_PART_TYPE.Left];
@@ -292,7 +294,6 @@ export default class Speakers extends RoomObjectAbstract {
 
     const fftSize = 128;
     this._analyser = new THREE.AudioAnalyser(this._music, fftSize);
-
   }
 
   _initParticles() {

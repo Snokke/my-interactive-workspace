@@ -39,6 +39,7 @@ export default class RoomObjectAbstract extends THREE.Group {
   showWithAnimation() {
     this._isInputEnabled = false;
     this._isShowAnimationActive = true;
+    this.visible = false;
   }
 
   show() {

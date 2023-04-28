@@ -41,6 +41,8 @@ export default class Chair extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const legs = this._parts[CHAIR_PART_TYPE.Legs];

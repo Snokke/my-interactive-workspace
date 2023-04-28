@@ -43,6 +43,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keysBacklight.hide();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const base = this._parts[KEYBOARD_PART_TYPE.Base];
@@ -128,6 +130,14 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keySounds.forEach((sound) => {
       sound.setVolume(0);
     });
+  }
+
+  getFocusPosition() {
+    const keyboardGlobalPosition = new THREE.Vector3();
+    const base = this._parts[KEYBOARD_PART_TYPE.Base];
+    base.getWorldPosition(keyboardGlobalPosition);
+
+    return keyboardGlobalPosition;
   }
 
   _onKeyClick(intersect) {

@@ -34,6 +34,8 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];

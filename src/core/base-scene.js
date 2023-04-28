@@ -12,6 +12,7 @@ import LoadingOverlay from './loading-overlay';
 import { Black, CanvasDriver, Engine, Input, MasterAudio, StageScaleMode } from 'black-engine';
 import Loader from './loader';
 import Scene3DDebugMenu from './helpers/gui-helper/scene-3d-debug-menu';
+import { CAMERA_CONFIG } from '../scene/room/camera-controller/data/camera-config';
 
 export default class BaseScene {
   constructor() {
@@ -118,12 +119,8 @@ export default class BaseScene {
   }
 
   _initCamera() {
-    const camera = this._camera = new THREE.PerspectiveCamera(SCENE_CONFIG.camera.fov, this._windowSizes.width / this._windowSizes.height, SCENE_CONFIG.camera.near, SCENE_CONFIG.camera.far);
+    const camera = this._camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fov, this._windowSizes.width / this._windowSizes.height, CAMERA_CONFIG.near, CAMERA_CONFIG.far);
     this._scene.add(camera);
-
-    const startPosition = SCENE_CONFIG.camera.startPosition;
-    camera.position.set(startPosition.x, startPosition.y, startPosition.z);
-    camera.lookAt(0, 0, 0);
   }
 
   _initLights() {

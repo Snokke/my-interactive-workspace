@@ -9,6 +9,7 @@ import { MONITOR_SCREEN_BUTTONS } from '../../monitor/data/monitor-data';
 import { CURSOR_CONFIG } from './data/cursor-config';
 import { MONITOR_TYPE } from '../../../data/room-config';
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '../../laptop/data/laptop-config';
+import Delayed from '../../../../../core/helpers/delayed-call';
 
 export default class Cursor extends THREE.Group {
   constructor(mouse, monitorScreen, laptopScreen) {
@@ -50,6 +51,15 @@ export default class Cursor extends THREE.Group {
 
     this._previousMousePosition = this._mousePosition.clone();
   }
+
+  show(delay) {
+    this._view.visible = false;
+
+    Delayed.call(delay, () => {
+      this._view.visible = true;
+    });
+  }
+
 
   onLaptopClosed() {
     if (this._monitorType === MONITOR_TYPE.Laptop) {

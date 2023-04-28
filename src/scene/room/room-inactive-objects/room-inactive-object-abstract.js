@@ -18,11 +18,14 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
   update(dt) { }
 
   showWithAnimation(delay) {
+    this.visible = false;
     const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
     this._mesh.position.y = this._mesh.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       new TWEEN.Tween(this._mesh.position)
         .to({ y: this._mesh.userData.startPosition.y }, fallDownTime)
         .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)

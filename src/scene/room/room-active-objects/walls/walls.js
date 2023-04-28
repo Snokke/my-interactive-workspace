@@ -43,6 +43,8 @@ export default class Walls extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const floor = this._parts[WALLS_PART_TYPE.Floor];

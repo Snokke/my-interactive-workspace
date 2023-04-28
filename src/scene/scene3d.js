@@ -9,9 +9,6 @@ export default class Scene3D extends THREE.Group {
     this._data = data,
     this._scene = data.scene,
     this._camera = data.camera,
-    this._renderer = data.renderer,
-    this._orbitControls = data.orbitControls,
-    this._outlinePass = data.outlinePass;
 
     this._raycasterController = null;
     this._room = null;
@@ -33,6 +30,10 @@ export default class Scene3D extends THREE.Group {
 
   onPointerUp() {
     this._room.onPointerUp();
+  }
+
+  onPointerLeave() {
+    this._room.onPointerLeave();
   }
 
   _init() {

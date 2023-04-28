@@ -5,6 +5,7 @@ import RoomDebug from './room-debug';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import Cursor from './room-active-objects/mouse/cursor/cursor';
 import RoomController from './room-controller';
+import CameraController from './camera-controller/camera-controller';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -13,8 +14,11 @@ export default class Room extends THREE.Group {
     this._data = data;
     this._data.raycasterController = raycasterController;
 
-    this._roomController = null;
+    this._orbitControls = this._data.orbitControls;
+    this._camera = this._data.camera;
 
+    this._roomController = null;
+    this._cameraController = null;
     this._roomScene = null;
     this._roomDebug = null;
     this._cursor = null;
@@ -42,6 +46,10 @@ export default class Room extends THREE.Group {
     this._roomController.onPointerUp();
   }
 
+  onPointerLeave() {
+    this._roomController.onPointerLeave();
+  }
+
   showWithAnimation(startDelay = 0) {
     this._roomController.showWithAnimation(startDelay);
   }
@@ -54,9 +62,7 @@ export default class Room extends THREE.Group {
   }
 
   _initRoomDebug() {
-    const roomDebug = this._roomDebug = new RoomDebug(this._data.scene);
-
-    roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
+    this._roomDebug = new RoomDebug(this._data.scene);
   }
 
   _initRoomObjects() {
@@ -64,6 +70,7 @@ export default class Room extends THREE.Group {
 
     this._initActiveObjects();
     this._initInactiveObjects();
+    this._initCameraController();
     this._addObjectsToTableGroup();
     this._initCursor();
   }
@@ -119,6 +126,15 @@ export default class Room extends THREE.Group {
     }
   }
 
+  _initCameraController() {
+    const focusObjects = {
+      [ROOM_OBJECT_TYPE.Monitor]: this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor],
+      [ROOM_OBJECT_TYPE.Keyboard]: this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard],
+    };
+
+    this._cameraController = new CameraController(this._camera, this._orbitControls, focusObjects);
+  }
+
   _initCursor() {
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const monitorScreen = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].getScreen();
@@ -146,6 +162,7 @@ export default class Room extends THREE.Group {
     this._data.roomScene = this._roomScene;
     this._data.roomDebug = this._roomDebug;
     this._data.cursor = this._cursor;
+    this._data.cameraController = this._cameraController;
 
     this._data.roomActiveObject = this._roomActiveObject;
     this._data.roomInactiveObject = this._roomInactiveObject;

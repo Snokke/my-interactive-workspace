@@ -50,6 +50,8 @@ export default class Laptop extends RoomObjectAbstract {
     this._instantCloseLaptop();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const laptopArmMountBase = this._parts[LAPTOP_PART_TYPE.LaptopArmMountBase];

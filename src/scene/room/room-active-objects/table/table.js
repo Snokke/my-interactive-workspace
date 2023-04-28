@@ -41,6 +41,8 @@ export default class Table extends RoomObjectAbstract {
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
+      this.visible = true;
+
       const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
       const legs = this._parts[TABLE_PART_TYPE.Legs];
