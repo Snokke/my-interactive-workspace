@@ -91,7 +91,8 @@ export default class RoomController {
 
       if (objectConfig.isDraggable) {
         this._draggingObject = roomObject;
-        this._cameraController.disableOrbitControls();
+        this._cameraController.onObjectDragStart();
+        // this._cameraController.disableOrbitControls();
 
         this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
       }
@@ -101,7 +102,8 @@ export default class RoomController {
   onPointerUp() {
     if (this._draggingObject) {
       this._draggingObject = null;
-      this._cameraController.enableOrbitControls();
+      this._cameraController.onObjectDragEnd();
+      // this._cameraController.enableOrbitControls();
     }
   }
 
@@ -326,7 +328,7 @@ export default class RoomController {
     this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
     this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
     this._roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
-    this._roomDebug.events.on('onMonitorFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor));
+    this._roomDebug.events.on('onMonitorFocus', () => this._onMonitorFocus());
     this._roomDebug.events.on('onKeyboardFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard));
     this._roomDebug.events.on('onRoomFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room));
     this._roomDebug.events.on('onChangeCameraFOV', () => this._cameraController.changeFOV());
@@ -347,6 +349,13 @@ export default class RoomController {
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
     monitor.events.on('onShowreelStop', () => speakers.onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
+  }
+
+  _onMonitorFocus() {
+    const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
+    chair.moveFromTable();
+
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor)
   }
 
   _onKeyboardMuteClick() {

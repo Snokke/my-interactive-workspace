@@ -19,8 +19,9 @@ export default class Chair extends RoomObjectAbstract {
     this._legsGroup = null;
     this._sound = null;
     this._soundHelper = null;
-
     this._wrapper = null;
+
+    this._previousChairPositionType = CHAIR_CONFIG.chairMoving.positionType;
 
     this._init();
   }
@@ -106,6 +107,17 @@ export default class Chair extends RoomObjectAbstract {
     return [...legsParts];
   }
 
+  moveFromTable() {
+    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable
+      || (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving && this._previousChairPositionType === CHAIR_POSITION_TYPE.AwayFromTable)) {
+      this._moveChair();
+    }
+
+    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable) {
+      this._rotateSeatForward(800);
+    }
+  }
+
   _rotateSeat() {
     if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
       const isAroundTable = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
@@ -148,6 +160,7 @@ export default class Chair extends RoomObjectAbstract {
       .start()
       .onComplete(() => {
         this._updatePositionType();
+        this._previousChairPositionType = CHAIR_CONFIG.chairMoving.positionType;
 
         CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Idle;
         this._debugMenu.updateChairState();

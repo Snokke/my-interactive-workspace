@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CAMERA_FOCUS_OBJECT_TYPE, FOCUS_TYPE } from "./camera-data";
+import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_STATE, FOCUS_TYPE } from "./camera-data";
 import { ROOM_OBJECT_TYPE } from "../../data/room-config";
 
 const CAMERA_CONFIG = {
   fov: 45,
   near: 1,
   far: 50,
+  state: CAMERA_STATE.OrbitControls,
   movementToFocusObject: {
     speed: 3,
     minTime: 500,
@@ -57,7 +58,7 @@ const CAMERA_FOCUS_POSITION_CONFIG = {
     focusType: FOCUS_TYPE.Object,
     focus: {
       objectType: ROOM_OBJECT_TYPE.Keyboard,
-      positionFromObject: new THREE.Vector3(2, 3, 2),
+      positionFromObject: new THREE.Vector3(1.5, 2.5, 1.5),
     },
     positionEasing: TWEEN.Easing.Linear.None,
     rotationEasing: TWEEN.Easing.Linear.None,

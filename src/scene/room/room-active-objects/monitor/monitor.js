@@ -12,6 +12,8 @@ import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-con
 import sparkleVertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
 import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
 import VolumeIcon from './volume-icon/volume-icon';
+import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
+import { CAMERA_STATE } from '../../camera-controller/data/camera-data';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -118,7 +120,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver) {
+    if (this._isPointerOver || CAMERA_CONFIG.state === CAMERA_STATE.Focused) {
       return;
     }
 

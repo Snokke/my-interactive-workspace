@@ -28,6 +28,26 @@ export default class CameraController {
     }
   }
 
+  onPointerMove(x, y) {
+    if (this._cameraState === CAMERA_STATE.Focused && this._isPointerMoveAllowed) {
+      const percentX = x / window.innerWidth * 2 - 1;
+      const percentY = y / window.innerHeight * 2 - 1;
+
+      this._lookAtObject.position.copy(this._focusLookAtVector);
+      this._lookAtObject.translateOnAxis(new THREE.Vector3(1, 0, 0), percentX * CAMERA_CONFIG.focusedState.rotationCoefficient);
+      this._lookAtObject.translateOnAxis(new THREE.Vector3(0, 1, 0), -percentY * CAMERA_CONFIG.focusedState.rotationCoefficient);
+    }
+  }
+
+  onPointerLeave() {
+    if (this._cameraState === CAMERA_STATE.Focused) {
+      this._lookAtObject.position.copy(this._focusLookAtVector);
+
+      this._isPointerMoveAllowed = false;
+      setTimeout(() => this._isPointerMoveAllowed = true, 10);
+    }
+  }
+
   enableOrbitControls() {
     if (this._orbitControls) {
       this._orbitControls.enabled = true;
@@ -42,9 +62,22 @@ export default class CameraController {
     }
   }
 
+  onObjectDragStart() {
+    if (this._cameraState === CAMERA_STATE.OrbitControls) {
+      this.disableOrbitControls();
+    }
+  }
+
+  onObjectDragEnd() {
+    if (this._cameraState === CAMERA_STATE.OrbitControls) {
+      this.enableOrbitControls();
+    }
+  }
+
   focusCamera(focusObjectType) {
     const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[focusObjectType];
     this._cameraState = CAMERA_STATE.NoControls;
+    CAMERA_CONFIG.state = this._cameraState;
 
     this.disableOrbitControls();
     this._orbitControls.stopDamping();
@@ -72,27 +105,9 @@ export default class CameraController {
           this._lookAtLerpObject.quaternion.copy(this._camera.quaternion);
           this._cameraState = CAMERA_STATE.Focused;
         }
+
+        CAMERA_CONFIG.state = this._cameraState;
       });
-  }
-
-  onPointerMove(x, y) {
-    if (this._cameraState === CAMERA_STATE.Focused && this._isPointerMoveAllowed) {
-      const percentX = x / window.innerWidth * 2 - 1;
-      const percentY = y / window.innerHeight * 2 - 1;
-
-      this._lookAtObject.position.copy(this._focusLookAtVector);
-      this._lookAtObject.translateOnAxis(new THREE.Vector3(1, 0, 0), percentX * CAMERA_CONFIG.focusedState.rotationCoefficient);
-      this._lookAtObject.translateOnAxis(new THREE.Vector3(0, 1, 0), -percentY * CAMERA_CONFIG.focusedState.rotationCoefficient);
-    }
-  }
-
-  onPointerLeave() {
-    if (this._cameraState === CAMERA_STATE.Focused) {
-      this._lookAtObject.position.copy(this._focusLookAtVector);
-
-      this._isPointerMoveAllowed = false;
-      setTimeout(() => this._isPointerMoveAllowed = true, 10);
-    }
   }
 
   changeFOV() {
