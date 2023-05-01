@@ -6,6 +6,7 @@ import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
+import { CAMERA_STATE } from './camera-controller/data/camera-data';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -18,6 +19,8 @@ export default class RoomDebug {
     this._roomFolder = null;
     this._soundsEnabledController = null;
     this._soundsVolumeController = null;
+    this._cameraStateController = null;
+    this._exitFocusModeButton = null;
 
     this._init();
   }
@@ -38,6 +41,24 @@ export default class RoomDebug {
 
   updateSoundsVolumeController() {
     this._soundsVolumeController.refresh();
+  }
+
+  updateCameraStateController() {
+    this._cameraStateController.refresh();
+
+    if (CAMERA_CONFIG.state === CAMERA_STATE.Focused) {
+      this.enableExitFocusModeButton();
+    } else {
+      this.disableExitFocusModeButton();
+    }
+  }
+
+  enableExitFocusModeButton() {
+    this._exitFocusModeButton.disabled = false;
+  }
+
+  disableExitFocusModeButton() {
+    this._exitFocusModeButton.disabled = true;
   }
 
   _init() {
@@ -113,28 +134,35 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.Camera,
     });
 
-    cameraFolder.addInput(CAMERA_CONFIG, 'fov', {
-      label: 'FOV',
-      min: 20,
-      max: 120,
-    }).on('change', () => {
-      this.events.post('onChangeCameraFOV');
+    this._cameraStateController = cameraFolder.addInput(CAMERA_CONFIG, 'state', {
+      label: 'State',
+      disabled: true,
     });
+    this._cameraStateController.customDisabled = true;
 
     cameraFolder.addButton({
-      title: 'Monitor focus',
+      title: 'Focus monitor',
     }).on('click', () => {
       this.events.post('onMonitorFocus');
     });
 
     cameraFolder.addButton({
-      title: 'Keyboard focus',
+      title: 'Focus keyboard',
     }).on('click', () => {
       this.events.post('onKeyboardFocus');
     });
 
+    this._exitFocusModeButton = cameraFolder.addButton({
+      title: 'Exit focus mode',
+      disabled: true,
+    }).on('click', () => {
+      this.events.post('onExitFocusMode');
+    });
+
+    cameraFolder.addSeparator();
+
     cameraFolder.addButton({
-      title: 'Room focus',
+      title: 'Start camera position',
     }).on('click', () => {
       this.events.post('onRoomFocus');
     });

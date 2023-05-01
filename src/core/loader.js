@@ -33,10 +33,11 @@ const textures = [
 const models = [
   'room.glb',
   'keyboard-key.glb',
+  'keyboard-key-space.glb',
 ];
 
 const images = [
-  'button-green.png',
+  'zoom-in-frame.png',
   'overlay.png',
 ];
 

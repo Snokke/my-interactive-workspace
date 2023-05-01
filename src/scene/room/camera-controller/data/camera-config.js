@@ -15,8 +15,8 @@ const CAMERA_CONFIG = {
     maxTime: 1300,
   },
   focusedState: {
-    rotationCoefficient: 0.5,
-    lerpTime: 3,
+    rotationCoefficient: 0.4,
+    lerpTime: 4,
   }
 }
 
@@ -59,11 +59,17 @@ const CAMERA_FOCUS_POSITION_CONFIG = {
     focusType: FOCUS_TYPE.Object,
     focus: {
       objectType: ROOM_OBJECT_TYPE.Keyboard,
-      positionFromObject: new THREE.Vector3(1.5, 2.5, 1.5),
+      positionFromObject: new THREE.Vector3(1, 2.5, 1),
     },
     positionEasing: TWEEN.Easing.Linear.None,
     rotationEasing: TWEEN.Easing.Linear.None,
     enableOrbitControlsOnComplete: false,
+  },
+  [CAMERA_FOCUS_OBJECT_TYPE.LastPosition]: {
+    focusType: FOCUS_TYPE.Position,
+    positionEasing: TWEEN.Easing.Linear.None,
+    rotationEasing: TWEEN.Easing.Linear.None,
+    enableOrbitControlsOnComplete: true,
   },
 }
 

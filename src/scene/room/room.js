@@ -6,10 +6,13 @@ import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import Cursor from './room-active-objects/mouse/cursor/cursor';
 import RoomController from './room-controller';
 import CameraController from './camera-controller/camera-controller';
+import { MessageDispatcher } from 'black-engine';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
     super();
+
+    this.events = new MessageDispatcher();
 
     this._data = data;
     this._data.raycasterController = raycasterController;
@@ -59,6 +62,7 @@ export default class Room extends THREE.Group {
     this._initRoomObjects();
     this._configureRaycaster();
     this._initRoomController();
+    this._initSignals();
   }
 
   _initRoomDebug() {
@@ -132,7 +136,7 @@ export default class Room extends THREE.Group {
       [ROOM_OBJECT_TYPE.Keyboard]: this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard],
     };
 
-    this._cameraController = new CameraController(this._camera, this._orbitControls, focusObjects);
+    this._cameraController = new CameraController(this._camera, this._orbitControls, focusObjects, this._roomDebug);
   }
 
   _initCursor() {
@@ -142,6 +146,10 @@ export default class Room extends THREE.Group {
 
     const cursor = this._cursor = new Cursor(mouse, monitorScreen, laptopScreen);
     this.add(cursor);
+  }
+
+  _initSignals() {
+    this._roomController.events.on('onMonitorZoomIn', (msg, position) => this.events.post('onMonitorZoomIn', position));
   }
 
   _configureRaycaster() {

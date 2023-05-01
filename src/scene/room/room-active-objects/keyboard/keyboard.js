@@ -11,6 +11,7 @@ import { KEYBOARD_CONFIG } from './data/keyboard-config';
 import { getClosestKeyByX } from './data/keys-helper';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import { Black } from 'black-engine';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -68,11 +69,17 @@ export default class Keyboard extends RoomObjectAbstract {
     const partType = roomObject.userData.partType;
 
     if (partType === KEYBOARD_PART_TYPE.Base) {
-      this._keysBacklight.switchType();
+      this.events.post('onKeyboardClick');
     }
 
     if (partType === KEYBOARD_PART_TYPE.Keys) {
-      this._onKeyClick(intersect);
+      if (intersect.instanceId !== 79) {
+        this._onKeyClick(intersect);
+      }
+    }
+
+    if (partType === KEYBOARD_PART_TYPE.SpaceKey) {
+      this._onSpaceKeyClick(intersect);
     }
   }
 
@@ -87,7 +94,17 @@ export default class Keyboard extends RoomObjectAbstract {
     const type = roomObject.userData.partType;
 
     if (type === KEYBOARD_PART_TYPE.Keys) {
-      this._showKeyHighlight(intersect);
+      if (intersect.instanceId !== 79) {
+        this._showKeyHighlight(intersect);
+      }
+    }
+
+    if (type === KEYBOARD_PART_TYPE.SpaceKey) {
+      this._showSpaceKeyHighlight();
+    }
+
+    if (type === KEYBOARD_PART_TYPE.Base) {
+      Black.engine.containerElement.style.cursor = 'zoom-in';
     }
   }
 
@@ -100,9 +117,16 @@ export default class Keyboard extends RoomObjectAbstract {
 
     this._stopHighlightTweens();
     this._setKeysDefaultColors();
+    this._setSpaceKeyDefaultColor();
   }
 
   getMeshesForOutline(mesh) {
+    // const partType = mesh.userData.partType;
+
+    // if (partType === KEYBOARD_PART_TYPE.SpaceKey) {
+    //   return [];
+    // }
+
     return [mesh];
   }
 
@@ -140,6 +164,14 @@ export default class Keyboard extends RoomObjectAbstract {
     return keyboardGlobalPosition;
   }
 
+  setBaseActive() {
+    this._parts[KEYBOARD_PART_TYPE.Base].userData.isActive = true;
+  }
+
+  setBaseInactive() {
+    this._parts[KEYBOARD_PART_TYPE.Base].userData.isActive = false;
+  }
+
   _onKeyClick(intersect) {
     const keyId = intersect.instanceId;
     this._playSound(keyId);
@@ -173,6 +205,40 @@ export default class Keyboard extends RoomObjectAbstract {
 
         keys.setMatrixAt(keyId, matrix);
         keys.instanceMatrix.needsUpdate = true;
+      })
+      .yoyo(true)
+      .repeat(1)
+      .start();
+  }
+
+  _onSpaceKeyClick() {
+    const keyId = 79;
+    this._playSound(keyId);
+
+    if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
+      this._keysTweens[keyId].stop();
+    }
+
+    this._onActiveKeysClick(keyId);
+    this._keysBacklight.onKeyClick(keyId);
+
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    const keyStartPosition = this._keysStartPosition[keyId];
+
+    const position = new THREE.Vector3();
+    position.copy(spaceKey.position);
+
+    const movingDistance = { value: 0 };
+
+    this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
+      .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .onUpdate(() => {
+        position.y = keyStartPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = keyStartPosition.z - Math.sin(keysAngle) * movingDistance.value;
+
+        spaceKey.position.copy(position);
       })
       .yoyo(true)
       .repeat(1)
@@ -223,8 +289,32 @@ export default class Keyboard extends RoomObjectAbstract {
       });
   }
 
+  _showSpaceKeyHighlight() {
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    const keyId = 79
+    const keyConfig = KEYS_CONFIG[keyId];
+    const keyColor = KEY_COLOR_CONFIG[keyConfig.colorType];
+    const highlightColor = new THREE.Color(KEYBOARD_CONFIG.keys.highlightColor);
+    const startColor = new THREE.Color().lerpColors(keyColor, highlightColor, 0.5);
+
+    const object = { value: 0 };
+
+    this._keysHighlightTweens[keyId] = new TWEEN.Tween(object)
+      .to({ value: 1 }, 700)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .yoyo(true)
+      .repeat(Infinity)
+      .start()
+      .onUpdate(() => {
+        const color = new THREE.Color().lerpColors(startColor, highlightColor, object.value);
+
+        spaceKey.material.color = color;
+      });
+  }
+
   _showKeysAnimation() {
     this._setKeysScaleZero();
+    this._setSpaceKeyScaleZero();
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     keys.visible = true;
@@ -237,7 +327,11 @@ export default class Keyboard extends RoomObjectAbstract {
         const closestKeyId = getClosestKeyByX(x, row);
 
         if (closestKeyId !== null) {
-          this._showKey(closestKeyId, index * 40);
+          if (closestKeyId === 79) {
+            this._showSpaceKey(index * 40);
+          } else {
+            this._showKey(closestKeyId, index * 40);
+          }
         }
       }
 
@@ -279,6 +373,17 @@ export default class Keyboard extends RoomObjectAbstract {
       .start();
   }
 
+  _showSpaceKey(delay) {
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    spaceKey.visible = true;
+
+    new TWEEN.Tween(spaceKey.scale)
+      .to({ x: 1, y: 1, z: 1 }, 180)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(delay)
+      .start();
+  }
+
   _setKeysScaleZero() {
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     const matrix = new THREE.Matrix4();
@@ -299,6 +404,11 @@ export default class Keyboard extends RoomObjectAbstract {
     keys.instanceMatrix.needsUpdate = true;
   }
 
+  _setSpaceKeyScaleZero() {
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    spaceKey.scale.set(SCALE_ZERO, SCALE_ZERO, SCALE_ZERO);
+  }
+
   _setKeysDefaultColors() {
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
 
@@ -309,6 +419,13 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     keys.instanceColor.needsUpdate = true;
+  }
+
+  _setSpaceKeyDefaultColor() {
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    const keyConfig = KEYS_CONFIG[79];
+    const color = KEY_COLOR_CONFIG[keyConfig.colorType];
+    spaceKey.material.color = color;
   }
 
   _stopHighlightTweens() {
@@ -322,9 +439,11 @@ export default class Keyboard extends RoomObjectAbstract {
   _setPositionForShowAnimation() {
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
 
     base.position.y = base.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
     keys.visible = false;
+    spaceKey.visible = false;
   }
 
   _playSound(keyId) {
@@ -383,6 +502,8 @@ export default class Keyboard extends RoomObjectAbstract {
   _initKeys() {
     this._initKeysGroup();
     this._initInstancedKeys();
+    this._initSpaceKey();
+    this._setSpaceKeyPositionAndColor();
     this._setKeysPositionsAndColors();
   }
 
@@ -442,6 +563,10 @@ export default class Keyboard extends RoomObjectAbstract {
       dummy.scale.set(keyConfig.scaleX, 1, 1);
       dummy.translateOnAxis(new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD), KEYBOARD_CONFIG.keys.offsetYFromKeyboard);
 
+      if (i === 79) {
+        dummy.scale.set(SCALE_ZERO, SCALE_ZERO, SCALE_ZERO);
+      }
+
       dummy.updateMatrix();
 
       keys.setMatrixAt(i, dummy.matrix);
@@ -456,6 +581,50 @@ export default class Keyboard extends RoomObjectAbstract {
 
     keys.instanceMatrix.needsUpdate = true;
     keys.instanceColor.needsUpdate = true;
+  }
+
+  _initSpaceKey() {
+    const model = Loader.assets['keyboard-key-space'];
+    const spaceKey = model.scene.children[0];
+
+    const material = new THREE.MeshStandardMaterial();
+    spaceKey.material = material;
+
+    this._keysGroup.add(spaceKey);
+
+    KEYBOARD_PART_TYPE['SpaceKey'] = 'space_key';
+    this._parts[KEYBOARD_PART_TYPE.SpaceKey] = spaceKey;
+
+    KEYBOARD_PART_ACTIVITY_CONFIG[KEYBOARD_PART_TYPE.SpaceKey] = true;
+
+    spaceKey.name = KEYBOARD_PART_TYPE.SpaceKey;
+    spaceKey.userData['isActive'] = true;
+    spaceKey.userData['objectType'] = this._roomObjectType;
+    spaceKey.userData['partType'] = KEYBOARD_PART_TYPE.SpaceKey;
+    spaceKey.userData['hideOutline'] = true;
+
+    this._allMeshes.push(spaceKey);
+    this._activeMeshes.push(spaceKey);
+  }
+
+  _setSpaceKeyPositionAndColor() {
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+
+    const spaceConfig = KEYS_CONFIG[79];
+    const color = KEY_COLOR_CONFIG[spaceConfig.colorType];
+    spaceKey.material.color.set(color);
+
+    const keyboardSize = KEYBOARD_CONFIG.size;
+    const offsetLeft = KEYBOARD_CONFIG.keys.offsetX;
+    const offsetTop = KEYBOARD_CONFIG.keys.offsetZ;
+
+    const leftX = -keyboardSize.x * 0.5 + offsetLeft;
+    const heightY = keyboardSize.y * 0.5;
+    const topZ = -keyboardSize.z * 0.5 + offsetTop;
+
+    spaceKey.position.set(leftX + spaceConfig.position.x, heightY + spaceConfig.position.y, topZ - spaceConfig.position.z);
+    spaceKey.rotation.x = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    spaceKey.translateOnAxis(new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD), KEYBOARD_CONFIG.keys.offsetYFromKeyboard);
   }
 
   _initKeysBacklight() {

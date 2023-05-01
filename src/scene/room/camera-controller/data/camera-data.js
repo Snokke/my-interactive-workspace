@@ -1,5 +1,6 @@
 const CAMERA_FOCUS_OBJECT_TYPE = {
   Room: 'ROOM',
+  LastPosition: 'LAST_POSITION',
   Monitor: 'MONITOR',
   Keyboard: 'KEYBOARD',
 }

@@ -4,16 +4,19 @@ import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_CONFIG } fr
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_STATE, FOCUS_TYPE } from './data/camera-data';
 
 export default class CameraController {
-  constructor(camera, orbitControls, focusObjects) {
+  constructor(camera, orbitControls, focusObjects, roomDebug) {
     this._camera = camera;
     this._orbitControls = orbitControls;
     this._focusObjects = focusObjects;
+    this._roomDebug = roomDebug;
 
     this._lookAtObject = null;
     this._lookAtLerpObject = null;
     this._positionTween = null;
     this._rotationTween = null;
     this._focusLookAtVector = new THREE.Vector3();
+    this._lastCameraPosition = new THREE.Vector3();
+    this._lastCameraLookAt = new THREE.Vector3();
 
     this._isPointerMoveAllowed = true;
     this._cameraState = CAMERA_STATE.OrbitControls;
@@ -75,8 +78,13 @@ export default class CameraController {
   }
 
   focusCamera(focusObjectType) {
-    if (CAMERA_CONFIG.focusObjectType === focusObjectType) {
+    if (this._cameraState === CAMERA_STATE.NoControls) {
       return;
+    }
+
+    if (this._cameraState === CAMERA_STATE.OrbitControls && focusObjectType !== CAMERA_FOCUS_OBJECT_TYPE.Room) {
+      this._lastCameraPosition.copy(this._camera.position);
+      this._lastCameraLookAt.copy(this._orbitControls.target);
     }
 
     CAMERA_CONFIG.focusObjectType = focusObjectType;
@@ -84,6 +92,7 @@ export default class CameraController {
     const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[focusObjectType];
     this._cameraState = CAMERA_STATE.NoControls;
     CAMERA_CONFIG.state = this._cameraState;
+    this._roomDebug.updateCameraStateController();
 
     this.disableOrbitControls();
     this._orbitControls.stopDamping();
@@ -106,19 +115,15 @@ export default class CameraController {
           this._cameraState = CAMERA_STATE.OrbitControls;
         }
 
-        if (focusObjectType !== CAMERA_FOCUS_OBJECT_TYPE.Room) {
+        if (focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Keyboard || focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
           this._lookAtObject.quaternion.copy(this._camera.quaternion);
           this._lookAtLerpObject.quaternion.copy(this._camera.quaternion);
           this._cameraState = CAMERA_STATE.Focused;
         }
 
         CAMERA_CONFIG.state = this._cameraState;
+        this._roomDebug.updateCameraStateController();
       });
-  }
-
-  changeFOV() {
-    this._camera.fov = CAMERA_CONFIG.fov;
-    this._camera.updateProjectionMatrix();
   }
 
   _lerpCameraPosition(focusPosition, focusLookAt, easing, time) {
@@ -163,21 +168,26 @@ export default class CameraController {
       });
   }
 
-  _getFocusData(focusType) {
-    const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[focusType];
+  _getFocusData(focusObjectType) {
+    const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[focusObjectType];
 
     let focusPosition = null;
     let focusLookAt = null;
 
-    if (focusConfig.focusType === FOCUS_TYPE.Position) {
-      focusPosition = focusConfig.focus.position;
-      focusLookAt = focusConfig.focus.lookAt;
-    }
+    if (focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.LastPosition) {
+      focusPosition = this._lastCameraPosition;
+      focusLookAt = this._lastCameraLookAt;
+    } else {
+      if (focusConfig.focusType === FOCUS_TYPE.Position) {
+        focusPosition = focusConfig.focus.position;
+        focusLookAt = focusConfig.focus.lookAt;
+      }
 
-    if (focusConfig.focusType === FOCUS_TYPE.Object) {
-      const focusObject = this._focusObjects[focusConfig.focus.objectType];
-      focusLookAt = focusObject.getFocusPosition();
-      focusPosition = focusLookAt.clone().add(focusConfig.focus.positionFromObject);
+      if (focusConfig.focusType === FOCUS_TYPE.Object) {
+        const focusObject = this._focusObjects[focusConfig.focus.objectType];
+        focusLookAt = focusObject.getFocusPosition();
+        focusPosition = focusLookAt.clone().add(focusConfig.focus.positionFromObject);
+      }
     }
 
     return { focusPosition, focusLookAt };

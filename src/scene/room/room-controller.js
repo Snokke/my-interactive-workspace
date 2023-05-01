@@ -1,17 +1,18 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
 import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
-import { Black } from 'black-engine';
+import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
-import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
-import { arraysEqual } from './shared-objects/helpers';
+import { MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
+import { arraysEqual, isVector2Equal, vector3ToBlackPosition } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
-import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
+import { LAPTOP_PART_TYPE, LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
 import { CAMERA_FOCUS_OBJECT_TYPE } from './camera-controller/data/camera-data';
 
 export default class RoomController {
   constructor(data) {
+    this.events = new MessageDispatcher();
 
     this._scene = data.scene;
     this._camera = data.camera;
@@ -34,6 +35,9 @@ export default class RoomController {
     this._previousPointerPosition = new THREE.Vector2();
     this._pointerPosition = new THREE.Vector2();
     this._draggingObject = null;
+
+    this._previousZoomInPosition = new THREE.Vector2();
+    this._currentZoomInPosition = new THREE.Vector2();
 
     this._glowMeshesNames = [];
     this._previousGlowMeshesNames = [];
@@ -130,6 +134,8 @@ export default class RoomController {
 
   onPointerLeave() {
     this._cameraController.onPointerLeave();
+    this._resetGlow();
+
   }
 
   showWithAnimation(startDelay = 0) {
@@ -224,12 +230,16 @@ export default class RoomController {
       this._glowMeshesNames = meshes.map(mesh => mesh.name);
     }
 
+    // this._checkToShowZoomInFrame(object, meshes);
+
     if (!arraysEqual(this._glowMeshesNames, this._previousGlowMeshesNames)) {
       this._resetRoomObjectsPointerOver();
 
-      this._setGlow(meshes);
+      if (!(meshes[0] && meshes[0].userData.hideOutline === true)) {
+        this._setGlow(meshes);
+      }
+
       roomObject.onPointerOver(intersect);
-      Black.engine.containerElement.style.cursor = 'pointer';
     }
 
     this._previousGlowMeshesNames = this._glowMeshesNames;
@@ -270,6 +280,20 @@ export default class RoomController {
 
   _isInstancedObject(object) {
     return object instanceof THREE.InstancedMesh;
+  }
+
+  _checkToShowZoomInFrame(object, meshes) {
+    if (object.userData.objectType === ROOM_OBJECT_TYPE.Monitor || object.userData.objectType === ROOM_OBJECT_TYPE.Laptop) {
+      if (meshes[0].userData.partType === MONITOR_PART_TYPE.MonitorScreen || meshes[0].userData.partType === LAPTOP_PART_TYPE.LaptopScreen) {
+        const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+        this._currentZoomInPosition = vector3ToBlackPosition(monitor.getZoomInFramePosition(), this._renderer, this._camera);
+
+        if (isVector2Equal(this._currentZoomInPosition, this._previousZoomInPosition) === false) {
+          this._previousZoomInPosition.copy(this._currentZoomInPosition);
+          this.events.post('onMonitorZoomIn', this._currentZoomInPosition);
+        }
+      }
+    }
   }
 
   _init() {
@@ -368,7 +392,7 @@ export default class RoomController {
     this._roomDebug.events.on('onMonitorFocus', () => this._onMonitorFocus());
     this._roomDebug.events.on('onKeyboardFocus', () => this._onKeyboardFocus());
     this._roomDebug.events.on('onRoomFocus', () => this._onRoomFocus());
-    this._roomDebug.events.on('onChangeCameraFOV', () => this._cameraController.changeFOV());
+    this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
   }
 
   _initOtherSignals() {
@@ -377,8 +401,10 @@ export default class RoomController {
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
     const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+    const keyboard = this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
+    laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
@@ -387,24 +413,52 @@ export default class RoomController {
     monitor.events.on('onShowreelStop', () => this._onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
     monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
+    keyboard.events.on('onKeyboardClick', () => this._onKeyboardFocus());
   }
 
   _onMonitorFocus() {
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
     chair.moveFromTable();
 
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
+    this._disableScreensOnMonitorFocus();
+    this._enableBaseOnKeyboardFocus();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor);
   }
 
   _onKeyboardFocus() {
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
+    this._disableBaseOnKeyboardFocus();
+    this._enableScreensOnMonitorFocus();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard);
   }
 
   _onRoomFocus() {
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
+    this._enableBaseOnKeyboardFocus();
+    this._enableScreensOnMonitorFocus();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
+  }
+
+  _onExitFocusMode() {
+    this._enableBaseOnKeyboardFocus();
+    this._enableScreensOnMonitorFocus();
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
+  }
+
+  _disableBaseOnKeyboardFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseInactive();
+  }
+
+  _enableBaseOnKeyboardFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseActive();
+  }
+
+  _disableScreensOnMonitorFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].setScreenInactive();
+  }
+
+  _enableScreensOnMonitorFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].setScreenActive();
   }
 
   _onKeyboardMuteClick() {

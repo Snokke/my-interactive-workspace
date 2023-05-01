@@ -114,8 +114,8 @@ export default class BaseScene {
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // renderer.shadowMap.enabled = true;
+    // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
 
   _initCamera() {
@@ -208,10 +208,10 @@ export default class BaseScene {
     this._effectComposer.addPass(outlinePass);
 
     // outlinePass.visibleEdgeColor.set('#00ff00');
-    outlinePass.edgeGlow = 1;
-    outlinePass.edgeStrength = 4;
-    outlinePass.edgeThickness = 2;
-    outlinePass.pulsePeriod = 2.5;
+    // outlinePass.edgeGlow = 1;
+    // outlinePass.edgeStrength = 4;
+    // outlinePass.edgeThickness = 2;
+    // outlinePass.pulsePeriod = 2.5;
   }
 
   _initAntiAliasingPass() {

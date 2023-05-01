@@ -14,6 +14,7 @@ import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-
 import VolumeIcon from './volume-icon/volume-icon';
 import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { CAMERA_STATE } from '../../camera-controller/data/camera-data';
+import { Black } from 'black-engine';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -128,7 +129,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver || CAMERA_CONFIG.state === CAMERA_STATE.Focused) {
+    if (this._isPointerOver) {
       return;
     }
 
@@ -136,8 +137,12 @@ export default class Monitor extends RoomObjectAbstract {
 
     const partType = intersect.object.userData.partType;
 
-    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
+    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType) && CAMERA_CONFIG.state === CAMERA_STATE.OrbitControls) {
       this._helpArrows.show();
+    }
+
+    if (partType === MONITOR_PART_TYPE.MonitorScreen) {
+      Black.engine.containerElement.style.cursor = 'zoom-in';
     }
   }
 
@@ -196,12 +201,21 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreen) {
-      return [];
+      return [mesh];
     }
   }
 
   getScreen() {
     return this._parts[MONITOR_PART_TYPE.MonitorScreen];
+  }
+
+  getZoomInFramePosition() {
+    const worldPosition = new THREE.Vector3();
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    monitor.getWorldPosition(worldPosition);
+    worldPosition.y += 1.3;
+
+    return worldPosition;
   }
 
   setScreenActive() {

@@ -1,3 +1,5 @@
+import { Black, Vector } from "black-engine";
+
 export const rotateAroundPoint = (object, point, axis, theta) => {
   object.parent.localToWorld(object.position);
 
@@ -26,4 +28,26 @@ export const arraysEqual = (a, b) => {
 
 export const randomBetween = (a, b) => {
   return a + Math.random() * (b - a);
+}
+
+export const vector3ToBlackPosition = (vector3, renderer, camera) => {
+  const dpr = Black.device.getDevicePixelRatio();
+  const width = renderer.getContext().canvas.width / dpr;
+  const height = renderer.getContext().canvas.height / dpr;
+
+  camera.updateMatrixWorld();
+
+  vector3.project(camera);
+
+  const globalPos = new Vector().copyFrom(vector3);
+
+  globalPos.x = (globalPos.x + 1) * width / 2;
+  globalPos.y = - (globalPos.y - 1) * height / 2;
+
+  return Black.stage.worldTransformationInverted.transformVector(globalPos);
+}
+
+export const isVector2Equal = (a, b) => {
+  const epsilon = 0.001;
+  return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon;
 }

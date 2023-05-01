@@ -1,8 +1,7 @@
 import * as THREE from 'three';
-import { MessageDispatcher } from 'black-engine';
+import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
-import SoundHelper from '../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../data/sounds-config';
 
 export default class RoomObjectAbstract extends THREE.Group {
@@ -70,6 +69,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   onPointerOver(intersect) {
     this._isPointerOver = true;
+    Black.engine.containerElement.style.cursor = 'pointer';
   }
 
   onPointerOut() {

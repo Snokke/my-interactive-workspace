@@ -12,6 +12,7 @@ import vertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.gl
 import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
 import LaptopParts from './laptop-parts';
 import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
+import { Black } from 'black-engine';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -103,6 +104,10 @@ export default class Laptop extends RoomObjectAbstract {
       if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
         this._switchMusic(partType);
       }
+
+      if (partType === LAPTOP_PART_TYPE.LaptopScreen) {
+        this.events.post('onLaptopScreenClick');
+      }
     }
 
     return isObjectDraggable;
@@ -146,6 +151,10 @@ export default class Laptop extends RoomObjectAbstract {
     if (LAPTOP_MOUNT_PARTS.includes(partType)) {
       this._helpArrows.show();
     }
+
+    if (partType === LAPTOP_PART_TYPE.LaptopScreen) {
+      Black.engine.containerElement.style.cursor = 'zoom-in';
+    }
   }
 
   onPointerOut() {
@@ -170,6 +179,10 @@ export default class Laptop extends RoomObjectAbstract {
     }
 
     if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
+      return [mesh];
+    }
+
+    if (partType === LAPTOP_PART_TYPE.LaptopScreen) {
       return [mesh];
     }
   }
@@ -247,6 +260,14 @@ export default class Laptop extends RoomObjectAbstract {
     const musicType = MUSIC_ORDER[this._currentMusicIndex];
     const partType = this._getPartTypeByMusicType(musicType);
     this._switchMusic(partType);
+  }
+
+  setScreenActive() {
+    this._parts[LAPTOP_PART_TYPE.LaptopScreen].userData.isActive = true;
+  }
+
+  setScreenInactive() {
+    this._parts[LAPTOP_PART_TYPE.LaptopScreen].userData.isActive = false;
   }
 
   _clearButtonsColor() {
