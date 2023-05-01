@@ -23,7 +23,7 @@ export default class UI extends DisplayObject {
 
     this._overlay.on('onPointerMove', (msg, x, y) => this.post('onPointerMove', x, y));
     this._overlay.on('onPointerDown', (msg, x, y) => this.post('onPointerDown', x, y));
-    this._overlay.on('onPointerUp', () => this.post('onPointerUp'));
+    this._overlay.on('onPointerUp', (msg, x, y) => this.post('onPointerUp', x, y));
     this._overlay.on('onPointerLeave', () => this.post('onPointerLeave'));
   }
 

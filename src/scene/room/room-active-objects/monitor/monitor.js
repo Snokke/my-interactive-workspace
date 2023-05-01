@@ -85,21 +85,29 @@ export default class Monitor extends RoomObjectAbstract {
     });
   }
 
-  onClick(intersect) {
+  onClick(intersect, onPointerDownClick) {
     if (!this._isInputEnabled) {
       return;
     }
 
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
+    let isObjectDraggable = false;
 
     if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
+      isObjectDraggable = true;
       this._onMonitorClick(intersect);
     }
 
-    if (MONITOR_SCREEN_BUTTONS.includes(partType)) {
+    if (onPointerDownClick === false && MONITOR_SCREEN_BUTTONS.includes(partType)) {
       this._onButtonsClick(partType);
     }
+
+    if (onPointerDownClick === false && partType === MONITOR_PART_TYPE.MonitorScreen) {
+      this.events.post('onMonitorScreenClick');
+    }
+
+    return isObjectDraggable;
   }
 
   onPointerMove(raycaster) {
@@ -186,10 +194,22 @@ export default class Monitor extends RoomObjectAbstract {
     if (MONITOR_SCREEN_BUTTONS.includes(partType)) {
       return [mesh];
     }
+
+    if (partType === MONITOR_PART_TYPE.MonitorScreen) {
+      return [];
+    }
   }
 
   getScreen() {
     return this._parts[MONITOR_PART_TYPE.MonitorScreen];
+  }
+
+  setScreenActive() {
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.isActive = true;
+  }
+
+  setScreenInactive() {
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.isActive = false;
   }
 
   onVolumeChanged(volume) {
@@ -228,8 +248,14 @@ export default class Monitor extends RoomObjectAbstract {
   _onButtonsClick(partType) {
     this._isMountSelected = false;
 
-    if (partType === MONITOR_PART_TYPE.MonitorScreenShowreelIcon && !this._isShowreelPlaying) {
-      this._playShowreel();
+    if (!this._isShowreelPlaying) {
+      if (partType === MONITOR_PART_TYPE.MonitorScreenShowreelIcon) {
+        this._playShowreel();
+      }
+
+      if (partType === MONITOR_PART_TYPE.MonitorScreenCVIcon) {
+        console.log('CV');
+      }
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon && this._isShowreelPlaying) {
@@ -240,8 +266,17 @@ export default class Monitor extends RoomObjectAbstract {
   _playShowreel() {
     this._isShowreelPlaying = true;
 
-    this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = true;
-    this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon].visible = false;
+    const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
+    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
+
+    closeIcon.visible = true;
+    closeIcon.position.z += MONITOR_CONFIG.hideOffset;
+    showreelIcon.visible = false;
+    showreelIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    CVIcon.visible = false;
+    CVIcon.position.z -= MONITOR_CONFIG.hideOffset;
+
     this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._showreelTexture;
 
     this._showreelVideoElement.play();
@@ -253,8 +288,17 @@ export default class Monitor extends RoomObjectAbstract {
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
 
-    this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
-    this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon].visible = true;
+    const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
+    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
+
+    closeIcon.visible = false;
+    closeIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    showreelIcon.visible = true;
+    showreelIcon.position.z += MONITOR_CONFIG.hideOffset;
+    CVIcon.visible = true;
+    CVIcon.position.z += MONITOR_CONFIG.hideOffset;
+
     this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._screenTexture;
 
     this._showreelVideoElement.pause();
@@ -367,19 +411,23 @@ export default class Monitor extends RoomObjectAbstract {
 
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorScreenShowreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
+    const monitorScreenCVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCloseIcon, monitorScreenVolume);
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenCloseIcon, monitorScreenVolume);
 
     screenGroup.position.copy(monitorScreen.position);
 
     const showreelIconOffset = monitorScreenShowreelIcon.position.clone().sub(monitorScreen.position.clone());
+    const CVIconOffset = monitorScreenCVIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
     const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
 
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
+    monitorScreenCVIcon.position.copy(CVIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
+    monitorScreenCloseIcon.position.z -= MONITOR_CONFIG.hideOffset;
     monitorScreenVolume.position.copy(volumeOffset);
   }
 
@@ -419,7 +467,7 @@ export default class Monitor extends RoomObjectAbstract {
 
       const uniforms = {
         uTime: { value: 0 },
-        uStartOffset: { value: i / 2 },
+        uStartOffset: { value: i / MONITOR_SCREEN_BUTTONS.length },
         uTexture: { value: texture },
         uColor: { value: new THREE.Color(0xffffff) },
         uSparkleColor: { value: sparkleConfig.color },

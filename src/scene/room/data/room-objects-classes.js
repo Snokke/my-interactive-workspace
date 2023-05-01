@@ -20,14 +20,12 @@ import Table from "../room-active-objects/table/table";
 import TableDebugMenu from "../room-active-objects/table/table-debug-menu";
 import Walls from "../room-active-objects/walls/walls";
 import WindowDebugMenu from "../room-active-objects/walls/window-debug-menu";
-import Bin from "../room-inactive-objects/objects/bin";
 import Carpet from "../room-inactive-objects/objects/carpet";
 import Coaster from "../room-inactive-objects/objects/coaster";
 import Cup from "../room-inactive-objects/objects/cup/cup";
 import Map from "../room-inactive-objects/objects/map";
 import MousePad from "../room-inactive-objects/objects/mousepad";
 import Organizer from "../room-inactive-objects/objects/organizer";
-import Pouf from "../room-inactive-objects/objects/pouf";
 import Scales from "../room-inactive-objects/objects/scales";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
@@ -92,12 +90,6 @@ const ROOM_OBJECT_CLASS = {
   },
   [ROOM_OBJECT_TYPE.Carpet]: {
     object: Carpet,
-  },
-  [ROOM_OBJECT_TYPE.Bin]: {
-    object: Bin,
-  },
-  [ROOM_OBJECT_TYPE.Pouf]: {
-    object: Pouf,
   },
   [ROOM_OBJECT_TYPE.MousePad]: {
     object: MousePad,

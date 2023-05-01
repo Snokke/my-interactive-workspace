@@ -30,6 +30,8 @@ export default class RoomController {
     this._roomInactiveObject = data.roomInactiveObject;
     this._roomObjectsByActivityType = data.roomObjectsByActivityType;
 
+    this._pointerPositionOnDown = new THREE.Vector2();
+    this._previousPointerPosition = new THREE.Vector2();
     this._pointerPosition = new THREE.Vector2();
     this._draggingObject = null;
 
@@ -40,7 +42,17 @@ export default class RoomController {
   }
 
   update(dt) {
+    if (dt > 0.1) {
+      dt = 0.1;
+    }
+
     const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
+
+    if (intersect === null) {
+      Black.engine.containerElement.style.cursor = 'auto';
+      this._glowMeshesNames = [];
+      this._previousGlowMeshesNames = [];
+    }
 
     if (intersect && intersect.object && !this._draggingObject) {
       this._checkToGlow(intersect);
@@ -73,6 +85,7 @@ export default class RoomController {
   }
 
   onPointerDown(x, y) {
+    this._pointerPositionOnDown.set(x, y);
     const intersect = this._raycasterController.checkIntersection(x, y);
 
     if (!intersect) {
@@ -86,24 +99,32 @@ export default class RoomController {
       const objectConfig = ROOM_OBJECT_CONFIG[objectType];
       const roomObject = this._roomActiveObject[objectType];
 
-      this._checkToShowDebugFolders(roomObject);
-      roomObject.onClick(intersect);
-
       if (objectConfig.isDraggable) {
-        this._draggingObject = roomObject;
-        this._cameraController.onObjectDragStart();
-        // this._cameraController.disableOrbitControls();
+        const isObjectDraggable = roomObject.onClick(intersect, true);
 
-        this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
+        if (isObjectDraggable) {
+          this._checkToShowDebugFolders(roomObject);
+
+          this._draggingObject = roomObject;
+          this._cameraController.onObjectDragStart();
+
+          this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
+        }
       }
     }
   }
 
-  onPointerUp() {
+  onPointerUp(x, y) {
+    const isCursorMoved = Math.abs(Math.round(this._pointerPositionOnDown.x) - Math.round(x)) <= ROOM_CONFIG.clickActiveObjectError
+      && Math.abs(Math.round(this._pointerPositionOnDown.y) - Math.round(y)) <= ROOM_CONFIG.clickActiveObjectError;
+
+    if (this._draggingObject === null && isCursorMoved) {
+      this._onPointerClick(x, y);
+    }
+
     if (this._draggingObject) {
       this._draggingObject = null;
       this._cameraController.onObjectDragEnd();
-      // this._cameraController.enableOrbitControls();
     }
   }
 
@@ -121,9 +142,7 @@ export default class RoomController {
     // floor objects
     this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay + wallShowDelay);
     this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + wallShowDelay + delayBetweenObjects);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Pouf, startDelay + wallShowDelay + delayBetweenObjects * 2);
     this._showRoomObject(ROOM_OBJECT_TYPE.Carpet, startDelay + wallShowDelay + delayBetweenObjects * 3);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Bin, startDelay + wallShowDelay + delayBetweenObjects * 4);
     this._showRoomObject(ROOM_OBJECT_TYPE.Chair, startDelay + wallShowDelay + delayBetweenObjects * 5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + wallShowDelay + delayBetweenObjects * 6);
 
@@ -143,7 +162,7 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.Organizer, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Laptop, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2);
     this._showRoomObject(ROOM_OBJECT_TYPE.Monitor, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
-    this._cursor.show(startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
+    this._cursor.hideAndShow(startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Keyboard, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3);
     this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Coaster, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
@@ -161,6 +180,24 @@ export default class RoomController {
 
     if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
       this._roomInactiveObject[objectType].showWithAnimation(startDelay);
+    }
+  }
+
+  _onPointerClick(x, y) {
+    const intersect = this._raycasterController.checkIntersection(x, y);
+
+    if (!intersect) {
+      return;
+    }
+
+    const intersectObject = intersect.object;
+
+    if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
+      const objectType = intersect.object.userData.objectType;
+      const roomObject = this._roomActiveObject[objectType];
+
+      this._checkToShowDebugFolders(roomObject);
+      roomObject.onClick(intersect, false);
     }
   }
 
@@ -329,8 +366,8 @@ export default class RoomController {
     this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
     this._roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
     this._roomDebug.events.on('onMonitorFocus', () => this._onMonitorFocus());
-    this._roomDebug.events.on('onKeyboardFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard));
-    this._roomDebug.events.on('onRoomFocus', () => this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room));
+    this._roomDebug.events.on('onKeyboardFocus', () => this._onKeyboardFocus());
+    this._roomDebug.events.on('onRoomFocus', () => this._onRoomFocus());
     this._roomDebug.events.on('onChangeCameraFOV', () => this._cameraController.changeFOV());
   }
 
@@ -347,15 +384,27 @@ export default class RoomController {
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
     walls.events.on('onWindowClosed', () => this._onWindowClosed());
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
-    monitor.events.on('onShowreelStop', () => speakers.onShowreelStop());
+    monitor.events.on('onShowreelStop', () => this._onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
+    monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
   }
 
   _onMonitorFocus() {
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
     chair.moveFromTable();
 
-    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor)
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor);
+  }
+
+  _onKeyboardFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard);
+  }
+
+  _onRoomFocus() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
   }
 
   _onKeyboardMuteClick() {
@@ -396,8 +445,14 @@ export default class RoomController {
   }
 
   _onShowreelStart() {
+    this._cursor.onFullScreenVideoStart();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].stopCurrentMusic();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].playMusic(MUSIC_TYPE.TheStomp);
+  }
+
+  _onShowreelStop() {
+    this._cursor.onFullScreenVideoStop();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].onShowreelStop()
   }
 
   _onDebugHelpersChanged() {

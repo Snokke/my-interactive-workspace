@@ -10,6 +10,7 @@ const CURSOR_CONFIG = {
   monitorBottomOffsetToNotTransferCursor: 0.06,
   offsetZFromScreen: 0.01,
   clickCircleOffsetZFromScreen: 0.005,
+  hideTimeWhenFullscreenVideo: 1300,
 }
 
 export { CURSOR_CONFIG };

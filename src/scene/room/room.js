@@ -42,8 +42,8 @@ export default class Room extends THREE.Group {
     this._roomController.onPointerDown(x, y);
   }
 
-  onPointerUp() {
-    this._roomController.onPointerUp();
+  onPointerUp(x, y) {
+    this._roomController.onPointerUp(x, y);
   }
 
   onPointerLeave() {

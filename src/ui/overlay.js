@@ -27,11 +27,15 @@ export default class Overlay extends DisplayObject {
 
   _initSignals() {
     this._view.on('pointerDown', (msg, pointer) => {
-      this.post('onPointerDown', pointer.x, pointer.y);
+      if (pointer.button === 0) {
+        this.post('onPointerDown', pointer.x, pointer.y);
+      }
     });
 
-    this._view.on('pointerUp', () => {
-      this.post('onPointerUp');
+    this._view.on('pointerUp', (msg, pointer) => {
+      if (pointer.button === 0) {
+        this.post('onPointerUp', pointer.x, pointer.y);
+      }
     });
 
     this._view.on('pointerMove', (msg, pointer) => {
@@ -54,24 +58,3 @@ export default class Overlay extends DisplayObject {
     this._view.scaleY = bounds.height / overlaySize;
   }
 }
-
-
-      // const deltaX = percentX - this._previousPointerPosition.x;
-      // const deltaY = percentY - this._previousPointerPosition.y;
-
-      // this._camera.rotateY(deltaX * 0.000005);
-      // this._camera.rotateX(deltaY * 0.000005);
-
-      // this._camera.rotation.y = -percentX * 0.05;
-      // this._camera.rotation.x = -percentY * 0.05;
-
-      // const motion = new THREE.Vector3();
-
-      // motion.y += -percentX * 0.05;
-      // motion.x += -percentY * 0.05;
-
-
-      // const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-      // euler.x = motion.x;
-      // euler.y = motion.y;
-      // this._camera.quaternion.setFromEuler(euler);

@@ -27,10 +27,12 @@ export default class Cursor extends THREE.Group {
     this._laptopSize = null;
     this._mousePosition = null;
     this._currentMonitorData = null;
+    this._hideTween = null;
     this._previousMousePosition = new THREE.Vector2();
 
     this._cursorPosition = new THREE.Vector2();
     this._monitorType = MONITOR_TYPE.Monitor;
+    this._isVideoPlaying = false;
     this._currentButtonType = null;
     this._previousButtonType = null;
 
@@ -39,6 +41,13 @@ export default class Cursor extends THREE.Group {
 
   update(dt) {
     this._mousePosition = this._mouse.getCurrentPosition();
+
+    if (this._mousePosition.x !== this._previousMousePosition.x || this._mousePosition.y !== this._previousMousePosition.y) {
+      if (this._isVideoPlaying && this._monitorType === MONITOR_TYPE.Monitor) {
+        this.showAndHide(CURSOR_CONFIG.hideTimeWhenFullscreenVideo);
+      }
+    }
+
     const delta = this._mousePosition.clone().sub(this._previousMousePosition);
 
     const changeScreen = this._updateCursorPosition(delta);
@@ -52,14 +61,44 @@ export default class Cursor extends THREE.Group {
     this._previousMousePosition = this._mousePosition.clone();
   }
 
-  show(delay) {
-    this._view.visible = false;
+  hideAndShow(delay) {
+    this.hide();
 
     Delayed.call(delay, () => {
-      this._view.visible = true;
+      this.show();
     });
   }
 
+  showAndHide(delay) {
+    this.show();
+    this._stopHideTween();
+
+    this._hideTween = Delayed.call(delay, () => {
+      this.hide();
+    });
+  }
+
+  onFullScreenVideoStart() {
+    this._isVideoPlaying = true;
+
+    if (this._monitorType === MONITOR_TYPE.Monitor) {
+      this.hide();
+    }
+  }
+
+  onFullScreenVideoStop() {
+    this._isVideoPlaying = false;
+    this._stopHideTween();
+    this.show();
+  }
+
+  show() {
+    this._view.visible = true;
+  }
+
+  hide() {
+    this._view.visible = false;
+  }
 
   onLaptopClosed() {
     if (this._monitorType === MONITOR_TYPE.Laptop) {
@@ -75,6 +114,10 @@ export default class Cursor extends THREE.Group {
       this._previousMousePosition = this._mousePosition.clone();
 
       this.update();
+
+      if (this._isVideoPlaying) {
+        this.showAndHide(CURSOR_CONFIG.hideTimeWhenFullscreenVideo);
+      }
     }
   }
 
@@ -120,6 +163,12 @@ export default class Cursor extends THREE.Group {
         const laptopRightEdge = (this._currentMonitorData[this._monitorType].size.x * 0.5 - cursorHalfWidth) / sensitivity;
         this._cursorPosition.x = laptopRightEdge;
         this._cursorPosition.y -= 0.1;
+
+        if (this._isVideoPlaying) {
+          this._stopHideTween();
+          this.show();
+        }
+
       } else {
         this._cursorPosition.x = leftEdge;
       }
@@ -276,6 +325,12 @@ export default class Cursor extends THREE.Group {
     const cursorHalfHeight = CURSOR_CONFIG.view.height * 0.5 * cursorScale;
 
     return { cursorHalfWidth, cursorHalfHeight, sensitivity };
+  }
+
+  _stopHideTween() {
+    if (this._hideTween) {
+      this._hideTween.stop();
+    }
   }
 
   _init() {

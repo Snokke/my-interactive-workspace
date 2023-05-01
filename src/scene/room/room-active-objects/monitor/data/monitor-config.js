@@ -6,6 +6,7 @@ const MONITOR_CONFIG = {
   positionZ: 0,
   minZ: -0.7,
   maxZ: 0.4,
+  hideOffset: 0.01,
 }
 
 const MONITOR_ARM_MOUNT_CONFIG = {
@@ -31,6 +32,13 @@ const MONITOR_BUTTONS_CONFIG = {
         size: new THREE.Vector2(0.332, 0.332),
       },
       textureName: 'showreel-icon',
+    },
+    [MONITOR_PART_TYPE.MonitorScreenCVIcon]: {
+      area: {
+        position: new THREE.Vector2(-0.06, 0.27),
+        size: new THREE.Vector2(0.332, 0.332),
+      },
+      textureName: 'cv-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {

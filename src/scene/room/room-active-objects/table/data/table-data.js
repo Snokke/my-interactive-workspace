@@ -6,7 +6,7 @@ const TABLE_PART_TYPE = {
 }
 
 const TABLE_PART_ACTIVITY_CONFIG = {
-  [TABLE_PART_TYPE.Tabletop]: true,
+  [TABLE_PART_TYPE.Tabletop]: false,
   [TABLE_PART_TYPE.TopPart]: true,
   [TABLE_PART_TYPE.Handle]: true,
   [TABLE_PART_TYPE.Legs]: true,

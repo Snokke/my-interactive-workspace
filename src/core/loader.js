@@ -13,6 +13,7 @@ const textures = [
   'monitor-screen.jpg',
   'cursor.png',
   'showreel-icon.jpg',
+  'cv-icon.jpg',
   'close-icon.jpg',
   'volume.png',
   'volume-muted.png',

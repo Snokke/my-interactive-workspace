@@ -7,6 +7,7 @@ const CAMERA_CONFIG = {
   fov: 45,
   near: 1,
   far: 50,
+  focusObjectType: CAMERA_FOCUS_OBJECT_TYPE.Room,
   state: CAMERA_STATE.OrbitControls,
   movementToFocusObject: {
     speed: 3,

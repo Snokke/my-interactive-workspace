@@ -44,7 +44,7 @@ export default class CameraController {
       this._lookAtObject.position.copy(this._focusLookAtVector);
 
       this._isPointerMoveAllowed = false;
-      setTimeout(() => this._isPointerMoveAllowed = true, 10);
+      setTimeout(() => this._isPointerMoveAllowed = true, 100);
     }
   }
 
@@ -75,6 +75,12 @@ export default class CameraController {
   }
 
   focusCamera(focusObjectType) {
+    if (CAMERA_CONFIG.focusObjectType === focusObjectType) {
+      return;
+    }
+
+    CAMERA_CONFIG.focusObjectType = focusObjectType;
+
     const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[focusObjectType];
     this._cameraState = CAMERA_STATE.NoControls;
     CAMERA_CONFIG.state = this._cameraState;

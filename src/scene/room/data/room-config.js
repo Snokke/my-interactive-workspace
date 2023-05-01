@@ -15,6 +15,7 @@ import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TY
 const ROOM_CONFIG = {
   outlineEnabled: true,
   autoOpenActiveDebugFolder: true,
+  clickActiveObjectError: 2,
   startAnimation: {
     showOnStart: false,
     startPositionY: 13,
@@ -44,8 +45,6 @@ const ROOM_OBJECT_TYPE = {
   Scales: 'SCALES',
   Map: 'MAP',
   Carpet: 'CARPET',
-  Bin: 'BIN',
-  Pouf: 'POUF',
   MousePad: 'MOUSE_PAD',
   Coaster: 'COASTER',
   Cup: 'CUP',
@@ -194,18 +193,6 @@ const ROOM_OBJECT_CONFIG = {
     label: 'Carpet',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Carpet',
-  },
-  [ROOM_OBJECT_TYPE.Bin]: {
-    createObject: true,
-    label: 'Bin',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Bin',
-  },
-  [ROOM_OBJECT_TYPE.Pouf]: {
-    createObject: true,
-    label: 'Pouf',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Pouf',
   },
   [ROOM_OBJECT_TYPE.MousePad]: {
     createObject: true,

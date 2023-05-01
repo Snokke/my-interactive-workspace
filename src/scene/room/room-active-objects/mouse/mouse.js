@@ -83,22 +83,25 @@ export default class Mouse extends RoomObjectAbstract {
     });
   }
 
-  onClick(intersect) {
+  onClick(intersect, onPointerDownClick) {
     if (!this._isInputEnabled) {
       return;
     }
 
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
-
+    let isObjectDraggable = false;
 
     if (partType === MOUSE_PART_TYPE.Body) {
+      isObjectDraggable = true;
       this._onMouseClick(intersect);
     }
 
-    if (partType === MOUSE_PART_TYPE.LeftKey) {
+    if (onPointerDownClick === false && partType === MOUSE_PART_TYPE.LeftKey) {
       this._onLeftKeyClick();
     }
+
+    return isObjectDraggable;
   }
 
   onPointerMove(raycaster) {

@@ -28,8 +28,8 @@ export default class Scene3D extends THREE.Group {
     this._room.onPointerDown(x, y);
   }
 
-  onPointerUp() {
-    this._room.onPointerUp();
+  onPointerUp(x, y) {
+    this._room.onPointerUp(x, y);
   }
 
   onPointerLeave() {

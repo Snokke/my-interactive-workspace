@@ -14,10 +14,6 @@ export default class SnowflakeParticlesController extends THREE.Group {
   }
 
   update(dt) {
-    if (dt > 0.1) {
-      dt = 0.1;
-    }
-
     this._particles.forEach((particles) => {
       particles.update(dt);
     });

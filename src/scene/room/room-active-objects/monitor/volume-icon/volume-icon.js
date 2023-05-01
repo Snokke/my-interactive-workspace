@@ -3,6 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import volumeVertexShader from './volume-icon-shaders/volume-icon-vertex.glsl';
 import volumeFragmentShader from './volume-icon-shaders/volume-icon-fragment.glsl';
 import Loader from '../../../../../core/loader';
+import { MONITOR_CONFIG } from '../data/monitor-config';
 
 export default class VolumeIcon {
   constructor(view) {
@@ -40,6 +41,10 @@ export default class VolumeIcon {
   }
 
   _show(currentVolume) {
+    if (!this._view.visible) {
+      this._view.position.z += MONITOR_CONFIG.hideOffset;
+    }
+
     this._view.visible = true;
 
     this._view.material.uniforms.uAlpha.value = 1;
@@ -55,6 +60,7 @@ export default class VolumeIcon {
       .delay(1000)
       .start()
       .onComplete(() => {
+        this._view.position.z -= MONITOR_CONFIG.hideOffset;
         this._view.visible = false;
       });
   }
@@ -76,5 +82,6 @@ export default class VolumeIcon {
     });
 
     this._view.visible = false;
+    this._view.position.z -= MONITOR_CONFIG.hideOffset;
   }
 }

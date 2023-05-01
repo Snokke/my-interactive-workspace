@@ -81,25 +81,31 @@ export default class Laptop extends RoomObjectAbstract {
     });
   }
 
-  onClick(intersect) {
+  onClick(intersect, onPointerDownClick) {
     if (!this._isInputEnabled) {
       return;
     }
 
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
-
-    if (LAPTOP_PARTS.includes(partType)) {
-      this._laptopInteract();
-    }
+    let isObjectDraggable = false;
 
     if (LAPTOP_MOUNT_PARTS.includes(partType)) {
+      isObjectDraggable = true;
       this._standInteract(intersect);
     }
 
-    if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
-      this._switchMusic(partType);
+    if (onPointerDownClick === false) {
+      if (LAPTOP_PARTS.includes(partType)) {
+        this._laptopInteract();
+      }
+
+      if (LAPTOP_SCREEN_MUSIC_PARTS.includes(partType)) {
+        this._switchMusic(partType);
+      }
     }
+
+    return isObjectDraggable;
   }
 
   onPointerMove(raycaster) {
