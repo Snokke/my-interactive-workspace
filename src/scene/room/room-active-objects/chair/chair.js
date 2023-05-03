@@ -2,35 +2,48 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, CHAIR_POSITION_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
+import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_PART_TYPE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { CHAIR_CONFIG } from './data/chair-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import ChairMovingAreaHelper from './helpers/chair-moving-area-helper';
+import { checkBottomBorderBounce, checkLeftBorderBounce, checkRightBorderBounce, checkTopBorderBounce, getChairBoundingBox, getMovingArea, getWheelsParts } from './helpers/chair-helpers';
+import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
+import { isVector3Equal } from '../../shared-objects/helpers';
+import ChairSeatHelper from './helpers/chair-seat-helper';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
     super(meshesGroup, roomObjectType, audioListener);
 
-    this._moveChairTween = null;
     this._rotateSeatTween = null;
-    this._rotateLegsTween = null;
     this._legsGroup = null;
     this._sound = null;
     this._soundHelper = null;
     this._wrapper = null;
+    this._chairMovingAreaHelper = null;
+    this._helpArrows = null;
+    this._chairSeatHelper = null;
 
-    this._previousChairPositionType = CHAIR_CONFIG.chairMoving.positionType;
+    this._plane = new THREE.Plane();
+    this._pNormal = new THREE.Vector3(0, 1, 0);
+    this._shift = new THREE.Vector3();
+    this._currentPosition = new THREE.Vector3();
+    this._startPosition = new THREE.Vector3();
+    this._availableSeatAngle = Math.PI * 2;
+    this._previousAvailableSeatAngle = Math.PI * 2;
+
+    this._isDragActive = false;
+    this._bounceDisable = {};
 
     this._init();
   }
 
   update(dt) {
-    if (this._isShowAnimationActive) {
-      return;
-    }
-
+    this._updateChairMovement(dt);
     this._updateSeatRotation(dt);
     this._updateWheelsRotation(dt);
   }
@@ -48,7 +61,7 @@ export default class Chair extends RoomObjectAbstract {
 
       const legs = this._parts[CHAIR_PART_TYPE.Legs];
       const seat = this._parts[CHAIR_PART_TYPE.Seat];
-      const wheels = this._getWheelsParts();
+      const wheels = getWheelsParts(this._parts);
 
       for (let i = 0; i < wheels.length; i++) {
         const wheel = wheels[i];
@@ -82,19 +95,38 @@ export default class Chair extends RoomObjectAbstract {
     });
   }
 
-  onClick(intersect) {
+  onClick(intersect, onPointerDownClick) {
     if (!this._isInputEnabled) {
       return;
     }
 
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
+    let isObjectDraggable = false;
 
-    if (partType === CHAIR_PART_TYPE.Seat) {
+    if (onPointerDownClick === false && partType === CHAIR_PART_TYPE.Seat) {
       this._rotateSeat();
-    } else {
-      this._moveChair();
     }
+
+    if (partType === CHAIR_PART_TYPE.Legs) {
+      isObjectDraggable = true;
+      this._dragChair(intersect);
+    }
+
+    return isObjectDraggable;
+  }
+
+  onPointerMove(raycaster) {
+    const planeIntersect = new THREE.Vector3();
+
+    raycaster.ray.intersectPlane(this._plane, planeIntersect);
+    this._currentPosition.addVectors(planeIntersect, this._shift);
+  }
+
+  onPointerUp() {
+    this._isDragActive = false;
+
+    this._checkToBounce();
   }
 
   getMeshesForOutline(mesh) {
@@ -108,26 +140,35 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   moveFromTable() {
-    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable
-      || (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving && this._previousChairPositionType === CHAIR_POSITION_TYPE.AwayFromTable)) {
-      this._moveChair();
+    this._moveChairToPosition(this._startPosition);
+    this._rotateSeatForward();
+  }
+
+  onPointerOver(intersect) {
+    if (this._isPointerOver) {
+      return;
     }
 
-    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable) {
-      this._rotateSeatForward(800);
+    super.onPointerOver();
+
+    const partType = intersect.object.userData.partType;
+
+    if (LEGS_PARTS.includes(partType)) {
+      this._helpArrows.show();
     }
   }
 
-  _rotateSeat() {
-    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
-      const isAroundTable = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
-        || (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable && this._wrapper.position.z < -CHAIR_CONFIG.chairMoving.distanceToEnableRotation)
-
-      if (isAroundTable) {
-        return;
-      }
+  onPointerOut() {
+    if (!this._isPointerOver) {
+      return;
     }
 
+    super.onPointerOut();
+
+    this._helpArrows.hide();
+  }
+
+  _rotateSeat() {
     if (CHAIR_CONFIG.seatRotation.speed === 0) {
       this._changeRotationDirection();
     }
@@ -139,40 +180,238 @@ export default class Chair extends RoomObjectAbstract {
     }
   }
 
-  _moveChair() {
-    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
-      this._updatePositionType();
+  _dragChair(intersect) {
+    this._isDragActive = true;
+    const pIntersect = new THREE.Vector3().copy(intersect.point);
+    this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
+    this._shift.subVectors(this._wrapper.position, intersect.point);
+  }
+
+  _updateChairMovement(dt) {
+    if (isVector3Equal(this._wrapper.position, this._currentPosition)) {
+      return;
     }
 
-    this._stopTweens();
-    this._resetSeatRotation();
-    this._playSound();
+    this._wrapper.position.lerp(this._currentPosition, CHAIR_CONFIG.chairMoving.lerpSpeed * (dt * 60));
 
-    CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Moving;
-    this._debugMenu.updateChairState();
+    this._checkLeftEdge();
+    this._checkRightEdge();
+    this._checkTopEdge();
+    this._checkBottomEdge();
 
-    const positionZ = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable ? -CHAIR_CONFIG.chairMoving.distanceToTablePosition : 0;
-    const time = Math.abs(this._wrapper.position.z - positionZ) / CHAIR_CONFIG.chairMoving.speed * 1000;
+    this._updateHelpArrowsPosition();
+    this._updateHelpersPosition();
+    this._updateAvailableSeatRotationAngle();
+  }
 
-    this._moveChairTween = new TWEEN.Tween(this._wrapper.position)
-      .to({ z: positionZ }, time)
-      .easing(TWEEN.Easing.Cubic.Out)
-      .start()
-      .onComplete(() => {
-        this._updatePositionType();
-        this._previousChairPositionType = CHAIR_CONFIG.chairMoving.positionType;
+  _checkLeftEdge() {
+    const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
+    const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
+    const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
+    const underTableMovingArea = getMovingArea(MOVING_AREA_TYPE.UnderTable);
+    const epsilon = CHAIR_CONFIG.chairMoving.borderEpsilon;
+    const wrapperPosition = this._wrapper.position;
 
-        CHAIR_CONFIG.chairMoving.state = CHAIR_MOVEMENT_STATE.Idle;
-        this._debugMenu.updateChairState();
-      });
+    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon > mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] < mainMovingArea[BORDER_TYPE.Left]) {
+        wrapperPosition.x = mainMovingArea[BORDER_TYPE.Left] + chairMainBoundingBox[BORDER_TYPE.Left];
 
-    this._setWheelsRandomData();
-    this._rotateLegs(time);
-
-    if (CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
-      && CHAIR_CONFIG.chairMoving.distanceToTablePosition > CHAIR_CONFIG.chairMoving.distanceToEnableRotation) {
-      this._rotateSeatForward(time);
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
+          const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Left]) + mainMovingArea[BORDER_TYPE.Left];
+          this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
     }
+
+    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon < mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Left] < underTableMovingArea[BORDER_TYPE.Left]) {
+        wrapperPosition.x = underTableMovingArea[BORDER_TYPE.Left] + chairFrontWheelBoundingBox[BORDER_TYPE.Left];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
+          const delta = Math.abs(this._currentPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Left]) + underTableMovingArea[BORDER_TYPE.Left];
+          this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+
+    if (wrapperPosition.z - chairMainBoundingBox[BORDER_TYPE.Top] + epsilon < mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] < underTableMovingArea[BORDER_TYPE.Left]) {
+        wrapperPosition.x = underTableMovingArea[BORDER_TYPE.Left] + chairMainBoundingBox[BORDER_TYPE.Left];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
+          const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Left]) + underTableMovingArea[BORDER_TYPE.Left];
+          this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+  }
+
+  _checkRightEdge() {
+    const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
+    const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
+    const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
+    const underTableMovingArea = getMovingArea(MOVING_AREA_TYPE.UnderTable);
+    const epsilon = CHAIR_CONFIG.chairMoving.borderEpsilon;
+    const wrapperPosition = this._wrapper.position;
+
+    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon > mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Right] > mainMovingArea[BORDER_TYPE.Right]) {
+        wrapperPosition.x = mainMovingArea[BORDER_TYPE.Right] + chairMainBoundingBox[BORDER_TYPE.Right];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Right]) {
+          const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Right]) - mainMovingArea[BORDER_TYPE.Right];
+          this._currentPosition.x -= delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+
+    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon < mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Right] > underTableMovingArea[BORDER_TYPE.Right]) {
+        wrapperPosition.x = underTableMovingArea[BORDER_TYPE.Right] + chairFrontWheelBoundingBox[BORDER_TYPE.Right];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Right]) {
+          const delta = Math.abs(this._currentPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Right]) - underTableMovingArea[BORDER_TYPE.Right];
+          this._currentPosition.x -= delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+
+    if (wrapperPosition.z - chairMainBoundingBox[BORDER_TYPE.Top] + epsilon < mainMovingArea[BORDER_TYPE.Top]) {
+      if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Right] > underTableMovingArea[BORDER_TYPE.Right]) {
+        wrapperPosition.x = underTableMovingArea[BORDER_TYPE.Right] + chairMainBoundingBox[BORDER_TYPE.Right];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Right]) {
+          const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Right]) - underTableMovingArea[BORDER_TYPE.Right];
+          this._currentPosition.x -= delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+  }
+
+  _checkTopEdge() {
+    const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
+    const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
+    const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
+    const underTableMovingArea = getMovingArea(MOVING_AREA_TYPE.UnderTable);
+    const epsilon = CHAIR_CONFIG.chairMoving.borderEpsilon;
+    const wrapperPosition = this._wrapper.position;
+
+    // last right and left, top wheel bounding box
+    if ((wrapperPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Right] - epsilon > underTableMovingArea[BORDER_TYPE.Right])
+      || (wrapperPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Left] + epsilon < underTableMovingArea[BORDER_TYPE.Left])) {
+      if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] < mainMovingArea[BORDER_TYPE.Top]) {
+        wrapperPosition.z = mainMovingArea[BORDER_TYPE.Top] + chairFrontWheelBoundingBox[BORDER_TYPE.Top];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Top]) {
+          const delta = Math.abs(this._currentPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + mainMovingArea[BORDER_TYPE.Top]);
+          this._currentPosition.z += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+
+    // right and left, top main bounding box
+    if ((wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Right] - epsilon > underTableMovingArea[BORDER_TYPE.Right])
+      || (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] + epsilon < underTableMovingArea[BORDER_TYPE.Left])) {
+      if (wrapperPosition.z - chairMainBoundingBox[BORDER_TYPE.Top] < mainMovingArea[BORDER_TYPE.Top]) {
+        wrapperPosition.z = mainMovingArea[BORDER_TYPE.Top] + chairMainBoundingBox[BORDER_TYPE.Top];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Top]) {
+          const delta = Math.abs(this._currentPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + mainMovingArea[BORDER_TYPE.Top]);
+          this._currentPosition.z += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+
+    // center, top wheel bounding box
+    if ((wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Right] - epsilon < underTableMovingArea[BORDER_TYPE.Right])
+      && (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] + epsilon > underTableMovingArea[BORDER_TYPE.Left])) {
+      if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] < underTableMovingArea[BORDER_TYPE.Top]) {
+        wrapperPosition.z = underTableMovingArea[BORDER_TYPE.Top] + chairFrontWheelBoundingBox[BORDER_TYPE.Top];
+
+        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Top]) {
+          const delta = Math.abs(this._currentPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] - underTableMovingArea[BORDER_TYPE.Top]);
+          this._currentPosition.z += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+        }
+      }
+    }
+  }
+
+  _checkBottomEdge() {
+    const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
+    const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
+    const wrapperPosition = this._wrapper.position;
+
+    if (wrapperPosition.z - chairMainBoundingBox[BORDER_TYPE.Bottom] > mainMovingArea[BORDER_TYPE.Bottom]) {
+      wrapperPosition.z = mainMovingArea[BORDER_TYPE.Bottom] + chairMainBoundingBox[BORDER_TYPE.Bottom];
+
+      if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Bottom]) {
+        const delta = Math.abs(this._currentPosition.z - chairMainBoundingBox[BORDER_TYPE.Bottom]) - mainMovingArea[BORDER_TYPE.Bottom];
+        this._currentPosition.z -= delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
+      }
+    }
+  }
+
+  _updateAvailableSeatRotationAngle() {
+    const topEdge = this._wrapper.position.z - CHAIR_CONFIG.seatRotation.rotationRadius;
+
+    if (topEdge < CHAIR_CONFIG.seatRotation.tableEdgeZ) {
+      const delta = CHAIR_CONFIG.seatRotation.tableEdgeZ - topEdge;
+
+      const radius = CHAIR_CONFIG.seatRotation.rotationRadius;
+      const side = radius - delta;
+      this._availableSeatAngle = Math.acos(side / radius) * 2;
+
+      this._checkCurrentSeatAngle();
+    } else {
+      this._availableSeatAngle = Math.PI * 2;
+    }
+
+    if (this._availableSeatAngle !== this._previousAvailableSeatAngle) {
+      this._previousAvailableSeatAngle = this._availableSeatAngle;
+      this._chairSeatHelper.setAvailableAngle(this._availableSeatAngle);
+    }
+  }
+
+  _checkCurrentSeatAngle() {
+    const seat = this._parts[CHAIR_PART_TYPE.Seat];
+    const seatWidthAngle = CHAIR_CONFIG.seatRotation.seatWidthAngle * THREE.MathUtils.DEG2RAD;
+
+    if (seat.rotation.y + seatWidthAngle * 0.5 > (Math.PI * 2 - this._availableSeatAngle) * 0.5 && seat.rotation.y < Math.PI) {
+      seat.rotation.y = (Math.PI * 2 - this._availableSeatAngle) * 0.5 - seatWidthAngle * 0.5;
+    }
+
+    if (seat.rotation.y - seatWidthAngle * 0.5 < Math.PI + this._availableSeatAngle * 0.5 && seat.rotation.y > Math.PI) {
+      seat.rotation.y = Math.PI + this._availableSeatAngle * 0.5 + seatWidthAngle * 0.5;
+    }
+
+    this._chairSeatHelper.updateSeatAngle(seat.rotation.y);
+  }
+
+  _updateHelpArrowsPosition() {
+    this._helpArrows.position.copy(this._wrapper.position);
+    this._helpArrows.position.y += 2.1;
+  }
+
+  _updateHelpersPosition() {
+    if (CHAIR_CONFIG.chairMoving.showMovingArea) {
+      this._chairMovingAreaHelper.setChairPosition(this._wrapper.position);
+    }
+
+    if (CHAIR_CONFIG.seatRotation.showSeatHelper) {
+      this._chairSeatHelper.setChairPosition(this._wrapper.position);
+    }
+  }
+
+  _checkToBounce() {
+    const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
+    const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
+    const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
+    const underTableMovingArea = getMovingArea(MOVING_AREA_TYPE.UnderTable);
+
+    this._bounceDisable[BORDER_TYPE.Left] = checkLeftBorderBounce(this._wrapper.position, chairMainBoundingBox, chairFrontWheelBoundingBox, mainMovingArea, underTableMovingArea);
+    this._bounceDisable[BORDER_TYPE.Right] = checkRightBorderBounce(this._wrapper.position, chairMainBoundingBox, chairFrontWheelBoundingBox, mainMovingArea, underTableMovingArea);
+    this._bounceDisable[BORDER_TYPE.Top] = checkTopBorderBounce(this._wrapper.position, chairMainBoundingBox, chairFrontWheelBoundingBox, mainMovingArea, underTableMovingArea);
+    this._bounceDisable[BORDER_TYPE.Bottom] = checkBottomBorderBounce(this._wrapper.position, chairMainBoundingBox, mainMovingArea);
   }
 
   _updateSeatRotation(dt) {
@@ -199,47 +438,23 @@ export default class Chair extends RoomObjectAbstract {
       CHAIR_CONFIG.seatRotation.speed = 0;
     }
 
-    this._checkIsRotationNearTable();
+    this._updateRotationWithAvailableAngle();
+    this._chairSeatHelper.updateSeatAngle(seat.rotation.y);
     this._debugMenu.updateSeatSpeed();
   }
 
-  _updateWheelsRotation(dt) {
-    if (CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Moving) {
-      const wheels = this._getWheelsParts();
-
-      const targetAngle = CHAIR_CONFIG.chairMoving.wheels.targetAngle[CHAIR_CONFIG.chairMoving.positionType] - this._legsGroup.rotation.y;
-
-      wheels.forEach(wheel => {
-        const errorAngle = wheel.userData.targetAngleError;
-        const speed = CHAIR_CONFIG.chairMoving.wheels.rotationSpeed + wheel.userData.speedError;
-
-        wheel.rotation.y += (targetAngle + errorAngle - wheel.rotation.y) * speed * dt * 60 * 0.01;
-      });
-    }
-  }
-
-  _checkIsRotationNearTable() {
+  _updateRotationWithAvailableAngle() {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
 
-    const maxDistance = CHAIR_CONFIG.chairMoving.maxDistanceToTable;
-    const minDistance = CHAIR_CONFIG.chairMoving.distanceToEnableRotation;
-    let distanceCoeff = (maxDistance - (-this._wrapper.position.z)) / (maxDistance) * (maxDistance / minDistance);
-    distanceCoeff = THREE.MathUtils.clamp(distanceCoeff, 0, 1);
+    if (this._availableSeatAngle !== Math.PI * 2) {
+      const seatWidthAngle = CHAIR_CONFIG.seatRotation.seatWidthAngle * THREE.MathUtils.DEG2RAD;
 
-    const currentMaxAngle = distanceCoeff * Math.PI * 0.5 * 1.03;
-
-    const isRotatingNearTable = CHAIR_CONFIG.chairMoving.state === CHAIR_MOVEMENT_STATE.Idle
-      && CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.NearTable
-      && CHAIR_CONFIG.seatRotation.speed > 0
-      && distanceCoeff < 1;
-
-    if (isRotatingNearTable) {
-      if (seat.rotation.y > currentMaxAngle && seat.rotation.y < Math.PI) {
+      if (seat.rotation.y + seatWidthAngle * 0.5 > (Math.PI * 2 - this._availableSeatAngle) * 0.5 && seat.rotation.y < Math.PI) {
         CHAIR_CONFIG.seatRotation.direction = SEAT_ROTATION_DIRECTION.Clockwise;
         CHAIR_CONFIG.seatRotation.speed *= CHAIR_CONFIG.seatRotation.hitDampingCoefficient;
       }
 
-      if (seat.rotation.y < Math.PI * 2 - currentMaxAngle && seat.rotation.y > Math.PI) {
+      if (seat.rotation.y - seatWidthAngle * 0.5 < Math.PI + this._availableSeatAngle * 0.5 && seat.rotation.y > Math.PI) {
         CHAIR_CONFIG.seatRotation.direction = SEAT_ROTATION_DIRECTION.CounterClockwise;
         CHAIR_CONFIG.seatRotation.speed *= CHAIR_CONFIG.seatRotation.hitDampingCoefficient;
       }
@@ -248,28 +463,28 @@ export default class Chair extends RoomObjectAbstract {
     }
   }
 
-  _setWheelsRandomData() {
-    const wheels = this._getWheelsParts();
+  _updateWheelsRotation(dt) {
+    if (isVector3Equal(this._wrapper.position, this._currentPosition)) {
+      return;
+    }
+
+    const targetAngel = Math.atan2(this._currentPosition.x - this._wrapper.position.x, this._currentPosition.z - this._wrapper.position.z);
+    const wheels = getWheelsParts(this._parts);
 
     wheels.forEach(wheel => {
-      const sign = Math.random() > 0.5 ? 1 : -1;
-      wheel.userData.targetAngleError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.targetAngleMaxError * THREE.MathUtils.DEG2RAD;
-      wheel.userData.speedError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.rotationSpeedError;
+      const errorAngle = wheel.userData.targetAngleError;
+      const speed = CHAIR_CONFIG.chairMoving.wheels.rotationSpeed + wheel.userData.speedError;
+
+      const targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetAngel + errorAngle);
+      wheel.quaternion.slerp(targetQuaternion, speed * dt * 60 * 0.01);
     });
   }
 
-  _rotateLegs(time) {
-    const sign = Math.random() > 0.5 ? '+' : '-';
-    const angle = THREE.MathUtils.DEG2RAD * 20 + Math.random() * THREE.MathUtils.DEG2RAD * 30;
-    const timeCoefficient = 0.3 + Math.random() * 0.3;
-
-    this._rotateLegsTween = new TWEEN.Tween(this._legsGroup.rotation)
-      .to({ y: `${sign}${angle}` }, time * timeCoefficient)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start()
+  _moveChairToPosition(position) {
+    this._currentPosition.copy(position);
   }
 
-  _rotateSeatForward(time) {
+  _rotateSeatForward() {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
 
     const rotationY = seat.rotation.y < Math.PI ? 0 : Math.PI * 2;
@@ -277,15 +492,9 @@ export default class Chair extends RoomObjectAbstract {
     this._debugMenu.updateSeatRotationDirection();
 
     this._rotateSeatTween = new TWEEN.Tween(seat.rotation)
-      .to({ y: rotationY }, time * 0.5)
+      .to({ y: rotationY }, 1000)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start()
-  }
-
-  _updatePositionType() {
-    CHAIR_CONFIG.chairMoving.positionType = CHAIR_CONFIG.chairMoving.positionType === CHAIR_POSITION_TYPE.AwayFromTable
-      ? CHAIR_POSITION_TYPE.NearTable
-      : CHAIR_POSITION_TYPE.AwayFromTable;
   }
 
   _changeRotationDirection() {
@@ -297,25 +506,13 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _resetSeatRotation() {
-    if (CHAIR_CONFIG.chairMoving.distanceToTablePosition < CHAIR_CONFIG.chairMoving.distanceToEnableRotation) {
-      return;
-    }
-
     CHAIR_CONFIG.seatRotation.speed = 0;
     this._debugMenu.updateSeatSpeed();
   }
 
   _stopTweens() {
-    if (this._moveChairTween) {
-      this._moveChairTween.stop();
-    }
-
     if (this._rotateSeatTween) {
       this._rotateSeatTween.stop();
-    }
-
-    if (this._rotateLegsTween) {
-      this._rotateLegsTween.stop();
     }
   }
 
@@ -329,6 +526,10 @@ export default class Chair extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._setWheelsRandomData();
+    this._initChairMovingAreaHelper();
+    this._initChairSeatHelper();
+    this._initHelpArrows();
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
@@ -341,18 +542,61 @@ export default class Chair extends RoomObjectAbstract {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
     this._wrapper.add(seat);
 
+    seat.position.x = seat.position.z = 0;
+
     const legs = this._parts[CHAIR_PART_TYPE.Legs];
     const legsPositionZ = legs.position.z;
+    const legsPositionX = legs.position.x;
+
     const legsGroup = this._legsGroup = new THREE.Group();
     this._wrapper.add(legsGroup);
+
+    this._wrapper.position.x = legs.userData.startPosition.x;
+    this._wrapper.position.z = legs.userData.startPosition.z;
+
+    this._currentPosition.copy(this._wrapper.position);
+    this._startPosition.copy(this._wrapper.position);
 
     const legsParts = this._getLegsParts();
     legsParts.forEach((part) => {
       part.position.z -= legsPositionZ;
+      part.position.x -= legsPositionX;
       legsGroup.add(part);
     });
 
-    legsGroup.position.z = legsPositionZ;
+    legsGroup.position.x = legsGroup.position.z = 0;
+  }
+
+  _setWheelsRandomData() {
+    const wheels = getWheelsParts(this._parts);
+
+    wheels.forEach(wheel => {
+      const sign = Math.random() > 0.5 ? 1 : -1;
+      wheel.userData.targetAngleError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.targetAngleMaxError * THREE.MathUtils.DEG2RAD;
+      wheel.userData.speedError = sign * Math.random() * CHAIR_CONFIG.chairMoving.wheels.rotationSpeedError;
+    });
+  }
+
+  _initChairMovingAreaHelper() {
+    const chairMovingAreaHelper = this._chairMovingAreaHelper = new ChairMovingAreaHelper();
+    this.add(chairMovingAreaHelper);
+
+    chairMovingAreaHelper.setChairPosition(this._wrapper.position);
+  }
+
+  _initChairSeatHelper() {
+    const chairSeatHelper = this._chairSeatHelper = new ChairSeatHelper();
+    this.add(chairSeatHelper);
+
+    chairSeatHelper.setChairPosition(this._wrapper.position);
+  }
+
+  _initHelpArrows() {
+    const helpArrowsTypes = [HELP_ARROW_TYPE.ChairFront, HELP_ARROW_TYPE.ChairRight];
+    const helpArrows = this._helpArrows = new HelpArrows(helpArrowsTypes);
+    this.add(helpArrows);
+
+    this._updateHelpArrowsPosition();
   }
 
   _initSounds() {
@@ -386,30 +630,26 @@ export default class Chair extends RoomObjectAbstract {
 
   _initSignals() {
     this._debugMenu.events.on('rotate', () => this._rotateSeat());
-    this._debugMenu.events.on('move', () => this._moveChair());
+    this._debugMenu.events.on('moveChairToStartPosition', () => this._moveChairToPosition(this._startPosition));
+    this._debugMenu.events.on('onShowSeatHelper', () => this._onShowSeatHelper());
+    this._debugMenu.events.on('onShowMovingArea', () => this._onShowMovingArea());
+  }
+
+  _onShowSeatHelper() {
+    this._chairSeatHelper.setChairPosition(this._wrapper.position);
+    this._chairSeatHelper.setAvailableAngle(this._availableSeatAngle);
+    this._chairSeatHelper.updateVisibility();
+  }
+
+  _onShowMovingArea() {
+    this._chairMovingAreaHelper.setChairPosition(this._wrapper.position);
+    this._chairMovingAreaHelper.updateVisibility()
   }
 
   _getLegsParts() {
     const legs = this._parts[CHAIR_PART_TYPE.Legs];
-    const wheels = this._getWheelsParts();
+    const wheels = getWheelsParts(this._parts);
 
     return [legs, ...wheels];
-  }
-
-  _getWheelsParts() {
-    const parts = [];
-    const wheelsPartsNames = [
-      CHAIR_PART_TYPE.Wheel01,
-      CHAIR_PART_TYPE.Wheel02,
-      CHAIR_PART_TYPE.Wheel03,
-      CHAIR_PART_TYPE.Wheel04,
-      CHAIR_PART_TYPE.Wheel05,
-    ];
-
-    wheelsPartsNames.forEach((partName) => {
-      parts.push(this._parts[partName]);
-    });
-
-    return parts;
   }
 }

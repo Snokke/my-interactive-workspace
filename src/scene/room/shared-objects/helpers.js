@@ -51,3 +51,8 @@ export const isVector2Equal = (a, b) => {
   const epsilon = 0.001;
   return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon;
 }
+
+export const isVector3Equal = (a, b) => {
+  const epsilon = 0.001;
+  return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon && Math.abs(a.z - b.z) < epsilon;
+}

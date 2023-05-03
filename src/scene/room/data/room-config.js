@@ -13,7 +13,7 @@ import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-ob
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
 
 const ROOM_CONFIG = {
-  outlineEnabled: true,
+  outlineEnabled: false,
   autoOpenActiveDebugFolder: true,
   clickActiveObjectError: 2,
   startAnimation: {
@@ -102,6 +102,7 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Chair',
     partTypes: CHAIR_PART_TYPE,
     partsActiveConfig: CHAIR_PART_ACTIVITY_CONFIG,
+    isDraggable: true,
   },
   [ROOM_OBJECT_TYPE.AirConditioner]: {
     createObject: true,

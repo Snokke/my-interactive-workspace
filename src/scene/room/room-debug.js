@@ -89,7 +89,7 @@ export default class RoomDebug {
     //   });
 
     const isMobileDevice = isMobile(window.navigator).any;
-    ROOM_CONFIG.outlineEnabled = !isMobileDevice;
+    // ROOM_CONFIG.outlineEnabled = !isMobileDevice;
 
     roomFolder.addInput(ROOM_CONFIG, 'outlineEnabled', {
       label: 'Outline',

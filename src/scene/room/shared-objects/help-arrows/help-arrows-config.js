@@ -7,6 +7,8 @@ const HELP_ARROW_TYPE = {
   MonitorBack: 'MONITOR_BACK',
   LaptopMountLeft: 'LAPTOP_MOUNT_LEFT',
   LaptopMountRight: 'LAPTOP_MOUNT_RIGHT',
+  ChairFront: 'CHAIR_FRONT',
+  ChairRight: 'CHAIR_RIGHT',
 }
 
 const HELP_ARROWS_CONFIG = {
@@ -22,7 +24,6 @@ const HELP_ARROWS_CONFIG = {
     offset: new THREE.Vector3(0.2, 0, 0),
     length: 0.7,
   },
-
   [HELP_ARROW_TYPE.MonitorFront]: {
     color: 0x00ff00,
     direction: new THREE.Vector3(0, 0, 1),
@@ -46,6 +47,18 @@ const HELP_ARROWS_CONFIG = {
     direction: new THREE.Vector3(1, 0, 0),
     offset: new THREE.Vector3(0.8, 0, 0),
     length: 0.7,
+  },
+  [HELP_ARROW_TYPE.ChairFront]: {
+    color: 0xff0000,
+    direction: new THREE.Vector3(0, 0, -1),
+    offset: new THREE.Vector3(0, 0, -1.6),
+    length: 1.3,
+  },
+  [HELP_ARROW_TYPE.ChairRight]: {
+    color: 0x00ff00,
+    direction: new THREE.Vector3(1, 0, 0),
+    offset: new THREE.Vector3(1.6, 0, 0),
+    length: 1.3,
   },
 }
 

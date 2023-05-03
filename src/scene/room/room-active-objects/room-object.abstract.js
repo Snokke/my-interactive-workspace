@@ -76,6 +76,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._isPointerOver = false;
   }
 
+  onPointerUp() { }
+
   getMeshesForOutline(mesh) {
     return this._activeMeshes;
   }

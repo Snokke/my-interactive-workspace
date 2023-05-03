@@ -127,6 +127,7 @@ export default class RoomController {
     }
 
     if (this._draggingObject) {
+      this._draggingObject.onPointerUp();
       this._draggingObject = null;
       this._cameraController.onObjectDragEnd();
     }
