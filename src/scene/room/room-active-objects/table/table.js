@@ -102,6 +102,7 @@ export default class Table extends RoomObjectAbstract {
 
     this._setTableState(TABLE_STATE.Moving);
     this._startFromHandleMoveOut(handle);
+    this.events.post('onTableMoving');
   }
 
   getTopTableGroup() {
@@ -197,6 +198,7 @@ export default class Table extends RoomObjectAbstract {
     tweenHandleMoveIn.onComplete(() => {
       this._handleState = TABLE_HANDLE_STATE.Idle;
       this._updateTableState();
+      this.events.post('onTableStop');
     });
   }
 

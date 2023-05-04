@@ -4,7 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
-import  { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
+import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
@@ -109,6 +109,10 @@ export default class Monitor extends RoomObjectAbstract {
       this.events.post('onMonitorScreenClick');
     }
 
+    if (onPointerDownClick === false && partType === MONITOR_PART_TYPE.MonitorCloseFocusIcon) {
+      this.events.post('onCloseFocusIconClick')
+    }
+
     return isObjectDraggable;
   }
 
@@ -209,19 +213,14 @@ export default class Monitor extends RoomObjectAbstract {
     if (partType === MONITOR_PART_TYPE.MonitorScreen) {
       return [mesh];
     }
+
+    if (partType === MONITOR_PART_TYPE.MonitorCloseFocusIcon) {
+      return [mesh];
+    }
   }
 
   getScreen() {
     return this._parts[MONITOR_PART_TYPE.MonitorScreen];
-  }
-
-  getZoomInFramePosition() {
-    const worldPosition = new THREE.Vector3();
-    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
-    monitor.getWorldPosition(worldPosition);
-    worldPosition.y += 1.3;
-
-    return worldPosition;
   }
 
   setScreenActive() {
@@ -249,6 +248,38 @@ export default class Monitor extends RoomObjectAbstract {
     this._focusObject.getWorldPosition(monitorGlobalPosition);
 
     return monitorGlobalPosition;
+  }
+
+  showCloseFocusIcon() {
+    const closeFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
+    closeFocusIcon.visible = true;
+    closeFocusIcon.scale.set(0, 0, 0);
+
+    if (this._closeFocusIconTween) {
+      this._closeFocusIconTween.stop();
+    }
+
+    this._closeFocusIconTween = new TWEEN.Tween(closeFocusIcon.scale)
+      .to({ x: 1, y: 1, z: 1 }, 200)
+      .easing(TWEEN.Easing.Back.Out)
+      .delay(100)
+      .start();
+  }
+
+  hideCloseFocusIcon() {
+    const closeFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
+
+    if (this._closeFocusIconTween) {
+      this._closeFocusIconTween.stop();
+    }
+
+    this._closeFocusIconTween = new TWEEN.Tween(closeFocusIcon.scale)
+      .to({ x: 0, y: 0, z: 0 }, 200)
+      .easing(TWEEN.Easing.Back.In)
+      .start()
+      .onComplete(() => {
+        closeFocusIcon.visible = false;
+      });
   }
 
   _clearButtonsColor() {
@@ -417,6 +448,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initGroups();
+    this._initCloseFocusIcon();
     this._initFocusObject();
     this._initScreenTextures();
     this._updateArmRotation();
@@ -434,7 +466,8 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorScreenCVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenCloseIcon, monitorScreenVolume);
+    const monitorCloseFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenCloseIcon, monitorScreenVolume, monitorCloseFocusIcon);
 
     screenGroup.position.copy(monitorScreen.position);
 
@@ -442,6 +475,7 @@ export default class Monitor extends RoomObjectAbstract {
     const CVIconOffset = monitorScreenCVIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
     const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
+    const closeFocusIconOffset = monitorCloseFocusIcon.position.clone().sub(monitorScreen.position.clone());
 
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
@@ -449,6 +483,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreenCloseIcon.position.copy(closeIconOffset);
     monitorScreenCloseIcon.position.z -= MONITOR_CONFIG.hideOffset;
     monitorScreenVolume.position.copy(volumeOffset);
+    monitorCloseFocusIcon.position.copy(closeFocusIconOffset);
   }
 
   _initFocusObject() {
@@ -525,7 +560,7 @@ export default class Monitor extends RoomObjectAbstract {
     });
 
     const texture = this._showreelTexture = new THREE.VideoTexture(videoElement);
-    texture.encoding = THREE.sRGBEncoding;
+    // texture.encoding = THREE.sRGBEncoding;
   }
 
   _initArrows() {
@@ -534,6 +569,22 @@ export default class Monitor extends RoomObjectAbstract {
     this.add(helpArrows);
 
     helpArrows.position.copy(this._parts[MONITOR_PART_TYPE.Monitor].position.clone());
+  }
+
+  _initCloseFocusIcon() {
+    const texture = Loader.assets['close-icon'];
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(2, 2);
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    const closeFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
+    closeFocusIcon.material = material;
+
+    closeFocusIcon.visible = false;
   }
 
   _initSignals() {

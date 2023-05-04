@@ -21,6 +21,8 @@ export default class RoomDebug {
     this._soundsVolumeController = null;
     this._cameraStateController = null;
     this._exitFocusModeButton = null;
+    this._monitorFocusButton = null;
+    this._keyboardFocusButton = null;
 
     this._init();
   }
@@ -59,6 +61,22 @@ export default class RoomDebug {
 
   disableExitFocusModeButton() {
     this._exitFocusModeButton.disabled = true;
+  }
+
+  enableMonitorFocusButton() {
+    this._monitorFocusButton.disabled = false;
+  }
+
+  disableMonitorFocusButton() {
+    this._monitorFocusButton.disabled = true;
+  }
+
+  enableKeyboardFocusButton() {
+    this._keyboardFocusButton.disabled = false;
+  }
+
+  disableKeyboardFocusButton() {
+    this._keyboardFocusButton.disabled = true;
   }
 
   _init() {
@@ -140,13 +158,13 @@ export default class RoomDebug {
     });
     this._cameraStateController.customDisabled = true;
 
-    cameraFolder.addButton({
+    this._monitorFocusButton = cameraFolder.addButton({
       title: 'Focus monitor',
     }).on('click', () => {
       this.events.post('onMonitorFocus');
     });
 
-    cameraFolder.addButton({
+    this._keyboardFocusButton = cameraFolder.addButton({
       title: 'Focus keyboard',
     }).on('click', () => {
       this.events.post('onKeyboardFocus');

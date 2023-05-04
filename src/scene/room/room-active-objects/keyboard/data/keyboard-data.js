@@ -2,10 +2,12 @@ import * as THREE from 'three';
 
 const KEYBOARD_PART_TYPE = {
   Base: 'keyboard_base',
+  CloseFocusIcon: 'keyboard_close_focus_icon',
 }
 
 const KEYBOARD_PART_ACTIVITY_CONFIG = {
   [KEYBOARD_PART_TYPE.Base]: true,
+  [KEYBOARD_PART_TYPE.CloseFocusIcon]: true,
 }
 
 const KEY_COLOR_TYPE = {

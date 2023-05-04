@@ -14,7 +14,7 @@ const textures = [
   'cursor.png',
   'showreel-icon.jpg',
   'cv-icon.jpg',
-  'close-icon.jpg',
+  'close-icon.png',
   'volume.png',
   'volume-muted.png',
 

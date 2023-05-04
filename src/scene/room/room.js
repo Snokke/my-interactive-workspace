@@ -62,7 +62,6 @@ export default class Room extends THREE.Group {
     this._initRoomObjects();
     this._configureRaycaster();
     this._initRoomController();
-    this._initSignals();
   }
 
   _initRoomDebug() {
@@ -146,10 +145,6 @@ export default class Room extends THREE.Group {
 
     const cursor = this._cursor = new Cursor(mouse, monitorScreen, laptopScreen);
     this.add(cursor);
-  }
-
-  _initSignals() {
-    this._roomController.events.on('onMonitorZoomIn', (msg, position) => this.events.post('onMonitorZoomIn', position));
   }
 
   _configureRaycaster() {

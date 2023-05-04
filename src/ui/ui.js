@@ -1,25 +1,17 @@
-import { DisplayObject, Message, Sprite } from "black-engine";
+import { DisplayObject, Message } from "black-engine";
 import Overlay from "./overlay";
-import ZoomInFrame from "./zoom-in-frame";
 
 export default class UI extends DisplayObject {
   constructor() {
     super();
 
     this._overlay = null;
-    this._zoomInFrame = null;
 
     this.touchable = true;
   }
 
-  setZoomInFramePosition(position) {
-    this._zoomInFrame.x = position.x;
-    this._zoomInFrame.y = position.y;
-  }
-
   onAdded() {
     this._initOverlay();
-    this._initZoomInFrame();
 
     this.stage.on(Message.RESIZE, this._handleResize, this);
     this._handleResize();
@@ -33,11 +25,6 @@ export default class UI extends DisplayObject {
     this._overlay.on('onPointerDown', (msg, x, y) => this.post('onPointerDown', x, y));
     this._overlay.on('onPointerUp', (msg, x, y) => this.post('onPointerUp', x, y));
     this._overlay.on('onPointerLeave', () => this.post('onPointerLeave'));
-  }
-
-  _initZoomInFrame() {
-    const zoomInFrame = this._zoomInFrame = new ZoomInFrame();
-    // this.add(zoomInFrame);
   }
 
   _handleResize() {

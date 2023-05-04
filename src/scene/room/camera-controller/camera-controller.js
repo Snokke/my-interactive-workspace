@@ -2,9 +2,13 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_CONFIG } from './data/camera-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_STATE, FOCUS_TYPE } from './data/camera-data';
+import { MessageDispatcher } from 'black-engine';
 
 export default class CameraController {
   constructor(camera, orbitControls, focusObjects, roomDebug) {
+
+    this.events = new MessageDispatcher();
+
     this._camera = camera;
     this._orbitControls = orbitControls;
     this._focusObjects = focusObjects;
@@ -119,6 +123,7 @@ export default class CameraController {
           this._lookAtObject.quaternion.copy(this._camera.quaternion);
           this._lookAtLerpObject.quaternion.copy(this._camera.quaternion);
           this._cameraState = CAMERA_STATE.Focused;
+          this.events.post('onObjectFocused', focusObjectType);
         }
 
         CAMERA_CONFIG.state = this._cameraState;

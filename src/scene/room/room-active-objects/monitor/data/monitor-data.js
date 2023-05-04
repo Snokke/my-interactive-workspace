@@ -9,6 +9,7 @@ const MONITOR_PART_TYPE = {
   MonitorScreenCVIcon: 'monitor_screen_cv_icon',
   MonitorScreenCloseIcon: 'monitor_screen_close_icon',
   MonitorScreenVolume: 'monitor_screen_volume',
+  MonitorCloseFocusIcon: 'monitor_close_focus_icon',
 }
 
 const MONITOR_PART_ACTIVITY_CONFIG = {
@@ -22,6 +23,7 @@ const MONITOR_PART_ACTIVITY_CONFIG = {
   [MONITOR_PART_TYPE.MonitorScreenCVIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenVolume]: false,
+  [MONITOR_PART_TYPE.MonitorCloseFocusIcon]: true,
 }
 
 const MONITOR_PARTS_WITHOUT_BUTTONS = [

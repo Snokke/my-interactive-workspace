@@ -69,7 +69,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const partType = roomObject.userData.partType;
 
     if (partType === KEYBOARD_PART_TYPE.Base) {
-      this.events.post('onKeyboardClick');
+      this.events.post('onKeyboardBaseClick');
     }
 
     if (partType === KEYBOARD_PART_TYPE.Keys) {
@@ -80,6 +80,10 @@ export default class Keyboard extends RoomObjectAbstract {
 
     if (partType === KEYBOARD_PART_TYPE.SpaceKey) {
       this._onSpaceKeyClick(intersect);
+    }
+
+    if (partType === KEYBOARD_PART_TYPE.CloseFocusIcon) {
+      this.events.post('onCloseFocusIconClick')
     }
   }
 
@@ -121,12 +125,6 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   getMeshesForOutline(mesh) {
-    // const partType = mesh.userData.partType;
-
-    // if (partType === KEYBOARD_PART_TYPE.SpaceKey) {
-    //   return [];
-    // }
-
     return [mesh];
   }
 
@@ -170,6 +168,38 @@ export default class Keyboard extends RoomObjectAbstract {
 
   setBaseInactive() {
     this._parts[KEYBOARD_PART_TYPE.Base].userData.isActive = false;
+  }
+
+  showCloseFocusIcon() {
+    const closeFocusIcon = this._parts[KEYBOARD_PART_TYPE.CloseFocusIcon];
+    closeFocusIcon.visible = true;
+    closeFocusIcon.scale.set(0, 0, 0);
+
+    if (this._closeFocusIconTween) {
+      this._closeFocusIconTween.stop();
+    }
+
+    this._closeFocusIconTween = new TWEEN.Tween(closeFocusIcon.scale)
+      .to({ x: 1, y: 1, z: 1 }, 200)
+      .easing(TWEEN.Easing.Back.Out)
+      .delay(100)
+      .start();
+  }
+
+  hideCloseFocusIcon() {
+    const closeFocusIcon = this._parts[KEYBOARD_PART_TYPE.CloseFocusIcon];
+
+    if (this._closeFocusIconTween) {
+      this._closeFocusIconTween.stop();
+    }
+
+    this._closeFocusIconTween = new TWEEN.Tween(closeFocusIcon.scale)
+      .to({ x: 0, y: 0, z: 0 }, 200)
+      .easing(TWEEN.Easing.Back.In)
+      .start()
+      .onComplete(() => {
+        closeFocusIcon.visible = false;
+      });
   }
 
   _onKeyClick(intersect) {
@@ -478,6 +508,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initKeys();
+    this._initCloseFocusIcon();
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
@@ -633,6 +664,22 @@ export default class Keyboard extends RoomObjectAbstract {
 
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
     keysBacklight.position.copy(base.position);
+  }
+
+  _initCloseFocusIcon() {
+    const texture = Loader.assets['close-icon'];
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(2, 2);
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    const closeFocusIcon = this._parts[KEYBOARD_PART_TYPE.CloseFocusIcon];
+    closeFocusIcon.material = material;
+
+    closeFocusIcon.visible = false;
   }
 
   _initSounds() {
