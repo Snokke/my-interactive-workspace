@@ -138,6 +138,18 @@ export default class RoomObjectAbstract extends THREE.Group {
     }
   }
 
+  disableDebugMenu() {
+    if (this._hasDebugMenu) {
+      this._debugMenu.disable();
+    }
+  }
+
+  enableDebugMenu() {
+    if (this._hasDebugMenu) {
+      this._debugMenu.enable();
+    }
+  }
+
   _setPositionForShowAnimation() {
     for (let key in this._parts) {
       const part = this._parts[key];

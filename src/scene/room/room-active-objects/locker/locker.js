@@ -27,6 +27,9 @@ export default class Locker extends RoomObjectAbstract {
     this._chairIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._caseMoveDistance = {};
 
+    this._isWorkplacePhotoShown = false;
+    this._workplacePhotoLastTransform = {};
+
     this._init();
   }
 
@@ -83,12 +86,16 @@ export default class Locker extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
 
-    if (partType === LOCKER_PART_TYPE.Body) {
+    if (partType === LOCKER_PART_TYPE.Body && !this._isWorkplacePhotoShown) {
       this.pushAllCases();
     }
 
-    if (CASES.includes(partType)) {
+    if (CASES.includes(partType) && !this._isWorkplacePhotoShown) {
       this.pushCase(roomObject.userData.caseId);
+    }
+
+    if (partType === LOCKER_PART_TYPE.WorkplacePhoto) {
+      this.onWorkplacePhotoClick();
     }
   }
 
@@ -139,6 +146,10 @@ export default class Locker extends RoomObjectAbstract {
   getMeshesForOutline(mesh) {
     if (mesh.userData.partType === LOCKER_PART_TYPE.Body) {
       return Object.values(this._parts);
+    }
+
+    if (mesh.userData.partType === LOCKER_PART_TYPE.WorkplacePhoto) {
+      return [mesh];
     }
 
     const partName = `case0${mesh.userData.caseId + 1}`;
@@ -232,6 +243,18 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
+  onWorkplacePhotoClick() {
+    if (!this._isWorkplacePhotoShown) {
+      this._showWorkplacePhoto();
+    }
+
+    if (this._isWorkplacePhotoShown) {
+      this._hideWorkplacePhoto();
+    }
+
+    this._isWorkplacePhotoShown = !this._isWorkplacePhotoShown;
+  }
+
   _moveCase(caseId, direction, delay = 0, playSound = true) {
     this._stopCaseMoveTween(caseId);
     const endState = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
@@ -242,6 +265,7 @@ export default class Locker extends RoomObjectAbstract {
 
     const partName = `case0${caseId + 1}`;
     const casePart = this._parts[partName];
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
 
     const startPositionZ = casePart.userData.startPosition.z;
     const endPositionZ = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? startPositionZ + this._caseMoveDistance[caseId] : startPositionZ;
@@ -257,6 +281,10 @@ export default class Locker extends RoomObjectAbstract {
       this._openSounds[caseId].position.copy(casePart.position);
       this._openSounds[caseId].position.z += 0.8;
       this._soundHelpers[caseId].position.copy(this._openSounds[caseId].position);
+
+      if (caseId === 0) {
+        workplacePhoto.position.z = casePart.position.z;
+      }
     });
 
     this._caseMoveTween[caseId].onStart(() => {
@@ -322,6 +350,27 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
+  _showWorkplacePhoto() {
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+    this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
+    this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
+    this.events.post('onWorkplacePhotoClickToShow', workplacePhoto);
+    this._debugMenu.disableCaseMovement();
+  }
+
+  _hideWorkplacePhoto() {
+    this._moveWorkplacePhotoToStartPosition();
+    this.events.post('onWorkplacePhotoClickToHide');
+    this._debugMenu.enableCaseMovement();
+  }
+
+  _moveWorkplacePhotoToStartPosition() {
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+
+    workplacePhoto.position.copy(this._workplacePhotoLastTransform.position);
+    workplacePhoto.rotation.copy(this._workplacePhotoLastTransform.rotation);
+  }
+
   _playOpenSound(caseId) {
     if (this._openSounds[caseId].isPlaying) {
       this._openSounds[caseId].stop();
@@ -356,6 +405,7 @@ export default class Locker extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initWorkplacePhoto();
     this._setDefaultMoveDistance();
     this._setDefaultOpenState();
     this._initSounds();
@@ -374,6 +424,23 @@ export default class Locker extends RoomObjectAbstract {
 
       this.add(part);
     }
+  }
+
+  _initWorkplacePhoto() {
+    const texture = Loader.assets['workplace-photo'];
+    texture.flipY = false;
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    workplacePhoto.material = material;
+
+    this._workplacePhotoLastTransform = {
+      position: new THREE.Vector3(),
+      rotation: new THREE.Euler(),
+    };
   }
 
   _setDefaultMoveDistance() {

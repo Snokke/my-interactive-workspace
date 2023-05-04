@@ -23,6 +23,7 @@ export default class RoomDebug {
     this._exitFocusModeButton = null;
     this._monitorFocusButton = null;
     this._keyboardFocusButton = null;
+    this._startCameraPositionButton = null;
 
     this._init();
   }
@@ -77,6 +78,14 @@ export default class RoomDebug {
 
   disableKeyboardFocusButton() {
     this._keyboardFocusButton.disabled = true;
+  }
+
+  enableStartCameraPositionButton() {
+    this._startCameraPositionButton.disabled = false;
+  }
+
+  disableStartCameraPositionButton() {
+    this._startCameraPositionButton.disabled = true;
   }
 
   _init() {
@@ -179,7 +188,7 @@ export default class RoomDebug {
 
     cameraFolder.addSeparator();
 
-    cameraFolder.addButton({
+    this._startCameraPositionButton = cameraFolder.addButton({
       title: 'Start camera position',
     }).on('click', () => {
       this.events.post('onRoomFocus');

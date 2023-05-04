@@ -16,7 +16,12 @@ const CAMERA_CONFIG = {
   },
   focusedState: {
     rotationCoefficient: 0.4,
-    lerpTime: 4,
+    lerpTime: 0.06,
+  },
+  staticState: {
+    rotationCoefficient: 0.8,
+    lerpTime: 0.05,
+    lookAtObjectZOffset: 3,
   }
 }
 

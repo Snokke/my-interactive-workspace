@@ -6,14 +6,27 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
     super(roomObjectType);
 
+    this._pushCasesButtons = null;
+    this._pushAllCasesButton = null;
+
     this._allCasesAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._init();
     this._checkToDisableFolder();
   }
 
+  disableCaseMovement() {
+    this._pushCasesButtons.disabled = true;
+    this._pushAllCasesButton.disabled = true;
+  }
+
+  enableCaseMovement() {
+    this._pushCasesButtons.disabled = false;
+    this._pushAllCasesButton.disabled = false;
+  }
+
   _init() {
-    this._debugFolder.addBlade({
+    this._pushCasesButtons = this._debugFolder.addBlade({
       view: 'buttongrid',
       size: [3, 2],
       cells: (x, y) => ({
@@ -51,7 +64,7 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
       this.events.post('changeAllCasesAnimation', animationType.value);
     });
 
-    this._debugFolder.addButton({
+    this._pushAllCasesButton = this._debugFolder.addButton({
       title: 'Push all cases',
     }).on('click', () => this.events.post('pushAllCases'));
 

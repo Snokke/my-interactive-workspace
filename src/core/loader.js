@@ -28,6 +28,9 @@ const textures = [
   'laptop-music-03-pause.jpg',
   'mac-keyboard.png',
   'keyboard-keys-atlas.png',
+
+  // locker
+  'workplace-photo.jpg',
 ];
 
 const models = [

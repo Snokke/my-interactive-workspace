@@ -6,6 +6,7 @@ const LOCKER_PART_TYPE = {
   Case04: 'case04',
   Case05: 'case05',
   Case06: 'case06',
+  WorkplacePhoto: 'workplace_photo',
 }
 
 const LOCKER_PART_ACTIVITY_CONFIG = {
@@ -16,6 +17,7 @@ const LOCKER_PART_ACTIVITY_CONFIG = {
   [LOCKER_PART_TYPE.Case04]: true,
   [LOCKER_PART_TYPE.Case05]: true,
   [LOCKER_PART_TYPE.Case06]: true,
+  [LOCKER_PART_TYPE.WorkplacePhoto]: true,
 }
 
 const CASES = [

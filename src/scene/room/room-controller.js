@@ -3,10 +3,10 @@ import DEBUG_CONFIG from '../../core/configs/debug-config';
 import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
-import { MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
-import { arraysEqual, isVector2Equal, vector3ToBlackPosition } from './shared-objects/helpers';
+import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
+import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
-import { LAPTOP_PART_TYPE, LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
+import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
 import { CAMERA_FOCUS_OBJECT_TYPE } from './camera-controller/data/camera-data';
 
@@ -404,8 +404,11 @@ export default class RoomController {
     monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
     monitor.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
     chair.events.on('onLockerAreaChange', (msg, areaType, state) => locker.onChairNearLocker(areaType, state));
-    table.events.on('onTableMoving', () => this._onTableMoving());
-    table.events.on('onTableStop', () => this._onTableStop());
+    table.events.on('onTableMoving', () => this._disableFocusObjects());
+    table.events.on('onTableStop', () => this._enableFocusObjects());
+    locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto) => this._onWorkplacePhotoClickToShow(workplacePhoto));
+    locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
+
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
   }
 
@@ -442,7 +445,7 @@ export default class RoomController {
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
   }
 
-  _onTableMoving() {
+  _disableFocusObjects() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].setScreenInactive();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseInactive();
@@ -450,12 +453,45 @@ export default class RoomController {
     this._roomDebug.disableKeyboardFocusButton();
   }
 
-  _onTableStop() {
+  _enableFocusObjects() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].setScreenActive();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseActive();
     this._roomDebug.enableMonitorFocusButton();
     this._roomDebug.enableKeyboardFocusButton();
+  }
+
+  _onWorkplacePhotoClickToShow(workplacePhoto) {
+    this._cameraController.setStaticState(workplacePhoto);
+    this._roomDebug.disableStartCameraPositionButton();
+    this._disableFocusObjects();
+    this._disableAllObjects();
+
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Locker] = true;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].enableDebugMenu();
+  }
+
+  _onWorkplacePhotoClickToHide() {
+    this._cameraController.setOrbitState();
+    this._roomDebug.enableStartCameraPositionButton();
+    this._enableFocusObjects();
+    this._enableAllObjects();
+  }
+
+  _disableAllObjects() {
+    for (let key in this._roomActiveObject) {
+      ROOM_OBJECT_ENABLED_CONFIG[key] = false;
+      const roomObject = this._roomActiveObject[key];
+      roomObject.disableDebugMenu();
+    }
+  }
+
+  _enableAllObjects() {
+    for (let key in this._roomActiveObject) {
+      ROOM_OBJECT_ENABLED_CONFIG[key] = true;
+      const roomObject = this._roomActiveObject[key];
+      roomObject.enableDebugMenu();
+    }
   }
 
   _onObjectFocused(focusedObjectType) {

@@ -16,6 +16,8 @@ export default class CameraController {
 
     this._lookAtObject = null;
     this._lookAtLerpObject = null;
+    this._staticModeLookAtObject = null;
+    this._staticModeLookAtLerpObject = null;
     this._positionTween = null;
     this._rotationTween = null;
     this._focusLookAtVector = new THREE.Vector3();
@@ -25,13 +27,20 @@ export default class CameraController {
     this._isPointerMoveAllowed = true;
     this._cameraState = CAMERA_STATE.OrbitControls;
 
+    this._staticModeObject = null;
+
     this._init();
   }
 
   update(dt) {
     if (this._cameraState === CAMERA_STATE.Focused) {
-      this._lookAtLerpObject.position.lerp(this._lookAtObject.position, dt * CAMERA_CONFIG.focusedState.lerpTime);
+      this._lookAtLerpObject.position.lerp(this._lookAtObject.position, dt * 60 * CAMERA_CONFIG.focusedState.lerpTime);
       this._camera.lookAt(this._lookAtLerpObject.position);
+    }
+
+    if (this._cameraState === CAMERA_STATE.Static) {
+      this._staticModeLookAtLerpObject.position.lerp(this._staticModeLookAtObject.position, dt * 60 * CAMERA_CONFIG.staticState.lerpTime);
+      this._staticModeObject.lookAt(this._staticModeLookAtLerpObject.position);
     }
   }
 
@@ -43,6 +52,16 @@ export default class CameraController {
       this._lookAtObject.position.copy(this._focusLookAtVector);
       this._lookAtObject.translateOnAxis(new THREE.Vector3(1, 0, 0), percentX * CAMERA_CONFIG.focusedState.rotationCoefficient);
       this._lookAtObject.translateOnAxis(new THREE.Vector3(0, 1, 0), -percentY * CAMERA_CONFIG.focusedState.rotationCoefficient);
+    }
+
+    if (this._cameraState === CAMERA_STATE.Static && this._isPointerMoveAllowed) {
+      const percentX = x / window.innerWidth * 2 - 1;
+      const percentY = y / window.innerHeight * 2 - 1;
+
+      this._staticModeLookAtObject.position.copy(this._staticModeObject.position);
+      this._staticModeLookAtObject.translateOnAxis(new THREE.Vector3(0, 0, 1), -CAMERA_CONFIG.staticState.lookAtObjectZOffset);
+      this._staticModeLookAtObject.translateOnAxis(new THREE.Vector3(1, 0, 0), -percentX * CAMERA_CONFIG.staticState.rotationCoefficient);
+      this._staticModeLookAtObject.translateOnAxis(new THREE.Vector3(0, 1, 0), -percentY * CAMERA_CONFIG.staticState.rotationCoefficient);
     }
   }
 
@@ -113,22 +132,45 @@ export default class CameraController {
     this._lerpCameraRotation(focusPosition, focusLookAt, focusConfig.rotationEasing, time)
 
     this._rotationTween.onComplete(() => {
-        if (focusConfig.enableOrbitControlsOnComplete) {
-          this._orbitControls.target.set(focusLookAt.x, focusLookAt.y, focusLookAt.z);
-          this.enableOrbitControls();
-          this._cameraState = CAMERA_STATE.OrbitControls;
-        }
+      if (focusConfig.enableOrbitControlsOnComplete) {
+        this._orbitControls.target.set(focusLookAt.x, focusLookAt.y, focusLookAt.z);
+        this.enableOrbitControls();
+        this._cameraState = CAMERA_STATE.OrbitControls;
+      }
 
-        if (focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Keyboard || focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
-          this._lookAtObject.quaternion.copy(this._camera.quaternion);
-          this._lookAtLerpObject.quaternion.copy(this._camera.quaternion);
-          this._cameraState = CAMERA_STATE.Focused;
-          this.events.post('onObjectFocused', focusObjectType);
-        }
+      if (focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Keyboard || focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
+        this._lookAtObject.quaternion.copy(this._camera.quaternion);
+        this._lookAtLerpObject.quaternion.copy(this._camera.quaternion);
+        this._cameraState = CAMERA_STATE.Focused;
+        this.events.post('onObjectFocused', focusObjectType);
+      }
 
-        CAMERA_CONFIG.state = this._cameraState;
-        this._roomDebug.updateCameraStateController();
-      });
+      CAMERA_CONFIG.state = this._cameraState;
+      this._roomDebug.updateCameraStateController();
+    });
+  }
+
+  setStaticState(object) {
+    this._cameraState = CAMERA_STATE.Static;
+    CAMERA_CONFIG.state = this._cameraState;
+    this._roomDebug.updateCameraStateController();
+
+    this._staticModeObject = object;
+
+    this._orbitControls.stopDamping();
+    this.disableOrbitControls();
+
+    this._moveObjectToCamera(object);
+  }
+
+  setOrbitState() {
+    this._cameraState = CAMERA_STATE.OrbitControls;
+    CAMERA_CONFIG.state = this._cameraState;
+    this._roomDebug.updateCameraStateController();
+
+    this._staticModeObject = null;
+
+    this.enableOrbitControls();
   }
 
   _lerpCameraPosition(focusPosition, focusLookAt, easing, time) {
@@ -198,14 +240,36 @@ export default class CameraController {
     return { focusPosition, focusLookAt };
   }
 
+  _moveObjectToCamera(object) {
+    object.position.copy(this._camera.position);
+    object.quaternion.copy(this._camera.quaternion);
+
+    object.rotateX(Math.PI * 0.5);
+    object.rotateY(Math.PI);
+    object.translateY(-1.5);
+
+    this._staticModeLookAtObject.quaternion.copy(object.quaternion);
+    this._staticModeLookAtObject.position.copy(this._staticModeObject.position);
+    this._staticModeLookAtObject.translateOnAxis(new THREE.Vector3(0, 0, 1), -3);
+
+    this._staticModeLookAtLerpObject.quaternion.copy(this._staticModeLookAtObject.quaternion);
+    this._staticModeLookAtLerpObject.position.copy(this._staticModeLookAtObject.position);
+  }
+
   _init() {
     this._initLookAtObjects();
+    this._initStaticModeLookAtObjects();
     this._setCameraStartPosition();
   }
 
   _initLookAtObjects() {
     this._lookAtObject = new THREE.Object3D();
     this._lookAtLerpObject = new THREE.Object3D();
+  }
+
+  _initStaticModeLookAtObjects() {
+    this._staticModeLookAtObject = new THREE.Object3D();
+    this._staticModeLookAtLerpObject = new THREE.Object3D();
   }
 
   _setCameraStartPosition() {
