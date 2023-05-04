@@ -217,7 +217,7 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _checkIsChairMoving() {
-    if (isVectorXZEqual(this._wrapper.position, this._currentPosition)) {
+    if (!this._isDragActive && isVectorXZEqual(this._wrapper.position, this._previousWrapperPosition)) {
       CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Idle;
 
       if (this._sound.isPlaying) {
@@ -238,13 +238,13 @@ export default class Chair extends RoomObjectAbstract {
     this._previousWrapperPosition.copy(this._wrapper.position);
     this._wrapper.position.lerp(this._currentPosition, CHAIR_CONFIG.chairMoving.lerpSpeed * 0.1 * (dt * 60));
 
-    const distance = this._previousWrapperPosition.distanceTo(this._wrapper.position);
-    this._updateSound(distance);
-
     this._checkLeftEdge();
     this._checkRightEdge();
     this._checkTopEdge();
     this._checkBottomEdge();
+
+    const distance = this._previousWrapperPosition.distanceTo(this._wrapper.position);
+    this._updateSound(distance);
 
     this._updateHelpArrowsPosition();
     this._updateHelpersPosition();
