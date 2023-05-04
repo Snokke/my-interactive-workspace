@@ -34,6 +34,7 @@ export default class ChairMovingAreaHelper extends THREE.Group {
   _init() {
     this._initChairBoundingBox();
     this._initArea();
+    this._initLockerArea();
 
     this.visible = CHAIR_CONFIG.chairMoving.showMovingArea;
   }
@@ -79,5 +80,18 @@ export default class ChairMovingAreaHelper extends THREE.Group {
 
     plane.rotation.x = -Math.PI * 0.5;
     plane.position.set(areaConfig.center.x, 0.1, areaConfig.center.y);
+  }
+
+  _initLockerArea() {
+    const areaConfig = CHAIR_CONFIG.chairMoving.lockerArea;
+
+    const geometry = new THREE.PlaneGeometry(areaConfig.size.x, areaConfig.size.y);
+    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+
+    const plane = new THREE.Mesh(geometry, material);
+    this.add(plane);
+
+    plane.rotation.x = -Math.PI * 0.5;
+    plane.position.set(areaConfig.center.x, 0.14, areaConfig.center.y);
   }
 }

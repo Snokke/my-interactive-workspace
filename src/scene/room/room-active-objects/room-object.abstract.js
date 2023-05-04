@@ -202,20 +202,6 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._sound.play();
   }
 
-  // _initSound() {
-  //   const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
-
-  //   const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
-  //   sound.setRefDistance(soundConfig.refDistance);
-
-  //   sound.setVolume(this._globalVolume * this._objectVolume);
-  // }
-
-  // _initSoundHelper() {
-  //   const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
-  //   this._soundHelper = new SoundHelper(helperSize);
-  // }
-
   _initDebugMenu() {
     const debugMenuClass = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu;
     const debugMenu = this._debugMenu = new debugMenuClass(this._roomObjectType);

@@ -94,6 +94,7 @@ export default class Laptop extends RoomObjectAbstract {
     if (LAPTOP_MOUNT_PARTS.includes(partType)) {
       isObjectDraggable = true;
       this._standInteract(intersect);
+      Black.engine.containerElement.style.cursor = 'grabbing';
     }
 
     if (onPointerDownClick === false) {
@@ -150,11 +151,16 @@ export default class Laptop extends RoomObjectAbstract {
 
     if (LAPTOP_MOUNT_PARTS.includes(partType)) {
       this._helpArrows.show();
+      Black.engine.containerElement.style.cursor = 'grab';
     }
 
     if (partType === LAPTOP_PART_TYPE.LaptopScreen) {
       Black.engine.containerElement.style.cursor = 'zoom-in';
     }
+  }
+
+  onPointerUp() {
+    Black.engine.containerElement.style.cursor = 'grab';
   }
 
   onPointerOut() {

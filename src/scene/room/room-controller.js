@@ -403,6 +403,8 @@ export default class RoomController {
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
     const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
     const keyboard = this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard];
+    const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
+    const locker = this._roomActiveObject[ROOM_OBJECT_TYPE.Locker];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
@@ -415,11 +417,12 @@ export default class RoomController {
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
     monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
     keyboard.events.on('onKeyboardClick', () => this._onKeyboardFocus());
+    chair.events.on('onLockerAreaChange', (msg, areaType, state) => locker.onChairNearLocker(areaType, state));
   }
 
   _onMonitorFocus() {
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
-    chair.moveFromTable();
+    chair.moveToStartPosition();
 
     this._disableScreensOnMonitorFocus();
     this._enableBaseOnKeyboardFocus();

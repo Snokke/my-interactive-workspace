@@ -12,6 +12,7 @@ import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-co
 import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SoundHelper from '../../shared-objects/sound-helper';
+import { Black } from 'black-engine';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -95,6 +96,7 @@ export default class Mouse extends RoomObjectAbstract {
     if (partType === MOUSE_PART_TYPE.Body) {
       isObjectDraggable = true;
       this._onMouseClick(intersect);
+      Black.engine.containerElement.style.cursor = 'grabbing';
     }
 
     if (onPointerDownClick === false && partType === MOUSE_PART_TYPE.LeftKey) {
@@ -148,7 +150,12 @@ export default class Mouse extends RoomObjectAbstract {
 
     if (partType === MOUSE_PART_TYPE.Body) {
       this._helpArrows.show();
+      Black.engine.containerElement.style.cursor = 'grab';
     }
+  }
+
+  onPointerUp() {
+    Black.engine.containerElement.style.cursor = 'grab';
   }
 
   onPointerOut() {

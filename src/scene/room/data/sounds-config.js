@@ -49,7 +49,7 @@ const SOUNDS_CONFIG = {
       helperSize: 0.4,
     },
     [ROOM_OBJECT_TYPE.Chair]: {
-      volume: 0.5,
+      volume: 1,
       refDistance: 10,
       helperSize: 0.4,
     },

@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
-import LOCKER_CONFIG from './data/locker-config';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
+import { CHAIR_INTERSECTION_CONFIG, LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -16,11 +17,15 @@ export default class Locker extends RoomObjectAbstract {
     this._currentAnimationType = LOCKER_CASES_RANDOM_ANIMATIONS;
 
     this._casesState = [];
+    this._casesOpenState = [];
     this._casesPreviousState = [];
     this._caseMoveTween = [];
     this._openSounds = [];
     this._closeSounds = [];
     this._soundHelpers = [];
+
+    this._chairIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
+    this._caseMoveDistance = {};
 
     this._init();
   }
@@ -104,7 +109,7 @@ export default class Locker extends RoomObjectAbstract {
         this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.In, 0, false);
       }
 
-      const time = LOCKER_CONFIG.caseMoveDistance / LOCKER_CONFIG.caseMoveSpeed * 1000;
+      const time = this._caseMoveDistance[3] / LOCKER_CONFIG.caseMoveSpeed * 1000;
       Delayed.call(time, () => this._playCloseSound(0));
     }
   }
@@ -196,6 +201,37 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
+  onChairNearLocker(areaType, state) {
+    this._chairIntersect[areaType] = state;
+    let intersectCasesId = [];
+
+    if (state) {
+      const casesIntersectionConfig = CHAIR_INTERSECTION_CONFIG[areaType];
+
+      casesIntersectionConfig.forEach((config) => {
+        const { caseId, maxDistance } = config;
+        this._caseMoveDistance[caseId] = maxDistance;
+        intersectCasesId.push(caseId);
+      });
+    } else {
+      this._setDefaultMoveDistance();
+    }
+
+    let isCaseClosing = false;
+
+    intersectCasesId.forEach((caseId) => {
+      if (this._casesState[caseId] === LOCKER_CASE_STATE.Opened && this._casesOpenState[caseId] === LOCKER_CASE_OPEN_STATE.Full) {
+        this._moveCase(caseId, LOCKER_CASE_MOVE_DIRECTION.In, 0, false);
+        isCaseClosing = true;
+      }
+    });
+
+    if (isCaseClosing) {
+      const time = this._caseMoveDistance[intersectCasesId[0]] / LOCKER_CONFIG.caseMoveSpeed * 1000;
+      Delayed.call(time, () => this._playCloseSound(0));
+    }
+  }
+
   _moveCase(caseId, direction, delay = 0, playSound = true) {
     this._stopCaseMoveTween(caseId);
     const endState = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
@@ -208,7 +244,7 @@ export default class Locker extends RoomObjectAbstract {
     const casePart = this._parts[partName];
 
     const startPositionZ = casePart.userData.startPosition.z;
-    const endPositionZ = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? startPositionZ + LOCKER_CONFIG.caseMoveDistance : startPositionZ;
+    const endPositionZ = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? startPositionZ + this._caseMoveDistance[caseId] : startPositionZ;
     const time = Math.abs(casePart.position.z - endPositionZ) / LOCKER_CONFIG.caseMoveSpeed * 1000;
 
     this._caseMoveTween[caseId] = new TWEEN.Tween(casePart.position)
@@ -234,6 +270,14 @@ export default class Locker extends RoomObjectAbstract {
     this._caseMoveTween[caseId].onComplete(() => {
       this._casesState[caseId] = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? LOCKER_CASE_STATE.Opened : LOCKER_CASE_STATE.Closed;
       this._casesPreviousState[caseId] = this._casesState[caseId];
+
+      if (this._casesState[caseId] === LOCKER_CASE_STATE.Opened) {
+        if (casePart.position.z === startPositionZ + LOCKER_CONFIG.caseMoveDistance) {
+          this._casesOpenState[caseId] = LOCKER_CASE_OPEN_STATE.Full;
+        } else {
+          this._casesOpenState[caseId] = LOCKER_CASE_OPEN_STATE.Part;
+        }
+      }
 
       if (playSound && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
         this._playCloseSound(caseId);
@@ -299,6 +343,8 @@ export default class Locker extends RoomObjectAbstract {
 
     this._casesState = [];
     this._casesPreviousState = [];
+    this._setDefaultMoveDistance();
+    this._setDefaultOpenState();
 
     CASES.forEach((partName) => {
       const casePart = this._parts[partName];
@@ -310,6 +356,8 @@ export default class Locker extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._setDefaultMoveDistance();
+    this._setDefaultOpenState();
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
@@ -325,6 +373,18 @@ export default class Locker extends RoomObjectAbstract {
       }
 
       this.add(part);
+    }
+  }
+
+  _setDefaultMoveDistance() {
+    for (let i = 0; i < LOCKER_CONFIG.casesCount; i += 1) {
+      this._caseMoveDistance[i] = LOCKER_CONFIG.caseMoveDistance;
+    }
+  }
+
+  _setDefaultOpenState() {
+    for (let i = 0; i < LOCKER_CONFIG.casesCount; i += 1) {
+      this._casesOpenState[i] = LOCKER_CASE_OPEN_STATE.Full;
     }
   }
 
@@ -386,5 +446,6 @@ export default class Locker extends RoomObjectAbstract {
     this._debugMenu.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
     this._debugMenu.events.on('pushAllCases', () => this.pushAllCases());
     this._debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
+    this._debugMenu.events.on('changeCaseMoveDistance', () => this._setDefaultMoveDistance());
   }
 }

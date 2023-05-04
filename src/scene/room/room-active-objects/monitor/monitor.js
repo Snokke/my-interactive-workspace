@@ -98,6 +98,7 @@ export default class Monitor extends RoomObjectAbstract {
     if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType)) {
       isObjectDraggable = true;
       this._onMonitorClick(intersect);
+      Black.engine.containerElement.style.cursor = 'grabbing';
     }
 
     if (onPointerDownClick === false && MONITOR_SCREEN_BUTTONS.includes(partType)) {
@@ -139,11 +140,16 @@ export default class Monitor extends RoomObjectAbstract {
 
     if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType) && CAMERA_CONFIG.state === CAMERA_STATE.OrbitControls) {
       this._helpArrows.show();
+      Black.engine.containerElement.style.cursor = 'grab';
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreen) {
       Black.engine.containerElement.style.cursor = 'zoom-in';
     }
+  }
+
+  onPointerUp() {
+    Black.engine.containerElement.style.cursor = 'grab';
   }
 
   onPointerOut() {

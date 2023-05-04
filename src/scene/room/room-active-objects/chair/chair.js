@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_PART_TYPE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
+import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
 import { ROOM_CONFIG } from '../../data/room-config';
 import { CHAIR_CONFIG } from './data/chair-config';
 import Loader from '../../../../core/loader';
@@ -12,8 +12,9 @@ import ChairMovingAreaHelper from './helpers/chair-moving-area-helper';
 import { checkBottomBorderBounce, checkLeftBorderBounce, checkRightBorderBounce, checkTopBorderBounce, getChairBoundingBox, getMovingArea, getWheelsParts } from './helpers/chair-helpers';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import { isVector3Equal } from '../../shared-objects/helpers';
+import { aabbIntersect, isVectorXZEqual } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
+import { Black } from 'black-engine';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -31,11 +32,14 @@ export default class Chair extends RoomObjectAbstract {
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
     this._shift = new THREE.Vector3();
+    this._previousWrapperPosition = new THREE.Vector3();
     this._currentPosition = new THREE.Vector3();
     this._startPosition = new THREE.Vector3();
     this._availableSeatAngle = Math.PI * 2;
     this._previousAvailableSeatAngle = Math.PI * 2;
+    this._currentVolume = 1;
 
+    this._lockerIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._isDragActive = false;
     this._bounceDisable = {};
 
@@ -43,9 +47,11 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   update(dt) {
+    this._checkIsChairMoving();
     this._updateChairMovement(dt);
-    this._updateSeatRotation(dt);
+    this._checkLockerArea();
     this._updateWheelsRotation(dt);
+    this._updateSeatRotation(dt);
   }
 
   showWithAnimation(delay) {
@@ -111,6 +117,7 @@ export default class Chair extends RoomObjectAbstract {
     if (partType === CHAIR_PART_TYPE.Legs) {
       isObjectDraggable = true;
       this._dragChair(intersect);
+      Black.engine.containerElement.style.cursor = 'grabbing';
     }
 
     return isObjectDraggable;
@@ -121,10 +128,15 @@ export default class Chair extends RoomObjectAbstract {
 
     raycaster.ray.intersectPlane(this._plane, planeIntersect);
     this._currentPosition.addVectors(planeIntersect, this._shift);
+
+    if (this._currentPosition.y !== 0) {
+      this._currentPosition.y = 0;
+    }
   }
 
   onPointerUp() {
     this._isDragActive = false;
+    Black.engine.containerElement.style.cursor = 'grab';
 
     this._checkToBounce();
   }
@@ -139,7 +151,7 @@ export default class Chair extends RoomObjectAbstract {
     return [...legsParts];
   }
 
-  moveFromTable() {
+  moveToStartPosition() {
     this._moveChairToPosition(this._startPosition);
     this._rotateSeatForward();
   }
@@ -155,6 +167,7 @@ export default class Chair extends RoomObjectAbstract {
 
     if (LEGS_PARTS.includes(partType)) {
       this._helpArrows.show();
+      Black.engine.containerElement.style.cursor = 'grab';
     }
   }
 
@@ -166,6 +179,22 @@ export default class Chair extends RoomObjectAbstract {
     super.onPointerOut();
 
     this._helpArrows.hide();
+  }
+
+  onVolumeChanged(volume) {
+    this._globalVolume = volume;
+
+    if (this._sound && this._isSoundsEnabled) {
+      this._sound.setVolume(this._globalVolume * this._objectVolume * this._currentVolume);
+    }
+  }
+
+  enableSound() {
+    this._isSoundsEnabled = true;
+
+    if (this._sound) {
+      this._sound.setVolume(this._globalVolume * this._objectVolume * this._currentVolume);
+    }
   }
 
   _rotateSeat() {
@@ -187,12 +216,30 @@ export default class Chair extends RoomObjectAbstract {
     this._shift.subVectors(this._wrapper.position, intersect.point);
   }
 
+  _checkIsChairMoving() {
+    if (isVectorXZEqual(this._wrapper.position, this._currentPosition)) {
+      CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Idle;
+
+      if (this._sound.isPlaying) {
+        this._stopSound();
+      }
+    } else {
+      CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Moving;
+    }
+
+    this._debugMenu.updateChairMovementState();
+  }
+
   _updateChairMovement(dt) {
-    if (isVector3Equal(this._wrapper.position, this._currentPosition)) {
+    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Idle) {
       return;
     }
 
-    this._wrapper.position.lerp(this._currentPosition, CHAIR_CONFIG.chairMoving.lerpSpeed * (dt * 60));
+    this._previousWrapperPosition.copy(this._wrapper.position);
+    this._wrapper.position.lerp(this._currentPosition, CHAIR_CONFIG.chairMoving.lerpSpeed * 0.1 * (dt * 60));
+
+    const distance = this._previousWrapperPosition.distanceTo(this._wrapper.position);
+    this._updateSound(distance);
 
     this._checkLeftEdge();
     this._checkRightEdge();
@@ -402,7 +449,45 @@ export default class Chair extends RoomObjectAbstract {
     }
   }
 
+  _checkLockerArea() {
+    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Idle) {
+      return;
+    }
+
+    const lockerArea = CHAIR_CONFIG.chairMoving.lockerArea;
+    const frontWheelBoundingBox = CHAIR_CONFIG.chairMoving.chairBoundingBox[CHAIR_BOUNDING_BOX_TYPE.FrontWheel];
+    const mainBoundingBox = CHAIR_CONFIG.chairMoving.chairBoundingBox[CHAIR_BOUNDING_BOX_TYPE.Main];
+    const wrapperPosition = this._wrapper.position;
+
+    const chairWheelRectangle = {
+      center: new THREE.Vector2(wrapperPosition.x + frontWheelBoundingBox.center.x, wrapperPosition.z + frontWheelBoundingBox.center.y),
+      size: frontWheelBoundingBox.size,
+    };
+
+    const chairMainRectangle = {
+      center: new THREE.Vector2(wrapperPosition.x + mainBoundingBox.center.x, wrapperPosition.z + mainBoundingBox.center.y),
+      size: mainBoundingBox.size,
+    };
+
+    const isFrontWheelIntersects = aabbIntersect(lockerArea, chairWheelRectangle);
+    const isMainIntersects = aabbIntersect(lockerArea, chairMainRectangle);
+
+    if (this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.FrontWheel] !== isFrontWheelIntersects) {
+      this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.FrontWheel] = isFrontWheelIntersects;
+      this.events.post('onLockerAreaChange', CHAIR_BOUNDING_BOX_TYPE.FrontWheel, isFrontWheelIntersects);
+    }
+
+    if (this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.Main] !== isMainIntersects) {
+      this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.Main] = isMainIntersects;
+      this.events.post('onLockerAreaChange', CHAIR_BOUNDING_BOX_TYPE.Main, isMainIntersects);
+    }
+  }
+
   _checkToBounce() {
+    if (CHAIR_CONFIG.chairMoving.bouncingCoefficient === 1) {
+      return;
+    }
+
     const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
     const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
     const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
@@ -464,7 +549,7 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _updateWheelsRotation(dt) {
-    if (isVector3Equal(this._wrapper.position, this._currentPosition)) {
+    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Idle) {
       return;
     }
 
@@ -486,6 +571,7 @@ export default class Chair extends RoomObjectAbstract {
 
   _rotateSeatForward() {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
+    CHAIR_CONFIG.seatRotation.speed = 0;
 
     const rotationY = seat.rotation.y < Math.PI ? 0 : Math.PI * 2;
     CHAIR_CONFIG.seatRotation.direction = seat.rotation.y < Math.PI ? SEAT_ROTATION_DIRECTION.Clockwise : SEAT_ROTATION_DIRECTION.CounterClockwise;
@@ -494,7 +580,10 @@ export default class Chair extends RoomObjectAbstract {
     this._rotateSeatTween = new TWEEN.Tween(seat.rotation)
       .to({ y: rotationY }, 1000)
       .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start()
+      .onUpdate(() => {
+        this._chairSeatHelper.updateSeatAngle(seat.rotation.y);
+      })
+      .start();
   }
 
   _changeRotationDirection() {
@@ -520,6 +609,24 @@ export default class Chair extends RoomObjectAbstract {
     super._setPositionForShowAnimation();
 
     this._parts[CHAIR_PART_TYPE.Seat].rotation.y = 0;
+  }
+
+  _updateSound(distance) {
+    this._currentVolume = THREE.MathUtils.clamp(distance * 2, 0, 1);
+
+    if (this._isSoundsEnabled) {
+      this._sound.setVolume(this._globalVolume * this._objectVolume * this._currentVolume);
+    }
+
+    if (distance > 0.001 && !this._sound.isPlaying) {
+      this._playSound();
+    }
+  }
+
+  _stopSound() {
+    if (this._sound.isPlaying) {
+      this._sound.stop();
+    }
   }
 
   _init() {
@@ -612,8 +719,9 @@ export default class Chair extends RoomObjectAbstract {
 
     sound.setRefDistance(soundConfig.refDistance);
     sound.position.y = 0.5;
+    sound.setLoop(true);
 
-    sound.setVolume(this._globalVolume * this._objectVolume);
+    sound.setVolume(this._globalVolume * this._objectVolume * this._currentVolume);
 
     Loader.events.on('onAudioLoaded', () => {
       sound.setBuffer(Loader.assets['chair-rolling']);
@@ -630,7 +738,7 @@ export default class Chair extends RoomObjectAbstract {
 
   _initSignals() {
     this._debugMenu.events.on('rotate', () => this._rotateSeat());
-    this._debugMenu.events.on('moveChairToStartPosition', () => this._moveChairToPosition(this._startPosition));
+    this._debugMenu.events.on('moveChairToStartPosition', () => this.moveToStartPosition());
     this._debugMenu.events.on('onShowSeatHelper', () => this._onShowSeatHelper());
     this._debugMenu.events.on('onShowMovingArea', () => this._onShowMovingArea());
   }

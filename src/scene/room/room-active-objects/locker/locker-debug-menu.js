@@ -1,5 +1,5 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import LOCKER_CONFIG from "./data/locker-config";
+import { LOCKER_CONFIG } from "./data/locker-config";
 import { LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS } from "./data/locker-data";
 
 export default class LockerDebugMenu extends RoomObjectDebugAbstract {
@@ -60,8 +60,8 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addInput(LOCKER_CONFIG, 'caseMoveDistance', {
       label: 'Move out distance',
       min: 0.1,
-      max: 1.5,
-    });
+      max: 1.3,
+    }).on('change', () => this.events.post('changeCaseMoveDistance'));
 
     this._debugFolder.addInput(LOCKER_CONFIG, 'caseMoveSpeed', {
       label: 'Case speed',

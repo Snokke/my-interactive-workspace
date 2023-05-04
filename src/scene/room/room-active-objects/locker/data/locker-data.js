@@ -33,6 +33,11 @@ const LOCKER_CASE_STATE = {
   Moving: 'MOVING',
 }
 
+const LOCKER_CASE_OPEN_STATE = {
+  Full: 'FULL',
+  Part: 'PART',
+}
+
 const LOCKER_CASE_MOVE_DIRECTION = {
   In: 'IN',
   Out: 'OUT',
@@ -91,4 +96,5 @@ export {
   LOCKER_CASES_ANIMATION_SEQUENCE,
   CASES,
   LOCKER_PART_ACTIVITY_CONFIG,
+  LOCKER_CASE_OPEN_STATE,
 };

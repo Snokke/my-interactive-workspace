@@ -1,13 +1,13 @@
 import * as THREE from "three";
-import { CHAIR_BOUNDING_BOX_TYPE, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from "./chair-data";
+import { CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from "./chair-data";
 
 const CHAIR_CONFIG = {
   seatRotation: {
-    showSeatHelper: true,
+    showSeatHelper: false,
     direction: SEAT_ROTATION_DIRECTION.Clockwise,
     speed: 0,
     impulse: 6,
-    speedDecrease: 3,
+    speedDecrease: 3.2,
     maxSpeed: 30,
     hitDampingCoefficient: 0.9,
     tableEdgeZ: 0.38,
@@ -16,10 +16,16 @@ const CHAIR_CONFIG = {
   },
   chairMoving: {
     showMovingArea: false,
-    lerpSpeed: 0.025,
+    movementState: CHAIR_MOVEMENT_STATE.Idle,
+    lerpSpeed: 0.25,
     bouncingCoefficient: 1.2,
     borderEpsilon: 0.3,
     disableBouncingBorderError: 0.01,
+    wheels: {
+      rotationSpeed: 10,
+      rotationSpeedError: 4,
+      targetAngleMaxError: 10,
+    },
     chairBoundingBox: {
       [CHAIR_BOUNDING_BOX_TYPE.Main]: {
         center: new THREE.Vector2(0, 0.2),
@@ -40,16 +46,10 @@ const CHAIR_CONFIG = {
         size: new THREE.Vector2(6.2 , 2.6),
       },
     },
-    wheels: {
-      rotationSpeed: 10,
-      rotationSpeedError: 4,
-      targetAngleMaxError: 10,
+    lockerArea: {
+      center: new THREE.Vector2(-4.1, 0.5),
+      size: new THREE.Vector2(1.8, 0.5),
     },
-
-
-    // distanceToTablePosition: 3.3,
-    // distanceToEnableRotation: 2.1,
-    // maxDistanceToTable: 4.3,
   }
 }
 

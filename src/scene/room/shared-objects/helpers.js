@@ -56,3 +56,20 @@ export const isVector3Equal = (a, b) => {
   const epsilon = 0.001;
   return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon && Math.abs(a.z - b.z) < epsilon;
 }
+
+export const isVectorXZEqual = (a, b) => {
+  const epsilon = 0.001;
+  return Math.abs(a.x - b.x) < epsilon && Math.abs(a.z - b.z) < epsilon;
+}
+
+export const aabbIntersect = (rectangle01, rectangle02) => {
+  if (Math.abs(rectangle01.center.x - rectangle02.center.x) > (rectangle01.size.x + rectangle02.size.x) * 0.5) {
+    return false;
+  }
+
+  if (Math.abs(rectangle01.center.y - rectangle02.center.y) > (rectangle01.size.y + rectangle02.size.y) * 0.5) {
+    return false;
+  }
+
+  return true;
+}
