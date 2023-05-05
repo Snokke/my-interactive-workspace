@@ -169,9 +169,10 @@ export default class KeysSymbols extends THREE.Group {
     const keyboardSize = KEYBOARD_CONFIG.size;
     const offsetLeft = KEYBOARD_CONFIG.keys.offsetX;
     const offsetTop = KEYBOARD_CONFIG.keys.offsetZ;
+    const offsetY = KEYBOARD_CONFIG.keys.offsetY;
 
     const leftX = -keyboardSize.x * 0.5 + offsetLeft;
-    const heightY = keyboardSize.y * 0.5;
+    const heightY = keyboardSize.y * 0.5 + offsetY;
     const topZ = -keyboardSize.z * 0.5 + offsetTop;
 
     const keyboardAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
