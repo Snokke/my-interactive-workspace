@@ -199,6 +199,10 @@ export default class Monitor extends RoomObjectAbstract {
     }
   }
 
+  isShowreelPlaying() {
+    return this._isShowreelPlaying;
+  }
+
   getMeshesForOutline(mesh) {
     const partType = mesh.userData.partType;
 

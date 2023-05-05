@@ -160,7 +160,7 @@ export default class RoomController {
     const leftWallObjectsShowDelay = 1500;
 
     // left wall objects
-    this._showRoomObject(ROOM_OBJECT_TYPE.Map, startDelay + leftWallObjectsShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.Picture, startDelay + leftWallObjectsShowDelay);
     this._showRoomObject(ROOM_OBJECT_TYPE.AirConditioner, startDelay + leftWallObjectsShowDelay + delayBetweenObjects);
 
     const tableShowDelay = 1500;
@@ -387,20 +387,6 @@ export default class RoomController {
     this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
   }
 
-  _initRealKeyboardSignals() {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        if (CAMERA_CONFIG.mode === CAMERA_MODE.Static) {
-          this._onWorkplacePhotoClickToHide();
-        }
-
-        if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused) {
-          this._onExitFocusMode();
-        }
-      }
-    });
-  }
-
   _initOtherSignals() {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
@@ -429,6 +415,26 @@ export default class RoomController {
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
 
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
+  }
+
+  _initRealKeyboardSignals() {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (CAMERA_CONFIG.mode === CAMERA_MODE.Static) {
+          this._onWorkplacePhotoClickToHide();
+        }
+
+        const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+
+        if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused) {
+          if (CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor && monitor.isShowreelPlaying()) {
+            monitor.stopShowreelVideo();
+          } else {
+            this._onExitFocusMode();
+          }
+        }
+      }
+    });
   }
 
   _onMonitorFocus() {

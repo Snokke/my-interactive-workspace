@@ -23,7 +23,7 @@ import WindowDebugMenu from "../room-active-objects/walls/window-debug-menu";
 import Carpet from "../room-inactive-objects/objects/carpet";
 import Coaster from "../room-inactive-objects/objects/coaster";
 import Cup from "../room-inactive-objects/objects/cup/cup";
-import Map from "../room-inactive-objects/objects/map";
+import Picture from "../room-inactive-objects/objects/picture";
 import MousePad from "../room-inactive-objects/objects/mousepad";
 import Organizer from "../room-inactive-objects/objects/organizer";
 import Scales from "../room-inactive-objects/objects/scales";
@@ -85,8 +85,8 @@ const ROOM_OBJECT_CLASS = {
   [ROOM_OBJECT_TYPE.Scales]: {
     object: Scales,
   },
-  [ROOM_OBJECT_TYPE.Map]: {
-    object: Map,
+  [ROOM_OBJECT_TYPE.Picture]: {
+    object: Picture,
   },
   [ROOM_OBJECT_TYPE.Carpet]: {
     object: Carpet,

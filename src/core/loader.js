@@ -31,6 +31,9 @@ const textures = [
 
   // locker
   'workplace-photo.jpg',
+
+  // picture
+  'arcane-poster.jpg'
 ];
 
 const models = [

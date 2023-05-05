@@ -43,7 +43,7 @@ const ROOM_OBJECT_TYPE = {
 
   // Inactive objects
   Scales: 'SCALES',
-  Map: 'MAP',
+  Picture: 'PICTURE',
   Carpet: 'CARPET',
   MousePad: 'MOUSE_PAD',
   Coaster: 'COASTER',
@@ -183,11 +183,11 @@ const ROOM_OBJECT_CONFIG = {
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Scales',
   },
-  [ROOM_OBJECT_TYPE.Map]: {
+  [ROOM_OBJECT_TYPE.Picture]: {
     createObject: true,
-    label: 'Map',
+    label: 'Picture',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Map',
+    meshName: 'Picture',
   },
   [ROOM_OBJECT_TYPE.Carpet]: {
     createObject: true,
