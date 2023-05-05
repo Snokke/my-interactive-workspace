@@ -92,7 +92,7 @@ const CAMERA_FOCUS_POSITION_CONFIG = {
     focusType: FOCUS_TYPE.Object,
     focus: {
       objectType: ROOM_OBJECT_TYPE.Keyboard,
-      positionFromObject: new THREE.Vector3(1, 2.5, 1),
+      positionFromObject: new THREE.Vector3(1.5, 2, 1.5),
     },
     positionEasing: TWEEN.Easing.Linear.None,
     rotationEasing: TWEEN.Easing.Linear.None,

@@ -24,7 +24,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keySounds = [];
     this._keySoundIndex = 0;
     this._keysCount = 0;
-    this._keysTweens = [];
+    this._keysDownTweens = [];
+    this._keysUpTweens = [];
     this._keysHighlightTweens = [];
     this._keysStartPosition = [];
 
@@ -73,8 +74,9 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     if (partType === KEYBOARD_PART_TYPE.Keys) {
-      if (intersect.instanceId !== 79) {
-        this._onKeyClick(intersect);
+      const keyId = intersect.instanceId;
+      if (keyId !== 79) {
+        this._onKeyClick(keyId);
       }
     }
 
@@ -202,16 +204,23 @@ export default class Keyboard extends RoomObjectAbstract {
       });
   }
 
-  _onKeyClick(intersect) {
-    const keyId = intersect.instanceId;
+  _onKeyClick(keyId) {
+    this._onKeyPressDown(keyId);
+
+    this._keysDownTweens[keyId].onComplete(() => {
+      this._onKeyPressUp(keyId);
+    });
+  }
+
+  _onKeyPressDown(keyId) {
     this._playSound(keyId);
 
-    if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
-      this._keysTweens[keyId].stop();
+    if (this._keysDownTweens[keyId] && this._keysDownTweens[keyId].isPlaying()) {
+      this._keysDownTweens[keyId].stop();
     }
 
     this._onActiveKeysClick(keyId);
-    this._keysBacklight.onKeyClick(keyId);
+    this._keysBacklight.onKeyPressDown(keyId);
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
@@ -225,7 +234,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
     const movingDistance = { value: 0 };
 
-    this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
+    this._keysDownTweens[keyId] = new TWEEN.Tween(movingDistance)
       .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
       .easing(TWEEN.Easing.Sinusoidal.InOut)
       .onUpdate(() => {
@@ -236,21 +245,60 @@ export default class Keyboard extends RoomObjectAbstract {
         keys.setMatrixAt(keyId, matrix);
         keys.instanceMatrix.needsUpdate = true;
       })
-      .yoyo(true)
-      .repeat(1)
+      .start();
+  }
+
+  _onKeyPressUp(keyId) {
+    if (this._keysUpTweens[keyId] && this._keysUpTweens[keyId].isPlaying()) {
+      this._keysUpTweens[keyId].stop();
+    }
+
+    this._keysBacklight.onKeyPressUp(keyId);
+
+    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
+    const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    const keyStartPosition = this._keysStartPosition[keyId];
+
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+
+    keys.getMatrixAt(keyId, matrix);
+    position.setFromMatrixPosition(matrix);
+
+    const movingDistance = { value: KEYBOARD_CONFIG.keys.movingDistance };
+
+    this._keysUpTweens[keyId] = new TWEEN.Tween(movingDistance)
+      .to({ value: 0 }, 80)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .onUpdate(() => {
+        position.y = keyStartPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = keyStartPosition.z - Math.sin(keysAngle) * movingDistance.value;
+        matrix.setPosition(position);
+
+        keys.setMatrixAt(keyId, matrix);
+        keys.instanceMatrix.needsUpdate = true;
+      })
       .start();
   }
 
   _onSpaceKeyClick() {
+    this._onSpaceKeyPressDown();
+
+    this._keysDownTweens[79].onComplete(() => {
+      this._onSpaceKeyPressUp();
+    });
+  }
+
+  _onSpaceKeyPressDown() {
     const keyId = 79;
     this._playSound(keyId);
 
-    if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
-      this._keysTweens[keyId].stop();
+    if (this._keysDownTweens[keyId] && this._keysDownTweens[keyId].isPlaying()) {
+      this._keysDownTweens[keyId].stop();
     }
 
     this._onActiveKeysClick(keyId);
-    this._keysBacklight.onKeyClick(keyId);
+    this._keysBacklight.onKeyPressDown(keyId);
 
     const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
@@ -261,7 +309,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
     const movingDistance = { value: 0 };
 
-    this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
+    this._keysDownTweens[keyId] = new TWEEN.Tween(movingDistance)
       .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
       .easing(TWEEN.Easing.Sinusoidal.InOut)
       .onUpdate(() => {
@@ -270,8 +318,36 @@ export default class Keyboard extends RoomObjectAbstract {
 
         spaceKey.position.copy(position);
       })
-      .yoyo(true)
-      .repeat(1)
+      .start();
+  }
+
+  _onSpaceKeyPressUp() {
+    const keyId = 79;
+
+    if (this._keysUpTweens[keyId] && this._keysUpTweens[keyId].isPlaying()) {
+      this._keysUpTweens[keyId].stop();
+    }
+
+    this._keysBacklight.onKeyPressUp(keyId);
+
+    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
+    const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    const keyStartPosition = this._keysStartPosition[keyId];
+
+    const position = new THREE.Vector3();
+    position.copy(spaceKey.position);
+
+    const movingDistance = { value: KEYBOARD_CONFIG.keys.movingDistance };
+
+    this._keysUpTweens[keyId] = new TWEEN.Tween(movingDistance)
+      .to({ value: 0 }, 80)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .onUpdate(() => {
+        position.y = keyStartPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = keyStartPosition.z - Math.sin(keysAngle) * movingDistance.value;
+
+        spaceKey.position.copy(position);
+      })
       .start();
   }
 
@@ -511,6 +587,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initCloseFocusIcon();
     this._initSounds();
     this._initDebugMenu();
+    this._initRealKeyboardSignals();
     this._initSignals();
 
     if (!ROOM_CONFIG.startAnimation.showOnStart) {
@@ -605,7 +682,8 @@ export default class Keyboard extends RoomObjectAbstract {
       const color = KEY_COLOR_CONFIG[keyConfig.colorType];
       keys.setColorAt(i, color);
 
-      this._keysTweens.push();
+      this._keysDownTweens.push();
+      this._keysUpTweens.push();
       this._keysHighlightTweens.push();
       this._keysStartPosition.push(dummy.position.clone());
     }
@@ -718,9 +796,68 @@ export default class Keyboard extends RoomObjectAbstract {
     soundHelper.position.copy(this._keySounds[0].position);
   }
 
+  _initRealKeyboardSignals() {
+    this._onPressDownSignal = this._onPressDownSignal.bind(this);
+    this._onPressUpSignal = this._onPressUpSignal.bind(this);
+
+    window.addEventListener("keydown", this._onPressDownSignal);
+    window.addEventListener("keyup", this._onPressUpSignal);
+  }
+
+  _onPressDownSignal(e) {
+    if (e.repeat) {
+      return;
+    }
+
+    if (e.code === KEYS_CONFIG[33].code) {
+      this._onKeyClick(33);
+      return;
+    }
+
+    if (e.code === KEYS_CONFIG[79].code) {
+      this._onSpaceKeyPressDown();
+      return;
+    }
+
+    KEYS_CONFIG.forEach(({ id, code }) => {
+      if (e.code === code) {
+        this._onKeyPressDown(id);
+        return;
+      }
+    });
+  }
+
+  _onPressUpSignal(e) {
+    if (e.repeat || e.code === KEYS_CONFIG[33].code) {
+      return;
+    }
+
+    if (e.code === KEYS_CONFIG[79].code) {
+      this._onSpaceKeyPressUp();
+      return;
+    }
+
+    KEYS_CONFIG.forEach(({ id, code }) => {
+      if (e.code === code) {
+        this._onKeyPressUp(id);
+        return;
+      }
+    });
+  }
+
   _initSignals() {
     this._debugMenu.events.on('onChangeBacklightType', () => this._keysBacklight.switchType());
     this._debugMenu.events.on('onSetBacklightType', (msg, selectedBacklightType) => this._keysBacklight.setBacklightType(selectedBacklightType));
+    this._debugMenu.events.on('onChangeRealKeyboardEnabled', () => this._onChangeRealKeyboardEnabled());
     this._keysBacklight.events.on('keysBacklightTypeChanged', () => this._debugMenu.updateBacklightType());
+  }
+
+  _onChangeRealKeyboardEnabled() {
+    if (KEYBOARD_CONFIG.realKeyboardEnabled) {
+      this._initRealKeyboardSignals();
+    } else {
+      window.removeEventListener("keydown", this._onPressDownSignal);
+      window.removeEventListener("keyup", this._onPressUpSignal);
+    }
   }
 }

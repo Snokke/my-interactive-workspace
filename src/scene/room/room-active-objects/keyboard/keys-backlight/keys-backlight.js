@@ -78,12 +78,16 @@ export default class KeysBacklight extends THREE.Group {
     this._updateTypeBacklightIndex = 0;
   }
 
-  onKeyClick(keyId) {
+  onKeyPressDown(keyId) {
     if (this._keyPressedFunctionByType[this._currentBacklightType]) {
       this._keyPressedFunctionByType[this._currentBacklightType](keyId);
     }
 
-    this._keysSymbols.onKeyClick(keyId);
+    this._keysSymbols.onKeyPressDown(keyId);
+  }
+
+  onKeyPressUp(keyId) {
+    this._keysSymbols.onKeyPressUp(keyId);
   }
 
   show() {

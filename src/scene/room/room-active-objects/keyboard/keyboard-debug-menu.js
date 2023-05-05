@@ -18,6 +18,12 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
   }
 
   _init() {
+    this._debugFolder.addInput(KEYBOARD_CONFIG, 'realKeyboardEnabled', {
+      label: 'Keyboard interaction',
+    }).on('change', () => this.events.post('onChangeRealKeyboardEnabled'));
+
+    this._debugFolder.addSeparator();
+
     this._debugFolder.addInput(KEYBOARD_CONFIG.keys, 'highlightColor', {
       label: 'Pointer over color',
       view: 'color',

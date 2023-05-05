@@ -14,7 +14,8 @@ export default class KeysSymbols extends THREE.Group {
     this._view = null;
     this._keysCount = KEYS_CONFIG.length;
 
-    this._keysTweens = [];
+    this._keysDownTweens = [];
+    this._keysUpTweens = [];
     this._keysStartPosition = [];
     this._keysActiveSaturation = [];
     this._keysSaturation = [];
@@ -49,9 +50,9 @@ export default class KeysSymbols extends THREE.Group {
     this._view.instanceColor.needsUpdate = true;
   }
 
-  onKeyClick(keyId) {
-    if (this._keysTweens[keyId] && this._keysTweens[keyId].isPlaying()) {
-      this._keysTweens[keyId].stop();
+  onKeyPressDown(keyId) {
+    if (this._keysDownTweens[keyId] && this._keysDownTweens[keyId].isPlaying()) {
+      this._keysDownTweens[keyId].stop();
     }
 
     const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
@@ -65,7 +66,7 @@ export default class KeysSymbols extends THREE.Group {
 
     const movingDistance = { value: 0 };
 
-    this._keysTweens[keyId] = new TWEEN.Tween(movingDistance)
+    this._keysDownTweens[keyId] = new TWEEN.Tween(movingDistance)
       .to({ value: KEYBOARD_CONFIG.keys.movingDistance }, 80)
       .easing(TWEEN.Easing.Sinusoidal.InOut)
       .onUpdate(() => {
@@ -76,8 +77,36 @@ export default class KeysSymbols extends THREE.Group {
         this._view.setMatrixAt(keyId, matrix);
         this._view.instanceMatrix.needsUpdate = true;
       })
-      .yoyo(true)
-      .repeat(1)
+      .start();
+  }
+
+  onKeyPressUp(keyId) {
+    if (this._keysUpTweens[keyId] && this._keysUpTweens[keyId].isPlaying()) {
+      this._keysUpTweens[keyId].stop();
+    }
+
+    const keysAngle = KEYBOARD_CONFIG.keys.angle * THREE.MathUtils.DEG2RAD;
+    const keyStartPosition = this._keysStartPosition[keyId];
+
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+
+    this._view.getMatrixAt(keyId, matrix);
+    position.setFromMatrixPosition(matrix);
+
+    const movingDistance = { value: KEYBOARD_CONFIG.keys.movingDistance };
+
+    this._keysUpTweens[keyId] = new TWEEN.Tween(movingDistance)
+      .to({ value: 0 }, 80)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
+      .onUpdate(() => {
+        position.y = keyStartPosition.y - Math.cos(keysAngle) * movingDistance.value;
+        position.z = keyStartPosition.z - Math.sin(keysAngle) * movingDistance.value;
+        matrix.setPosition(position);
+
+        this._view.setMatrixAt(keyId, matrix);
+        this._view.instanceMatrix.needsUpdate = true;
+      })
       .start();
   }
 
@@ -162,7 +191,8 @@ export default class KeysSymbols extends THREE.Group {
       this._view.setMatrixAt(i, dummy.matrix);
       this._view.setColorAt(i, new THREE.Color('#ffffff'));
 
-      this._keysTweens.push();
+      this._keysDownTweens.push();
+      this._keysUpTweens.push();
       this._keysStartPosition.push(dummy.position.clone());
       this._HSLAngle.push(0);
       this._keysSaturation.push(0);
