@@ -13,7 +13,7 @@ import sparkleVertexShader from '../../shared-objects/sparkle-shaders/sparkle-ve
 import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
 import VolumeIcon from './volume-icon/volume-icon';
 import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
-import { CAMERA_STATE } from '../../camera-controller/data/camera-data';
+import { CAMERA_MODE } from '../../camera-controller/data/camera-data';
 import { Black } from 'black-engine';
 
 export default class Monitor extends RoomObjectAbstract {
@@ -142,7 +142,7 @@ export default class Monitor extends RoomObjectAbstract {
 
     const partType = intersect.object.userData.partType;
 
-    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType) && CAMERA_CONFIG.state === CAMERA_STATE.OrbitControls) {
+    if (MONITOR_PARTS_WITHOUT_BUTTONS.includes(partType) && CAMERA_CONFIG.mode === CAMERA_MODE.OrbitControls) {
       this._helpArrows.show();
       Black.engine.containerElement.style.cursor = 'grab';
     }

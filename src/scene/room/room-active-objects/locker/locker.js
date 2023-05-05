@@ -9,6 +9,7 @@ import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
+import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -246,13 +247,16 @@ export default class Locker extends RoomObjectAbstract {
   onWorkplacePhotoClick() {
     if (!this._isWorkplacePhotoShown) {
       this._showWorkplacePhoto();
+    } else {
+      this.events.post('onWorkplacePhotoClickToHide');
     }
+  }
 
-    if (this._isWorkplacePhotoShown) {
-      this._hideWorkplacePhoto();
-    }
-
-    this._isWorkplacePhotoShown = !this._isWorkplacePhotoShown;
+  hideWorkplacePhoto() {
+    this._isWorkplacePhotoShown = false;
+    this._moveWorkplacePhotoToStartPosition();
+    this._debugMenu.enableCaseMovement();
+    this._enableActivity();
   }
 
   _moveCase(caseId, direction, delay = 0, playSound = true) {
@@ -266,6 +270,10 @@ export default class Locker extends RoomObjectAbstract {
     const partName = `case0${caseId + 1}`;
     const casePart = this._parts[partName];
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+
+    if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+      workplacePhoto.visible = true;
+    }
 
     const startPositionZ = casePart.userData.startPosition.z;
     const endPositionZ = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? startPositionZ + this._caseMoveDistance[caseId] : startPositionZ;
@@ -310,6 +318,10 @@ export default class Locker extends RoomObjectAbstract {
       if (playSound && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
         this._playCloseSound(caseId);
       }
+
+      if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+        workplacePhoto.visible = false;
+      }
     });
   }
 
@@ -351,24 +363,41 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _showWorkplacePhoto() {
+    this._isWorkplacePhotoShown = true;
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
     this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
     this.events.post('onWorkplacePhotoClickToShow', workplacePhoto);
-    this._debugMenu.disableCaseMovement();
-  }
 
-  _hideWorkplacePhoto() {
-    this._moveWorkplacePhotoToStartPosition();
-    this.events.post('onWorkplacePhotoClickToHide');
-    this._debugMenu.enableCaseMovement();
+    this._debugMenu.disableCaseMovement();
+    this._disableActivity();
+    workplacePhoto.userData.isActive = false;
+
+    Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
+      workplacePhoto.userData.isActive = true;
+    });
   }
 
   _moveWorkplacePhotoToStartPosition() {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+    workplacePhoto.userData.isActive = false;
 
-    workplacePhoto.position.copy(this._workplacePhotoLastTransform.position);
-    workplacePhoto.rotation.copy(this._workplacePhotoLastTransform.rotation);
+    const endPosition = this._workplacePhotoLastTransform.position;
+    const endRotation = this._workplacePhotoLastTransform.rotation;
+
+    new TWEEN.Tween(workplacePhoto.position)
+      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .start()
+      .onComplete(() => {
+        workplacePhoto.userData.isActive = true;
+      });
+
+    new TWEEN.Tween(workplacePhoto.rotation)
+      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .start();
+
   }
 
   _playOpenSound(caseId) {
@@ -398,6 +427,27 @@ export default class Locker extends RoomObjectAbstract {
     CASES.forEach((partName) => {
       const casePart = this._parts[partName];
       casePart.position.z = casePart.userData.startPosition.z;
+      this._casesState.push(LOCKER_CASE_STATE.Closed);
+    });
+  }
+
+  _disableActivity() {
+    const body = this._parts[LOCKER_PART_TYPE.Body];
+    body.userData.isActive = false;
+
+    CASES.forEach((partName) => {
+      const casePart = this._parts[partName];
+      casePart.userData.isActive = false;
+    });
+  }
+
+  _enableActivity() {
+    const body = this._parts[LOCKER_PART_TYPE.Body];
+    body.userData.isActive = true;
+
+    CASES.forEach((partName) => {
+      const casePart = this._parts[partName];
+      casePart.userData.isActive = true;
     });
   }
 
@@ -411,6 +461,8 @@ export default class Locker extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+
+    this._reset();
   }
 
   _addPartsToScene() {
@@ -441,6 +493,8 @@ export default class Locker extends RoomObjectAbstract {
       position: new THREE.Vector3(),
       rotation: new THREE.Euler(),
     };
+
+    workplacePhoto.visible = false;
   }
 
   _setDefaultMoveDistance() {

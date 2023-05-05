@@ -45,6 +45,11 @@ export default class Overlay extends DisplayObject {
     Black.engine.containerElement.addEventListener("mouseleave", () => {
       this.post('onPointerLeave');
     });
+
+    Black.engine.containerElement.addEventListener("wheel", event => {
+      const delta = Math.sign(event.deltaY);
+      this.post('onWheelScroll', delta);
+  });
   }
 
   _onResize() {

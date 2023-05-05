@@ -6,7 +6,7 @@ import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
-import { CAMERA_STATE } from './camera-controller/data/camera-data';
+import { CAMERA_MODE } from './camera-controller/data/camera-data';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -19,7 +19,7 @@ export default class RoomDebug {
     this._roomFolder = null;
     this._soundsEnabledController = null;
     this._soundsVolumeController = null;
-    this._cameraStateController = null;
+    this._cameraModeController = null;
     this._exitFocusModeButton = null;
     this._monitorFocusButton = null;
     this._keyboardFocusButton = null;
@@ -47,9 +47,9 @@ export default class RoomDebug {
   }
 
   updateCameraStateController() {
-    this._cameraStateController.refresh();
+    this._cameraModeController.refresh();
 
-    if (CAMERA_CONFIG.state === CAMERA_STATE.Focused) {
+    if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused) {
       this.enableExitFocusModeButton();
     } else {
       this.disableExitFocusModeButton();
@@ -161,11 +161,11 @@ export default class RoomDebug {
       expanded: DEBUG_MENU_START_STATE.Camera,
     });
 
-    this._cameraStateController = cameraFolder.addInput(CAMERA_CONFIG, 'state', {
-      label: 'State',
+    this._cameraModeController = cameraFolder.addInput(CAMERA_CONFIG, 'mode', {
+      label: 'Mode',
       disabled: true,
     });
-    this._cameraStateController.customDisabled = true;
+    this._cameraModeController.customDisabled = true;
 
     this._monitorFocusButton = cameraFolder.addButton({
       title: 'Focus monitor',

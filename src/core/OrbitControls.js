@@ -7,7 +7,7 @@ import {
 	Vector2,
 	Vector3
 } from 'three';
-import { ORBIT_CONTROLS_CONFIG } from '../scene/room/camera-controller/data/camera-config';
+import { ORBIT_CONTROLS_MODE_CONFIG } from '../scene/room/camera-controller/data/camera-config';
 
 // OrbitControls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
@@ -253,7 +253,7 @@ class OrbitControls extends EventDispatcher {
 
 				}
 
-        scope.target.clamp( ORBIT_CONTROLS_CONFIG.minPan, ORBIT_CONTROLS_CONFIG.maxPan );
+        scope.target.clamp( ORBIT_CONTROLS_MODE_CONFIG.minPan, ORBIT_CONTROLS_MODE_CONFIG.maxPan );
 
 				offset.setFromSpherical( spherical );
 

@@ -8,7 +8,8 @@ import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
-import { CAMERA_FOCUS_OBJECT_TYPE } from './camera-controller/data/camera-data';
+import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
+import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 
 export default class RoomController {
   constructor(data) {
@@ -136,7 +137,10 @@ export default class RoomController {
   onPointerLeave() {
     this._cameraController.onPointerLeave();
     this._resetGlow();
+  }
 
+  onWheelScroll(delta) {
+    this._cameraController.onWheelScroll(delta);
   }
 
   showWithAnimation(startDelay = 0) {
@@ -312,6 +316,7 @@ export default class RoomController {
     this._initCursorSignals();
     this._initKeyboardSignals();
     this._initDebugMenuSignals();
+    this._initRealKeyboardSignals();
     this._initOtherSignals();
   }
 
@@ -382,6 +387,20 @@ export default class RoomController {
     this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
   }
 
+  _initRealKeyboardSignals() {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (CAMERA_CONFIG.mode === CAMERA_MODE.Static) {
+          this._onWorkplacePhotoClickToHide();
+        }
+
+        if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused) {
+          this._onExitFocusMode();
+        }
+      }
+    });
+  }
+
   _initOtherSignals() {
     const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
@@ -418,6 +437,8 @@ export default class RoomController {
 
     this._disableScreensOnMonitorFocus();
     this._enableBaseOnKeyboardFocus();
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = false;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Table].disableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor);
   }
@@ -425,6 +446,8 @@ export default class RoomController {
   _onKeyboardFocus() {
     this._disableBaseOnKeyboardFocus();
     this._enableScreensOnMonitorFocus();
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = false;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Table].disableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard);
   }
@@ -432,6 +455,8 @@ export default class RoomController {
   _onRoomFocus() {
     this._enableBaseOnKeyboardFocus();
     this._enableScreensOnMonitorFocus();
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = true;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Table].enableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
@@ -440,6 +465,8 @@ export default class RoomController {
   _onExitFocusMode() {
     this._enableBaseOnKeyboardFocus();
     this._enableScreensOnMonitorFocus();
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = true;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Table].enableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
@@ -472,6 +499,7 @@ export default class RoomController {
   }
 
   _onWorkplacePhotoClickToHide() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].hideWorkplacePhoto();
     this._cameraController.setOrbitState();
     this._roomDebug.enableStartCameraPositionButton();
     this._enableFocusObjects();

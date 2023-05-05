@@ -1,3 +1,10 @@
+const CAMERA_MODE = {
+  NoControls: 'NO_CONTROLS',
+  Focused: 'FOCUSED',
+  OrbitControls: 'ORBIT_CONTROLS',
+  Static: 'STATIC',
+}
+
 const CAMERA_FOCUS_OBJECT_TYPE = {
   Room: 'ROOM',
   LastPosition: 'LAST_POSITION',
@@ -10,11 +17,4 @@ const FOCUS_TYPE = {
   Position: 'POSITION',
 }
 
-const CAMERA_STATE = {
-  NoControls: 'NO_CONTROLS',
-  Focused: 'FOCUSED',
-  OrbitControls: 'ORBIT_CONTROLS',
-  Static: 'STATIC',
-}
-
-export { CAMERA_FOCUS_OBJECT_TYPE, FOCUS_TYPE, CAMERA_STATE };
+export { CAMERA_FOCUS_OBJECT_TYPE, FOCUS_TYPE, CAMERA_MODE };

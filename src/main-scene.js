@@ -32,5 +32,6 @@ export default class MainScene {
     this._ui.on('onPointerDown', (msg, x, y) => this._scene3D.onPointerDown(x, y));
     this._ui.on('onPointerUp', (msg, x, y) => this._scene3D.onPointerUp(x, y));
     this._ui.on('onPointerLeave', () => this._scene3D.onPointerLeave());
+    this._ui.on('onWheelScroll', (msg, delta) => this._scene3D.onWheelScroll(delta));
   }
 }

@@ -39,6 +39,10 @@ export default class Scene3D extends THREE.Group {
     this._room.onPointerLeave();
   }
 
+  onWheelScroll(delta) {
+    this._room.onWheelScroll(delta);
+  }
+
   _init() {
     this._initRaycaster();
     this._initRoom();

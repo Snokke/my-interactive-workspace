@@ -1,31 +1,59 @@
 import * as THREE from "three";
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_STATE, FOCUS_TYPE } from "./camera-data";
+import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from "./camera-data";
 import { ROOM_OBJECT_TYPE } from "../../data/room-config";
 
 const CAMERA_CONFIG = {
   fov: 45,
-  near: 1,
+  near: 0.8,
   far: 50,
   focusObjectType: CAMERA_FOCUS_OBJECT_TYPE.Room,
-  state: CAMERA_STATE.OrbitControls,
+  mode: CAMERA_MODE.OrbitControls,
   movementToFocusObject: {
     speed: 3,
     minTime: 500,
     maxTime: 1300,
   },
-  focusedState: {
-    rotationCoefficient: 0.4,
-    lerpTime: 0.06,
-  },
-  staticState: {
-    rotationCoefficient: 0.8,
-    lerpTime: 0.05,
-    lookAtObjectZOffset: 3,
-  }
 }
 
-const ORBIT_CONTROLS_CONFIG = {
+const FOCUSED_MODE_CAMERA_CONFIG = {
+  rotation: {
+    coefficient: 0.4,
+    lerpTime: 0.06,
+  },
+  zoom: {
+    coefficient: 0.1,
+    lerpTime: 0.05,
+    objects: {
+      [CAMERA_FOCUS_OBJECT_TYPE.Monitor]: {
+        minDistance: 3,
+        maxDistance: 5.5,
+      },
+      [CAMERA_FOCUS_OBJECT_TYPE.Keyboard]: {
+        minDistance: 1.5,
+        maxDistance: 4,
+      },
+    },
+  },
+}
+
+const STATIC_MODE_CAMERA_CONFIG = {
+  objectMoveTime: 200,
+  rotation: {
+    coefficient: 0.8,
+    lerpTime: 0.05,
+    lookAtObjectZOffset: 3
+  },
+  zoom: {
+    defaultDistance: 1.5,
+    minDistance: 1,
+    maxDistance: 2,
+    coefficient: 0.1,
+    lerpTime: 0.05,
+  },
+}
+
+const ORBIT_CONTROLS_MODE_CONFIG = {
   enabled: true,
   enableDamping: true,
   dampingFactor: 0.04,
@@ -78,4 +106,10 @@ const CAMERA_FOCUS_POSITION_CONFIG = {
   },
 }
 
-export { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_CONFIG, CAMERA_CONFIG };
+export {
+  CAMERA_FOCUS_POSITION_CONFIG,
+  ORBIT_CONTROLS_MODE_CONFIG,
+  CAMERA_CONFIG,
+  STATIC_MODE_CAMERA_CONFIG,
+  FOCUSED_MODE_CAMERA_CONFIG,
+};

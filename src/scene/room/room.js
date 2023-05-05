@@ -53,6 +53,10 @@ export default class Room extends THREE.Group {
     this._roomController.onPointerLeave();
   }
 
+  onWheelScroll(delta) {
+    this._roomController.onWheelScroll(delta);
+  }
+
   showWithAnimation(startDelay = 0) {
     this._roomController.showWithAnimation(startDelay);
   }

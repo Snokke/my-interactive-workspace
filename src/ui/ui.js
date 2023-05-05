@@ -25,6 +25,7 @@ export default class UI extends DisplayObject {
     this._overlay.on('onPointerDown', (msg, x, y) => this.post('onPointerDown', x, y));
     this._overlay.on('onPointerUp', (msg, x, y) => this.post('onPointerUp', x, y));
     this._overlay.on('onPointerLeave', () => this.post('onPointerLeave'));
+    this._overlay.on('onWheelScroll', (msg, delta) => this.post('onWheelScroll', delta));
   }
 
   _handleResize() {
