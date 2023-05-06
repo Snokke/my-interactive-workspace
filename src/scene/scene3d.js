@@ -46,6 +46,7 @@ export default class Scene3D extends THREE.Group {
   _init() {
     this._initRaycaster();
     this._initRoom();
+    this._initSignals();
   }
 
   _initRaycaster() {
@@ -55,5 +56,9 @@ export default class Scene3D extends THREE.Group {
   _initRoom() {
     const room = this._room = new Room(this._data, this._raycasterController);
     this.add(room);
+  }
+
+  _initSignals() {
+    this._room.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
   }
 }

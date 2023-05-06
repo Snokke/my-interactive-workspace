@@ -309,8 +309,8 @@ export default class Cursor extends THREE.Group {
     this._view.translateOnAxis(new THREE.Vector3(0, -1, 0), this._cursorPosition.y * sensitivity);
 
     const pointerPosition = new THREE.Vector3(
-      this._view.position.x - this._getCursorData().cursorHalfWidth + 0.01,
-      this._view.position.y + this._getCursorData().cursorHalfHeight,
+      this._view.position.x - this._getCursorData().cursorHalfWidth * 0.78,
+      this._view.position.y + this._getCursorData().cursorHalfHeight * 0.95,
       this._view.position.z - CURSOR_CONFIG.clickCircleOffsetZFromScreen,
     );
 

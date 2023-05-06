@@ -41,6 +41,7 @@ export default class Chair extends RoomObjectAbstract {
 
     this._lockerIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._isDragActive = false;
+    this._autoMoving = false;
     this._bounceDisable = {};
 
     this._init();
@@ -116,6 +117,7 @@ export default class Chair extends RoomObjectAbstract {
 
     if (partType === CHAIR_PART_TYPE.Legs) {
       isObjectDraggable = true;
+      this._autoMoving = false;
       this._dragChair(intersect);
       Black.engine.containerElement.style.cursor = 'grabbing';
     }
@@ -198,6 +200,8 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _rotateSeat() {
+    this._stopTweens();
+
     if (CHAIR_CONFIG.seatRotation.speed === 0) {
       this._changeRotationDirection();
     }
@@ -217,6 +221,11 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _checkIsChairMoving() {
+    if (this._autoMoving) {
+      CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Moving;
+      return;
+    }
+
     if (!this._isDragActive && isVectorXZEqual(this._wrapper.position, this._previousWrapperPosition)) {
       CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Idle;
 
@@ -566,12 +575,19 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _moveChairToPosition(position) {
+    this._autoMoving = true;
     this._currentPosition.copy(position);
+
+    Delayed.call(50, () => {
+      this._autoMoving = false;
+    });
   }
 
   _rotateSeatForward() {
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
     CHAIR_CONFIG.seatRotation.speed = 0;
+
+    this._stopTweens();
 
     const rotationY = seat.rotation.y < Math.PI ? 0 : Math.PI * 2;
     CHAIR_CONFIG.seatRotation.direction = seat.rotation.y < Math.PI ? SEAT_ROTATION_DIRECTION.Clockwise : SEAT_ROTATION_DIRECTION.CounterClockwise;

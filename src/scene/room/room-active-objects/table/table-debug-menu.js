@@ -34,12 +34,6 @@ export default class TableDebugMenu extends RoomObjectDebugAbstract {
 
     this._debugFolder.addSeparator();
 
-    this._debugFolder.addInput(TABLE_CONFIG, 'handleMoveOutSpeed', {
-      label: 'Move in/out speed',
-      min: 0.1,
-      max: 10,
-    });
-
     this._debugFolder.addInput(TABLE_CONFIG, 'handleRotationSpeed', {
       label: 'Rotation speed',
       min: 1,
@@ -56,7 +50,7 @@ export default class TableDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addInput(TABLE_CONFIG, 'handle360RotationDeltaY', {
       label: 'Uplift',
       min: 0.01,
-      max: 1,
+      max: 0.5,
     });
   }
 }

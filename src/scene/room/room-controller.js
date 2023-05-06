@@ -377,6 +377,7 @@ export default class RoomController {
   }
 
   _initDebugMenuSignals() {
+    this._roomDebug.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
     this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
     this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
@@ -413,7 +414,6 @@ export default class RoomController {
     table.events.on('onTableStop', () => this._enableFocusObjects());
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto) => this._onWorkplacePhotoClickToShow(workplacePhoto));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
-
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
   }
 

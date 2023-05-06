@@ -66,6 +66,7 @@ export default class Room extends THREE.Group {
     this._initRoomObjects();
     this._configureRaycaster();
     this._initRoomController();
+    this._initSignals();
   }
 
   _initRoomDebug() {
@@ -176,5 +177,9 @@ export default class Room extends THREE.Group {
     this._data.roomObjectsByActivityType = this._roomObjectsByActivityType;
 
     this._roomController = new RoomController(this._data);
+  }
+
+  _initSignals() {
+    this._roomController.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
   }
 }

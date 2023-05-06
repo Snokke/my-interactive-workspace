@@ -309,7 +309,7 @@ export default class Monitor extends RoomObjectAbstract {
       }
 
       if (partType === MONITOR_PART_TYPE.MonitorScreenCVIcon) {
-        console.log('CV');
+        this._onOpenCV();
       }
     }
 
@@ -374,6 +374,10 @@ export default class Monitor extends RoomObjectAbstract {
 
     this._showreelVideoElement.play();
     this.events.post('onShowreelPause');
+  }
+
+  _onOpenCV() {
+    console.log('CV');
   }
 
   _updatePosition() {
@@ -592,11 +596,13 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _initSignals() {
-    this._debugMenu.events.on('onPositionChanged', (msg, position) => {
-      this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
-    });
-
+    this._debugMenu.events.on('onPositionChanged', (msg, position) => this._onPositionChanged(position));
     this._debugMenu.events.on('onPlayShowreelVideo', () => this._onDebugPlayShowreelVideo());
+    this._debugMenu.events.on('onOpenCV', () => this._onOpenCV());
+  }
+
+  _onPositionChanged(position) {
+    this._currentPositionZ = position + this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z;
   }
 
   _onDebugPlayShowreelVideo() {

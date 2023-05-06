@@ -105,7 +105,7 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addInput(LAPTOP_CONFIG, 'maxOpenAngle', {
       label: 'Open angle',
       min: 1,
-      max: 180,
+      max: 150,
     });
 
     this._debugFolder.addSeparator();

@@ -7,6 +7,7 @@ import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-stat
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { CAMERA_MODE } from './camera-controller/data/camera-data';
+import DEBUG_CONFIG from '../../core/configs/debug-config';
 
 export default class RoomDebug {
   constructor(scene) {
@@ -89,7 +90,8 @@ export default class RoomDebug {
   }
 
   _init() {
-    this._initRoomDebug();
+    this._initSettingsFolder();
+    this._initGeneralDebug();
     this._initSoundsDebug();
     this._initCameraDebug();
     this._initShowAnimationFolder();
@@ -97,13 +99,20 @@ export default class RoomDebug {
     this._initActiveRoomObjectsFolder();
   }
 
-  _initRoomDebug() {
-    const roomFolder = this._roomFolder = GUIHelper.getGui().addFolder({
+  _initSettingsFolder() {
+    this._roomFolder = GUIHelper.getGui().addFolder({
       title: 'Settings',
-      expanded: DEBUG_MENU_START_STATE.Room,
+      expanded: DEBUG_MENU_START_STATE.Settings,
+    });
+  }
+
+  _initGeneralDebug() {
+    const generalFolder = this._roomFolder.addFolder({
+      title: 'General',
+      expanded: DEBUG_MENU_START_STATE.General,
     });
 
-    // roomFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
+    // generalFolder.addInput(DEBUG_CONFIG, 'wireframe', { label: 'Wireframe' })
     //   .on('change', (wireframeState) => {
     //     if (wireframeState.value) {
     //       this._scene.overrideMaterial = new THREE.MeshBasicMaterial({
@@ -115,10 +124,16 @@ export default class RoomDebug {
     //     }
     //   });
 
+    generalFolder.addInput(DEBUG_CONFIG, 'fpsMeter', {
+      label: 'FPS Meter',
+    }).on('change', () => {
+      this.events.post('fpsMeterChanged');
+    });
+
     const isMobileDevice = isMobile(window.navigator).any;
     // ROOM_CONFIG.outlineEnabled = !isMobileDevice;
 
-    roomFolder.addInput(ROOM_CONFIG, 'outlineEnabled', {
+    generalFolder.addInput(ROOM_CONFIG, 'outlineEnabled', {
       label: 'Outline',
       disabled: isMobileDevice,
     }).on('change', (outlineState) => {
@@ -255,7 +270,7 @@ export default class RoomDebug {
     });
 
     roomObjectsFolder.addInput(ROOM_CONFIG, 'autoOpenActiveDebugFolder', {
-      label: 'Auto open folders',
+      label: 'Auto open ↓',
     });
   }
 }

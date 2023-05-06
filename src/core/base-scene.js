@@ -44,6 +44,8 @@ export default class BaseScene {
     };
 
     this._mainScene = new MainScene(data);
+
+    this._initMainSceneSignals();
   }
 
   afterAssetsLoaded() {
@@ -56,6 +58,10 @@ export default class BaseScene {
 
   getOutlinePass() {
     return this._outlinePass;
+  }
+
+  _initMainSceneSignals() {
+    this._mainScene.events.on('fpsMeterChanged', () => this._scene3DDebugMenu.onFpsMeterClick());
   }
 
   _init() {
