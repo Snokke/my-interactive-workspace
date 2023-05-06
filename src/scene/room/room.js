@@ -61,6 +61,10 @@ export default class Room extends THREE.Group {
     this._roomController.showWithAnimation(startDelay);
   }
 
+  onSoundChanged() {
+    this._roomController.onUISoundIconChanged();
+  }
+
   _init() {
     this._initRoomDebug();
     this._initRoomObjects();
@@ -181,5 +185,6 @@ export default class Room extends THREE.Group {
 
   _initSignals() {
     this._roomController.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
+    this._roomController.events.on('updateSoundIcon', () => this.events.post('updateSoundIcon'));
   }
 }

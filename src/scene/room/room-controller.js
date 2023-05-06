@@ -182,6 +182,21 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 10);
   }
 
+  onSoundsEnabledChanged() {
+    for (const key in this._roomActiveObject) {
+      if (SOUNDS_CONFIG.enabled) {
+        this._roomActiveObject[key].enableSound();
+      } else {
+        this._roomActiveObject[key].disableSound();
+      }
+    }
+  }
+
+  onUISoundIconChanged() {
+    this.onSoundsEnabledChanged();
+    this._roomDebug.updateSoundsEnabledController();
+  }
+
   _showRoomObject(objectType, startDelay = 0) {
     const activityType = ROOM_OBJECT_CONFIG[objectType].activityType;
 
@@ -380,7 +395,7 @@ export default class RoomController {
     this._roomDebug.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
     this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
-    this._roomDebug.events.on('soundsEnabledChanged', () => this._onSoundsEnabledChanged());
+    this._roomDebug.events.on('soundsEnabledChanged', () => this.onDebugSoundsEnabledChanged());
     this._roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
     this._roomDebug.events.on('onMonitorFocus', () => this._onMonitorFocus());
     this._roomDebug.events.on('onKeyboardFocus', () => this._onKeyboardFocus());
@@ -553,7 +568,8 @@ export default class RoomController {
   _onKeyboardMuteClick() {
     SOUNDS_CONFIG.enabled = !SOUNDS_CONFIG.enabled;
     this._roomDebug.updateSoundsEnabledController();
-    this._onSoundsEnabledChanged();
+    this.onSoundsEnabledChanged();
+    this.events.post('updateSoundIcon');
   }
 
   _onKeyboardVolumeUpClick() {
@@ -614,14 +630,9 @@ export default class RoomController {
     }
   }
 
-  _onSoundsEnabledChanged() {
-    for (const key in this._roomActiveObject) {
-      if (SOUNDS_CONFIG.enabled) {
-        this._roomActiveObject[key].enableSound();
-      } else {
-        this._roomActiveObject[key].disableSound();
-      }
-    }
+  onDebugSoundsEnabledChanged() {
+    this.onSoundsEnabledChanged();
+    this.events.post('updateSoundIcon');
   }
 
   _onMouseOnButtonClick(buttonType) {

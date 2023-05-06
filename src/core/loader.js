@@ -43,8 +43,9 @@ const models = [
 ];
 
 const images = [
-  'zoom-in-frame.png',
   'overlay.png',
+  'sound-icon.png',
+  'sound-icon-mute.png',
 ];
 
 const sounds = [

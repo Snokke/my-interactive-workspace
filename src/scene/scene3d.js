@@ -43,6 +43,10 @@ export default class Scene3D extends THREE.Group {
     this._room.onWheelScroll(delta);
   }
 
+  onSoundChanged() {
+    this._room.onSoundChanged();
+  }
+
   _init() {
     this._initRaycaster();
     this._initRoom();
@@ -60,5 +64,6 @@ export default class Scene3D extends THREE.Group {
 
   _initSignals() {
     this._room.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
+    this._room.events.on('updateSoundIcon', () => this.events.post('updateSoundIcon'));
   }
 }
