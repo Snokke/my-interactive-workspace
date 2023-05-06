@@ -5,7 +5,7 @@ const AIR_CONDITIONER_CONFIG = {
   doorState: AIR_CONDITIONER_DOOR_STATE.Idle,
   doorPositionType: AIR_CONDITIONER_DOOR_POSITION_STATE.Closed,
   doorAngle: 0,
-  rotationSpeed: 25, // 5
+  rotationSpeed: 5,
   maxOpenAngle: 80,
   doorWidth: 2.7,
 }

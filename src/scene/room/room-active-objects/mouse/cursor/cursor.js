@@ -49,7 +49,6 @@ export default class Cursor extends THREE.Group {
     }
 
     const delta = this._mousePosition.clone().sub(this._previousMousePosition);
-
     const changeScreen = this._updateCursorPosition(delta);
 
     if (changeScreen) {
@@ -57,7 +56,6 @@ export default class Cursor extends THREE.Group {
     }
 
     this._updateViewPosition();
-
     this._previousMousePosition = this._mousePosition.clone();
   }
 

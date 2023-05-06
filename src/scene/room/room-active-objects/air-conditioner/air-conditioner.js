@@ -7,7 +7,6 @@ import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CO
 import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './data/air-conditioner-config';
 import Loader from '../../../../core/loader';
-import SnowflakeParticles from './snowflake-particles/snowflake-particles';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SnowflakeParticlesController from './snowflake-particles/snowflake-particles-controller';
 
@@ -106,6 +105,10 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._updateTemperatureVisibility();
   }
 
+  setTableState(state) {
+    this._snowflakeParticlesController.setTableState(state);
+  }
+
   onWindowOpened() {
     const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
     this._sound.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.openedWindowOuterGain);
@@ -114,6 +117,11 @@ export default class AirConditioner extends RoomObjectAbstract {
   onWindowClosed() {
     const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
     this._sound.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.closedWindowOuterGain);
+    this._snowflakeParticlesController.onWindowClosed();
+  }
+
+  onWindowFullyOpened() {
+    this._snowflakeParticlesController.onWindowOpened();
   }
 
   showSoundHelpers() {
@@ -207,11 +215,13 @@ export default class AirConditioner extends RoomObjectAbstract {
     const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
     const texture = Loader.assets['temperature'];
 
-    temperaturePart.material.map = texture;
-    temperaturePart.material.transparent = true;
-    temperaturePart.material.opacity = 0;
-    temperaturePart.material.color = new THREE.Color(0xffffff);
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 0,
+    });
 
+    temperaturePart.material = material;
     temperaturePart.visible = false;
   }
 

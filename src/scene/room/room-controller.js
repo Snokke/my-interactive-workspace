@@ -10,6 +10,7 @@ import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/lap
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
+import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
 
 export default class RoomController {
   constructor(data) {
@@ -419,6 +420,7 @@ export default class RoomController {
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
     walls.events.on('onWindowClosed', () => this._onWindowClosed());
+    walls.events.on('onWindowOpened', (msg, openType) => this._onWindowFullyOpened(openType));
     monitor.events.on('onShowreelStart', () => this._onShowreelStart());
     monitor.events.on('onShowreelStop', () => this._onShowreelStop());
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
@@ -426,7 +428,7 @@ export default class RoomController {
     monitor.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
     chair.events.on('onLockerAreaChange', (msg, areaType, state) => locker.onChairNearLocker(areaType, state));
     table.events.on('onTableMoving', () => this._disableFocusObjects());
-    table.events.on('onTableStop', () => this._enableFocusObjects());
+    table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto) => this._onWorkplacePhotoClickToShow(workplacePhoto));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
@@ -507,6 +509,11 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseActive();
     this._roomDebug.enableMonitorFocusButton();
     this._roomDebug.enableKeyboardFocusButton();
+  }
+
+  _onTableStop(tableState) {
+    this._enableFocusObjects();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].setTableState(tableState);
   }
 
   _onWorkplacePhotoClickToShow(workplacePhoto) {
@@ -601,6 +608,12 @@ export default class RoomController {
   _onWindowClosed() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].onWindowClosed();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowClosed();
+  }
+
+  _onWindowFullyOpened(openType) {
+    if (openType === WINDOW_OPEN_TYPE.Horizontally) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowFullyOpened();
+    }
   }
 
   _onShowreelStart() {

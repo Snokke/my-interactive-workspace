@@ -87,7 +87,7 @@ export default class Walls extends RoomObjectAbstract {
     this._stopTweens();
     this._debugMenu.disableActiveOpenType();
 
-    if (this._windowState === WINDOW_STATE.Moving) {
+    if (this._windowState === WINDOW_STATE.Opening || this._windowState === WINDOW_STATE.Closing) {
       this._updateWindowState();
 
       if (this._windowHandleState === WINDOW_HANDLE_STATE.Rotating) {
@@ -130,7 +130,8 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _startFromHandle() {
-    this._setWindowState(WINDOW_STATE.Moving);
+    const newState = this._previousWindowState === WINDOW_STATE.Opened ? WINDOW_STATE.Closing : WINDOW_STATE.Opening;
+    this._setWindowState(newState);
     this._rotateHandle();
 
     this._handleTween.onComplete(() => {
@@ -140,12 +141,17 @@ export default class Walls extends RoomObjectAbstract {
       this._windowTween.onComplete(() => {
         this._updateWindowState();
         this._checkToChangeWindowOpenType();
+
+        if (this._windowState === WINDOW_STATE.Opened) {
+          this.events.post('onWindowOpened', this._windowOpenType);
+        }
       });
     });
   }
 
   _startFromWindow() {
-    this._setWindowState(WINDOW_STATE.Moving);
+    const newState = this._previousWindowState === WINDOW_STATE.Opened ? WINDOW_STATE.Closing : WINDOW_STATE.Opening;
+    this._setWindowState(newState);
 
     this._moveWindow();
 
@@ -160,6 +166,10 @@ export default class Walls extends RoomObjectAbstract {
         this._windowHandleState = WINDOW_HANDLE_STATE.Idle;
         this._updateWindowState();
         this._checkToChangeWindowOpenType();
+
+        if (this._windowState === WINDOW_STATE.Opened) {
+          this.events.post('onWindowOpened', this._windowOpenType);
+        }
       });
     });
   }
@@ -167,18 +177,20 @@ export default class Walls extends RoomObjectAbstract {
   _rotateHandle() {
     this._windowHandleState = WINDOW_HANDLE_STATE.Rotating;
 
-    if (this._previousWindowState === WINDOW_STATE.Opened) {
-      this._playCloseSound();
-    } else {
-      this._playSound();
-    }
-
     const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
 
     const maxAngle = WINDOW_CONFIG.openTypes[this._windowOpenType].handleAngle * (Math.PI / 180);
     const rotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle : 0;
     const remainingRotationAngle = this._previousWindowState === WINDOW_STATE.Closed ? maxAngle + windowHandle.rotation.z : windowHandle.rotation.z;
     const time = Math.abs(remainingRotationAngle) / WINDOW_CONFIG.handleRotationSpeed * 1000;
+
+    if (this._previousWindowState === WINDOW_STATE.Opened) {
+      this._playCloseSound();
+    } else {
+      if (time !== 0) {
+        this._playSound();
+      }
+    }
 
     this._handleTween = new TWEEN.Tween(windowHandle.rotation)
       .to({ z: -rotationAngle }, time)

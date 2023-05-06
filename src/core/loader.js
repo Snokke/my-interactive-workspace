@@ -8,6 +8,7 @@ const textures = [
   'temperature.png',
   'snowflake-01.png',
   'snowflake-02.png',
+  'snowflake-03.png',
 
   // monitor
   'monitor-screen.jpg',

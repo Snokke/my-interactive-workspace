@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { AIR_CONDITIONER_CONFIG } from "../data/air-conditioner-config";
 import SnowflakeParticles from "./snowflake-particles";
-import { SNOWFLAKE_PARTICLES_CONFIG } from "./snowflake-particles-config";
-import { SNOWFLAKE_PARTICLES_TYPE } from "./snowflake-particles-data";
+import { SNOWFLAKE_PARTICLES_CONFIG } from "./data/snowflake-particles-config";
+import { SNOWFLAKE_PARTICLES_TYPE } from "./data/snowflake-particles-data";
 
 export default class SnowflakeParticlesController extends THREE.Group {
   constructor() {
@@ -28,6 +28,24 @@ export default class SnowflakeParticlesController extends THREE.Group {
   hide() {
     this._particles.forEach((particles) => {
       particles.hide();
+    });
+  }
+
+  setTableState(tableState) {
+    this._particles.forEach((particles) => {
+      particles.setTableState(tableState);
+    });
+  }
+
+  onWindowOpened() {
+    this._particles.forEach((particles) => {
+      particles.onWindowOpened();
+    });
+  }
+
+  onWindowClosed() {
+    this._particles.forEach((particles) => {
+      particles.onWindowClosed();
     });
   }
 

@@ -198,7 +198,7 @@ export default class Table extends RoomObjectAbstract {
     tweenHandleMoveIn.onComplete(() => {
       this._handleState = TABLE_HANDLE_STATE.Idle;
       this._updateTableState();
-      this.events.post('onTableStop');
+      this.events.post('onTableStop', this._currentTableState);
     });
   }
 
