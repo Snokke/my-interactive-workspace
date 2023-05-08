@@ -18,6 +18,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._airConditionerTween = null;
     this._temperatureTween = null;
     this._sound = null;
+    this._temperatureScreenBitmap = null;
 
     this._init();
   }
@@ -39,7 +40,7 @@ export default class AirConditioner extends RoomObjectAbstract {
 
       const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
       const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
-      const temperature = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
+      const temperature = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
 
       new TWEEN.Tween(temperature.position)
         .to({ y: temperature.userData.startPosition.y }, fallDownTime)
@@ -78,12 +79,9 @@ export default class AirConditioner extends RoomObjectAbstract {
       this._updateAirConditionerDoorPositionType();
     }
 
-    if (AIR_CONDITIONER_CONFIG.powerState === AIR_CONDITIONER_STATE.PowerOff) {
-      AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOn;
-    }
+    this._updatePowerState();
 
     AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Moving;
-    // this._debugMenu.updateTopPanelState();
     this._stopAirConditionerTween();
 
     const maxAngle = AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened ? 0 : AIR_CONDITIONER_CONFIG.maxOpenAngle;
@@ -103,6 +101,7 @@ export default class AirConditioner extends RoomObjectAbstract {
       });
 
     this._updateTemperatureVisibility();
+    this.events.post('onChangePowerState');
   }
 
   setTableState(state) {
@@ -132,22 +131,42 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._soundHelper.visible = false;
   }
 
+  onChangeTemperature() {
+    this._snowflakeParticlesController.onChangeTemperature();
+    this.updateTemperatureScreen();
+  }
+
+  updateTemperatureScreen() {
+    const temperature = AIR_CONDITIONER_CONFIG.temperature.current;
+    const bitmap = this._temperatureScreenBitmap;
+    const context = bitmap.getContext('2d');
+
+    context.clearRect(0, 0, bitmap.width, bitmap.height);
+
+    context.fillStyle = AIR_CONDITIONER_CONFIG.screen.textColor;
+    context.fillText(temperature, bitmap.width * 0.5, bitmap.height * 0.55);
+
+    const temperatureScreen = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
+    temperatureScreen.material.map.needsUpdate = true;
+  }
+
   _onConditionerTweenComplete() {
     this._updateAirConditionerDoorPositionType();
 
     AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Idle;
 
-    if (AIR_CONDITIONER_CONFIG.powerState === AIR_CONDITIONER_STATE.PowerOn
-       && AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Closed) {
-      AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOff;
-    }
-
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
       this._snowflakeParticlesController.show();
       this._sound.play();
     }
+  }
 
-    // this._debugMenu.updateTopPanelState();
+  _updatePowerState() {
+    if (AIR_CONDITIONER_CONFIG.powerState === AIR_CONDITIONER_STATE.PowerOff) {
+      AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOn;
+    } else {
+      AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOff;
+    }
   }
 
   _updateTemperatureVisibility() {
@@ -159,7 +178,7 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _showTemperature() {
-    const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
+    const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
     temperaturePart.visible = true;
 
     if (this._temperatureTween) {
@@ -173,7 +192,7 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _hideTemperature() {
-    const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
+    const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
 
     if (this._temperatureTween) {
       this._temperatureTween.stop();
@@ -212,17 +231,40 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _initTemperature() {
-    const temperaturePart = this._parts[AIR_CONDITIONER_PART_TYPE.Temperature];
-    const texture = Loader.assets['temperature'];
+    this._initTemperatureScreenBitmap();
+    this._initTemperatureText();
 
+    setTimeout(() => this.updateTemperatureScreen(), 10);
+  }
+
+  _initTemperatureScreenBitmap() {
+    const temperatureScreen = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
+    const temperatureScreenBox = new THREE.Box3().setFromObject(temperatureScreen);
+    const size = temperatureScreenBox.getSize(new THREE.Vector3());
+
+    const bitmap = this._temperatureScreenBitmap = document.createElement('canvas');
+    bitmap.width = size.z * AIR_CONDITIONER_CONFIG.screen.resolution;
+    bitmap.height = size.y * AIR_CONDITIONER_CONFIG.screen.resolution;
+
+    const texture = new THREE.Texture(bitmap);
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
       opacity: 0,
     });
 
-    temperaturePart.material = material;
-    temperaturePart.visible = false;
+    temperatureScreen.material = material;
+  }
+
+  _initTemperatureText() {
+    const context = this._temperatureScreenBitmap.getContext('2d');
+    context.font = `${AIR_CONDITIONER_CONFIG.screen.textSize}px AlarmClock`;
+
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+
+    context.fillStyle = AIR_CONDITIONER_CONFIG.screen.textColor;
+    context.fillText('00', this._temperatureScreenBitmap.width * 0.5, this._temperatureScreenBitmap.height * 0.55);
   }
 
   _initSnowflakeParticles() {

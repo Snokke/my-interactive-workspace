@@ -7,7 +7,7 @@ const MOUSE_CONFIG = {
   movingArea: {
     showDebugPlane: false,
     width: 1.8,
-    height: 1.6,
+    height: 1.5,
   },
 }
 

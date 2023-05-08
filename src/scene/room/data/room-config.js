@@ -11,6 +11,7 @@ import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE } from '../room-activ
 import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-objects/monitor/data/monitor-data';
 import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/data/laptop-data';
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
+import { AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_REMOTE_PART_TYPE } from '../room-active-objects/air-conditioner-remote/data/air-conditioner-remote-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: false,
@@ -36,6 +37,7 @@ const ROOM_OBJECT_TYPE = {
   Mouse: 'MOUSE',
   Walls: 'WALLS',
   AirConditioner: 'AIR_CONDITIONER',
+  AirConditionerRemote: 'AIR_CONDITIONER_REMOTE',
   Locker: 'LOCKER',
   Chair: 'CHAIR',
   FloorLamp: 'FLOOR_LAMP',
@@ -112,6 +114,16 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Air_conditioner',
     partTypes: AIR_CONDITIONER_PART_TYPE,
     partsActiveConfig: AIR_CONDITIONER_PART_ACTIVITY_CONFIG,
+  },
+  [ROOM_OBJECT_TYPE.AirConditionerRemote]: {
+    createObject: true,
+    label: 'Air conditioner remote',
+    debugFolderLabel: 'Air conditioner remote',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'Air_conditioner_remote',
+    partTypes: AIR_CONDITIONER_REMOTE_PART_TYPE,
+    partsActiveConfig: AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG,
+    tableGroup: true,
   },
   [ROOM_OBJECT_TYPE.Mouse]: {
     createObject: true,

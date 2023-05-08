@@ -49,6 +49,12 @@ export default class SnowflakeParticlesController extends THREE.Group {
     });
   }
 
+  onChangeTemperature() {
+    this._particles.forEach((particles) => {
+      particles.onChangeTemperature();
+    });
+  }
+
   _init() {
     this._initParticles();
     this._initDebug();

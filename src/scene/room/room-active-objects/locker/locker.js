@@ -10,6 +10,7 @@ import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
+import { Black } from 'black-engine';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -96,7 +97,26 @@ export default class Locker extends RoomObjectAbstract {
     }
 
     if (partType === LOCKER_PART_TYPE.WorkplacePhoto) {
-      this.onWorkplacePhotoClick();
+      this._onWorkplacePhotoClick();
+    }
+  }
+
+  onPointerOver(intersect) {
+    if (this._isPointerOver) {
+      return;
+    }
+
+    super.onPointerOver();
+
+    const roomObject = intersect.object;
+    const type = roomObject.userData.partType;
+
+    if (type === LOCKER_PART_TYPE.WorkplacePhoto) {
+      if (this._isWorkplacePhotoShown) {
+        Black.engine.containerElement.style.cursor = 'zoom-out';
+      } else {
+        Black.engine.containerElement.style.cursor = 'grab';
+      }
     }
   }
 
@@ -244,7 +264,7 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  onWorkplacePhotoClick() {
+  _onWorkplacePhotoClick() {
     if (!this._isWorkplacePhotoShown) {
       this._showWorkplacePhoto();
     } else {
@@ -367,7 +387,7 @@ export default class Locker extends RoomObjectAbstract {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
     this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
-    this.events.post('onWorkplacePhotoClickToShow', workplacePhoto);
+    this.events.post('onWorkplacePhotoClickToShow', workplacePhoto, this._roomObjectType);
 
     this._debugMenu.disableCaseMovement();
     this._disableActivity();
@@ -397,7 +417,6 @@ export default class Locker extends RoomObjectAbstract {
       .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start();
-
   }
 
   _playOpenSound(caseId) {

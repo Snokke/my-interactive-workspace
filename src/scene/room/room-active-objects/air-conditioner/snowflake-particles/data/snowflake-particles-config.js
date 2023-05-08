@@ -6,14 +6,16 @@ const SNOWFLAKE_PARTICLES_CONFIG = {
   startOffset: new THREE.Vector3(0.15, 0, 0),
   alphaEdge: { x: 6, y: 4 },
   showDebugAlphaEdge: false,
+  sizeByTemperatureCoeff: 2,
+  speedByTemperatureCoeff: 2,
   dataByTableState: {
     [TABLE_STATE.SittingMode]: {
       tableYDelta: 1,
       tableYCoeff: 1,
     },
     [TABLE_STATE.StandingMode]: {
-      tableYDelta: 0.5,
-      tableYCoeff: 1,
+      tableYDelta: 1,
+      tableYCoeff: 2,
     },
   },
 }
@@ -31,7 +33,7 @@ const SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE = {
     count: 250,
     size: 0.14,
     texture: 'snowflake-02',
-    color: 0xffffff,
+    color: 0xa5b9fd,
     speed: 1.8,
     countIncrement: 0.5,
   },
@@ -39,7 +41,7 @@ const SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE = {
     count: 150,
     size: 0.2,
     texture: 'snowflake-03',
-    color: 0xffffff,
+    color: 0x9ba6f9,
     speed: 1.4,
     countIncrement: 0.5,
   },

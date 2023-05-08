@@ -8,6 +8,16 @@ const AIR_CONDITIONER_CONFIG = {
   rotationSpeed: 5,
   maxOpenAngle: 80,
   doorWidth: 2.7,
+  temperature: {
+    current: 20,
+    min: 15,
+    max: 23,
+  },
+  screen: {
+    resolution: 300,
+    textSize: 90,
+    textColor: '#ffffff',
+  },
 }
 
 export { AIR_CONDITIONER_CONFIG };

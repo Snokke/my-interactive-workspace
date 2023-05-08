@@ -20,7 +20,8 @@ export default class SnowflakeParticles extends THREE.Group {
     this._currentActiveCount = 0;
     this._currentVisibleParticlesCount = 0;
     this._tableState = TABLE_STATE.SittingMode;
-    this._isWindowOpened = false;
+    this._windowCoefficient = { value: 0 };
+    this._defaultTemperature = AIR_CONDITIONER_CONFIG.temperature.current
 
     this._init();
   }
@@ -60,11 +61,34 @@ export default class SnowflakeParticles extends THREE.Group {
   }
 
   onWindowOpened() {
-    this._isWindowOpened = true;
+    if (this._windowTween) {
+      this._windowTween.stop();
+    }
+
+    this._windowTween = new TWEEN.Tween(this._windowCoefficient)
+      .to({ value: 6 }, 1000)
+      .easing(TWEEN.Easing.Linear.None)
+      .start();
   }
 
   onWindowClosed() {
-    this._isWindowOpened = false;
+    if (this._windowTween) {
+      this._windowTween.stop();
+    }
+
+    this._windowTween = new TWEEN.Tween(this._windowCoefficient)
+      .to({ value: 0 }, 1000)
+      .easing(TWEEN.Easing.Linear.None)
+      .start();
+  }
+
+  onChangeTemperature() {
+    this._updateParticlesSize();
+  }
+
+  _updateParticlesSize() {
+    const temperatureCoeff = ((AIR_CONDITIONER_CONFIG.temperature.current / this._defaultTemperature) - 1) * SNOWFLAKE_PARTICLES_CONFIG.sizeByTemperatureCoeff;
+    this._particles.material.size = this._config.size - temperatureCoeff * this._config.size;
   }
 
   _hideAllParticles() {
@@ -261,6 +285,8 @@ export default class SnowflakeParticles extends THREE.Group {
     const particles = this._particles = new THREE.Points(geometry, material);
     this.add(particles);
 
+    this._updateParticlesSize();
+
     particles.frustumCulled = false;
   }
 
@@ -302,12 +328,13 @@ export default class SnowflakeParticles extends THREE.Group {
 
   _createParticleData() {
     const dataByTableState = SNOWFLAKE_PARTICLES_CONFIG.dataByTableState[this._tableState];
+    const speedCoeff = ((AIR_CONDITIONER_CONFIG.temperature.current / this._defaultTemperature) - 1) * SNOWFLAKE_PARTICLES_CONFIG.speedByTemperatureCoeff;
+    const defaultSpeed = randomBetween(2, 3) * this._config.speed;
 
-    const speed = randomBetween(2, 3) * this._config.speed;
+    const speed = defaultSpeed - defaultSpeed * speedCoeff;
     const yCoeff = randomBetween(15, 20) * dataByTableState.tableYCoeff;
     const yDelta = randomBetween(25, 40) * dataByTableState.tableYDelta;
-    // const zCoeff = randomBetween(-2, 2); // -2, 2
-    const zCoeff = this._isWindowOpened ? randomBetween(4, 8) : randomBetween(-2, 2);
+    const zCoeff = randomBetween(-2, 2) + this._windowCoefficient.value;
     const alpha = randomBetween(0.4, 0.6);
     const alphaDecrement = randomBetween(0.015, 0.025);
 

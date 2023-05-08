@@ -40,9 +40,8 @@ const FOCUSED_MODE_CAMERA_CONFIG = {
 const STATIC_MODE_CAMERA_CONFIG = {
   objectMoveTime: 200,
   rotation: {
-    coefficient: 0.8,
+    coefficient: 0.5,
     lerpTime: 0.05,
-    lookAtObjectZOffset: 3
   },
   zoom: {
     defaultDistance: 1.5,

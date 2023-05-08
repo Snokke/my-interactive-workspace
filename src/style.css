@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'AlarmClock';
+  src: url('/fonts/alarm-clock.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 *
 {
   margin: 0;

@@ -144,7 +144,8 @@ export default class Room extends THREE.Group {
       [ROOM_OBJECT_TYPE.Keyboard]: this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard],
     };
 
-    this._cameraController = new CameraController(this._camera, this._orbitControls, focusObjects, this._roomDebug);
+    const cameraController = this._cameraController = new CameraController(this._camera, this._orbitControls, focusObjects, this._roomDebug);
+    this.add(cameraController);
   }
 
   _initCursor() {

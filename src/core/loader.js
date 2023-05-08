@@ -5,7 +5,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const textures = [
 
   // air conditioner
-  'temperature.png',
   'snowflake-01.png',
   'snowflake-02.png',
   'snowflake-03.png',
@@ -87,6 +86,7 @@ export default class Loader extends GameObject {
     this._soundsCountLoaded = 0;
 
     this._loadBlackAssets();
+    this._initFont();
   }
 
   _loadBlackAssets() {
@@ -114,6 +114,15 @@ export default class Loader extends GameObject {
   _onBlackAssetsLoaded() {
     this.removeFromParent();
     this._loadThreeJSAssets();
+  }
+
+  _initFont() {
+    const div = document.createElement('div');
+    div.style.fontFamily = 'AlarmClock';
+    div.style.visibility = 'hidden';
+    div.style.position = 'absolute';
+    div.style.top = '-1000px';
+    div.innerText = '0123456789';
   }
 
   _loadThreeJSAssets() {

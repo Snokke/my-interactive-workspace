@@ -29,6 +29,7 @@ import Organizer from "../room-inactive-objects/objects/organizer";
 import Scales from "../room-inactive-objects/objects/scales";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
+import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -39,6 +40,10 @@ const ROOM_OBJECT_CLASS = {
   [ROOM_OBJECT_TYPE.AirConditioner]: {
     object: AirConditioner,
     debugMenu: AirConditionerDebugMenu,
+  },
+  [ROOM_OBJECT_TYPE.AirConditionerRemote]: {
+    object: AirConditionerRemote,
+    debugMenu: null,
   },
   [ROOM_OBJECT_TYPE.FloorLamp]: {
     object: FloorLamp,

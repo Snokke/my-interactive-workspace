@@ -136,7 +136,6 @@ export default class RoomController {
   }
 
   onPointerLeave() {
-    this._cameraController.onPointerLeave();
     this._resetGlow();
   }
 
@@ -331,6 +330,8 @@ export default class RoomController {
     this._initLaptopMusicSignals();
     this._initCursorSignals();
     this._initKeyboardSignals();
+    this._initMonitorSignals();
+    this._initAirConditionerSignals();
     this._initDebugMenuSignals();
     this._initRealKeyboardSignals();
     this._initOtherSignals();
@@ -392,6 +393,29 @@ export default class RoomController {
     keyboard.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
   }
 
+  _initMonitorSignals() {
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+    const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
+
+    monitor.events.on('onShowreelStart', () => this._onShowreelStart());
+    monitor.events.on('onShowreelStop', () => this._onShowreelStop());
+    monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
+    monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
+    monitor.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
+  }
+
+  _initAirConditionerSignals() {
+    const airConditioner = this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner];
+    const airConditionerRemote = this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote];
+
+    airConditioner.events.on('onChangePowerState', () => airConditionerRemote.updateTemperatureScreen());
+    airConditionerRemote.events.on('onAirConditionerRemoteClickToShow', (msg, airConditionerRemote, roomObjectType) => this._onAirConditionerRemoteClickToShow(airConditionerRemote, roomObjectType));
+    airConditionerRemote.events.on('onAirConditionerRemoteClickToHide', () => this._onAirConditionerRemoteClickToHide());
+    airConditionerRemote.events.on('onButtonOnOffClick', () => this._onAirConditionerRemoteButtonOnOffClick());
+    airConditionerRemote.events.on('onButtonTemperatureUpClick', () => this._onAirConditionerRemoteButtonTemperatureUpClick());
+    airConditionerRemote.events.on('onButtonTemperatureDownClick', () => this._onAirConditionerRemoteButtonTemperatureDownClick());
+  }
+
   _initDebugMenuSignals() {
     this._roomDebug.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
@@ -405,11 +429,9 @@ export default class RoomController {
   }
 
   _initOtherSignals() {
-    const speakers = this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
-    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
     const locker = this._roomActiveObject[ROOM_OBJECT_TYPE.Locker];
     const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
@@ -421,15 +443,10 @@ export default class RoomController {
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
     walls.events.on('onWindowClosed', () => this._onWindowClosed());
     walls.events.on('onWindowOpened', (msg, openType) => this._onWindowFullyOpened(openType));
-    monitor.events.on('onShowreelStart', () => this._onShowreelStart());
-    monitor.events.on('onShowreelStop', () => this._onShowreelStop());
-    monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
-    monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
-    monitor.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
     chair.events.on('onLockerAreaChange', (msg, areaType, state) => locker.onChairNearLocker(areaType, state));
-    table.events.on('onTableMoving', () => this._disableFocusObjects());
+    table.events.on('onTableMoving', () => this._onTableMoving());
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
-    locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto) => this._onWorkplacePhotoClickToShow(workplacePhoto));
+    locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
   }
@@ -438,7 +455,15 @@ export default class RoomController {
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (CAMERA_CONFIG.mode === CAMERA_MODE.Static) {
-          this._onWorkplacePhotoClickToHide();
+          const objectType = this._cameraController.getStaticModeRoomObjectType();
+
+          if (objectType === ROOM_OBJECT_TYPE.AirConditionerRemote) {
+            this._onAirConditionerRemoteClickToHide();
+          }
+
+          if (objectType === ROOM_OBJECT_TYPE.Locker) {
+            this._onWorkplacePhotoClickToHide();
+          }
         }
 
         const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
@@ -511,13 +536,19 @@ export default class RoomController {
     this._roomDebug.enableKeyboardFocusButton();
   }
 
+  _onTableMoving() {
+    this._disableFocusObjects();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseInactive();
+  }
+
   _onTableStop(tableState) {
     this._enableFocusObjects();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].setTableState(tableState);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseActive();
   }
 
-  _onWorkplacePhotoClickToShow(workplacePhoto) {
-    this._cameraController.setStaticState(workplacePhoto);
+  _onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType) {
+    this._cameraController.setStaticState(workplacePhoto, roomObjectType);
     this._roomDebug.disableStartCameraPositionButton();
     this._disableFocusObjects();
     this._disableAllObjects();
@@ -532,6 +563,51 @@ export default class RoomController {
     this._roomDebug.enableStartCameraPositionButton();
     this._enableFocusObjects();
     this._enableAllObjects();
+  }
+
+  _onAirConditionerRemoteClickToShow(workplacePhoto, roomObjectType) {
+    this._cameraController.setStaticState(workplacePhoto, roomObjectType);
+    this._roomDebug.disableStartCameraPositionButton();
+    this._disableFocusObjects();
+    this._disableAllObjects();
+
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.AirConditionerRemote] = true;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].enableDebugMenu();
+
+    if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
+    }
+  }
+
+  _onAirConditionerRemoteClickToHide() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].hideAirConditionerRemotePhoto();
+
+    if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
+      this._enableFocusObjects();
+      this._enableAllObjects();
+      this._onMonitorFocus();
+    } else {
+      this._cameraController.setOrbitState();
+      this._enableFocusObjects();
+      this._enableAllObjects();
+    }
+
+    this._roomDebug.enableStartCameraPositionButton();
+  }
+
+  _onAirConditionerRemoteButtonOnOffClick() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onClick();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].updateTemperatureScreen();
+  }
+
+  _onAirConditionerRemoteButtonTemperatureUpClick() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].increaseTemperature();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onChangeTemperature();
+  }
+
+  _onAirConditionerRemoteButtonTemperatureDownClick() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].decreaseTemperature();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onChangeTemperature();
   }
 
   _disableAllObjects() {
