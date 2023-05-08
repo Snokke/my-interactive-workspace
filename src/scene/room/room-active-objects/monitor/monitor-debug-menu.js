@@ -9,6 +9,7 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
     this._arm01AngleController = null;
     this._arm02AngleController = null;
     this._playShowreelButton = null;
+    this._showGameButton = null;
 
     this._init();
     this._checkToDisableFolder();
@@ -31,6 +32,14 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
     }
   }
 
+  updateGameButton(gameActive) {
+    if (gameActive) {
+      this._showGameButton.title = 'Hide game';
+    } else {
+      this._showGameButton.title = 'Show game';
+    }
+  }
+
   _init() {
     this._playShowreelButton = this._debugFolder.addButton({
       title: 'Play Showreel video',
@@ -39,6 +48,10 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
     this._debugFolder.addButton({
       title: 'Open CV',
     }).on('click', () => this.events.post('onOpenCV'));
+
+    this._showGameButton = this._debugFolder.addButton({
+      title: 'Show game',
+    }).on('click', () => this.events.post('onShowGame'));
 
     this._debugFolder.addSeparator();
 

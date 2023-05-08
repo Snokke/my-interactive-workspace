@@ -16,6 +16,7 @@ export default class Room extends THREE.Group {
 
     this._data = data;
     this._data.raycasterController = raycasterController;
+    this._monitorScreenSceneData = data.monitorScreenData;
 
     this._orbitControls = this._data.orbitControls;
     this._camera = this._data.camera;
@@ -85,6 +86,7 @@ export default class Room extends THREE.Group {
     this._initCameraController();
     this._addObjectsToTableGroup();
     this._initCursor();
+    this._addMonitorScreenTexture();
   }
 
   _initActiveObjects() {
@@ -157,6 +159,12 @@ export default class Room extends THREE.Group {
     this.add(cursor);
   }
 
+  _addMonitorScreenTexture() {
+    const texture = this._monitorScreenSceneData.renderTarget.texture;
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+    monitor.addMonitorScreenTexture(texture);
+  }
+
   _configureRaycaster() {
     const allMeshes = [];
 
@@ -187,5 +195,7 @@ export default class Room extends THREE.Group {
   _initSignals() {
     this._roomController.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._roomController.events.on('updateSoundIcon', () => this.events.post('updateSoundIcon'));
+    this._roomController.events.on('onShowGame', () => this.events.post('onShowGame'));
+    this._roomController.events.on('onHideGame', () => this.events.post('onHideGame'));
   }
 }

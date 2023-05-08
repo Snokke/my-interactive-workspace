@@ -13,6 +13,7 @@ import { Black, CanvasDriver, Engine, Input, MasterAudio, StageScaleMode } from 
 import Loader from './loader';
 import Scene3DDebugMenu from './helpers/gui-helper/scene-3d-debug-menu';
 import { CAMERA_CONFIG } from '../scene/room/camera-controller/data/camera-config';
+import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
 
 export default class BaseScene {
   constructor() {
@@ -26,9 +27,11 @@ export default class BaseScene {
     this._outlinePass = null;
     this._orbitControls = null;
     this._audioListener = null;
+    this._monitorScreenSceneData = null;
 
     this._windowSizes = {};
     this._isAssetsLoaded = false;
+    this._isGameActive = false;
 
     this._init();
   }
@@ -41,6 +44,7 @@ export default class BaseScene {
       orbitControls: this._orbitControls,
       outlinePass: this._outlinePass,
       audioListener: this._audioListener,
+      monitorScreenData: this._monitorScreenSceneData,
     };
 
     this._mainScene = new MainScene(data);
@@ -62,6 +66,16 @@ export default class BaseScene {
 
   _initMainSceneSignals() {
     this._mainScene.events.on('fpsMeterChanged', () => this._scene3DDebugMenu.onFpsMeterClick());
+    this._mainScene.events.on('onShowGame', () => this._onShowGame());
+    this._mainScene.events.on('onHideGame', () => this._onHideGame());
+  }
+
+  _onShowGame() {
+    this._isGameActive = true;
+  }
+
+  _onHideGame() {
+    this._isGameActive = false;
   }
 
   _init() {
@@ -91,6 +105,7 @@ export default class BaseScene {
     this._setupBackgroundColor();
     this._initPostProcessing();
     this._initAudioListener();
+    this._initMonitorScreenScene();
 
     this._initScene3DDebugMenu();
   }
@@ -214,10 +229,10 @@ export default class BaseScene {
     this._effectComposer.addPass(outlinePass);
 
     // outlinePass.visibleEdgeColor.set('#00ff00');
-    // outlinePass.edgeGlow = 1;
-    // outlinePass.edgeStrength = 4;
-    // outlinePass.edgeThickness = 2;
-    // outlinePass.pulsePeriod = 2.5;
+    outlinePass.edgeGlow = 1;
+    outlinePass.edgeStrength = 4;
+    outlinePass.edgeThickness = 2;
+    outlinePass.pulsePeriod = 2.5;
   }
 
   _initAntiAliasingPass() {
@@ -240,6 +255,22 @@ export default class BaseScene {
     this._orbitControls = this._scene3DDebugMenu.getOrbitControls();
   }
 
+  _initMonitorScreenScene() {
+    const monitorScreenScene = this._monitorScreenScene = new THREE.Scene();
+    monitorScreenScene.background = new THREE.Color(MONITOR_SCREEN_SCENE_CONFIG.backgroundColor);
+
+    const near = MONITOR_SCREEN_SCENE_CONFIG.camera.near;
+    const far = MONITOR_SCREEN_SCENE_CONFIG.camera.far;
+    this._monitorScreenCamera = new THREE.PerspectiveCamera(MONITOR_SCREEN_SCENE_CONFIG.camera.fov, MONITOR_SCREEN_SCENE_CONFIG.camera.aspect, near, far);
+    this._monitorScreenRenderTarget = new THREE.WebGLRenderTarget(1920, 1080);
+
+    this._monitorScreenSceneData = {
+      scene: this._monitorScreenScene,
+      camera: this._monitorScreenCamera,
+      renderTarget: this._monitorScreenRenderTarget,
+    };
+  }
+
   _initUpdate() {
     const clock = new THREE.Clock(true);
 
@@ -256,8 +287,18 @@ export default class BaseScene {
           this._mainScene.update(deltaTime);
         }
 
-        this._effectComposer.render();
+        if (this._isGameActive) {
+          this._renderer.setRenderTarget(this._monitorScreenRenderTarget);
+          this._renderer.clear();
+          this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
+        }
+
+        // this._renderer.setRenderTarget( null );
+				// this._renderer.clear();
         // this._renderer.render(this._scene, this._camera);
+
+        this._effectComposer.render();
+
       }
 
       this._scene3DDebugMenu.postUpdate();

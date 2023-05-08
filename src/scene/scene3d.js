@@ -65,5 +65,7 @@ export default class Scene3D extends THREE.Group {
   _initSignals() {
     this._room.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._room.events.on('updateSoundIcon', () => this.events.post('updateSoundIcon'));
+    this._room.events.on('onShowGame', () => this.events.post('onShowGame'));
+    this._room.events.on('onHideGame', () => this.events.post('onHideGame'));
   }
 }

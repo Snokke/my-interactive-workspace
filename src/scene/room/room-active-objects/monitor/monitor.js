@@ -28,6 +28,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._showreelVideoElement = null;
     this._volumeIcon = null;
     this._focusObject = null;
+    this._sceneRenderTexture = null;
 
     this._plane = new THREE.Plane();
     this._pNormal = new THREE.Vector3(0, 1, 0);
@@ -38,6 +39,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._isMountSelected = false;
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
+    this._isGameActive = false;
 
     this._init();
   }
@@ -286,6 +288,10 @@ export default class Monitor extends RoomObjectAbstract {
       });
   }
 
+  addMonitorScreenTexture(texture) {
+    this._sceneRenderTexture = texture;
+  }
+
   _clearButtonsColor() {
     MONITOR_SCREEN_BUTTONS.forEach((partType) => {
       const button = this._parts[partType];
@@ -313,24 +319,24 @@ export default class Monitor extends RoomObjectAbstract {
       }
     }
 
-    if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon && this._isShowreelPlaying) {
-      this._stopShowreel();
+    if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon) {
+      if (this._isShowreelPlaying) {
+        this._stopShowreel();
+      }
+
+      if (this._isGameActive) {
+        this._hideGame();
+      }
     }
   }
 
   _playShowreel() {
+    if (this._isGameActive) {
+      return;
+    }
+
     this._isShowreelPlaying = true;
-
-    const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
-    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
-    const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
-
-    closeIcon.visible = true;
-    closeIcon.position.z += MONITOR_CONFIG.hideOffset;
-    showreelIcon.visible = false;
-    showreelIcon.position.z -= MONITOR_CONFIG.hideOffset;
-    CVIcon.visible = false;
-    CVIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    this._onFullScreenEnabled();
 
     this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._showreelTexture;
 
@@ -342,7 +348,30 @@ export default class Monitor extends RoomObjectAbstract {
   _stopShowreel() {
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
+    this._onFullScreenDisabled();
 
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._screenTexture;
+
+    this._showreelVideoElement.pause();
+    this._showreelVideoElement.currentTime = 0;
+
+    this.events.post('onShowreelStop');
+  }
+
+  _onFullScreenEnabled() {
+    const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
+    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
+
+    closeIcon.visible = true;
+    closeIcon.position.z += MONITOR_CONFIG.hideOffset;
+    showreelIcon.visible = false;
+    showreelIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    CVIcon.visible = false;
+    CVIcon.position.z -= MONITOR_CONFIG.hideOffset;
+  }
+
+  _onFullScreenDisabled() {
     const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
     const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
@@ -353,13 +382,6 @@ export default class Monitor extends RoomObjectAbstract {
     showreelIcon.position.z += MONITOR_CONFIG.hideOffset;
     CVIcon.visible = true;
     CVIcon.position.z += MONITOR_CONFIG.hideOffset;
-
-    this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._screenTexture;
-
-    this._showreelVideoElement.pause();
-    this._showreelVideoElement.currentTime = 0;
-
-    this.events.post('onShowreelStop');
   }
 
   _pauseShowreel() {
@@ -599,6 +621,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._debugMenu.events.on('onPositionChanged', (msg, position) => this._onPositionChanged(position));
     this._debugMenu.events.on('onPlayShowreelVideo', () => this._onDebugPlayShowreelVideo());
     this._debugMenu.events.on('onOpenCV', () => this._onOpenCV());
+    this._debugMenu.events.on('onShowGame', () => this._onShowGame());
   }
 
   _onPositionChanged(position) {
@@ -613,6 +636,40 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     this._debugMenu.updateShowreelButton(this._isShowreelPlaying);
+  }
+
+  _onShowGame() {
+    if (this._isShowreelPlaying) {
+      return;
+    }
+
+    if (this._isGameActive) {
+      this._hideGame();
+    } else {
+      this._showGame();
+    }
+  }
+
+  _showGame() {
+    this._isGameActive = true;
+    this._onFullScreenEnabled();
+
+    const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
+    monitorScreen.material.map = this._sceneRenderTexture;
+
+    this._debugMenu.updateGameButton(this._isGameActive);
+    this.events.post('onShowGame');
+  }
+
+  _hideGame() {
+    this._isGameActive = false;
+    this._onFullScreenDisabled();
+
+    const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
+    monitorScreen.material.map = this._screenTexture;
+
+    this._debugMenu.updateGameButton(this._isGameActive);
+    this.events.post('onHideGame');
   }
 
   _getPartsWithoutButtons() {

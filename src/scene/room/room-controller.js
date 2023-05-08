@@ -410,6 +410,8 @@ export default class RoomController {
     monitor.events.on('onShowreelPause', () => speakers.onShowreelPause());
     monitor.events.on('onMonitorScreenClick', () => this._onMonitorFocus());
     monitor.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
+    monitor.events.on('onShowGame', () => this.events.post('onShowGame'));
+    monitor.events.on('onHideGame', () => this.events.post('onHideGame'));
   }
 
   _initAirConditionerSignals() {
