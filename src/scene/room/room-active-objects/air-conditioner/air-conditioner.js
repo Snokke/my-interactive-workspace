@@ -134,6 +134,7 @@ export default class AirConditioner extends RoomObjectAbstract {
   onChangeTemperature() {
     this._snowflakeParticlesController.onChangeTemperature();
     this.updateTemperatureScreen();
+    this._debugMenu.updateTemperature();
   }
 
   updateTemperatureScreen() {
@@ -167,6 +168,8 @@ export default class AirConditioner extends RoomObjectAbstract {
     } else {
       AIR_CONDITIONER_CONFIG.powerState = AIR_CONDITIONER_STATE.PowerOff;
     }
+
+    this._debugMenu.updatePowerStateController();
   }
 
   _updateTemperatureVisibility() {
@@ -312,8 +315,8 @@ export default class AirConditioner extends RoomObjectAbstract {
   }
 
   _initSignals() {
-    this._debugMenu.events.on('switchOn', () => {
-      this.onClick();
-    });
+    this._debugMenu.events.on('turnOnOff', () => this.onClick());
+    this._debugMenu.events.on('increaseTemperature', () => this.events.post('onIncreaseTemperature'));
+    this._debugMenu.events.on('decreaseTemperature', () => this.events.post('onDecreaseTemperature'));
   }
 }

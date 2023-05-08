@@ -24,7 +24,7 @@ const MONITOR_ARM_MOUNT_CONFIG = {
 }
 
 const MONITOR_BUTTONS_CONFIG = {
-  mouseOverColor: new THREE.Color(0x00ff00),
+  mouseOverColor: new THREE.Color(0x8ff88c),
   buttons: {
     [MONITOR_PART_TYPE.MonitorScreenShowreelIcon]: {
       area: {

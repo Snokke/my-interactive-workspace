@@ -12,6 +12,7 @@ const AIR_CONDITIONER_CONFIG = {
     current: 20,
     min: 15,
     max: 23,
+    room: 24,
   },
   screen: {
     resolution: 300,

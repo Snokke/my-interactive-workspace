@@ -290,9 +290,17 @@ export default class RoomController {
   }
 
   _checkToShowDebugFolders(roomObject) {
+    const objectType = roomObject.getObjectType();
+
     if (ROOM_CONFIG.autoOpenActiveDebugFolder && roomObject.hasDebugMenu()) {
       this._hideAllOtherObjectsDebugMenu(roomObject);
       roomObject.openDebugMenu();
+    }
+
+    if (ROOM_CONFIG.autoOpenActiveDebugFolder && objectType === ROOM_OBJECT_TYPE.AirConditionerRemote) {
+      this._hideAllOtherObjectsDebugMenu(roomObject);
+      const airConditioner = this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner];
+      airConditioner.openDebugMenu();
     }
   }
 
@@ -409,11 +417,13 @@ export default class RoomController {
     const airConditionerRemote = this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote];
 
     airConditioner.events.on('onChangePowerState', () => airConditionerRemote.updateTemperatureScreen());
+    airConditioner.events.on('onIncreaseTemperature', () => this._onAirConditionerTemperatureUpClick());
+    airConditioner.events.on('onDecreaseTemperature', () => this._onAirConditionerTemperatureDownClick());
     airConditionerRemote.events.on('onAirConditionerRemoteClickToShow', (msg, airConditionerRemote, roomObjectType) => this._onAirConditionerRemoteClickToShow(airConditionerRemote, roomObjectType));
     airConditionerRemote.events.on('onAirConditionerRemoteClickToHide', () => this._onAirConditionerRemoteClickToHide());
     airConditionerRemote.events.on('onButtonOnOffClick', () => this._onAirConditionerRemoteButtonOnOffClick());
-    airConditionerRemote.events.on('onButtonTemperatureUpClick', () => this._onAirConditionerRemoteButtonTemperatureUpClick());
-    airConditionerRemote.events.on('onButtonTemperatureDownClick', () => this._onAirConditionerRemoteButtonTemperatureDownClick());
+    airConditionerRemote.events.on('onButtonTemperatureUpClick', () => this._onAirConditionerTemperatureUpClick());
+    airConditionerRemote.events.on('onButtonTemperatureDownClick', () => this._onAirConditionerTemperatureDownClick());
   }
 
   _initDebugMenuSignals() {
@@ -572,7 +582,8 @@ export default class RoomController {
     this._disableAllObjects();
 
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.AirConditionerRemote] = true;
-    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].enableDebugMenu();
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.AirConditioner] = true;
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].enableDebugMenu();
 
     if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
       this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
@@ -600,12 +611,12 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].updateTemperatureScreen();
   }
 
-  _onAirConditionerRemoteButtonTemperatureUpClick() {
+  _onAirConditionerTemperatureUpClick() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].increaseTemperature();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onChangeTemperature();
   }
 
-  _onAirConditionerRemoteButtonTemperatureDownClick() {
+  _onAirConditionerTemperatureDownClick() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].decreaseTemperature();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onChangeTemperature();
   }

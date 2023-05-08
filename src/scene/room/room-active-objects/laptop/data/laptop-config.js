@@ -20,7 +20,7 @@ const LAPTOP_MOUNT_CONFIG = {
 }
 
 const LAPTOP_SCREEN_MUSIC_CONFIG = {
-  mouseOverColor: new THREE.Color(0x00ff00),
+  mouseOverColor: new THREE.Color(0x48f243),
   buttons: {
     [LAPTOP_PART_TYPE.LaptopScreenMusic01]: {
       signalName: 'onLaptopScreenMusic01Click',
