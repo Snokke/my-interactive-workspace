@@ -82,10 +82,10 @@ export default class TransferItGame extends THREE.Group {
   }
 
   _initLights() {
-    const ambientLight = new THREE.AmbientLight(0xFFEFE4, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xFFEFE4, 1.5);
     this._scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xFFEFE4, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xFFEFE4, 1);
     directionalLight.position.set(-2, 7, -7);
     this._scene.add(directionalLight);
 

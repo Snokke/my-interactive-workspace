@@ -372,7 +372,15 @@ export default class RoomController {
 
     speakers.events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
     speakers.events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
-    speakers.events.on('onSongEnded', () => laptop.onSongEnded());
+    speakers.events.on('onSongEnded', (msg, musicType) => this._onSongEnded(musicType));
+  }
+
+  _onSongEnded(songType) {
+    if (songType === MUSIC_TYPE.TheStomp) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].stopShowreelVideo();
+    } else {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onSongEnded();
+    }
   }
 
   _initCursorSignals() {

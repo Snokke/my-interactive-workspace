@@ -49,8 +49,10 @@ export default class GameScreenController {
   stopGame() {
     this._isGameGlobalActive = false;
     this._resetScene();
+    this._room.reset();
     this._room.hide();
     this._ui.hideTutorial();
+    this._ui.stopLoadingScreen();
   }
 
   showLoadingScreen() {
@@ -152,7 +154,6 @@ export default class GameScreenController {
     this._ghostController.killGhosts();
 
     this._target.hide();
-    this._room.reset();
   }
 
   _createGhosts() {

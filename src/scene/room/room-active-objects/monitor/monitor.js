@@ -375,6 +375,8 @@ export default class Monitor extends RoomObjectAbstract {
 
     this._showreelVideoElement.play();
 
+    this._debugMenu.updateShowreelButton(this._isShowreelPlaying);
+    this._debugMenu.disableGameButton();
     this.events.post('onShowreelStart');
   }
 
@@ -388,6 +390,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._showreelVideoElement.pause();
     this._showreelVideoElement.currentTime = 0;
 
+    this._debugMenu.updateShowreelButton(this._isShowreelPlaying);
+    this._debugMenu.enableGameButton();
     this.events.post('onShowreelStop');
   }
 
@@ -676,8 +680,6 @@ export default class Monitor extends RoomObjectAbstract {
     } else {
       this._playShowreel();
     }
-
-    this._debugMenu.updateShowreelButton(this._isShowreelPlaying);
   }
 
   _onShowGame() {
@@ -700,6 +702,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreen.material.map = this._sceneRenderTexture;
 
     this._debugMenu.updateGameButton(this._isGameActive);
+    this._debugMenu.disableShowreelButton();
     this.events.post('onShowGame');
   }
 
@@ -712,6 +715,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreen.material.map = this._screenTexture;
 
     this._debugMenu.updateGameButton(this._isGameActive);
+    this._debugMenu.enableShowreelButton();
     this.events.post('onHideGame');
   }
 

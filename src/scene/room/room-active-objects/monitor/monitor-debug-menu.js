@@ -34,10 +34,26 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
 
   updateGameButton(gameActive) {
     if (gameActive) {
-      this._showGameButton.title = 'Hide game';
+      this._showGameButton.title = 'Stop game: «Transfer It»';
     } else {
-      this._showGameButton.title = 'Show game';
+      this._showGameButton.title = 'Start game: «Transfer It»';
     }
+  }
+
+  disableShowreelButton() {
+    this._playShowreelButton.disabled = true;
+  }
+
+  enableShowreelButton() {
+    this._playShowreelButton.disabled = false;
+  }
+
+  disableGameButton() {
+    this._showGameButton.disabled = true;
+  }
+
+  enableGameButton() {
+    this._showGameButton.disabled = false;
   }
 
   _init() {
@@ -45,13 +61,13 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
       title: 'Play Showreel video',
     }).on('click', () => this.events.post('onPlayShowreelVideo'));
 
+    this._showGameButton = this._debugFolder.addButton({
+      title: 'Start game: «Transfer It»',
+    }).on('click', () => this.events.post('onShowGame'));
+
     this._debugFolder.addButton({
       title: 'Open CV',
     }).on('click', () => this.events.post('onOpenCV'));
-
-    this._showGameButton = this._debugFolder.addButton({
-      title: 'Show game',
-    }).on('click', () => this.events.post('onShowGame'));
 
     this._debugFolder.addSeparator();
 

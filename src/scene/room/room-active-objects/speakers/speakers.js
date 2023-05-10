@@ -199,7 +199,7 @@ export default class Speakers extends RoomObjectAbstract {
     if (this._music.isPlaying) {
       this._audioCurrentTime = this._music.context.currentTime - this._audioContextCurrentTime + this._audioPrevTime;
       if (this._audioCurrentTime >= this._music.buffer.duration - 0.05) {
-        this.events.post('onSongEnded');
+        this.events.post('onSongEnded', this._currentMusicType);
       }
     } else {
       this._audioPrevTime = this._audioCurrentTime;

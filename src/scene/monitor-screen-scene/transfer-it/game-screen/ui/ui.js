@@ -20,6 +20,10 @@ export default class UI extends THREE.Group {
     this._overlay.showLoadingScreen();
   }
 
+  stopLoadingScreen() {
+    this._overlay.stopLoadingScreen();
+  }
+
   showLoseScreen() {
     this._button.setType(BUTTON_TYPE.Restart);
     this._button.show();

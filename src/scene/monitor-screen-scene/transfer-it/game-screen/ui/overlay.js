@@ -25,6 +25,7 @@ export default class Overlay extends THREE.Group {
   showLoadingScreen() {
     this._isLoadingScreenVisible = true;
     this._drawLoadingScreen();
+    this.stopLoadingScreen();
 
     const object = { value: 0 };
 
@@ -40,6 +41,12 @@ export default class Overlay extends THREE.Group {
         this._isLoadingScreenVisible = false;
         this.events.post('onLoadingScreenHidden');
       });
+  }
+
+  stopLoadingScreen() {
+    if (this._loadingScreenTween) {
+      this._loadingScreenTween.stop();
+    }
   }
 
   showWinScreen() {
