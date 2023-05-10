@@ -157,11 +157,6 @@ export default class Scene3DDebugMenu {
 
   _initLilGUIHelper() {
     new GUIHelper();
-
-    // scene3DFolder.addInput(DEBUG_CONFIG, 'fpsMeter', { label: 'Stats' })
-    //   .on('change', (statsState) => {
-    //     this.onFpsMeterClick(statsState.value);
-    //   });
   }
 
   onFpsMeterClick() {

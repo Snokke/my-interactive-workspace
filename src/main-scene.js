@@ -51,15 +51,18 @@ export default class MainScene {
     this._scene3D.events.on('updateSoundIcon', () => this._ui.updateSoundIcon());
     this._scene3D.events.on('onShowGame', () => this._onShowGame());
     this._scene3D.events.on('onHideGame', () => this._onHideGame());
+    this._scene3D.events.on('onGameKeyPressed', () => this._monitorScreenScene.onKeyPressed());
   }
 
   _onShowGame() {
     this._isGameActive = true;
+    this._monitorScreenScene.startGame();
     this.events.post('onShowGame');
   }
 
   _onHideGame() {
     this._isGameActive = false;
+    this._monitorScreenScene.stopGame();
     this.events.post('onHideGame');
   }
 }

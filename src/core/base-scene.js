@@ -135,8 +135,8 @@ export default class BaseScene {
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
-    // renderer.shadowMap.enabled = true;
-    // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
 
   _initCamera() {
@@ -256,13 +256,12 @@ export default class BaseScene {
   }
 
   _initMonitorScreenScene() {
-    const monitorScreenScene = this._monitorScreenScene = new THREE.Scene();
-    monitorScreenScene.background = new THREE.Color(MONITOR_SCREEN_SCENE_CONFIG.backgroundColor);
+    this._monitorScreenScene = new THREE.Scene();
 
     const near = MONITOR_SCREEN_SCENE_CONFIG.camera.near;
     const far = MONITOR_SCREEN_SCENE_CONFIG.camera.far;
     this._monitorScreenCamera = new THREE.PerspectiveCamera(MONITOR_SCREEN_SCENE_CONFIG.camera.fov, MONITOR_SCREEN_SCENE_CONFIG.camera.aspect, near, far);
-    this._monitorScreenRenderTarget = new THREE.WebGLRenderTarget(1920, 1080);
+    this._monitorScreenRenderTarget = new THREE.WebGLRenderTarget(MONITOR_SCREEN_SCENE_CONFIG.renderTarget.width, MONITOR_SCREEN_SCENE_CONFIG.renderTarget.height);
 
     this._monitorScreenSceneData = {
       scene: this._monitorScreenScene,
@@ -298,7 +297,6 @@ export default class BaseScene {
         // this._renderer.render(this._scene, this._camera);
 
         this._effectComposer.render();
-
       }
 
       this._scene3DDebugMenu.postUpdate();

@@ -3,6 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, FOCUSED_MODE_CAMERA_CONFIG, ORBIT_CONTROLS_MODE_CONFIG, STATIC_MODE_CAMERA_CONFIG } from './data/camera-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera-data';
 import { MessageDispatcher } from 'black-engine';
+import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
 
 export default class CameraController extends THREE.Group {
   constructor(camera, orbitControls, focusObjects, roomDebug) {
@@ -39,17 +40,8 @@ export default class CameraController extends THREE.Group {
   }
 
   update(dt) {
-    if (this._cameraMode === CAMERA_MODE.Focused) {
-      this._lookAtLerpObject.position.lerp(this._lookAtObject.position, dt * 60 * FOCUSED_MODE_CAMERA_CONFIG.rotation.lerpTime);
-      this._camera.lookAt(this._lookAtLerpObject.position);
-
-      this._camera.position.lerp(this._focusModeZoomObject.position, dt * 60 * FOCUSED_MODE_CAMERA_CONFIG.zoom.lerpTime);
-    }
-
-    if (this._cameraMode === CAMERA_MODE.Static) {
-      this._staticModeObject.quaternion.slerp(this._staticObjectRotationObject.quaternion, dt * 60 * STATIC_MODE_CAMERA_CONFIG.rotation.lerpTime);
-      this._staticModeObject.position.lerp(this._staticModeZoomObject.position, dt * 60 * STATIC_MODE_CAMERA_CONFIG.zoom.lerpTime);
-    }
+    this._updateFocusedMode(dt);
+    this._updateStaticMode(dt);
   }
 
   onPointerMove(x, y) {
@@ -210,6 +202,26 @@ export default class CameraController extends THREE.Group {
 
   getStaticModeRoomObjectType() {
     return this._staticModeRoomObjectType;
+  }
+
+  _updateFocusedMode(dt) {
+    if (this._cameraMode === CAMERA_MODE.Focused) {
+      if (TRANSFER_IT_DEBUG_CONFIG.orbitControls && CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
+        return;
+      }
+
+      this._lookAtLerpObject.position.lerp(this._lookAtObject.position, dt * 60 * FOCUSED_MODE_CAMERA_CONFIG.rotation.lerpTime);
+      this._camera.lookAt(this._lookAtLerpObject.position);
+
+      this._camera.position.lerp(this._focusModeZoomObject.position, dt * 60 * FOCUSED_MODE_CAMERA_CONFIG.zoom.lerpTime);
+    }
+  }
+
+  _updateStaticMode(dt) {
+    if (this._cameraMode === CAMERA_MODE.Static) {
+      this._staticModeObject.quaternion.slerp(this._staticObjectRotationObject.quaternion, dt * 60 * STATIC_MODE_CAMERA_CONFIG.rotation.lerpTime);
+      this._staticModeObject.position.lerp(this._staticModeZoomObject.position, dt * 60 * STATIC_MODE_CAMERA_CONFIG.zoom.lerpTime);
+    }
   }
 
   _lerpCameraPosition(focusPosition, focusLookAt, easing, time) {

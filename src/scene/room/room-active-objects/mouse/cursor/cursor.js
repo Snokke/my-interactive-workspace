@@ -125,7 +125,7 @@ export default class Cursor extends THREE.Group {
 
   onMouseLeftKeyClicked() {
     this._clickCircle.show();
-    this.events.post('onLeftKeyClick', this._currentButtonType);
+    this.events.post('onLeftKeyClick', this._currentButtonType, this._monitorType);
   }
 
   _updateCursorPosition(delta) {

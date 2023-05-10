@@ -40,6 +40,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._isShowreelPlaying = false;
     this._isShowreelPaused = false;
     this._isGameActive = false;
+    this._isScreenActiveForGame = false;
 
     this._init();
   }
@@ -108,7 +109,11 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     if (onPointerDownClick === false && partType === MONITOR_PART_TYPE.MonitorScreen) {
-      this.events.post('onMonitorScreenClick');
+      if (this._isScreenActiveForGame) {
+        this.events.post('onMonitorScreenClickForGame');
+      } else {
+        this.events.post('onMonitorScreenClick');
+      }
     }
 
     if (onPointerDownClick === false && partType === MONITOR_PART_TYPE.MonitorCloseFocusIcon) {
@@ -150,7 +155,11 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreen) {
-      Black.engine.containerElement.style.cursor = 'zoom-in';
+      if (this._isScreenActiveForGame) {
+        Black.engine.containerElement.style.cursor = 'pointer';
+      } else {
+        Black.engine.containerElement.style.cursor = 'zoom-in';
+      }
     }
   }
 
@@ -191,6 +200,12 @@ export default class Monitor extends RoomObjectAbstract {
     }
   }
 
+  stopGame() {
+    if (this._isGameActive) {
+      this._hideGame();
+    }
+  }
+
   pauseShowreelVideo() {
     if (this._isShowreelPlaying) {
       if (this._isShowreelPaused) {
@@ -203,6 +218,10 @@ export default class Monitor extends RoomObjectAbstract {
 
   isShowreelPlaying() {
     return this._isShowreelPlaying;
+  }
+
+  isGameActive() {
+    return this._isGameActive;
   }
 
   getMeshesForOutline(mesh) {
@@ -235,6 +254,16 @@ export default class Monitor extends RoomObjectAbstract {
 
   setScreenInactive() {
     this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.isActive = false;
+  }
+
+  setScreenActiveForGame() {
+    this._isScreenActiveForGame = true;
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.hideOutline = true;
+  }
+
+  setScreenInactiveForGame() {
+    this._isScreenActiveForGame = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.hideOutline = false;
   }
 
   onVolumeChanged(volume) {
@@ -317,6 +346,10 @@ export default class Monitor extends RoomObjectAbstract {
       if (partType === MONITOR_PART_TYPE.MonitorScreenCVIcon) {
         this._onOpenCV();
       }
+
+      if (partType === MONITOR_PART_TYPE.MonitorScreenTransferItIcon) {
+        this._showGame();
+      }
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon) {
@@ -361,6 +394,7 @@ export default class Monitor extends RoomObjectAbstract {
   _onFullScreenEnabled() {
     const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
     const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const transferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
 
     closeIcon.visible = true;
@@ -369,11 +403,14 @@ export default class Monitor extends RoomObjectAbstract {
     showreelIcon.position.z -= MONITOR_CONFIG.hideOffset;
     CVIcon.visible = false;
     CVIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    transferItIcon.visible = false;
+    transferItIcon.position.z -= MONITOR_CONFIG.hideOffset;
   }
 
   _onFullScreenDisabled() {
     const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
     const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const transferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
 
     closeIcon.visible = false;
@@ -382,6 +419,8 @@ export default class Monitor extends RoomObjectAbstract {
     showreelIcon.position.z += MONITOR_CONFIG.hideOffset;
     CVIcon.visible = true;
     CVIcon.position.z += MONITOR_CONFIG.hideOffset;
+    transferItIcon.visible = true;
+    transferItIcon.position.z += MONITOR_CONFIG.hideOffset;
   }
 
   _pauseShowreel() {
@@ -494,15 +533,17 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorScreenShowreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
     const monitorScreenCVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
+    const monitorScreenTransferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
     const monitorCloseFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenCloseIcon, monitorScreenVolume, monitorCloseFocusIcon);
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenVolume, monitorCloseFocusIcon);
 
     screenGroup.position.copy(monitorScreen.position);
 
     const showreelIconOffset = monitorScreenShowreelIcon.position.clone().sub(monitorScreen.position.clone());
     const CVIconOffset = monitorScreenCVIcon.position.clone().sub(monitorScreen.position.clone());
+    const transferItIconOffset = monitorScreenTransferItIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
     const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
     const closeFocusIconOffset = monitorCloseFocusIcon.position.clone().sub(monitorScreen.position.clone());
@@ -510,6 +551,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
     monitorScreenCVIcon.position.copy(CVIconOffset);
+    monitorScreenTransferItIcon.position.copy(transferItIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
     monitorScreenCloseIcon.position.z -= MONITOR_CONFIG.hideOffset;
     monitorScreenVolume.position.copy(volumeOffset);
@@ -663,6 +705,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _hideGame() {
     this._isGameActive = false;
+    this._isScreenActiveForGame = false;
     this._onFullScreenDisabled();
 
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];

@@ -355,6 +355,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const keysAction = {
       0: () => this.events.post('onKeyboardEscClick'), // ESC
       79: () => this.events.post('onKeyboardSpaceClick'), // Space
+      62: () => this.events.post('onKeyboardEnterClick'), // Enter
       15: () => this._keysBacklight.switchType(), // Backlight
 
       10: () => this.events.post('onKeyboardMuteClick'), // F10 - Mute
