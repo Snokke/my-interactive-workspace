@@ -379,6 +379,7 @@ export default class RoomController {
     speakers.events.on('onMusicChanged', (msg, musicType, musicDuration) => laptop.onDebugMusicChanged(musicType, musicDuration));
     speakers.events.on('updateCurrentSongTime', (msg, songCurrentTime) => laptop.updateCurrentSongTime(songCurrentTime));
     speakers.events.on('onSongEnded', (msg, musicType) => this._onSongEnded(musicType));
+    speakers.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
   }
 
   _onSongEnded(songType) {
@@ -826,15 +827,11 @@ export default class RoomController {
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
 
     if (LAPTOP_SCREEN_MUSIC_PARTS.includes(buttonType)) {
-      laptop.onLeftKeyClick(buttonType)
+      laptop.onLeftKeyClick(buttonType);
     }
 
     if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
-      monitor.onLeftKeyClick(buttonType)
-    }
-
-    if (this._isGameActive && monitorType === MONITOR_TYPE.Monitor) {
-      this.events.post('onGameKeyPressed');
+      monitor.onLeftKeyClick(buttonType);
     }
   }
 

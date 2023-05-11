@@ -421,8 +421,10 @@ export default class FurnitureController extends THREE.Group {
   }
 
   _initSounds() {
-    const fallSound = this._fallSound = new THREE.Audio(this._audioListener);
+    const fallSound = this._fallSound = new THREE.PositionalAudio(this._audioListener);
     this.add(fallSound);
+
+    fallSound.setRefDistance(10);
 
     this._fallSoundAnalyser = new THREE.AudioAnalyser(fallSound, 128);
 

@@ -38,6 +38,10 @@ export default class MonitorScreenScene {
     this._transferItGame.onVolumeChanged();
   }
 
+  onSpeakersPowerChanged(powerStatus) {
+    this._transferItGame.onSpeakersPowerChanged(powerStatus);
+  }
+
   _init() {
     const transferItGame = this._transferItGame = new TransferItGame(this._scene, this._camera, this._audioListener);
     this._scene.add(transferItGame);

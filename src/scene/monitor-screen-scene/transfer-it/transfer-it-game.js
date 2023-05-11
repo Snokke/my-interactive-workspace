@@ -53,6 +53,10 @@ export default class TransferItGame extends THREE.Group {
     this._gameScreen.onVolumeChanged();
   }
 
+  onSpeakersPowerChanged(powerStatus) {
+    this._gameScreen.onSpeakersPowerChanged(powerStatus);
+  }
+
   _init() {
     this._configureCamera();
     this._initLights();

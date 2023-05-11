@@ -334,7 +334,7 @@ export default class Monitor extends RoomObjectAbstract {
   _onButtonsClick(partType) {
     this._isMountSelected = false;
 
-    if (!this._isShowreelPlaying) {
+    if (!this._isShowreelPlaying && !this._isGameActive) {
       if (partType === MONITOR_PART_TYPE.MonitorScreenShowreelIcon) {
         this._playShowreel();
       }

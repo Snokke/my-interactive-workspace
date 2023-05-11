@@ -137,8 +137,10 @@ export default class Floor extends THREE.Group {
   }
 
   _initSounds() {
-    const showSound = this._showSound = new THREE.Audio(this._audioListener);
+    const showSound = this._showSound = new THREE.PositionalAudio(this._audioListener);
     this.add(showSound);
+
+    showSound.setRefDistance(10);
 
     this._showSoundAnalyzer = new THREE.AudioAnalyser(showSound, 128);
 

@@ -8,6 +8,7 @@ import HeightMeter from "../helpers/height-meter";
 import Delayed from "../../../../core/helpers/delayed-call";
 import Loader from "../../../../core/loader";
 import { SOUNDS_CONFIG } from '../../../room/data/sounds-config';
+import { SPEAKERS_POWER_STATUS } from "../../../room/room-active-objects/speakers/data/speakers-data";
 
 export default class GameScreenController extends THREE.Group{
   constructor(data) {
@@ -39,6 +40,7 @@ export default class GameScreenController extends THREE.Group{
 
     this._soundsAnalyzer = [];
     this._isGlobalSoundsEnabled = SOUNDS_CONFIG.enabled;
+    this._isSpeakersPowerOn = SPEAKERS_POWER_STATUS.On;
     this._currentVolume = SOUNDS_CONFIG.volume * SOUNDS_CONFIG.transferItGameVolume;
 
     this._init();
@@ -110,6 +112,10 @@ export default class GameScreenController extends THREE.Group{
   }
 
   onInputDown() {
+    if (!this._isGameGlobalActive) {
+      return;
+    }
+
     this._ui.hideTutorial();
 
     if (this._isGameplayActive) {
@@ -142,7 +148,7 @@ export default class GameScreenController extends THREE.Group{
   }
 
   onVolumeChanged() {
-    if (this._isGlobalSoundsEnabled) {
+    if (this._isGlobalSoundsEnabled && this._isSpeakersPowerOn === SPEAKERS_POWER_STATUS.On) {
       this._currentVolume = SOUNDS_CONFIG.volume * SOUNDS_CONFIG.transferItGameVolume;
     } else {
       this._currentVolume = 0;
@@ -151,6 +157,11 @@ export default class GameScreenController extends THREE.Group{
     this._updateCurrentSoundsVolume();
     this._furnitureController.onVolumeChanged(this._currentVolume);
     this._room.onVolumeChanged(this._currentVolume);
+  }
+
+  onSpeakersPowerChanged(powerStatus) {
+    this._isSpeakersPowerOn = powerStatus;
+    this.onVolumeChanged();
   }
 
   _updateCurrentSoundsVolume() {
@@ -376,11 +387,14 @@ export default class GameScreenController extends THREE.Group{
   }
 
   _initSounds() {
-    const winSound = this._winSound = new THREE.Audio(this._audioListener);
+    const winSound = this._winSound = new THREE.PositionalAudio(this._audioListener);
     this.add(winSound);
 
-    const loseSound = this._loseSound = new THREE.Audio(this._audioListener);
+    const loseSound = this._loseSound = new THREE.PositionalAudio(this._audioListener);
     this.add(loseSound);
+
+    winSound.setRefDistance(10);
+    loseSound.setRefDistance(10);
 
     this._updateCurrentSoundsVolume();
 

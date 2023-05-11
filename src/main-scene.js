@@ -54,6 +54,7 @@ export default class MainScene {
     this._scene3D.events.on('onShowGame', () => this._onShowGame());
     this._scene3D.events.on('onHideGame', () => this._onHideGame());
     this._scene3D.events.on('onGameKeyPressed', () => this._monitorScreenScene.onKeyPressed());
+    this._scene3D.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this._monitorScreenScene.onSpeakersPowerChanged(powerStatus));
   }
 
   _onSoundsEnabledChanged() {

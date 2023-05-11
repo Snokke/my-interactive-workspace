@@ -196,6 +196,7 @@ export default class Speakers extends RoomObjectAbstract {
 
     const powerIndicator = this._parts[SPEAKERS_PART_TYPE.PowerIndicator];
     powerIndicator.material.color = new THREE.Color(SPEAKERS_CONFIG.turnOnColor);
+    this.events.post('onSpeakersPowerChanged', this._powerStatus);
   }
 
   _setPowerOff() {
@@ -208,6 +209,7 @@ export default class Speakers extends RoomObjectAbstract {
 
     const powerIndicator = this._parts[SPEAKERS_PART_TYPE.PowerIndicator];
     powerIndicator.material.color = new THREE.Color(SPEAKERS_CONFIG.turnOffColor);
+    this.events.post('onSpeakersPowerChanged', this._powerStatus);
   }
 
   _updateSongCurrentTime() {

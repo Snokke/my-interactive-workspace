@@ -56,6 +56,10 @@ export default class GameScreen extends THREE.Group {
     this._gameScreenController.onVolumeChanged();
   }
 
+  onSpeakersPowerChanged(powerStatus) {
+    this._gameScreenController.onSpeakersPowerChanged(powerStatus);
+  }
+
   _init() {
     const room = this._room = this._createRoom();
     const furnitureController = this._furnitureController = new FurnitureController(this._room, this._audioListener);
