@@ -520,6 +520,7 @@ export default class RoomController {
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = false;
     this._roomActiveObject[ROOM_OBJECT_TYPE.Table].disableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].enableRealKeyboard();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor);
   }
 
@@ -529,6 +530,7 @@ export default class RoomController {
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = false;
     this._roomActiveObject[ROOM_OBJECT_TYPE.Table].disableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].enableRealKeyboard();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard);
   }
 
@@ -538,6 +540,7 @@ export default class RoomController {
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = true;
     this._roomActiveObject[ROOM_OBJECT_TYPE.Table].enableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].disableRealKeyboard();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
   }
@@ -548,6 +551,7 @@ export default class RoomController {
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Table] = true;
     this._roomActiveObject[ROOM_OBJECT_TYPE.Table].enableDebugMenu();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].disableRealKeyboard();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
   }

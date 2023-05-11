@@ -28,6 +28,7 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keysUpTweens = [];
     this._keysHighlightTweens = [];
     this._keysStartPosition = [];
+    this._isRealKeyboardEnabled = false;
 
     this._init();
   }
@@ -202,6 +203,24 @@ export default class Keyboard extends RoomObjectAbstract {
       .onComplete(() => {
         closeFocusIcon.visible = false;
       });
+  }
+
+  enableRealKeyboard() {
+    if (this._isRealKeyboardEnabled) {
+      return;
+    }
+
+    this._isRealKeyboardEnabled = true;
+    this._onChangeRealKeyboardEnabled();
+  }
+
+  disableRealKeyboard() {
+    if (!this._isRealKeyboardEnabled) {
+      return;
+    }
+
+    this._isRealKeyboardEnabled = false;
+    this._onChangeRealKeyboardEnabled();
   }
 
   _onKeyClick(keyId) {
@@ -588,7 +607,6 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initCloseFocusIcon();
     this._initSounds();
     this._initDebugMenu();
-    this._initRealKeyboardSignals();
     this._initSignals();
 
     if (!ROOM_CONFIG.startAnimation.showOnStart) {
@@ -856,7 +874,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _onChangeRealKeyboardEnabled() {
-    if (KEYBOARD_CONFIG.realKeyboardEnabled) {
+    if (this._isRealKeyboardEnabled && KEYBOARD_CONFIG.realKeyboardEnabled) {
       this._initRealKeyboardSignals();
     } else {
       window.removeEventListener("keydown", this._onPressDownSignal);
