@@ -4,12 +4,15 @@ import Utils from '../../../helpers/utils';
 import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../../helpers/simple-physics';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import Loader from '../../../../../../core/loader';
 
 export default class Walls extends THREE.Group {
-  constructor(floorSize) {
+  constructor(floorSize, audioListener) {
     super();
 
     this.events = new MessageDispatcher();
+
+    this._audioListener = audioListener;
 
     this._floorSize = floorSize;
     this._rightWall = null;
@@ -37,12 +40,13 @@ export default class Walls extends THREE.Group {
   }
 
   show() {
+    this._playSound();
     this._rightWall.visible = true;
     this._rightWall.position.x = this._startOffset;
     const wallSize = Utils.getBoundingBox(this._rightWall);
 
     this._rightWallTween = new TWEEN.Tween(this._rightWall.position)
-      .to({ x: this._floorSize.x / 2 + wallSize.x / 2 - 0.05 }, 500)
+      .to({ x: this._floorSize.x / 2 + wallSize.x / 2 - 0.05 }, 300)
       .easing(TWEEN.Easing.Linear.None)
       .start()
       .onComplete(() => this._showLeftWall());
@@ -59,13 +63,22 @@ export default class Walls extends THREE.Group {
     return wallSize.y;
   }
 
+  getShowSoundAnalyser() {
+    return this._showSoundAnalyzer;
+  }
+
+  onVolumeChanged(volume) {
+    this._showSound.setVolume(volume);
+  }
+
   _showLeftWall() {
+    this._playSound();
     this._leftWall.visible = true;
     this._leftWall.position.z = -this._startOffset;
     const wallSize = Utils.getBoundingBox(this._leftWall);
 
     this._leftWallTween = new TWEEN.Tween(this._leftWall.position)
-      .to({ z: -this._floorSize.z / 2 - wallSize.z / 2 + 0.07 }, 500)
+      .to({ z: -this._floorSize.z / 2 - wallSize.z / 2 + 0.07 }, 300)
       .easing(TWEEN.Easing.Linear.None)
       .start()
       .onComplete(() => this.events.post('shown'));
@@ -74,6 +87,7 @@ export default class Walls extends THREE.Group {
   _init() {
     this._createWalls();
     this._createBody();
+    this._initSounds();
   }
 
   _createWalls() {
@@ -132,5 +146,24 @@ export default class Walls extends THREE.Group {
     SimplePhysics.addBody(body, null, `wall-${index}`);
 
     return body;
+  }
+
+  _playSound() {
+    if (this._showSound.isPlaying) {
+      this._showSound.stop();
+    }
+
+    this._showSound.play();
+  }
+
+  _initSounds() {
+    const showSound = this._showSound = new THREE.Audio(this._audioListener);
+    this.add(showSound);
+
+    this._showSoundAnalyzer = new THREE.AudioAnalyser(showSound, 128);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._showSound.setBuffer(Loader.assets['transfer-it/whoosh']);
+    });
   }
 }

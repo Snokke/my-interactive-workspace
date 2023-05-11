@@ -267,6 +267,7 @@ export default class BaseScene {
       scene: this._monitorScreenScene,
       camera: this._monitorScreenCamera,
       renderTarget: this._monitorScreenRenderTarget,
+      audioListener: this._audioListener,
     };
   }
 

@@ -13,6 +13,7 @@ export default class SoundParticles extends THREE.Group {
     this._particles = null;
     this._particlesMaterial = null;
     this._showTween = null;
+    this._gameSoundsAnalyser = null;
 
     this._time = 0;
     this._frequencyDataCount = Math.max(Math.floor(64 - SOUND_PARTICLES_CONFIG.circles.circlesCount * 0.7), 44);
@@ -22,6 +23,8 @@ export default class SoundParticles extends THREE.Group {
     this._particlesIncrement = SOUND_PARTICLES_CONFIG.circles.particlesIncrement;
     this._startRadius = SOUND_PARTICLES_CONFIG.circles.startRadius;
     this._radiusIncrement = SOUND_PARTICLES_CONFIG.circles.radiusIncrement;
+
+    this._isGameActive = false;
 
     this._init();
   }
@@ -66,6 +69,18 @@ export default class SoundParticles extends THREE.Group {
     this._particlesMaterial.uniforms.uSize.value = SOUND_PARTICLES_CONFIG.size;
   }
 
+  setGameSoundsAnalyzer(gameSoundsAnalyser) {
+    this._gameSoundsAnalyser = gameSoundsAnalyser;
+  }
+
+  setGameActive() {
+    this._isGameActive = true;
+  }
+
+  setGameInactive() {
+    this._isGameActive = false;
+  }
+
   recreate() {
     this._particlesMaterial.dispose();
     this._particles.geometry.dispose();
@@ -84,10 +99,18 @@ export default class SoundParticles extends THREE.Group {
   _updateParticlesPositionForMusic() {
     this._analyser.getFrequencyData();
     const data = [...this._analyser.data];
+    let resultData = data;
+
+    if (this._isGameActive) {
+      resultData = [];
+      const gameData = this._getGameAnalyserData();
+      resultData = data.map((item, i) => item + gameData[i]);
+    }
+
     const positions = this._particles.geometry.attributes.position;
     const dataCountForParticles = Math.round(this._frequencyDataCount / this._circlesCount);
 
-    const dataForPosition = data.map((item) => {
+    const dataForPosition = resultData.map((item) => {
       if (item > 127) {
         return item * 0.4;
       }
@@ -121,6 +144,25 @@ export default class SoundParticles extends THREE.Group {
     }
 
     positions.needsUpdate = true;
+  }
+
+  _getGameAnalyserData() {
+    const data = [];
+
+    this._gameSoundsAnalyser.forEach((soundAnalyzer, i) => {
+      soundAnalyzer.getFrequencyData();
+
+      if (i === 0) {
+        data.push(...soundAnalyzer.data);
+      } else {
+
+        for (let j = 0; j < soundAnalyzer.data.length; j++) {
+          data[j] += soundAnalyzer.data[j];
+        }
+      }
+    });
+
+    return data;
   }
 
   _init() {

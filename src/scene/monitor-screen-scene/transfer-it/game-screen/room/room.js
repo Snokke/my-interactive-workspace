@@ -6,10 +6,12 @@ import { ROOM_TYPE } from './room-config';
 import Decorations from './decorations/decorations';
 
 export default class Room extends THREE.Group {
-  constructor() {
+  constructor(audioListener) {
     super();
 
     this.events = new MessageDispatcher();
+
+    this._audioListener = audioListener;
 
     this._walls = null;
     this._floor = null;
@@ -22,7 +24,6 @@ export default class Room extends THREE.Group {
   reset() {
     this._walls.reset();
     this._floor.reset();
-    // this._decorations.reset();
   }
 
   setType(type) {
@@ -67,9 +68,22 @@ export default class Room extends THREE.Group {
     this._decorations.bouncePictures();
   }
 
+  getFloorShowSoundAnalyser() {
+    return this._floor.getShowSoundAnalyser();
+  }
+
+  getWallsShowSoundAnalyser() {
+    return this._walls.getShowSoundAnalyser();
+  }
+
+  onVolumeChanged(volume) {
+    this._floor.onVolumeChanged(volume);
+    this._walls.onVolumeChanged(volume);
+  }
+
   _init() {
-    const floor = this._floor = new Floor();
-    const walls = this._walls = new Walls(this._floor.size);
+    const floor = this._floor = new Floor(this._audioListener);
+    const walls = this._walls = new Walls(this._floor.size, this._audioListener);
     const decorations = this._decorations = new Decorations(this._floor.size);
 
     this.add(floor, walls, decorations);

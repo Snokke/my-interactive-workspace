@@ -101,6 +101,12 @@ const sounds = [
   'open-case.mp3',
   'close-case.mp3',
   'table-handle.mp3',
+
+  // Transfer it Game
+  'transfer-it/furniture-fall.mp3',
+  'transfer-it/whoosh.mp3',
+  'transfer-it/win.mp3',
+  'transfer-it/lose.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

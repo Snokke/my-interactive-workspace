@@ -9,11 +9,12 @@ import Loader from '../../../core/loader';
 import { OrbitControls } from '../../../core/OrbitControls';
 
 export default class TransferItGame extends THREE.Group {
-  constructor(scene, camera) {
+  constructor(scene, camera, audioListener) {
     super();
 
     this._scene = scene;
     this._camera = camera;
+    this._audioListener = audioListener;
 
     this._init();
   }
@@ -40,6 +41,18 @@ export default class TransferItGame extends THREE.Group {
     this._gameScreen.stopGame();
   }
 
+  getSoundsAnalyzer() {
+    return this._gameScreen.getSoundsAnalyzer();
+  }
+
+  onSoundsEnabledChanged() {
+    this._gameScreen.onSoundsEnabledChanged();
+  }
+
+  onVolumeChanged() {
+    this._gameScreen.onVolumeChanged();
+  }
+
   _init() {
     this._configureCamera();
     this._initLights();
@@ -52,7 +65,7 @@ export default class TransferItGame extends THREE.Group {
   }
 
   _initGameScreen() {
-    const gameScreen = this._gameScreen = new GameScreen(this._camera);
+    const gameScreen = this._gameScreen = new GameScreen(this._camera, this._audioListener);
     this.add(gameScreen);
   }
 

@@ -168,6 +168,21 @@ export default class Speakers extends RoomObjectAbstract {
     this._music.setVolume(0);
   }
 
+  setGameSoundsAnalyzer(analyzers) {
+    this._rightSoundParticles.setGameSoundsAnalyzer(analyzers);
+    this._leftSoundParticles.setGameSoundsAnalyzer(analyzers);
+  }
+
+  setGameActive() {
+    this._rightSoundParticles.setGameActive();
+    this._leftSoundParticles.setGameActive();
+  }
+
+  setGameInactive() {
+    this._rightSoundParticles.setGameInactive();
+    this._leftSoundParticles.setGameInactive();
+  }
+
   _setPowerOn() {
     this._powerStatus = SPEAKERS_POWER_STATUS.On;
     this._debugMenu.updatePowerStatus(this._powerStatus);
@@ -315,7 +330,7 @@ export default class Speakers extends RoomObjectAbstract {
 
   _initLoaderSignals() {
     Loader.events.on('onAudioLoaded', () => {
-      this._setCurrentMusic(this._currentMusicType)
+      this._setCurrentMusic(this._currentMusicType);
     });
   }
 

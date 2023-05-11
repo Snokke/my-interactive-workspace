@@ -7,14 +7,16 @@ import Stars from './effects/stars';
 import { ROOM_CONFIG, ROOM_TYPE } from '../room/room-config';
 import Clouds from './effects/clouds';
 import Delayed from '../../../../../core/helpers/delayed-call';
+import Loader from '../../../../../core/loader';
 
 export default class FurnitureController extends THREE.Group {
-  constructor(room) {
+  constructor(room, audioListener) {
     super();
 
     this.events = new MessageDispatcher();
 
     this._room = room;
+    this._audioListener = audioListener;
 
     this._furniture = [];
     this._initialFurniture = [];
@@ -161,6 +163,14 @@ export default class FurnitureController extends THREE.Group {
     this._updateFurniture();
     this._updateInitFurniture();
     this._clouds.update(dt);
+  }
+
+  getFallSoundAnalyser() {
+    return this._fallSoundAnalyser;
+  }
+
+  onVolumeChanged(volume) {
+    this._fallSound.setVolume(volume);
   }
 
   _checkFall(furniture) {
@@ -334,6 +344,8 @@ export default class FurnitureController extends THREE.Group {
     const stars = this._stars = new Stars();
 
     this.add(stars, clouds);
+
+    this._initSounds();
   }
 
   _onFurnitureCollision(collisionEvent) {
@@ -342,6 +354,12 @@ export default class FurnitureController extends THREE.Group {
     if (!furniture.isFirstCollision) {
       furniture.isFirstCollision = true;
       this._showClouds(furniture);
+
+      if (this._fallSound.isPlaying) {
+        this._fallSound.stop();
+      }
+
+      this._fallSound.play();
 
       if (furniture.modelConfig.size !== FURNITURE_SIZE.small) {
         this.events.post('furnitureFall');
@@ -400,5 +418,16 @@ export default class FurnitureController extends THREE.Group {
   _onSleep(furniture) {
     this.events.post('sleep', furniture);
     this._showNextFurniture();
+  }
+
+  _initSounds() {
+    const fallSound = this._fallSound = new THREE.Audio(this._audioListener);
+    this.add(fallSound);
+
+    this._fallSoundAnalyser = new THREE.AudioAnalyser(fallSound, 128);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._fallSound.setBuffer(Loader.assets['transfer-it/furniture-fall']);
+    });
   }
 }

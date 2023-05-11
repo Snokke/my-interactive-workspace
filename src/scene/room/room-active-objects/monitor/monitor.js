@@ -220,10 +220,6 @@ export default class Monitor extends RoomObjectAbstract {
     return this._isShowreelPlaying;
   }
 
-  isGameActive() {
-    return this._isGameActive;
-  }
-
   getMeshesForOutline(mesh) {
     const partType = mesh.userData.partType;
 

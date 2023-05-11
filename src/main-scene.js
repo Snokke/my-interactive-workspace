@@ -37,6 +37,7 @@ export default class MainScene {
     this._ui = new UI();
     this._monitorScreenScene = new MonitorScreenScene(this._data.monitorScreenData);
 
+    this._getMonitorScreenSceneSoundsAnalyzer();
     this._initSignals();
   }
 
@@ -48,10 +49,20 @@ export default class MainScene {
     this._ui.on('onWheelScroll', (msg, delta) => this._scene3D.onWheelScroll(delta));
     this._ui.on('onSoundChanged', () => this._scene3D.onSoundChanged());
     this._scene3D.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
-    this._scene3D.events.on('updateSoundIcon', () => this._ui.updateSoundIcon());
+    this._scene3D.events.on('onSoundsEnabledChanged', () => this._onSoundsEnabledChanged());
+    this._scene3D.events.on('onVolumeChanged', () => this._onVolumeChanged());
     this._scene3D.events.on('onShowGame', () => this._onShowGame());
     this._scene3D.events.on('onHideGame', () => this._onHideGame());
     this._scene3D.events.on('onGameKeyPressed', () => this._monitorScreenScene.onKeyPressed());
+  }
+
+  _onSoundsEnabledChanged() {
+    this._ui.updateSoundIcon();
+    this._monitorScreenScene.onSoundsEnabledChanged();
+  }
+
+  _onVolumeChanged() {
+    this._monitorScreenScene.onVolumeChanged();
   }
 
   _onShowGame() {
@@ -64,5 +75,10 @@ export default class MainScene {
     this._isGameActive = false;
     this._monitorScreenScene.stopGame();
     this.events.post('onHideGame');
+  }
+
+  _getMonitorScreenSceneSoundsAnalyzer() {
+    const gameSoundsAnalyzer = this._monitorScreenScene.getSoundsAnalyzer();
+    this._scene3D.setGameSoundsAnalyzer(gameSoundsAnalyzer);
   }
 }

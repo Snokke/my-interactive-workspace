@@ -6,6 +6,7 @@ const SOUNDS_CONFIG = {
   debugHelpers: false,
   closedWindowOuterGain: 0.1,
   openedWindowOuterGain: 0.6,
+  transferItGameVolume: 1,
   objects: {
     [ROOM_OBJECT_TYPE.Speakers]: {
       volume: 1,

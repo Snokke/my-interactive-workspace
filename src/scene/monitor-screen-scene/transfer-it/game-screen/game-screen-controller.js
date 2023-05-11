@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { MessageDispatcher } from "black-engine";
 import { LEVELS_CONFIG, APPEAR_DIRECTION } from './configs/levels-config';
 import { TARGET_TYPE } from './target/target-config';
@@ -5,9 +6,12 @@ import { RATING_TYPE, RATING_DISTANCE, BIG_FURNITURE_COEFF } from './configs/rat
 import { ROOM_TYPE, ROOM_CONFIG } from './room/room-config';
 import HeightMeter from "../helpers/height-meter";
 import Delayed from "../../../../core/helpers/delayed-call";
+import Loader from "../../../../core/loader";
+import { SOUNDS_CONFIG } from '../../../room/data/sounds-config';
 
-export default class GameScreenController {
+export default class GameScreenController extends THREE.Group{
   constructor(data) {
+    super();
 
     this.events = new MessageDispatcher();
 
@@ -18,6 +22,7 @@ export default class GameScreenController {
     this._drone = data.drone;
     this._robotCleaner = data.robotCleaner;
     this._ui = data.ui;
+    this._audioListener = data.audioListener;
 
     this._isGameplayActive = true;
     this._isEndScreenShown = false;
@@ -31,6 +36,10 @@ export default class GameScreenController {
     this._gridSize = ROOM_CONFIG[ROOM_TYPE.SMALL];
 
     this._isGameGlobalActive = false;
+
+    this._soundsAnalyzer = [];
+    this._isGlobalSoundsEnabled = SOUNDS_CONFIG.enabled;
+    this._currentVolume = SOUNDS_CONFIG.volume * SOUNDS_CONFIG.transferItGameVolume;
 
     this._init();
   }
@@ -60,6 +69,7 @@ export default class GameScreenController {
   }
 
   defeat() {
+    this._playSound(this._loseSound);
     this._isWin = false;
     this.onEndScreenShown();
     this._ui.hideLevel();
@@ -67,6 +77,7 @@ export default class GameScreenController {
   }
 
   victory() {
+    this._playSound(this._winSound);
     this._isWin = true;
     this.onEndScreenShown();
     this._ui.hideLevel();
@@ -119,6 +130,32 @@ export default class GameScreenController {
         }
       }
     }
+  }
+
+  getSoundsAnalyzer() {
+    return this._soundsAnalyzer;
+  }
+
+  onSoundsEnabledChanged() {
+    this._isGlobalSoundsEnabled = SOUNDS_CONFIG.enabled;
+    this.onVolumeChanged();
+  }
+
+  onVolumeChanged() {
+    if (this._isGlobalSoundsEnabled) {
+      this._currentVolume = SOUNDS_CONFIG.volume * SOUNDS_CONFIG.transferItGameVolume;
+    } else {
+      this._currentVolume = 0;
+    }
+
+    this._updateCurrentSoundsVolume();
+    this._furnitureController.onVolumeChanged(this._currentVolume);
+    this._room.onVolumeChanged(this._currentVolume);
+  }
+
+  _updateCurrentSoundsVolume() {
+    this._winSound.setVolume(this._currentVolume);
+    this._loseSound.setVolume(this._currentVolume);
   }
 
   _resetLevel() {
@@ -312,6 +349,8 @@ export default class GameScreenController {
   _init() {
     this._initHeightMeter();
     this._initSignals();
+    this._initSounds();
+    this.onSoundsEnabledChanged();
   }
 
   _initHeightMeter() {
@@ -334,6 +373,43 @@ export default class GameScreenController {
     this._robotCleaner.events.on('collide', () => this.defeat());
 
     this._ui.events.on('onLoadingScreenHidden', () => this.startGame());
+  }
+
+  _initSounds() {
+    const winSound = this._winSound = new THREE.Audio(this._audioListener);
+    this.add(winSound);
+
+    const loseSound = this._loseSound = new THREE.Audio(this._audioListener);
+    this.add(loseSound);
+
+    this._updateCurrentSoundsVolume();
+
+    const winSoundAnalyser = new THREE.AudioAnalyser(winSound, 128);
+    const loseSoundAnalyser = new THREE.AudioAnalyser(loseSound, 128);
+    this._soundsAnalyzer.push(winSoundAnalyser);
+    this._soundsAnalyzer.push(loseSoundAnalyser);
+
+    const fallSoundAnalyser = this._furnitureController.getFallSoundAnalyser();
+    this._soundsAnalyzer.push(fallSoundAnalyser);
+
+    const floorShowSoundAnalyser = this._room.getFloorShowSoundAnalyser();
+    this._soundsAnalyzer.push(floorShowSoundAnalyser);
+
+    const wallsShowSoundAnalyser = this._room.getWallsShowSoundAnalyser();
+    this._soundsAnalyzer.push(wallsShowSoundAnalyser);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._winSound.setBuffer(Loader.assets['transfer-it/win']);
+      this._loseSound.setBuffer(Loader.assets['transfer-it/lose']);
+    });
+  }
+
+  _playSound(sound) {
+    if (sound.isPlaying) {
+      sound.stop();
+    }
+
+    sound.play();
   }
 
   _onShowNextFurniture() {

@@ -44,6 +44,8 @@ export default class RoomController {
     this._glowMeshesNames = [];
     this._previousGlowMeshesNames = [];
 
+    this._isGameActive = false;
+
     this._init();
   }
 
@@ -195,6 +197,10 @@ export default class RoomController {
   onUISoundIconChanged() {
     this.onSoundsEnabledChanged();
     this._roomDebug.updateSoundsEnabledController();
+  }
+
+  setGameSoundsAnalyzer(analyzer) {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].setGameSoundsAnalyzer(analyzer);
   }
 
   _showRoomObject(objectType, startDelay = 0) {
@@ -494,7 +500,7 @@ export default class RoomController {
         if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused) {
           if (CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor && monitor.isShowreelPlaying()) {
             monitor.stopShowreelVideo();
-          } else if (CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor && monitor.isGameActive()) {
+          } else if (CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor && this._isGameActive) {
             monitor.stopGame();
           } else {
             this._onExitFocusMode();
@@ -562,20 +568,26 @@ export default class RoomController {
   }
 
   _onShowGame() {
+    this._isGameActive = true;
+
     if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused && CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
       this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActive();
       this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenActiveForGame();
     }
 
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].setGameActive();
     this._cursor.onFullScreenVideoStart();
     this.events.post('onShowGame')
   }
 
   _onHideGame() {
+    this._isGameActive = false;
+
     if (CAMERA_CONFIG.mode === CAMERA_MODE.Focused && CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
       this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
     }
 
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].setGameInactive();
     this._cursor.onFullScreenVideoStop();
     this.events.post('onHideGame')
   }
@@ -689,7 +701,7 @@ export default class RoomController {
 
     laptop.setScreenInactive();
 
-    if (monitor.isGameActive()) {
+    if (this._isGameActive) {
       monitor.setScreenActiveForGame();
     } else {
       monitor.setScreenInactive();
@@ -709,7 +721,7 @@ export default class RoomController {
       monitor.stopShowreelVideo();
     }
 
-    if (monitor.isGameActive()) {
+    if (this._isGameActive) {
       monitor.stopGame();
     }
   }
@@ -721,13 +733,13 @@ export default class RoomController {
       monitor.pauseShowreelVideo();
     }
 
-    if (monitor.isGameActive()) {
+    if (this._isGameActive) {
       this.events.post('onGameKeyPressed');
     }
   }
 
   _onKeyboardEnterClick() {
-    if (this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].isGameActive()) {
+    if (this._isGameActive) {
       this.events.post('onGameKeyPressed');
     }
   }
@@ -736,7 +748,6 @@ export default class RoomController {
     SOUNDS_CONFIG.enabled = !SOUNDS_CONFIG.enabled;
     this._roomDebug.updateSoundsEnabledController();
     this.onSoundsEnabledChanged();
-    this.events.post('updateSoundIcon');
   }
 
   _onKeyboardVolumeUpClick() {
@@ -801,11 +812,13 @@ export default class RoomController {
     for (const key in this._roomActiveObject) {
       this._roomActiveObject[key].onVolumeChanged(SOUNDS_CONFIG.volume);
     }
+
+    this.events.post('onVolumeChanged');
   }
 
   onDebugSoundsEnabledChanged() {
     this.onSoundsEnabledChanged();
-    this.events.post('updateSoundIcon');
+    this.events.post('onSoundsEnabledChanged');
   }
 
   _onMouseOnButtonClick(buttonType, monitorType) {
@@ -820,7 +833,7 @@ export default class RoomController {
       monitor.onLeftKeyClick(buttonType)
     }
 
-    if (monitor.isGameActive() && monitorType === MONITOR_TYPE.Monitor) {
+    if (this._isGameActive && monitorType === MONITOR_TYPE.Monitor) {
       this.events.post('onGameKeyPressed');
     }
   }

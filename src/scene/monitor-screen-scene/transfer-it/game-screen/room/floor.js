@@ -8,10 +8,12 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Loader from '../../../../../core/loader';
 
 export default class Floor extends THREE.Group {
-  constructor() {
+  constructor(audioListener) {
     super();
 
     this.events = new MessageDispatcher();
+
+    this._audioListener = audioListener;
 
     this._floor = null;
     this._bottomFloor = null;
@@ -35,9 +37,10 @@ export default class Floor extends THREE.Group {
     this._floor.visible = true;
     this._bottomFloor.visible = true;
     this.body.position.y = -40;
+    this._playSound();
 
     this._showTween = new TWEEN.Tween(this.body.position)
-      .to({ y: -(this.size.y / 2) }, 500)
+      .to({ y: -(this.size.y / 2) }, 300)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start()
       .onComplete(() => this.events.post('shown'));
@@ -58,6 +61,14 @@ export default class Floor extends THREE.Group {
     return { x, z };
   }
 
+  getShowSoundAnalyser() {
+    return this._showSoundAnalyzer;
+  }
+
+  onVolumeChanged(volume) {
+    this._showSound.setVolume(volume);
+  }
+
   _calculateCellSize() {
     this._cellSize = {
       depth: this.size.x / ROOM_CONFIG[this._roomType].depth,
@@ -70,6 +81,7 @@ export default class Floor extends THREE.Group {
     this._createBottomFloor();
     this._createBody();
     this._calculateCellSize();
+    this._initSounds();
   }
 
   _createFloor() {
@@ -114,5 +126,24 @@ export default class Floor extends THREE.Group {
     this._bottomFloor.position.y = -(this.size.y / 2) - (bottomFloorSize.y / 2);
     this._bottomFloor.position.x = (bottomFloorSize.x - this.size.x) / 2;
     this._bottomFloor.position.z = -(bottomFloorSize.z - this.size.z) / 2;
+  }
+
+  _playSound() {
+    if (this._showSound.isPlaying) {
+      this._showSound.stop();
+    }
+
+    this._showSound.play();
+  }
+
+  _initSounds() {
+    const showSound = this._showSound = new THREE.Audio(this._audioListener);
+    this.add(showSound);
+
+    this._showSoundAnalyzer = new THREE.AudioAnalyser(showSound, 128);
+
+    Loader.events.on('onAudioLoaded', () => {
+      this._showSound.setBuffer(Loader.assets['transfer-it/whoosh']);
+    });
   }
 }

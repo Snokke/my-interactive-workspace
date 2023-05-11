@@ -47,6 +47,10 @@ export default class Scene3D extends THREE.Group {
     this._room.onSoundChanged();
   }
 
+  setGameSoundsAnalyzer(soundAnalyser) {
+    this._room.setGameSoundsAnalyzer(soundAnalyser);
+  }
+
   _init() {
     this._initRaycaster();
     this._initRoom();
@@ -64,7 +68,8 @@ export default class Scene3D extends THREE.Group {
 
   _initSignals() {
     this._room.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
-    this._room.events.on('updateSoundIcon', () => this.events.post('updateSoundIcon'));
+    this._room.events.on('onSoundsEnabledChanged', () => this.events.post('onSoundsEnabledChanged'));
+    this._room.events.on('onVolumeChanged', () => this.events.post('onVolumeChanged'));
     this._room.events.on('onShowGame', () => this.events.post('onShowGame'));
     this._room.events.on('onHideGame', () => this.events.post('onHideGame'));
     this._room.events.on('onGameKeyPressed', () => this.events.post('onGameKeyPressed'));
