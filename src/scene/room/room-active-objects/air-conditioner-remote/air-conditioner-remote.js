@@ -8,6 +8,7 @@ import { Black } from 'black-engine';
 import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-config';
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
+import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -28,31 +29,22 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   showWithAnimation(delay) {
     super.showWithAnimation();
 
-    this._debugMenu.disable();
     this._setPositionForShowAnimation();
 
     Delayed.call(delay, () => {
       this.visible = true;
 
-      // const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
+      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      // const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
-      // const lamp = this._parts[FLOOR_LAMP_PART_TYPE.Lamp];
+      const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
 
-      // new TWEEN.Tween(stand.position)
-      //   .to({ y: stand.userData.startPosition.y }, fallDownTime)
-      //   .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-      //   .start();
-
-      // new TWEEN.Tween(lamp.position)
-      //   .to({ y: lamp.userData.startPosition.y }, fallDownTime)
-      //   .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-      //   .delay(fallDownTime * 0.5 * 2)
-      //   .start()
-      //   .onComplete(() => {
-      //     this._debugMenu.enable();
-      //     this._onShowAnimationComplete();
-      //   });
+      new TWEEN.Tween(this._wrapper.position)
+        .to({ y: base.userData.startPosition.y }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+        .start()
+        .onComplete(() => {
+          this._onShowAnimationComplete();
+        });
     });
   }
 
@@ -259,6 +251,11 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     if (this._buttonClickTween[buttonType]) {
       this._buttonClickTween[buttonType].stop();
     }
+  }
+
+  _setPositionForShowAnimation() {
+    const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
+    this._wrapper.position.y = base.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
   }
 
   _init() {

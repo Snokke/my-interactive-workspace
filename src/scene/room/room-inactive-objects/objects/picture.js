@@ -16,9 +16,15 @@ export default class Picture extends RoomInactiveObjectAbstract {
     const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
     this._mesh.scale.set(0, 0, 0);
+    this._plane.scale.set(0, 0, 0);
 
     Delayed.call(delay, () => {
       new TWEEN.Tween(this._mesh.scale)
+        .to({ x: 1, y: 1, z: 1 }, fallDownTime)
+        .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
+        .start();
+
+      new TWEEN.Tween(this._plane.scale)
         .to({ x: 1, y: 1, z: 1 }, fallDownTime)
         .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
         .start();
@@ -30,7 +36,7 @@ export default class Picture extends RoomInactiveObjectAbstract {
 
     const geometry = new THREE.PlaneGeometry(1.48, 1.96);
     const material = new THREE.MeshBasicMaterial({ map: texture });
-    const plane = new THREE.Mesh(geometry, material);
+    const plane = this._plane = new THREE.Mesh(geometry, material);
     this.add(plane);
 
     plane.rotation.y = Math.PI * 0.5;

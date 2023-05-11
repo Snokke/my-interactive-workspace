@@ -170,7 +170,7 @@ export default class RoomController {
 
     // table objects
     this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + tableShowDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.MousePad, startDelay + tableObjectsShowDelay);
+    this._showRoomObject(ROOM_OBJECT_TYPE.MousePad, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1);
     this._showRoomObject(ROOM_OBJECT_TYPE.Speakers, startDelay + tableObjectsShowDelay + delayBetweenObjects * 0.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Organizer, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Laptop, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2);
@@ -180,8 +180,9 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3.5);
     this._showRoomObject(ROOM_OBJECT_TYPE.Coaster, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
     this._showRoomObject(ROOM_OBJECT_TYPE.Cup, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4.5);
+    this._showRoomObject(ROOM_OBJECT_TYPE.AirConditionerRemote, startDelay + tableObjectsShowDelay + delayBetweenObjects * 5);
 
-    this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 10);
+    this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 6);
   }
 
   onSoundsEnabledChanged() {
