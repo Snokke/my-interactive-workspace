@@ -300,6 +300,7 @@ export default class Walls extends RoomObjectAbstract {
 
   _init() {
     this._initParts();
+    this._initShadows();
     this._addMaterials();
     this._addPartsToScene();
     this._initGlass();
@@ -308,6 +309,14 @@ export default class Walls extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _initShadows() {
+    for (const key in this._parts) {
+      const part = this._parts[key];
+      part.castShadow = true;
+      part.receiveShadow = true;
+    }
   }
 
   _initGlass() {

@@ -154,13 +154,13 @@ export default class BaseScene {
     directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
     this._scene.add(directionalLight);
 
-    // directionalLight.castShadow = true;
-    // directionalLight.shadow.camera.left = -10;
-    // directionalLight.shadow.camera.right = 10;
-    // directionalLight.shadow.camera.top = 9;
-    // directionalLight.shadow.camera.bottom = -9;
-    // directionalLight.shadow.camera.far = 18;
-    // directionalLight.shadow.mapSize.set(1024, 1024);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.camera.left = -9;
+    directionalLight.shadow.camera.right = 9;
+    directionalLight.shadow.camera.top = 12;
+    directionalLight.shadow.camera.bottom = -9;
+    directionalLight.shadow.camera.far = 18;
+    directionalLight.shadow.mapSize.set(2048, 2048);
 
     // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1);
     // this._scene.add(directionalLightHelper);

@@ -648,6 +648,7 @@ export default class Chair extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
+    this._initShadows();
     this._addPartsToScene();
     this._setWheelsRandomData();
     this._initChairMovingAreaHelper();
@@ -656,6 +657,14 @@ export default class Chair extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _initShadows() {
+    for (const key in this._parts) {
+      const part = this._parts[key];
+      part.castShadow = true;
+      part.receiveShadow = true;
+    }
   }
 
   _addPartsToScene() {
