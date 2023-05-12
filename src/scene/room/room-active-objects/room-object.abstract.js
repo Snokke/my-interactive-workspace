@@ -27,7 +27,7 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._sound = null;
     this._soundHelper = null;
     this._objectVolume = SOUNDS_CONFIG.objects[roomObjectType] ? SOUNDS_CONFIG.objects[roomObjectType].volume : 1;
-    this._globalVolume = 1;
+    this._globalVolume = SOUNDS_CONFIG.volume;
     this._isSoundsEnabled = true;
 
     this._hasDebugMenu = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu ? true : false;

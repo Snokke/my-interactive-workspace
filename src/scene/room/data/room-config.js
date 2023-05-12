@@ -14,7 +14,7 @@ import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TY
 import { AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_REMOTE_PART_TYPE } from '../room-active-objects/air-conditioner-remote/data/air-conditioner-remote-data';
 
 const ROOM_CONFIG = {
-  outlineEnabled: false,
+  outlineEnabled: true,
   autoOpenActiveDebugFolder: true,
   clickActiveObjectError: 2,
   startAnimation: {

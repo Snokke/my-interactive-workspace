@@ -59,12 +59,12 @@ export default class GUIHelper {
   }
 
   showAfterAssetsLoad() {
-    const currentUrl = window.location.href;
-    const isDebug = currentUrl.indexOf('#debug') !== -1;
+    // const currentUrl = window.location.href;
+    // const isDebug = currentUrl.indexOf('#debug') !== -1;
 
-    if (isDebug) {
+    // if (isDebug) {
       this.gui.hidden = false;
-    }
+    // }
   }
 
   static getGui() {

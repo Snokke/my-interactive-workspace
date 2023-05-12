@@ -203,6 +203,11 @@ export default class Laptop extends RoomObjectAbstract {
     this._switchMusic(partType);
   }
 
+  playSong(musicType) {
+    const partType = this._getPartTypeByMusicType(musicType);
+    this._switchMusic(partType);
+  }
+
   playNextSong() {
     this._currentMusicIndex += 1;
 
@@ -486,6 +491,7 @@ export default class Laptop extends RoomObjectAbstract {
   _initScreenTexture() {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     const texture = Loader.assets['laptop-screen'];
+    // texture.encoding = THREE.sRGBEncoding;
 
     screen.material = new THREE.MeshBasicMaterial({
       map: texture,
@@ -595,11 +601,11 @@ export default class Laptop extends RoomObjectAbstract {
 
     MUSIC_ORDER.forEach((musicType, index) => {
       if (musicType === LAPTOP_CONFIG.currentMusicType) {
-        const previosIndex = index - 1;
-        const previosMusicType = MUSIC_ORDER[previosIndex];
+        const previousIndex = index - 1;
+        const previousMusicType = MUSIC_ORDER[previousIndex];
 
-        if (previosMusicType) {
-          resultMusicType = previosMusicType;
+        if (previousMusicType) {
+          resultMusicType = previousMusicType;
         } else {
           resultMusicType = MUSIC_ORDER[MUSIC_ORDER.length - 1];
         }

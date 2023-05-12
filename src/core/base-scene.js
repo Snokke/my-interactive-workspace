@@ -14,6 +14,9 @@ import Loader from './loader';
 import Scene3DDebugMenu from './helpers/gui-helper/scene-3d-debug-menu';
 import { CAMERA_CONFIG } from '../scene/room/camera-controller/data/camera-config';
 import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
+import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
+import DEBUG_CONFIG from './configs/debug-config';
+import { ROOM_CONFIG } from '../scene/room/data/room-config';
 
 export default class BaseScene {
   constructor() {
@@ -80,9 +83,18 @@ export default class BaseScene {
   }
 
   _init() {
+    this._checkDeploymentConfig();
     this._initBlack();
     this._initThreeJS();
     this._initUpdate();
+  }
+
+  _checkDeploymentConfig() {
+    if (DEPLOYMENT_CONFIG.production) {
+      DEBUG_CONFIG.fpsMeter = false;
+      ROOM_CONFIG.outlineEnabled = true;
+      ROOM_CONFIG.startAnimation.showOnStart = true;
+    }
   }
 
   _initBlack() {
@@ -130,7 +142,11 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // renderer.outputEncoding = THREE.sRGBEncoding;
+    // THREE.ColorManagement.enabled = true;
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    // renderer.gammaFactor = 2.2;
+
+    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.useLegacyLights = false;
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
@@ -246,8 +262,8 @@ export default class BaseScene {
   }
 
   _initAntiAliasingPass() {
-    const smaaPass = new SMAAPass();
-    this._effectComposer.addPass(smaaPass);
+    // const smaaPass = new SMAAPass();
+    // this._effectComposer.addPass(smaaPass);
   }
 
   _initGammaCorrectionPass() {

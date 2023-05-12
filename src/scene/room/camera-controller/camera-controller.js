@@ -29,6 +29,7 @@ export default class CameraController extends THREE.Group {
     this._lastCameraLookAt = new THREE.Vector3();
     this._currentZoomDistanceStaticMode = STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance;
     this._currentZoomDistanceFocusedMode = 0;
+    this._currentPointerPosition = new THREE.Vector2();
 
     this._previousCameraMode = CAMERA_MODE.OrbitControls;
     this._cameraMode = CAMERA_MODE.OrbitControls;
@@ -45,6 +46,8 @@ export default class CameraController extends THREE.Group {
   }
 
   onPointerMove(x, y) {
+    this._currentPointerPosition.set(x, y);
+
     const percentX = x / window.innerWidth * 2 - 1;
     const percentY = y / window.innerHeight * 2 - 1;
 
@@ -162,6 +165,8 @@ export default class CameraController extends THREE.Group {
 
         this._cameraMode = CAMERA_MODE.Focused;
         this.events.post('onObjectFocused', focusObjectType);
+
+        this.onPointerMove(this._currentPointerPosition.x, this._currentPointerPosition.y);
       }
 
       CAMERA_CONFIG.mode = this._cameraMode;
@@ -194,6 +199,14 @@ export default class CameraController extends THREE.Group {
     this._staticModeRoomObjectType = null;
 
     this.enableOrbitControls();
+  }
+
+  setNoControlsState() {
+    this._cameraMode = CAMERA_MODE.NoControls;
+    CAMERA_CONFIG.mode = this._cameraMode;
+    this._roomDebug.updateCameraStateController();
+
+    this.disableOrbitControls();
   }
 
   getPreviousCameraMode() {
@@ -331,6 +344,8 @@ export default class CameraController extends THREE.Group {
     this._cameraMode = CAMERA_MODE.Static;
     CAMERA_CONFIG.mode = this._cameraMode;
     this._roomDebug.updateCameraStateController();
+
+    this.onPointerMove(this._currentPointerPosition.x, this._currentPointerPosition.y);
   }
 
   _setCameraStartPosition() {

@@ -1,16 +1,17 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
-import { MONITOR_TYPE, ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
 import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
 import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
-import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
+import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_ORDER, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
+import Delayed from '../../core/helpers/delayed-call';
 
 export default class RoomController {
   constructor(data) {
@@ -145,7 +146,11 @@ export default class RoomController {
     this._cameraController.onWheelScroll(delta);
   }
 
-  showWithAnimation(startDelay = 0) {
+  showWithAnimation(startDelay = 0, firstShow = false) {
+    if (firstShow) {
+      this._cameraController.setNoControlsState();
+    }
+
     this._roomDebug.disableShowAnimationControllers();
     const delayBetweenObjects = ROOM_CONFIG.startAnimation.delayBetweenObjects;
 
@@ -183,6 +188,13 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.AirConditionerRemote, startDelay + tableObjectsShowDelay + delayBetweenObjects * 5);
 
     this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 6);
+
+    if (firstShow) {
+      Delayed.call(startDelay + tableObjectsShowDelay + delayBetweenObjects * 8, () => {
+        this._cameraController.setOrbitState();
+        // this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].playSong(MUSIC_ORDER[0]);
+      });
+    }
   }
 
   onSoundsEnabledChanged() {
@@ -321,7 +333,7 @@ export default class RoomController {
     this._initSignals();
 
     if (ROOM_CONFIG.startAnimation.showOnStart) {
-      this.showWithAnimation(600);
+      this.showWithAnimation(600, true);
     }
 
     if (SOUNDS_CONFIG.debugHelpers) {
@@ -333,7 +345,7 @@ export default class RoomController {
 
   _onDebugStartShowAnimation(selectedObjectType) {
     if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
-      this.showWithAnimation();
+      this.showWithAnimation(0, false);
     } else {
       const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
       const roomObjects = this._roomObjectsByActivityType[activityType];

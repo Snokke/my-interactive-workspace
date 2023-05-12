@@ -72,7 +72,7 @@ export default class Scene3DDebugMenu {
   }
 
   _init() {
-    this._checkBuildMode();
+    // this._checkBuildMode();
 
     this._initRendererStats();
     this._initFPSMeter();
