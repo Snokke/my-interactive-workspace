@@ -51,6 +51,7 @@ const ROOM_OBJECT_TYPE = {
   Coaster: 'COASTER',
   Cup: 'CUP',
   Organizer: 'ORGANIZER',
+  Flower: 'FLOWER',
 }
 
 const ROOM_OBJECT_ACTIVITY_TYPE = {
@@ -233,6 +234,13 @@ const ROOM_OBJECT_CONFIG = {
     label: 'Organizer',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Organizer',
+    tableGroup: true,
+  },
+  [ROOM_OBJECT_TYPE.Flower]: {
+    createObject: true,
+    label: 'Flower',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Flower',
     tableGroup: true,
   },
 }

@@ -30,6 +30,7 @@ import Scales from "../room-inactive-objects/objects/scales";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
+import Flower from "../room-inactive-objects/objects/flower";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -107,6 +108,9 @@ const ROOM_OBJECT_CLASS = {
   },
   [ROOM_OBJECT_TYPE.Organizer]: {
     object: Organizer,
+  },
+  [ROOM_OBJECT_TYPE.Flower]: {
+    object: Flower,
   },
 }
 
