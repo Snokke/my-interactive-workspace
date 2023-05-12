@@ -1,6 +1,6 @@
 const SCENE_CONFIG = {
   antialias: false,
-  backgroundColor: 0xCCCCCC,
+  backgroundColor: 0x000000,
   lights: {
     ambient: {
       color: 0xFFEFE4,

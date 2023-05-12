@@ -58,6 +58,7 @@ export default class BaseScene {
     this._loadingOverlay.hide();
     this._scene3DDebugMenu.showAfterAssetsLoad();
     this._mainScene.afterAssetsLoad();
+    this._setupBackgroundColor();
   }
 
   getOutlinePass() {
@@ -102,7 +103,6 @@ export default class BaseScene {
     this._initLights();
     this._initLoadingOverlay();
     this._initOnResize();
-    this._setupBackgroundColor();
     this._initPostProcessing();
     this._initAudioListener();
     this._initMonitorScreenScene();
@@ -191,7 +191,17 @@ export default class BaseScene {
   }
 
   _setupBackgroundColor() {
-    this._scene.background = new THREE.Color(SCENE_CONFIG.backgroundColor);
+    // this._scene.background = new THREE.Color(SCENE_CONFIG.backgroundColor);
+    // const backgroundTexture = Loader.assets['transfer-it/bg'];
+    // const backgroundTexture = Loader.assets['background'];
+    // this._scene.background = backgroundTexture;
+
+    const texture = Loader.assets['environment'];
+
+    const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+    rt.fromEquirectangularTexture(this._renderer, texture);
+    this._scene.background = rt.texture;
+
   }
 
   _initPostProcessing() {
