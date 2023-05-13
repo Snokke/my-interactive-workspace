@@ -320,13 +320,13 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
   _initButtonTextures() {
     const buttonOnOff = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonOnOff];
-    buttonOnOff.material.color = new THREE.Color(0xcc0000);
+    // buttonOnOff.material.color = new THREE.Color(0xcc0000);
 
     const buttonTemperatureUp = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureUp];
-    buttonTemperatureUp.material.color = new THREE.Color(0xdddddd);
+    // buttonTemperatureUp.material.color = new THREE.Color(0xdddddd);
 
     const buttonTemperatureDown = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureDown];
-    buttonTemperatureDown.material.color = new THREE.Color(0xdddddd);
+    // buttonTemperatureDown.material.color = new THREE.Color(0xdddddd);
   }
 
   _initTemperatureScreen() {

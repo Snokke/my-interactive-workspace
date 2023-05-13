@@ -619,7 +619,7 @@ export default class Keyboard extends RoomObjectAbstract {
       const part = this._parts[partName];
       const material = new THREE.MeshStandardMaterial({
         // color: `hsl(${Math.random() * 360}, 80%, 50%)`,
-        color: 0x111111,
+        // color: 0x111111,
       });
 
       part.material = material;

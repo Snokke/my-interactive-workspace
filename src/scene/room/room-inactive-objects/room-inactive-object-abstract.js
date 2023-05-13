@@ -54,7 +54,7 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
 
   _addMaterials() {
     const material = new THREE.MeshStandardMaterial({
-      color: `hsl(${Math.random() * 360}, 80%, 50%)`,
+      color: `hsl(${Math.random() * 360}, 60%, 50%)`,
     });
 
     this._mesh.material = material;

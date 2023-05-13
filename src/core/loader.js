@@ -5,6 +5,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const textures = [
   'environment.jpg',
 
+  'baked.jpg',
+
   // air conditioner
   'snowflake-01.png',
   'snowflake-02.png',

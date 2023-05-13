@@ -319,8 +319,35 @@ export default class Walls extends RoomObjectAbstract {
     }
   }
 
+  _addMaterials() {
+    for (const partName in this._parts) {
+      if (partName === WALLS_PART_TYPE.WallLeft) {
+        continue;
+      }
+
+      const part = this._parts[partName];
+      const material = new THREE.MeshStandardMaterial({
+        color: `hsl(${Math.random() * 360}, 60%, 50%)`,
+      });
+
+      part.material = material;
+    }
+
+    const texture = Loader.assets['baked'];
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+
+    const bakedMaterial = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
+    leftWall.material = bakedMaterial;
+
+  }
+
   _initGlass() {
-    const glassMaterial = new THREE.MeshPhysicalMaterial({
+    const glassMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color(0xffffff),
       transparent: true,
       opacity: 0.1,

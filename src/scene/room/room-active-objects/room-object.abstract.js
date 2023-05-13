@@ -191,7 +191,7 @@ export default class RoomObjectAbstract extends THREE.Group {
     for (const partName in this._parts) {
       const part = this._parts[partName];
       const material = new THREE.MeshStandardMaterial({
-        color: `hsl(${Math.random() * 360}, 80%, 50%)`,
+        color: `hsl(${Math.random() * 360}, 60%, 50%)`,
       });
 
       part.material = material;
