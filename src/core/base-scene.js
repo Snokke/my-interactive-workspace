@@ -17,10 +17,13 @@ import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
 import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
-// import { getProject, types } from '@theatre/core';
-// import studio from '@theatre/studio';
-// import projectState from '../scene/room/json/THREE js x Theatre js.theatre-project-state.json';
+import { DEBUG_MENU_START_STATE } from './configs/debug-menu-start-state';
 
+if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+  import('@theatre/studio').then((module) => {
+    module.default.initialize();
+  });
+}
 
 export default class BaseScene {
   constructor() {
@@ -99,6 +102,14 @@ export default class BaseScene {
       ROOM_CONFIG.outlineEnabled = true;
       ROOM_CONFIG.startAnimation.showOnStart = true;
     }
+
+    if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+      DEBUG_CONFIG.fpsMeter = false;
+      DEBUG_MENU_START_STATE.ControlPanel = false;
+      ROOM_CONFIG.outlineEnabled = false;
+      SCENE_CONFIG.fxaaPass = false;
+      CAMERA_CONFIG.far = 500;
+    }
   }
 
   _initBlack() {
@@ -123,7 +134,6 @@ export default class BaseScene {
     this._initAudioListener();
     this._initMonitorScreenScene();
 
-    // this._initStudio();
     this._initScene3DDebugMenu();
   }
 
@@ -163,6 +173,14 @@ export default class BaseScene {
   _initCamera() {
     const camera = this._camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fov, this._windowSizes.width / this._windowSizes.height, CAMERA_CONFIG.near, CAMERA_CONFIG.far);
     this._scene.add(camera);
+
+    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+      const helper = new THREE.CameraHelper(camera);
+      this._scene.add(helper);
+
+      const reserveCamera = this._reserveCamera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fov, this._windowSizes.width / this._windowSizes.height, CAMERA_CONFIG.near, CAMERA_CONFIG.far);
+      this._scene.add(reserveCamera);
+    }
   }
 
   _initLights() {
@@ -204,14 +222,21 @@ export default class BaseScene {
       this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
       this._camera.updateProjectionMatrix();
 
+      if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+        this._reserveCamera.aspect = this._windowSizes.width / this._windowSizes.height;
+        this._reserveCamera.updateProjectionMatrix();
+      }
+
       this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
       this._renderer.setPixelRatio(pixelRatio);
 
       this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
       this._effectComposer.setPixelRatio(pixelRatio);
 
-      fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
-      fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
+      if (SCENE_CONFIG.fxaaPass) {
+        this._fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
+        this._fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
+      }
     });
   }
 
@@ -253,7 +278,8 @@ export default class BaseScene {
     // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
     // effectComposer.renderTarget2.texture.encoding = THREE.sRGBEncoding;
 
-    const renderPass = new RenderPass(this._scene, this._camera);
+    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
+    const renderPass = new RenderPass(this._scene, camera);
     effectComposer.addPass(renderPass);
   }
 
@@ -271,12 +297,14 @@ export default class BaseScene {
   }
 
   _initAntiAliasingPass() {
-    const fxaaPass = this._fxaaPass = new ShaderPass(FXAAShader);
-    this._effectComposer.addPass(fxaaPass);
+    if (SCENE_CONFIG.fxaaPass) {
+      const fxaaPass = this._fxaaPass = new ShaderPass(FXAAShader);
+      this._effectComposer.addPass(fxaaPass);
 
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
-    fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
+      const pixelRatio = Math.min(window.devicePixelRatio, 2);
+      fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
+      fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
+    }
   }
 
   _initGammaCorrectionPass() {
@@ -285,12 +313,14 @@ export default class BaseScene {
   }
 
   _initAudioListener() {
+    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
     const audioListener = this._audioListener = new THREE.AudioListener();
-    this._camera.add(audioListener);
+    camera.add(audioListener);
   }
 
   _initScene3DDebugMenu() {
-    this._scene3DDebugMenu = new Scene3DDebugMenu(this._scene, this._camera, this._renderer);
+    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
+    this._scene3DDebugMenu = new Scene3DDebugMenu(this._scene, camera, this._renderer);
     this._orbitControls = this._scene3DDebugMenu.getOrbitControls();
   }
 
@@ -344,41 +374,5 @@ export default class BaseScene {
     }
 
     update();
-  }
-
-  _initStudio() {
-    // studio.initialize();
-    // const project = getProject('THREE.js x Theatre.js');
-    const project = getProject('THREE.js x Theatre.js', { state: projectState });
-
-    project.ready.then(() => sheet.sequence.play({ iterationCount: Infinity }))
-
-    const sheet = project.sheet('Animated scene');
-
-    const torus = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x00ff00,
-      metalness: 0.5,
-      roughness: 0.5,
-    });
-    const mesh = new THREE.Mesh(torus, material);
-    this._scene.add(mesh);
-
-    mesh.position.set(0, 5, 0);
-
-    const torusKnotObj = sheet.object('Torus Knot', {
-      rotation: types.compound({
-        x: types.number(mesh.rotation.x, { range: [-2, 2] }),
-        y: types.number(mesh.rotation.y, { range: [-2, 2] }),
-        z: types.number(mesh.rotation.z, { range: [-2, 2] }),
-      }),
-    })
-
-
-    torusKnotObj.onValuesChange((values) => {
-      const { x, y, z } = values.rotation
-
-      mesh.rotation.set(x * Math.PI, y * Math.PI, z * Math.PI)
-    })
   }
 }

@@ -5,6 +5,7 @@ import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera
 import { MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
 import { ROOM_OBJECT_TYPE } from '../data/room-config';
+import TheatreJS from './theatrejs';
 
 export default class CameraController extends THREE.Group {
   constructor(camera, orbitControls, focusObjects, roomDebug) {
@@ -377,8 +378,14 @@ export default class CameraController extends THREE.Group {
   }
 
   _init() {
+    this._initTheatreJS();
     this._initStaticModeBackPlane();
     this._setCameraStartPosition();
+  }
+
+  _initTheatreJS() {
+    const theatreJs = this._theatreJs = new TheatreJS(this._camera);
+    this.add(theatreJs);
   }
 
   _initStaticModeBackPlane() {

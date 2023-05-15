@@ -14,6 +14,10 @@ const CAMERA_CONFIG = {
     minTime: 500,
     maxTime: 1300,
   },
+  theatreJs: {
+    studioEnabled: false,
+    useReserveCamera: false,
+  },
 }
 
 const FOCUSED_MODE_CAMERA_CONFIG = {

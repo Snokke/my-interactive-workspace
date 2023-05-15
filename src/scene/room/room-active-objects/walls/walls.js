@@ -321,7 +321,7 @@ export default class Walls extends RoomObjectAbstract {
 
   _addMaterials() {
     for (const partName in this._parts) {
-      if (partName === WALLS_PART_TYPE.WallLeft) {
+      if (partName === WALLS_PART_TYPE.WallLeft || partName === WALLS_PART_TYPE.Floor) {
         continue;
       }
 
@@ -335,15 +335,17 @@ export default class Walls extends RoomObjectAbstract {
 
     const texture = Loader.assets['baked'];
     texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
+    // texture.encoding = THREE.sRGBEncoding;
+    // texture.encoding = THREE.SRGBColorSpace;
 
     const bakedMaterial = new THREE.MeshBasicMaterial({
       map: texture,
     });
 
     const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
+    const floor = this._parts[WALLS_PART_TYPE.Floor];
     leftWall.material = bakedMaterial;
-
+    floor.material = bakedMaterial;
   }
 
   _initGlass() {
