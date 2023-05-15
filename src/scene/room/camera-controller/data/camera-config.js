@@ -55,7 +55,7 @@ const STATIC_MODE_CAMERA_CONFIG = {
 const ORBIT_CONTROLS_MODE_CONFIG = {
   enabled: true,
   enableDamping: true,
-  dampingFactor: 0.04,
+  dampingFactor: 0.07,
   rotateSpeed: 0.5,
   panSpeed: 0.5,
   minPolarAngle: 0,
