@@ -67,6 +67,12 @@ export default class RoomController {
       this._checkToGlow(intersect);
     }
 
+    if (intersect && intersect.object && intersect.object.userData.objectType === ROOM_OBJECT_TYPE.Global && intersect.object.userData.isActive) {
+      if (Black.engine.containerElement.style.cursor !== 'zoom-out') {
+        Black.engine.containerElement.style.cursor = 'zoom-out';
+      }
+    }
+
     if (intersect === null || intersect.instanceId !== undefined) {
       this._resetGlow();
     }
@@ -102,6 +108,12 @@ export default class RoomController {
     }
 
     const intersectObject = intersect.object;
+
+    if (intersectObject && intersectObject.userData.objectType === ROOM_OBJECT_TYPE.Global && intersectObject.userData.isActive) {
+      if (intersectObject.userData.type === 'staticModeBackPlane') {
+        this._cameraController.onStaticModeBackPlaneClick();
+      }
+    }
 
     if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;
@@ -250,7 +262,11 @@ export default class RoomController {
   _checkToGlow(intersect) {
     const object = intersect.object;
 
-    if (object === null || !object.userData.isActive || !this._roomActiveObject[object.userData.objectType].isInputEnabled() || !ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType]) {
+    const isObjectActive = object === null || !object.userData.isActive
+      || (this._roomActiveObject[object.userData.objectType] && !this._roomActiveObject[object.userData.objectType].isInputEnabled())
+      || !ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType];
+
+    if (isObjectActive) {
       this._resetGlow();
       Black.engine.containerElement.style.cursor = 'auto';
 
@@ -493,6 +509,8 @@ export default class RoomController {
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
+    this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
+    this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
   }
 
   _initRealKeyboardSignals() {
@@ -633,6 +651,7 @@ export default class RoomController {
   }
 
   _onWorkplacePhotoClickToHide() {
+    this._cameraController.onExitStaticMode();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].hideWorkplacePhoto();
     this._cameraController.setOrbitState();
     this._roomDebug.enableStartCameraPositionButton();
@@ -657,6 +676,7 @@ export default class RoomController {
 
   _onAirConditionerRemoteClickToHide() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].hideAirConditionerRemotePhoto();
+    this._cameraController.onExitStaticMode();
 
     if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
       this._enableFocusObjects();

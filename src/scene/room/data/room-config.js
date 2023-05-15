@@ -52,6 +52,9 @@ const ROOM_OBJECT_TYPE = {
   Cup: 'CUP',
   Organizer: 'ORGANIZER',
   Flower: 'FLOWER',
+
+  // Other
+  Global: 'GLOBAL',
 }
 
 const ROOM_OBJECT_ACTIVITY_TYPE = {

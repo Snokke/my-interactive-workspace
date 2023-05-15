@@ -223,13 +223,19 @@ export default class RoomDebug {
       { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },
     ];
 
-    for (const objectType in ROOM_OBJECT_TYPE) {
-      const config = ROOM_OBJECT_CONFIG[ROOM_OBJECT_TYPE[objectType]];
+    for (const key in ROOM_OBJECT_TYPE) {
+      const type = ROOM_OBJECT_TYPE[key];
+
+      if (type === ROOM_OBJECT_TYPE.Global) {
+        continue;
+      }
+
+      const config = ROOM_OBJECT_CONFIG[type];
 
       if (config.createObject) {
         options.push({
           text: config.label,
-          value: ROOM_OBJECT_TYPE[objectType],
+          value: type,
         });
       }
     }

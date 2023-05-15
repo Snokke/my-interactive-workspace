@@ -4,6 +4,7 @@ import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, FOCUSED_MODE_CAMERA_CONFIG
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera-data';
 import { MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
+import { ROOM_OBJECT_TYPE } from '../data/room-config';
 
 export default class CameraController extends THREE.Group {
   constructor(camera, orbitControls, focusObjects, roomDebug) {
@@ -36,8 +37,9 @@ export default class CameraController extends THREE.Group {
 
     this._staticModeObject = null;
     this._staticModeRoomObjectType = null;
+    this._staticModeBackPlane = null;
 
-    this._setCameraStartPosition();
+    this._init();
   }
 
   update(dt) {
@@ -217,6 +219,26 @@ export default class CameraController extends THREE.Group {
     return this._staticModeRoomObjectType;
   }
 
+  onExitStaticMode() {
+    this._staticModeBackPlane.userData.isActive = false;
+    this._staticModeBackPlane.scale.set(0, 0, 0);
+    this._staticModeBackPlane.position.set(0, 0, 0);
+  }
+
+  getStaticModePlane() {
+    return this._staticModeBackPlane;
+  }
+
+  onStaticModeBackPlaneClick() {
+    if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.AirConditionerRemote) {
+      this.events.post('onAirConditionerRemoteHide');
+    }
+
+    if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Locker) {
+      this.events.post('onWorkplacePhotoHide');
+    }
+  }
+
   _updateFocusedMode(dt) {
     if (this._cameraMode === CAMERA_MODE.Focused) {
       if (TRANSFER_IT_DEBUG_CONFIG.orbitControls && CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
@@ -346,6 +368,32 @@ export default class CameraController extends THREE.Group {
     this._roomDebug.updateCameraStateController();
 
     this.onPointerMove(this._currentPointerPosition.x, this._currentPointerPosition.y);
+
+    this._staticModeBackPlane.scale.set(1, 1, 1);
+    this._staticModeBackPlane.position.copy(this._camera.position);
+    this._staticModeBackPlane.quaternion.copy(this._camera.quaternion);
+    this._staticModeBackPlane.translateZ(-(STATIC_MODE_CAMERA_CONFIG.zoom.maxDistance + 1));
+    this._staticModeBackPlane.userData.isActive = true;
+  }
+
+  _init() {
+    this._initStaticModeBackPlane();
+    this._setCameraStartPosition();
+  }
+
+  _initStaticModeBackPlane() {
+    const geometry = new THREE.PlaneGeometry(5, 4);
+    const material = new THREE.MeshBasicMaterial();
+    const staticModeBackPlane = this._staticModeBackPlane = new THREE.Mesh(geometry, material);
+    this.add(staticModeBackPlane);
+
+    staticModeBackPlane.userData['objectType'] = ROOM_OBJECT_TYPE.Global;
+    staticModeBackPlane.userData['type'] = 'staticModeBackPlane';
+    staticModeBackPlane.userData['isActive'] = true;
+    staticModeBackPlane.visible = false;
+
+    staticModeBackPlane.scale.set(0, 0, 0);
+    staticModeBackPlane.position.set(0, 0, 0);
   }
 
   _setCameraStartPosition() {

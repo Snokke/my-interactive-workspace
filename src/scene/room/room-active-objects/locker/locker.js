@@ -276,6 +276,7 @@ export default class Locker extends RoomObjectAbstract {
     this._isWorkplacePhotoShown = false;
     this._moveWorkplacePhotoToStartPosition();
     this._debugMenu.enableCaseMovement();
+    this._parts[LOCKER_PART_TYPE.WorkplacePhoto].userData.hideOutline = false;
     this._enableActivity();
   }
 
@@ -392,6 +393,7 @@ export default class Locker extends RoomObjectAbstract {
     this._debugMenu.disableCaseMovement();
     this._disableActivity();
     workplacePhoto.userData.isActive = false;
+    workplacePhoto.userData.hideOutline = true;
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
       workplacePhoto.userData.isActive = true;

@@ -4,7 +4,6 @@ import DEBUG_CONFIG from "../../configs/debug-config";
 import RendererStats from 'three-webgl-stats';
 import Stats from '/node_modules/three/examples/jsm/libs/stats.module.js';
 import GUIHelper from "./gui-helper";
-import { GUI_CONFIG } from "./gui-helper-config";
 import { CAMERA_FOCUS_OBJECT_TYPE } from "../../../scene/room/camera-controller/data/camera-data";
 import { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";
 import { OrbitControls } from "../../OrbitControls";
@@ -72,27 +71,12 @@ export default class Scene3DDebugMenu {
   }
 
   _init() {
-    // this._checkBuildMode();
-
     this._initRendererStats();
     this._initFPSMeter();
     this._initOrbitControls();
     this._initGridAndAxesHelper();
 
     this._initLilGUIHelper();
-  }
-
-  _checkBuildMode() {
-    if (GUI_CONFIG.disableAllDebugAtNormalMode) {
-      const currentUrl = window.location.href;
-      const isDebug = currentUrl.indexOf('#debug') !== -1;
-
-      if (isDebug) {
-        for (const key in DEBUG_CONFIG) {
-          DEBUG_CONFIG[key] = false;
-        }
-      }
-    }
   }
 
   _initRendererStats() {

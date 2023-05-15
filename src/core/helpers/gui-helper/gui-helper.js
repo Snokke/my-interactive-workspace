@@ -1,6 +1,6 @@
 import { Pane } from 'tweakpane';
-import { GUI_CONFIG } from './gui-helper-config';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
+import { DEBUG_MENU_START_STATE } from '../../configs/debug-menu-start-state';
 
 export default class GUIHelper {
   constructor() {
@@ -13,7 +13,7 @@ export default class GUIHelper {
 
     this.gui.registerPlugin(EssentialsPlugin);
 
-    if (!GUI_CONFIG.openAtStart) {
+    if (!DEBUG_MENU_START_STATE.ControlPanel) {
       this.gui.expanded = false;
     }
 

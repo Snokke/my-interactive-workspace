@@ -96,6 +96,11 @@ export default class Room extends THREE.Group {
   _initActiveObjects() {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
+
+      if (type === ROOM_OBJECT_TYPE.Global) {
+        continue;
+      }
+
       const config = ROOM_OBJECT_CONFIG[type];
       const objectClass = ROOM_OBJECT_CLASS[type];
 
@@ -114,6 +119,11 @@ export default class Room extends THREE.Group {
   _initInactiveObjects() {
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
+
+      if (type === ROOM_OBJECT_TYPE.Global) {
+        continue;
+      }
+
       const config = ROOM_OBJECT_CONFIG[type];
       const objectClass = ROOM_OBJECT_CLASS[type];
 
@@ -133,6 +143,11 @@ export default class Room extends THREE.Group {
 
     for (const key in ROOM_OBJECT_TYPE) {
       const type = ROOM_OBJECT_TYPE[key];
+
+      if (type === ROOM_OBJECT_TYPE.Global) {
+        continue;
+      }
+
       const config = ROOM_OBJECT_CONFIG[type];
 
       if (config.createObject && config.tableGroup) {
@@ -179,6 +194,9 @@ export default class Room extends THREE.Group {
     for (const key in this._roomInactiveObject) {
       allMeshes.push(this._roomInactiveObject[key].getMesh());
     }
+
+    const cameraStaticModePlane = this._cameraController.getStaticModePlane();
+    allMeshes.push(cameraStaticModePlane);
 
     this._data.raycasterController.addMeshes(allMeshes);
   }

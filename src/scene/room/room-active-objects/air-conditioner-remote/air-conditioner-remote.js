@@ -100,8 +100,8 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
   hideAirConditionerRemotePhoto() {
     this._isAirConditionerRemoteShown = false;
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = false;
     this._moveWorkplacePhotoToStartPosition();
-    this._enableActivity();
   }
 
   setBaseActive() {
@@ -205,6 +205,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this._airConditionerRemoteLastTransform.rotation.copy(this._wrapper.rotation);
     this.events.post('onAirConditionerRemoteClickToShow', this._wrapper, this._roomObjectType);
 
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = true;
     this._disableActivity();
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
@@ -227,6 +228,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
         base.userData.isActive = true;
         this.add(this._wrapper);
         this._wrapper.position.copy(this._airConditionerRemoteLastPosition);
+        this._enableActivity();
       });
 
     new TWEEN.Tween(this._wrapper.rotation)

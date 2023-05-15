@@ -17,6 +17,10 @@ import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
 import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
+// import { getProject, types } from '@theatre/core';
+// import studio from '@theatre/studio';
+// import projectState from '../scene/room/json/THREE js x Theatre js.theatre-project-state.json';
+
 
 export default class BaseScene {
   constructor() {
@@ -119,6 +123,7 @@ export default class BaseScene {
     this._initAudioListener();
     this._initMonitorScreenScene();
 
+    // this._initStudio();
     this._initScene3DDebugMenu();
   }
 
@@ -331,5 +336,41 @@ export default class BaseScene {
     }
 
     update();
+  }
+
+  _initStudio() {
+    // studio.initialize();
+    // const project = getProject('THREE.js x Theatre.js');
+    const project = getProject('THREE.js x Theatre.js', { state: projectState });
+
+    project.ready.then(() => sheet.sequence.play({ iterationCount: Infinity }))
+
+    const sheet = project.sheet('Animated scene');
+
+    const torus = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x00ff00,
+      metalness: 0.5,
+      roughness: 0.5,
+    });
+    const mesh = new THREE.Mesh(torus, material);
+    this._scene.add(mesh);
+
+    mesh.position.set(0, 5, 0);
+
+    const torusKnotObj = sheet.object('Torus Knot', {
+      rotation: types.compound({
+        x: types.number(mesh.rotation.x, { range: [-2, 2] }),
+        y: types.number(mesh.rotation.y, { range: [-2, 2] }),
+        z: types.number(mesh.rotation.z, { range: [-2, 2] }),
+      }),
+    })
+
+
+    torusKnotObj.onValuesChange((values) => {
+      const { x, y, z } = values.rotation
+
+      mesh.rotation.set(x * Math.PI, y * Math.PI, z * Math.PI)
+    })
   }
 }
