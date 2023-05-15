@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { EffectComposer } from '/node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
 import { OutlinePass } from '/node_modules/three/examples/jsm/postprocessing/OutlinePass.js';
-import { SMAAPass } from '/node_modules/three/examples/jsm/postprocessing/SMAAPass.js';
 import { RenderPass } from '/node_modules/three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from '/node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '/node_modules/three/examples/jsm/shaders/FXAAShader.js';
 import { GammaCorrectionShader } from '/node_modules/three/examples/jsm/shaders/GammaCorrectionShader.js';
 import SCENE_CONFIG from './configs/scene-config';
 import MainScene from '../main-scene';
@@ -199,15 +199,19 @@ export default class BaseScene {
     window.addEventListener('resize', () => {
       this._windowSizes.width = window.innerWidth;
       this._windowSizes.height = window.innerHeight;
+      const pixelRatio = Math.min(window.devicePixelRatio, 2);
 
       this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
       this._camera.updateProjectionMatrix();
 
       this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
-      this._renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this._renderer.setPixelRatio(pixelRatio);
 
       this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
-      this._effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this._effectComposer.setPixelRatio(pixelRatio);
+
+      fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
+      fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
     });
   }
 
@@ -267,8 +271,12 @@ export default class BaseScene {
   }
 
   _initAntiAliasingPass() {
-    // const smaaPass = new SMAAPass();
-    // this._effectComposer.addPass(smaaPass);
+    const fxaaPass = this._fxaaPass = new ShaderPass(FXAAShader);
+    this._effectComposer.addPass(fxaaPass);
+
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
+    fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
   }
 
   _initGammaCorrectionPass() {
@@ -325,7 +333,7 @@ export default class BaseScene {
         }
 
         // this._renderer.setRenderTarget( null );
-				// this._renderer.clear();
+        // this._renderer.clear();
         // this._renderer.render(this._scene, this._camera);
 
         this._effectComposer.render();
