@@ -44,7 +44,6 @@ const ROOM_OBJECT_TYPE = {
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
 
   // Inactive objects
-  Scales: 'SCALES',
   Picture: 'PICTURE',
   Carpet: 'CARPET',
   MousePad: 'MOUSE_PAD',
@@ -193,12 +192,6 @@ const ROOM_OBJECT_CONFIG = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.Scales]: {
-    createObject: true,
-    label: 'Scales',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Scales',
-  },
   [ROOM_OBJECT_TYPE.Picture]: {
     createObject: true,
     label: 'Picture',

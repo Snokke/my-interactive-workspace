@@ -174,7 +174,6 @@ export default class RoomController {
     this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + wallShowDelay + delayBetweenObjects);
     this._showRoomObject(ROOM_OBJECT_TYPE.Carpet, startDelay + wallShowDelay + delayBetweenObjects * 3);
     this._showRoomObject(ROOM_OBJECT_TYPE.Chair, startDelay + wallShowDelay + delayBetweenObjects * 5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Scales, startDelay + wallShowDelay + delayBetweenObjects * 6);
 
     const leftWallObjectsShowDelay = 1500;
 

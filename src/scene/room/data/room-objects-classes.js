@@ -26,7 +26,6 @@ import Cup from "../room-inactive-objects/objects/cup/cup";
 import Picture from "../room-inactive-objects/objects/picture";
 import MousePad from "../room-inactive-objects/objects/mousepad";
 import Organizer from "../room-inactive-objects/objects/organizer";
-import Scales from "../room-inactive-objects/objects/scales";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
@@ -88,9 +87,6 @@ const ROOM_OBJECT_CLASS = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.Scales]: {
-    object: Scales,
-  },
   [ROOM_OBJECT_TYPE.Picture]: {
     object: Picture,
   },
