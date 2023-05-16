@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
+import { MONITOR_TYPE } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_ORDER } from './data/laptop-data';
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from './data/laptop-config';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
@@ -40,45 +39,6 @@ export default class Laptop extends RoomObjectAbstract {
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const part = this._parts[partType];
       part.material.uniforms.uTime.value += dt;
-    });
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-    this._instantCloseLaptop();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const laptopArmMountBase = this._parts[LAPTOP_PART_TYPE.LaptopArmMountBase];
-      const laptopArmMountArm01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
-      const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
-
-      new TWEEN.Tween(laptopArmMountBase.position)
-        .to({ y: laptopArmMountBase.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(laptopArmMountArm01.position)
-        .to({ y: laptopArmMountArm01.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(this._armWithLaptopGroup.position)
-        .to({ y: laptopArmMountArm02.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start()
-        .onComplete(() => {
-          this._laptopInteract();
-
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
     });
   }
 
@@ -387,16 +347,6 @@ export default class Laptop extends RoomObjectAbstract {
     part.material.uniforms.uTexture.value = Loader.assets[texturePlaying];
   }
 
-  _setPositionForShowAnimation() {
-    const laptopArmMountBase = this._parts[LAPTOP_PART_TYPE.LaptopArmMountBase];
-    const laptopArmMountArm01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
-    const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
-
-    this._armWithLaptopGroup.position.y = laptopArmMountArm02.userData.startPosition.y +  ROOM_CONFIG.startAnimation.startPositionY;
-    laptopArmMountBase.position.y = laptopArmMountBase.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    laptopArmMountArm01.position.y = laptopArmMountArm01.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-  }
-
   _instantCloseLaptop() {
     this._laptopTopGroup.rotation.x = 0;
 
@@ -448,10 +398,6 @@ export default class Laptop extends RoomObjectAbstract {
     this._initSignals();
 
     this._instantCloseLaptop();
-
-    if (!ROOM_CONFIG.startAnimation.showOnStart) {
-      this._laptopInteract();
-    }
   }
 
   _initSignals() {

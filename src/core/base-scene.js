@@ -115,7 +115,6 @@ export default class BaseScene {
     if (DEPLOYMENT_CONFIG.production) {
       DEBUG_CONFIG.fpsMeter = false;
       ROOM_CONFIG.outlineEnabled = true;
-      ROOM_CONFIG.startAnimation.showOnStart = true;
     }
 
     if (CAMERA_CONFIG.theatreJs.studioEnabled) {

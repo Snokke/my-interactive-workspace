@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Loader from '../../core/loader';
-import { ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
+import { ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import RoomDebug from './room-debug';
 import { ROOM_OBJECT_CLASS } from './data/room-objects-classes';
 import Cursor from './room-active-objects/mouse/cursor/cursor';
@@ -56,10 +56,6 @@ export default class Room extends THREE.Group {
 
   onWheelScroll(delta) {
     this._roomController.onWheelScroll(delta);
-  }
-
-  showWithAnimation(startDelay = 0) {
-    this._roomController.showWithAnimation(startDelay);
   }
 
   onSoundChanged() {

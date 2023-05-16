@@ -1,9 +1,6 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_TYPE } from './data/floor-lamp-data';
-import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
@@ -15,37 +12,6 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._sound = null;
 
     this._init();
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const stand = this._parts[FLOOR_LAMP_PART_TYPE.Stand];
-      const lamp = this._parts[FLOOR_LAMP_PART_TYPE.Lamp];
-
-      new TWEEN.Tween(stand.position)
-        .to({ y: stand.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(lamp.position)
-        .to({ y: lamp.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5 * 2)
-        .start()
-        .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect) {

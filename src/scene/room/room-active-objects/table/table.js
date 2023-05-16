@@ -4,7 +4,6 @@ import { TABLE_HANDLE_STATE, TABLE_PART_TYPE, TABLE_STATE } from './data/table-d
 import TABLE_CONFIG from './data/table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
-import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
@@ -30,61 +29,6 @@ export default class Table extends RoomObjectAbstract {
     this._current360HandleAngle = 0;
 
     this._init();
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-
-    this._reset();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const legs = this._parts[TABLE_PART_TYPE.Legs];
-      const topPart = this._parts[TABLE_PART_TYPE.TopPart];
-      const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
-      const handle = this._parts[TABLE_PART_TYPE.Handle];
-
-      new TWEEN.Tween(legs.position)
-        .to({ y: legs.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(topPart.position)
-        .to({ y: topPart.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
-        .start();
-
-      new TWEEN.Tween(tableTop.position)
-        .to({ y: tableTop.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5 * 2)
-        .start();
-
-      const handleScaleTween = new TWEEN.Tween(handle.scale)
-        .to({ x: 1, y: 1, z: 1 }, 300)
-        .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
-        .delay(fallDownTime * 0.5 * 3)
-        .start();
-
-      handleScaleTween.onComplete(() => {
-        const handleMoveTween = new TWEEN.Tween(handle.position)
-        .to({ z: handle.userData.startPosition.z }, 300)
-        .easing(TWEEN.Easing.Sinusoidal.Out)
-        .start();
-
-        handleMoveTween.onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-      });
-    });
   }
 
   onClick(intersect) {
@@ -224,15 +168,6 @@ export default class Table extends RoomObjectAbstract {
   _setTableState(state) {
     this._currentTableState = state;
     this._debugMenu.updateTableState(state);
-  }
-
-  _setPositionForShowAnimation() {
-    super._setPositionForShowAnimation();
-
-    const handle = this._parts[TABLE_PART_TYPE.Handle];
-    handle.position.copy(handle.userData.startPosition);
-    handle.position.z = 2.5;
-    handle.scale.set(0, 0, 0);
   }
 
   _reset() {

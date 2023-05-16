@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../data/room-config';
 import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './data/speakers-data';
 import { SPEAKERS_CONFIG } from './data/speakers-config';
 import Loader from '../../../../core/loader';
@@ -43,41 +40,6 @@ export default class Speakers extends RoomObjectAbstract {
     this._rightSoundParticles.update(dt);
     this._leftSoundParticles.update(dt);
     this._updateSongCurrentTime();
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    this._setPowerOff();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const leftSpeaker = this._parts[SPEAKERS_PART_TYPE.Left];
-      const rightSpeaker = this._parts[SPEAKERS_PART_TYPE.Right];
-
-      new TWEEN.Tween(this._leftSpeakerGroup.position)
-        .to({ y: leftSpeaker.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(this._rightSpeakerGroup.position)
-        .to({ y: rightSpeaker.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
-        .start()
-        .onComplete(() => {
-          this._setPowerOn();
-
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect) {
@@ -235,11 +197,6 @@ export default class Speakers extends RoomObjectAbstract {
 
     const powerIndicatorColor = this._powerStatus === SPEAKERS_POWER_STATUS.On ? SPEAKERS_CONFIG.turnOnColor : SPEAKERS_CONFIG.turnOffColor;
     powerIndicator.material.color = new THREE.Color(powerIndicatorColor);
-  }
-
-  _setPositionForShowAnimation() {
-    this._leftSpeakerGroup.position.y = ROOM_CONFIG.startAnimation.startPositionY;
-    this._rightSpeakerGroup.position.y = ROOM_CONFIG.startAnimation.startPositionY;
   }
 
   _changeMusicVolume() {

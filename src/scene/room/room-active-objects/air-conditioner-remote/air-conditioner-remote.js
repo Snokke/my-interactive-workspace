@@ -8,7 +8,6 @@ import { Black } from 'black-engine';
 import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-config';
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
-import { ROOM_CONFIG } from '../../data/room-config';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -24,28 +23,6 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this._temperatureScreenBitmap = null;
 
     this._init();
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
-
-      new TWEEN.Tween(this._wrapper.position)
-        .to({ y: base.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start()
-        .onComplete(() => {
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect) {
@@ -253,11 +230,6 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     if (this._buttonClickTween[buttonType]) {
       this._buttonClickTween[buttonType].stop();
     }
-  }
-
-  _setPositionForShowAnimation() {
-    const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
-    this._wrapper.position.y = base.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
   }
 
   _init() {

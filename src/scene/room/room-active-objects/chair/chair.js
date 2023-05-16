@@ -3,7 +3,6 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
-import { ROOM_CONFIG } from '../../data/room-config';
 import { CHAIR_CONFIG } from './data/chair-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
@@ -53,53 +52,6 @@ export default class Chair extends RoomObjectAbstract {
     this._checkLockerArea();
     this._updateWheelsRotation(dt);
     this._updateSeatRotation(dt);
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const legs = this._parts[CHAIR_PART_TYPE.Legs];
-      const seat = this._parts[CHAIR_PART_TYPE.Seat];
-      const wheels = getWheelsParts(this._parts);
-
-      for (let i = 0; i < wheels.length; i++) {
-        const wheel = wheels[i];
-
-        new TWEEN.Tween(wheel.position)
-          .to({ y: wheel.userData.startPosition.y }, fallDownTime)
-          .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-          .start();
-      }
-
-      new TWEEN.Tween(legs.position)
-        .to({ y: legs.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(seat.position)
-        .to({ y: seat.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
-        .start();
-
-      new TWEEN.Tween(seat.rotation)
-        .to({ y: Math.PI * 2 }, fallDownTime * 3)
-        .easing(TWEEN.Easing.Back.Out)
-        .delay(fallDownTime * 0.5)
-        .start()
-        .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect, onPointerDownClick) {
@@ -619,12 +571,6 @@ export default class Chair extends RoomObjectAbstract {
     if (this._rotateSeatTween) {
       this._rotateSeatTween.stop();
     }
-  }
-
-  _setPositionForShowAnimation() {
-    super._setPositionForShowAnimation();
-
-    this._parts[CHAIR_PART_TYPE.Seat].rotation.y = 0;
   }
 
   _updateSound(distance) {

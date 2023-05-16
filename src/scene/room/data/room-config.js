@@ -17,14 +17,6 @@ const ROOM_CONFIG = {
   outlineEnabled: true,
   autoOpenActiveDebugFolder: true,
   clickActiveObjectError: 2,
-  startAnimation: {
-    showOnStart: false,
-    startPositionY: 13,
-    delayBetweenObjects: 150,
-    objectFallDownTime: 400,
-    objectFallDownEasing: TWEEN.Easing.Quadratic.Out,
-    objectScaleEasing: TWEEN.Easing.Back.Out,
-  }
 }
 
 const ROOM_OBJECT_TYPE = {
@@ -241,8 +233,6 @@ const ROOM_OBJECT_CONFIG = {
   },
 }
 
-const START_ANIMATION_ALL_OBJECTS = 'START_ANIMATION_ALL_OBJECTS';
-
 const SCALE_ZERO = 0.01;
 
 const MONITOR_TYPE = {
@@ -254,7 +244,6 @@ export {
   ROOM_CONFIG,
   ROOM_OBJECT_TYPE,
   ROOM_OBJECT_CONFIG,
-  START_ANIMATION_ALL_OBJECTS,
   ROOM_OBJECT_ACTIVITY_TYPE,
   MONITOR_TYPE,
   SCALE_ZERO,

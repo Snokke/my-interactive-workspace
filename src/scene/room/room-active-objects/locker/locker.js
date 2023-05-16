@@ -4,7 +4,6 @@ import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LO
 import { CHAIR_INTERSECTION_CONFIG, LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG } from '../../data/room-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
@@ -33,51 +32,6 @@ export default class Locker extends RoomObjectAbstract {
     this._workplacePhotoLastTransform = {};
 
     this._init();
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-
-    this._reset();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const body = this._parts[LOCKER_PART_TYPE.Body];
-      const cases = CASES.map((partType) => this._parts[partType]);
-
-      new TWEEN.Tween(body.position)
-        .to({ y: body.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      for (let i = 0; i < cases.length; i += 1) {
-        const casePart = cases[i];
-
-        const scaleTween = new TWEEN.Tween(casePart.scale)
-          .to({ x: 1, y: 1, z: 1 }, 300)
-          .easing(TWEEN.Easing.Back.Out)
-          .delay(fallDownTime * 0.5 + i * 100)
-          .start();
-
-        scaleTween.onComplete(() => {
-          new TWEEN.Tween(casePart.position)
-            .to({ z: casePart.userData.startPosition.z }, 300)
-            .easing(ROOM_CONFIG.startAnimation.objectScaleEasing)
-            .start();
-        });
-      }
-
-      Delayed.call(fallDownTime * 0.5 + cases.length * 100 + 300 + 300, () => {
-        this._debugMenu.enable();
-        this._onShowAnimationComplete();
-      })
-    });
   }
 
   onClick(intersect) {
@@ -367,20 +321,6 @@ export default class Locker extends RoomObjectAbstract {
         this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.Out, delay);
       });
     }
-  }
-
-  _setPositionForShowAnimation() {
-    const body = this._parts[LOCKER_PART_TYPE.Body];
-    body.position.y = body.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-
-    const caseStartPositionZ = 2.5;
-    const startScale = 0;
-
-    CASES.forEach((partName) => {
-      const casePart = this._parts[partName];
-      casePart.position.z = caseStartPositionZ;
-      casePart.scale.set(startScale, startScale, startScale);
-    });
   }
 
   _showWorkplacePhoto() {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
-import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from './data/room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
 import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
@@ -159,57 +159,6 @@ export default class RoomController {
     this._cameraController.onWheelScroll(delta);
   }
 
-  showWithAnimation(startDelay = 0, firstShow = false) {
-    if (firstShow) {
-      this._cameraController.setNoControlsState();
-    }
-
-    this._roomDebug.disableShowAnimationControllers();
-    const delayBetweenObjects = ROOM_CONFIG.startAnimation.delayBetweenObjects;
-
-    this._showRoomObject(ROOM_OBJECT_TYPE.Walls, startDelay);
-    const wallShowDelay = 600;
-
-    // floor objects
-    this._showRoomObject(ROOM_OBJECT_TYPE.FloorLamp, startDelay + wallShowDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Locker, startDelay + wallShowDelay + delayBetweenObjects);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Carpet, startDelay + wallShowDelay + delayBetweenObjects * 3);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Chair, startDelay + wallShowDelay + delayBetweenObjects * 5);
-
-    const leftWallObjectsShowDelay = 1500;
-
-    // left wall objects
-    this._showRoomObject(ROOM_OBJECT_TYPE.Picture, startDelay + leftWallObjectsShowDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.AirConditioner, startDelay + leftWallObjectsShowDelay + delayBetweenObjects);
-
-    const tableShowDelay = 1500;
-    const tableObjectsShowDelay = 2100;
-
-    // table objects
-    this._showRoomObject(ROOM_OBJECT_TYPE.Table, startDelay + tableShowDelay);
-    this._showRoomObject(ROOM_OBJECT_TYPE.MousePad, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Speakers, startDelay + tableObjectsShowDelay + delayBetweenObjects * 0.5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Organizer, startDelay + tableObjectsShowDelay + delayBetweenObjects * 1.5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Flower, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Laptop, startDelay + tableObjectsShowDelay + delayBetweenObjects * 2.5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Monitor, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3);
-    this._cursor.hideAndShow(startDelay + tableObjectsShowDelay + delayBetweenObjects * 3);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Keyboard, startDelay + tableObjectsShowDelay + delayBetweenObjects * 3.5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Mouse, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Coaster, startDelay + tableObjectsShowDelay + delayBetweenObjects * 4.5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.Cup, startDelay + tableObjectsShowDelay + delayBetweenObjects * 5);
-    this._showRoomObject(ROOM_OBJECT_TYPE.AirConditionerRemote, startDelay + tableObjectsShowDelay + delayBetweenObjects * 5.5);
-
-    this._showRoomObject(ROOM_OBJECT_TYPE.SocialNetworkLogos, startDelay + tableObjectsShowDelay + delayBetweenObjects * 6.5);
-
-    if (firstShow) {
-      Delayed.call(startDelay + tableObjectsShowDelay + delayBetweenObjects * 8, () => {
-        this._cameraController.setOrbitState();
-        // this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].playSong(MUSIC_ORDER[0]);
-      });
-    }
-  }
-
   onSoundsEnabledChanged() {
     for (const key in this._roomActiveObject) {
       if (SOUNDS_CONFIG.enabled) {
@@ -227,18 +176,6 @@ export default class RoomController {
 
   setGameSoundsAnalyzer(analyzer) {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].setGameSoundsAnalyzer(analyzer);
-  }
-
-  _showRoomObject(objectType, startDelay = 0) {
-    const activityType = ROOM_OBJECT_CONFIG[objectType].activityType;
-
-    if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Active) {
-      this._roomActiveObject[objectType].showWithAnimation(startDelay);
-    }
-
-    if (activityType === ROOM_OBJECT_ACTIVITY_TYPE.Inactive) {
-      this._roomInactiveObject[objectType].showWithAnimation(startDelay);
-    }
   }
 
   _onPointerClick(x, y) {
@@ -349,10 +286,6 @@ export default class RoomController {
   _init() {
     this._initSignals();
 
-    if (ROOM_CONFIG.startAnimation.showOnStart) {
-      this.showWithAnimation(600, true);
-    }
-
     if (SOUNDS_CONFIG.debugHelpers) {
       for (const key in this._roomActiveObject) {
         this._roomActiveObject[key].showSoundHelpers();
@@ -365,19 +298,7 @@ export default class RoomController {
     }
   }
 
-  _onDebugStartShowAnimation(selectedObjectType) {
-    if (selectedObjectType === START_ANIMATION_ALL_OBJECTS) {
-      this.showWithAnimation(0, false);
-    } else {
-      const activityType = ROOM_OBJECT_CONFIG[selectedObjectType].activityType;
-      const roomObjects = this._roomObjectsByActivityType[activityType];
-
-      roomObjects[selectedObjectType].showWithAnimation();
-    }
-  }
-
   _initSignals() {
-    this._initDebugShowAnimationSignals();
     this._initLaptopMusicSignals();
     this._initCursorSignals();
     this._initKeyboardSignals();
@@ -386,18 +307,6 @@ export default class RoomController {
     this._initDebugMenuSignals();
     this._initRealKeyboardSignals();
     this._initOtherSignals();
-  }
-
-  _initDebugShowAnimationSignals() {
-    for (const key in this._roomActiveObject) {
-      const roomObject = this._roomActiveObject[key];
-
-      roomObject.events.on('showAnimationComplete', () => {
-        if (this._checkIsShowAnimationComplete()) {
-          this._roomDebug.enableShowAnimationControllers();
-        }
-      });
-    }
   }
 
   _initLaptopMusicSignals() {
@@ -486,7 +395,6 @@ export default class RoomController {
     this._roomDebug.events.on('debugHelpersChanged', () => this._onDebugHelpersChanged());
     this._roomDebug.events.on('volumeChanged', () => this._onVolumeChanged());
     this._roomDebug.events.on('soundsEnabledChanged', () => this.onDebugSoundsEnabledChanged());
-    this._roomDebug.events.on('startShowAnimation', (msg, selectedObjectType) => this._onDebugStartShowAnimation(selectedObjectType));
     this._roomDebug.events.on('onMonitorFocus', () => this._onMonitorFocus());
     this._roomDebug.events.on('onKeyboardFocus', () => this._onKeyboardFocus());
     this._roomDebug.events.on('onRoomFocus', () => this._onRoomFocus());
@@ -889,15 +797,5 @@ export default class RoomController {
     if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
       monitor.onLeftKeyClick(buttonType);
     }
-  }
-
-  _checkIsShowAnimationComplete() {
-    for (const key in this._roomActiveObject) {
-      if (this._roomActiveObject[key].isShowAnimationActive()) {
-        return false;
-      }
-    }
-
-    return true;
   }
 }

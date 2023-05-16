@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { AIR_CONDITIONER_DOOR_POSITION_STATE, AIR_CONDITIONER_DOOR_STATE, AIR_CONDITIONER_PART_TYPE, AIR_CONDITIONER_STATE } from './data/air-conditioner-data';
-import { ROOM_CONFIG } from '../../data/room-config';
 import { AIR_CONDITIONER_CONFIG } from './data/air-conditioner-config';
 import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
@@ -25,42 +23,6 @@ export default class AirConditioner extends RoomObjectAbstract {
 
   update(dt) {
     this._snowflakeParticlesController.update(dt);
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const body = this._parts[AIR_CONDITIONER_PART_TYPE.Body];
-      const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
-      const temperature = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
-
-      new TWEEN.Tween(temperature.position)
-        .to({ y: temperature.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(door.position)
-        .to({ y: door.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(body.position)
-        .to({ y: body.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start()
-        .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect) {

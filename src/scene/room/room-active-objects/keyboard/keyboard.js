@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { ROOM_CONFIG, SCALE_ZERO } from '../../data/room-config';
+import { SCALE_ZERO } from '../../data/room-config';
 import { KEYBOARD_PART_ACTIVITY_CONFIG, KEYBOARD_PART_TYPE, KEY_COLOR_CONFIG } from './data/keyboard-data';
 import KeysBacklight from './keys-backlight/keys-backlight';
 import Loader from '../../../../core/loader';
@@ -35,31 +35,6 @@ export default class Keyboard extends RoomObjectAbstract {
 
   update(dt) {
     this._keysBacklight.update(dt);
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    this._keysBacklight.hide();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const base = this._parts[KEYBOARD_PART_TYPE.Base];
-
-      new TWEEN.Tween(base.position)
-        .to({ y: base.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start()
-        .onComplete(() => {
-          this._showKeysAnimation();
-        });
-    });
   }
 
   onClick(intersect) {
@@ -562,16 +537,6 @@ export default class Keyboard extends RoomObjectAbstract {
     });
   }
 
-  _setPositionForShowAnimation() {
-    const base = this._parts[KEYBOARD_PART_TYPE.Base];
-    const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
-    const spaceKey = this._parts[KEYBOARD_PART_TYPE.SpaceKey];
-
-    base.position.y = base.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    keys.visible = false;
-    spaceKey.visible = false;
-  }
-
   _playSound(keyId) {
     const sound = this._keySounds[this._keySoundIndex];
     const keyConfig = KEYS_CONFIG[keyId];
@@ -608,10 +573,6 @@ export default class Keyboard extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
-
-    if (!ROOM_CONFIG.startAnimation.showOnStart) {
-      this._keysBacklight.show();
-    }
   }
 
   _addMaterials() {

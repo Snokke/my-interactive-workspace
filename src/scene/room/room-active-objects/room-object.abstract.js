@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Black, MessageDispatcher } from 'black-engine';
-import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
+import { ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { ROOM_OBJECT_CLASS } from '../data/room-objects-classes';
 import { SOUNDS_CONFIG } from '../data/sounds-config';
 
@@ -34,12 +34,6 @@ export default class RoomObjectAbstract extends THREE.Group {
   }
 
   update(dt) { }
-
-  showWithAnimation() {
-    this._isInputEnabled = false;
-    this._isShowAnimationActive = true;
-    this.visible = false;
-  }
 
   show() {
     this._allMeshes.forEach(mesh => mesh.visible = true);
@@ -148,19 +142,6 @@ export default class RoomObjectAbstract extends THREE.Group {
     if (this._hasDebugMenu) {
       this._debugMenu.enable();
     }
-  }
-
-  _setPositionForShowAnimation() {
-    for (let key in this._parts) {
-      const part = this._parts[key];
-      part.position.y = part.userData.startPosition.y + ROOM_CONFIG.startAnimation.startPositionY;
-    }
-  }
-
-  _onShowAnimationComplete() {
-    this._isInputEnabled = true;
-    this._isShowAnimationActive = false;
-    this.events.post('showAnimationComplete');
   }
 
   _initParts() {

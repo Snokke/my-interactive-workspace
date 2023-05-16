@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
-import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE, START_ANIMATION_ALL_OBJECTS } from "./data/room-config";
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from "./data/room-config";
 import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import { SOUNDS_CONFIG } from './data/sounds-config';
@@ -95,7 +95,6 @@ export default class RoomDebug {
     this._initGeneralDebug();
     this._initSoundsDebug();
     this._initCameraDebug();
-    this._initShowAnimationFolder();
     this._initAllObjectsShowFolder();
     this._initActiveRoomObjectsFolder();
   }
@@ -218,52 +217,6 @@ export default class RoomDebug {
       title: 'Start camera position',
     }).on('click', () => {
       this.events.post('onRoomFocus');
-    });
-  }
-
-  _initShowAnimationFolder() {
-    const showAnimationFolder = this._roomFolder.addFolder({
-      title: 'Start appearance animation',
-      expanded: DEBUG_MENU_START_STATE.ShowAnimation,
-    });
-
-    // let selectedObjectType = ROOM_OBJECT_TYPE.Keyboard;
-    let selectedObjectType = START_ANIMATION_ALL_OBJECTS;
-
-    const options = [
-      { text: 'All scene', value: START_ANIMATION_ALL_OBJECTS },
-    ];
-
-    for (const key in ROOM_OBJECT_TYPE) {
-      const type = ROOM_OBJECT_TYPE[key];
-
-      if (type === ROOM_OBJECT_TYPE.Global) {
-        continue;
-      }
-
-      const config = ROOM_OBJECT_CONFIG[type];
-
-      if (config.createObject) {
-        options.push({
-          text: config.label,
-          value: type,
-        });
-      }
-    }
-
-    this._listShowAnimation = showAnimationFolder.addBlade({
-      view: 'list',
-      label: 'Object',
-      options,
-      value: selectedObjectType,
-    }).on('change', (objectType) => {
-      selectedObjectType = objectType.value;
-    });
-
-    this._buttonShowAnimation = showAnimationFolder.addButton({
-      title: 'Start animation',
-    }).on('click', () => {
-      this.events.post('startShowAnimation', selectedObjectType);
     });
   }
 

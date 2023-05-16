@@ -33,50 +33,6 @@ export default class Walls extends RoomObjectAbstract {
     this._init();
   }
 
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-
-    this._setPositionForShowAnimation();
-
-    // Delayed.call(delay, () => {
-    //   this.visible = true;
-
-    //   const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-    //   const floor = this._parts[WALLS_PART_TYPE.Floor];
-    //   const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
-
-    //   new TWEEN.Tween(floor.position)
-    //     .to({ y: floor.userData.startPosition.y }, fallDownTime)
-    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-    //     .start();
-
-    //   new TWEEN.Tween(leftWall.position)
-    //     .to({ y: leftWall.userData.startPosition.y }, fallDownTime)
-    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-    //     .delay(fallDownTime * 0.5)
-    //     .start();
-
-    //   new TWEEN.Tween(this._windowGroup.position)
-    //     .to({ y: 0 }, fallDownTime)
-    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-    //     .delay(fallDownTime * 0.5 * 2)
-    //     .start();
-
-    //   new TWEEN.Tween(this._rightWallGroup.position)
-    //     .to({ y: 0 }, fallDownTime)
-    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-    //     .delay(fallDownTime * 0.5 * 2)
-    //     .start()
-    //     .onComplete(() => {
-    //       this._debugMenu.enable();
-    //       this._onShowAnimationComplete();
-    //     });
-    // });
-  }
-
   onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
@@ -262,18 +218,6 @@ export default class Walls extends RoomObjectAbstract {
     if (this._windowTween) {
       this._windowTween.stop();
     }
-  }
-
-  _setPositionForShowAnimation() {
-    // const startPositionY = ROOM_CONFIG.startAnimation.startPositionY;
-
-    // const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
-
-    // leftWall.position.y = leftWall.userData.startPosition.y + startPositionY;
-    // this._rightWallGroup.position.y = startPositionY;
-    // this._windowGroup.position.y = startPositionY;
-
-    // this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
   }
 
   _playSound() {

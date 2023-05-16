@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
@@ -64,29 +63,6 @@ export default class Monitor extends RoomObjectAbstract {
     this._updateHelpArrows(deltaZ);
 
     this._previousPositionZ = this._currentPositionZ;
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      new TWEEN.Tween(this.position)
-        .to({ y: 0 }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      Delayed.call(fallDownTime, () => {
-        this._debugMenu.enable();
-        this._onShowAnimationComplete();
-      });
-    });
   }
 
   onClick(intersect, onPointerDownClick) {
@@ -485,10 +461,6 @@ export default class Monitor extends RoomObjectAbstract {
   _updateHelpArrows(deltaZ) {
     this._helpArrows.position.z = this._parts[MONITOR_PART_TYPE.Monitor].userData.startPosition.z + deltaZ;
     this._helpArrows.position.x = this._parts[MONITOR_PART_TYPE.Monitor].position.x;
-  }
-
-  _setPositionForShowAnimation() {
-    this.position.y = ROOM_CONFIG.startAnimation.startPositionY;
   }
 
   _showVolume(currentVolume) {

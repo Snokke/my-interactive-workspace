@@ -1,11 +1,7 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_TYPE } from './data/mouse-data';
 import { MOUSE_CONFIG } from './data/mouse-config';
-import { ROOM_CONFIG } from '../../data/room-config';
-import { Vector2 } from 'three';
 import MouseAreaBorders from './mouse-area-borders';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
@@ -52,36 +48,6 @@ export default class Mouse extends RoomObjectAbstract {
 
     this._helpArrows.position.copy(body.position);
     this._previousPosition.copy(this._currentPosition);
-  }
-
-  showWithAnimation(delay) {
-    super.showWithAnimation();
-
-    this._debugMenu.disable();
-    this._setPositionForShowAnimation();
-
-    Delayed.call(delay, () => {
-      this.visible = true;
-
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
-
-      const body = this._parts[MOUSE_PART_TYPE.Body];
-      const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
-
-      new TWEEN.Tween(leftKey.position)
-        .to({ y: leftKey.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
-
-      new TWEEN.Tween(body.position)
-        .to({ y: body.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start()
-        .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
   }
 
   onClick(intersect, onPointerDownClick) {
@@ -136,7 +102,7 @@ export default class Mouse extends RoomObjectAbstract {
   }
 
   getCurrentPosition() {
-    return new Vector2(this._currentPosition.x, this._currentPosition.z);
+    return new THREE.Vector2(this._currentPosition.x, this._currentPosition.z);
   }
 
   onPointerOver(intersect) {
