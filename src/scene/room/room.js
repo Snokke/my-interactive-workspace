@@ -222,5 +222,6 @@ export default class Room extends THREE.Group {
     this._roomController.events.on('onHideGame', () => this.events.post('onHideGame'));
     this._roomController.events.on('onGameKeyPressed', () => this.events.post('onGameKeyPressed'));
     this._roomController.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
+    this._roomController.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
   }
 }

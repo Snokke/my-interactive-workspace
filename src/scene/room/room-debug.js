@@ -90,6 +90,7 @@ export default class RoomDebug {
   }
 
   _init() {
+    this._initTheatreJsDebug();
     this._initSettingsFolder();
     this._initGeneralDebug();
     this._initSoundsDebug();
@@ -97,6 +98,16 @@ export default class RoomDebug {
     this._initShowAnimationFolder();
     this._initAllObjectsShowFolder();
     this._initActiveRoomObjectsFolder();
+  }
+
+  _initTheatreJsDebug() {
+    if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+      this._reserveCameraButton = GUIHelper.getGui().addButton({
+        title: 'Switch to reserve camera',
+      }).on('click', () => {
+        this.events.post('onSwitchToReserveCamera');
+      });
+    }
   }
 
   _initSettingsFolder() {

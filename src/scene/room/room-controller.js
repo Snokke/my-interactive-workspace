@@ -46,6 +46,7 @@ export default class RoomController {
     this._previousGlowMeshesNames = [];
 
     this._isGameActive = false;
+    this._isReserveCameraActive = false;
 
     this._init();
   }
@@ -357,6 +358,11 @@ export default class RoomController {
         this._roomActiveObject[key].showSoundHelpers();
       }
     }
+
+    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+      this._isReserveCameraActive = true;
+      this._disableAllObjects();
+    }
   }
 
   _onDebugStartShowAnimation(selectedObjectType) {
@@ -485,6 +491,19 @@ export default class RoomController {
     this._roomDebug.events.on('onKeyboardFocus', () => this._onKeyboardFocus());
     this._roomDebug.events.on('onRoomFocus', () => this._onRoomFocus());
     this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
+    this._roomDebug.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
+  }
+
+  _onSwitchToReserveCamera() {
+    if (this._isReserveCameraActive) {
+      this._isReserveCameraActive = false;
+      this._enableAllObjects();
+    } else {
+      this._isReserveCameraActive = true;
+      this._disableAllObjects();
+    }
+
+    this.events.post('onSwitchToReserveCamera');
   }
 
   _initOtherSignals() {

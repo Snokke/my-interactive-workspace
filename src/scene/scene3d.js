@@ -74,5 +74,6 @@ export default class Scene3D extends THREE.Group {
     this._room.events.on('onHideGame', () => this.events.post('onHideGame'));
     this._room.events.on('onGameKeyPressed', () => this.events.post('onGameKeyPressed'));
     this._room.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
+    this._room.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
   }
 }

@@ -17,7 +17,6 @@ import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
 import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
-import { DEBUG_MENU_START_STATE } from './configs/debug-menu-start-state';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -38,10 +37,13 @@ export default class BaseScene {
     this._orbitControls = null;
     this._audioListener = null;
     this._monitorScreenSceneData = null;
+    this._renderPass = null;
 
     this._windowSizes = {};
     this._isAssetsLoaded = false;
     this._isGameActive = false;
+
+    this._isSecondaryCameraActive = false;
 
     this._init();
   }
@@ -79,6 +81,7 @@ export default class BaseScene {
     this._mainScene.events.on('fpsMeterChanged', () => this._scene3DDebugMenu.onFpsMeterClick());
     this._mainScene.events.on('onShowGame', () => this._onShowGame());
     this._mainScene.events.on('onHideGame', () => this._onHideGame());
+    this._mainScene.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
   }
 
   _onShowGame() {
@@ -87,6 +90,18 @@ export default class BaseScene {
 
   _onHideGame() {
     this._isGameActive = false;
+  }
+
+  _onSwitchToReserveCamera() {
+    if (this._isSecondaryCameraActive) {
+      this._isSecondaryCameraActive = false;
+      this._renderPass.camera = this._camera;
+    } else {
+      this._isSecondaryCameraActive = true;
+      this._renderPass.camera = this._reserveCamera;
+    }
+
+    this._onResize();
   }
 
   _init() {
@@ -105,10 +120,13 @@ export default class BaseScene {
 
     if (CAMERA_CONFIG.theatreJs.studioEnabled) {
       DEBUG_CONFIG.fpsMeter = false;
-      DEBUG_MENU_START_STATE.ControlPanel = false;
       ROOM_CONFIG.outlineEnabled = false;
       SCENE_CONFIG.fxaaPass = false;
       CAMERA_CONFIG.far = 500;
+
+      if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+        this._isSecondaryCameraActive = true;
+      }
     }
   }
 
@@ -214,30 +232,32 @@ export default class BaseScene {
   }
 
   _initOnResize() {
-    window.addEventListener('resize', () => {
-      this._windowSizes.width = window.innerWidth;
-      this._windowSizes.height = window.innerHeight;
-      const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    window.addEventListener('resize', () => this._onResize());
+  }
 
-      this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
-      this._camera.updateProjectionMatrix();
+  _onResize() {
+    this._windowSizes.width = window.innerWidth;
+    this._windowSizes.height = window.innerHeight;
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
 
-      if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
-        this._reserveCamera.aspect = this._windowSizes.width / this._windowSizes.height;
-        this._reserveCamera.updateProjectionMatrix();
-      }
+    this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
+    this._camera.updateProjectionMatrix();
 
-      this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
-      this._renderer.setPixelRatio(pixelRatio);
+    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+      this._reserveCamera.aspect = this._windowSizes.width / this._windowSizes.height;
+      this._reserveCamera.updateProjectionMatrix();
+    }
 
-      this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
-      this._effectComposer.setPixelRatio(pixelRatio);
+    this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
+    this._renderer.setPixelRatio(pixelRatio);
 
-      if (SCENE_CONFIG.fxaaPass) {
-        this._fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
-        this._fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
-      }
-    });
+    this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
+    this._effectComposer.setPixelRatio(pixelRatio);
+
+    if (SCENE_CONFIG.fxaaPass) {
+      this._fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
+      this._fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
+    }
   }
 
   _setupBackgroundColor() {
@@ -279,7 +299,7 @@ export default class BaseScene {
     // effectComposer.renderTarget2.texture.encoding = THREE.sRGBEncoding;
 
     const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
-    const renderPass = new RenderPass(this._scene, camera);
+    const renderPass = this._renderPass = new RenderPass(this._scene, camera);
     effectComposer.addPass(renderPass);
   }
 
