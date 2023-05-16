@@ -1,10 +1,8 @@
 import * as THREE from 'three';
-import Delayed from '../../../../core/helpers/delayed-call';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './data/walls-data';
 import { WINDOW_CONFIG } from './data/window-config';
-import { ROOM_CONFIG } from '../../data/room-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 import Loader from '../../../../core/loader';
 import { rotateAroundPoint } from '../../shared-objects/helpers';
@@ -42,41 +40,41 @@ export default class Walls extends RoomObjectAbstract {
 
     this._setPositionForShowAnimation();
 
-    Delayed.call(delay, () => {
-      this.visible = true;
+    // Delayed.call(delay, () => {
+    //   this.visible = true;
 
-      const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
+    //   const fallDownTime = ROOM_CONFIG.startAnimation.objectFallDownTime;
 
-      const floor = this._parts[WALLS_PART_TYPE.Floor];
-      const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
+    //   const floor = this._parts[WALLS_PART_TYPE.Floor];
+    //   const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
 
-      new TWEEN.Tween(floor.position)
-        .to({ y: floor.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .start();
+    //   new TWEEN.Tween(floor.position)
+    //     .to({ y: floor.userData.startPosition.y }, fallDownTime)
+    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+    //     .start();
 
-      new TWEEN.Tween(leftWall.position)
-        .to({ y: leftWall.userData.startPosition.y }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5)
-        .start();
+    //   new TWEEN.Tween(leftWall.position)
+    //     .to({ y: leftWall.userData.startPosition.y }, fallDownTime)
+    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+    //     .delay(fallDownTime * 0.5)
+    //     .start();
 
-      new TWEEN.Tween(this._windowGroup.position)
-        .to({ y: 0 }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5 * 2)
-        .start();
+    //   new TWEEN.Tween(this._windowGroup.position)
+    //     .to({ y: 0 }, fallDownTime)
+    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+    //     .delay(fallDownTime * 0.5 * 2)
+    //     .start();
 
-      new TWEEN.Tween(this._rightWallGroup.position)
-        .to({ y: 0 }, fallDownTime)
-        .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
-        .delay(fallDownTime * 0.5 * 2)
-        .start()
-        .onComplete(() => {
-          this._debugMenu.enable();
-          this._onShowAnimationComplete();
-        });
-    });
+    //   new TWEEN.Tween(this._rightWallGroup.position)
+    //     .to({ y: 0 }, fallDownTime)
+    //     .easing(ROOM_CONFIG.startAnimation.objectFallDownEasing)
+    //     .delay(fallDownTime * 0.5 * 2)
+    //     .start()
+    //     .onComplete(() => {
+    //       this._debugMenu.enable();
+    //       this._onShowAnimationComplete();
+    //     });
+    // });
   }
 
   onClick(intersect) {
@@ -267,15 +265,15 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _setPositionForShowAnimation() {
-    const startPositionY = ROOM_CONFIG.startAnimation.startPositionY;
+    // const startPositionY = ROOM_CONFIG.startAnimation.startPositionY;
 
-    const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
+    // const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
 
-    leftWall.position.y = leftWall.userData.startPosition.y + startPositionY;
-    this._rightWallGroup.position.y = startPositionY;
-    this._windowGroup.position.y = startPositionY;
+    // leftWall.position.y = leftWall.userData.startPosition.y + startPositionY;
+    // this._rightWallGroup.position.y = startPositionY;
+    // this._windowGroup.position.y = startPositionY;
 
-    this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
+    // this._parts[WALLS_PART_TYPE.Floor].position.y = -30;
   }
 
   _playSound() {
@@ -320,18 +318,18 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    for (const partName in this._parts) {
-      if (partName === WALLS_PART_TYPE.WallLeft || partName === WALLS_PART_TYPE.Floor) {
-        continue;
-      }
+    // for (const partName in this._parts) {
+    //   if (partName === WALLS_PART_TYPE.WallLeft || partName === WALLS_PART_TYPE.Floor) {
+    //     continue;
+    //   }
 
-      const part = this._parts[partName];
-      const material = new THREE.MeshStandardMaterial({
-        color: `hsl(${Math.random() * 360}, 60%, 50%)`,
-      });
+    //   const part = this._parts[partName];
+    //   const material = new THREE.MeshStandardMaterial({
+    //     color: `hsl(${Math.random() * 360}, 60%, 50%)`,
+    //   });
 
-      part.material = material;
-    }
+    //   part.material = material;
+    // }
 
     const texture = Loader.assets['baked'];
     texture.flipY = false;
@@ -342,10 +340,15 @@ export default class Walls extends RoomObjectAbstract {
       map: texture,
     });
 
-    const leftWall = this._parts[WALLS_PART_TYPE.WallLeft];
-    const floor = this._parts[WALLS_PART_TYPE.Floor];
-    leftWall.material = bakedMaterial;
-    floor.material = bakedMaterial;
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = bakedMaterial;
+    }
+
+    // const walls = this._parts[WALLS_PART_TYPE.Walls];
+    // const floor = this._parts[WALLS_PART_TYPE.Floor];
+    // walls.material = bakedMaterial;
+    // floor.material = bakedMaterial;
   }
 
   _initGlass() {
@@ -370,13 +373,13 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initRightWallGroup() {
-    const rightWallGroup = this._rightWallGroup = new THREE.Group();
-    this.add(rightWallGroup);
+    // const rightWallGroup = this._rightWallGroup = new THREE.Group();
+    // this.add(rightWallGroup);
 
-    rightWallGroup.add(this._parts[WALLS_PART_TYPE.WallRight]);
-    rightWallGroup.add(this._parts[WALLS_PART_TYPE.WindowFrame]);
-    rightWallGroup.add(this._parts[WALLS_PART_TYPE.Windowsill]);
-    rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
+    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.WallRight]);
+    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.WindowFrame]);
+    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.Windowsill]);
+    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
   }
 
   _initSounds() {

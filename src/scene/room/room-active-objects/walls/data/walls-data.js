@@ -1,13 +1,14 @@
 const WALLS_PART_TYPE = {
-  Floor: 'floor',
-  WallLeft: 'wall-left',
-  WallRight: 'wall-right',
-  Windowsill: 'windowsill',
-  WindowFrame: 'window-frame',
+  Walls: 'walls',
+  // Floor: 'floor',
+  // WallLeft: 'wall-left',
+  // WallRight: 'wall-right',
+  // Windowsill: 'windowsill',
+  // WindowFrame: 'window-frame',
   GlassBottom: 'glass-bottom',
+  GlassTop: 'glass-top',
   Window: 'window',
   WindowHandle: 'window-handle',
-  GlassTop: 'glass-top',
 }
 
 const WINDOW_STATE = {
@@ -30,15 +31,16 @@ const WINDOW_OPEN_TYPE = {
 const WINDOW_OPEN_TYPE_BOTH = 'WINDOW_OPEN_TYPE_BOTH';
 
 const WALLS_PART_ACTIVITY_CONFIG = {
-  [WALLS_PART_TYPE.Floor]: false,
-  [WALLS_PART_TYPE.WallLeft]: false,
-  [WALLS_PART_TYPE.WallRight]: false,
-  [WALLS_PART_TYPE.Windowsill]: false,
-  [WALLS_PART_TYPE.WindowFrame]: false,
+  [WALLS_PART_TYPE.Walls]: false,
+  // [WALLS_PART_TYPE.Floor]: false,
+  // [WALLS_PART_TYPE.WallLeft]: false,
+  // [WALLS_PART_TYPE.WallRight]: false,
+  // [WALLS_PART_TYPE.Windowsill]: false,
+  // [WALLS_PART_TYPE.WindowFrame]: false,
   [WALLS_PART_TYPE.GlassBottom]: false,
+  [WALLS_PART_TYPE.GlassTop]: true,
   [WALLS_PART_TYPE.Window]: true,
   [WALLS_PART_TYPE.WindowHandle]: true,
-  [WALLS_PART_TYPE.GlassTop]: true,
 }
 
 export {
