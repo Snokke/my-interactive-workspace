@@ -11,7 +11,6 @@ import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/la
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
-import Delayed from '../../core/helpers/delayed-call';
 
 export default class RoomController {
   constructor(data) {

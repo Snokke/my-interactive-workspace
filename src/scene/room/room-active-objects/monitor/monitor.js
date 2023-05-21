@@ -424,15 +424,12 @@ export default class Monitor extends RoomObjectAbstract {
 
   _updateMonitorPosition(deltaZ) {
     const screen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
-    const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
 
     this._screenGroup.position.z = screen.userData.startPosition.z + deltaZ;
-    monitorMount.position.z = monitorMount.userData.startPosition.z + deltaZ;
   }
 
   _updateArmMount(deltaZ) {
     const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
-    const monitorMount = this._parts[MONITOR_PART_TYPE.MonitorMount];
     const arm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
     const arm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
 
@@ -444,7 +441,7 @@ export default class Monitor extends RoomObjectAbstract {
 
     const bonusAngle = MONITOR_ARM_MOUNT_CONFIG.arm02.bonusAngle * THREE.MathUtils.DEG2RAD;
     const positionX = arm02.position.x + Math.cos(-arm02.rotation.y - bonusAngle + Math.PI * 0.5) * MONITOR_ARM_MOUNT_CONFIG.arm02.shoulderCoeff;
-    monitor.position.x = monitorMount.position.x = this._screenGroup.position.x = positionX;
+    monitor.position.x = this._screenGroup.position.x = positionX;
 
     this._updateArmRotation();
     this._debugMenu.updateArmRotation();

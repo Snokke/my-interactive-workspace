@@ -79,11 +79,11 @@ export default class Laptop extends RoomObjectAbstract {
       return;
     }
 
-    const laptopMount = this._parts[LAPTOP_PART_TYPE.LaptopStand];
+    const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
     const planeIntersect = new THREE.Vector3();
     raycaster.ray.intersectPlane(this._plane, planeIntersect);
 
-    const angle = Math.atan2(planeIntersect.z - laptopMount.position.z, planeIntersect.x - laptopMount.position.x);
+    const angle = Math.atan2(planeIntersect.z - laptopArmMountArm02.position.z, planeIntersect.x - laptopArmMountArm02.position.x);
     const angleDelta = angle - this._previousArmMountAngle;
 
     if (Math.abs(angleDelta) < 0.1) {
@@ -362,9 +362,6 @@ export default class Laptop extends RoomObjectAbstract {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     screen.visible = true;
 
-    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
-    keyboardSymbols.visible = true;
-
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
       button.visible = true;
@@ -377,9 +374,6 @@ export default class Laptop extends RoomObjectAbstract {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     screen.visible = false;
 
-    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
-    keyboardSymbols.visible = false;
-
     LAPTOP_SCREEN_MUSIC_PARTS.forEach((partType) => {
       const button = this._parts[partType];
       button.visible = false;
@@ -391,13 +385,10 @@ export default class Laptop extends RoomObjectAbstract {
     this._addMaterials();
     this._addPartsToScene();
     this._initScreenTexture();
-    this._initKeyboardTexture();
     this._initButtonsWithSparkles();
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
-
-    this._instantCloseLaptop();
   }
 
   _initSignals() {
@@ -473,26 +464,16 @@ export default class Laptop extends RoomObjectAbstract {
     });
   }
 
-  _initKeyboardTexture() {
-    const keyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
-    const texture = Loader.assets['mac-keyboard'];
-    texture.flipY = false;
-
-    keyboardSymbols.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-    });
-  }
-
   _initHelpArrows() {
     const helpArrowsTypes = [HELP_ARROW_TYPE.LaptopMountLeft, HELP_ARROW_TYPE.LaptopMountRight];
     const helpArrows = this._helpArrows = new HelpArrows(helpArrowsTypes);
     this._armWithLaptopGroup.add(helpArrows);
 
-    const stand = this._parts[LAPTOP_PART_TYPE.LaptopStand];
+    const stand = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
     helpArrows.position.copy(stand.position.clone());
-    helpArrows.position.z += 0.7;
+    helpArrows.position.x += 0.2;
     helpArrows.position.y -= 0.27;
+    helpArrows.position.z += 2.4;
   }
 
   _getLaptopParts() {

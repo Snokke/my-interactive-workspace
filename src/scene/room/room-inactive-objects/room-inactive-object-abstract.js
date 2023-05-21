@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { ROOM_CONFIG, ROOM_OBJECT_CONFIG } from '../data/room-config';
-import Delayed from '../../../core/helpers/delayed-call';
+import { ROOM_OBJECT_CONFIG } from '../data/room-config';
 
 export default class RoomInactiveObjectAbstract extends THREE.Group {
   constructor(roomScene, roomObjectType) {

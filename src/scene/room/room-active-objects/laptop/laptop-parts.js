@@ -31,20 +31,14 @@ export default class LaptopParts extends THREE.Group {
     const armWithLaptopGroup = this._armWithLaptopGroup = new THREE.Group();
 
     const armMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
-    const laptopMount = this._parts[LAPTOP_PART_TYPE.LaptopMount];
-    const laptopStand = this._parts[LAPTOP_PART_TYPE.LaptopStand];
     const laptopKeyboard = this._parts[LAPTOP_PART_TYPE.LaptopKeyboard];
-    const laptopKeyboardSymbols = this._parts[LAPTOP_PART_TYPE.LaptopKeyboardSymbols];
 
-    armWithLaptopGroup.add(armMountArm02, laptopMount, laptopStand, laptopKeyboard, laptopKeyboardSymbols);
+    armWithLaptopGroup.add(armMountArm02, laptopKeyboard);
 
     const startPosition = armMountArm02.userData.startPosition.clone();
 
     armWithLaptopGroup.position.copy(startPosition);
-    laptopMount.position.sub(startPosition);
-    laptopStand.position.sub(startPosition);
     laptopKeyboard.position.sub(startPosition);
-    laptopKeyboardSymbols.position.sub(startPosition);
 
     armMountArm02.position.set(0, 0, 0);
 

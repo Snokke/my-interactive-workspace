@@ -5,7 +5,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const textures = [
   'environment.jpg',
 
-  'baked.jpg',
+  // baked textures
+  'baked-big-objects.jpg',
+  'baked-small-objects.jpg',
 
   // air conditioner
   'snowflake-01.png',
@@ -30,14 +32,12 @@ const textures = [
   'laptop-music-02-pause.jpg',
   'laptop-music-03-playing.jpg',
   'laptop-music-03-pause.jpg',
-  'mac-keyboard.png',
+
+  // keyboard
   'keyboard-keys-atlas.png',
 
   // locker
   'workplace-photo.jpg',
-
-  // picture
-  'arcane-poster.jpg',
 
   // Transfer it Game
   'transfer-it/bg.jpg',

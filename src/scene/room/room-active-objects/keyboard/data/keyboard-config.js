@@ -4,8 +4,8 @@ const KEYBOARD_CONFIG = {
   size: new THREE.Vector3(1.8, 0.205, 0.59),
   realKeyboardEnabled: true,
   keys: {
-    offsetX: 0.085,
-    offsetY: -0.04,
+    offsetX: 0.055,
+    offsetY: 0,
     offsetZ: 0.053,
     angle: 6.5,
     offsetYFromKeyboard: 0.03,

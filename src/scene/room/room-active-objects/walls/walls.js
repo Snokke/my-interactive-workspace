@@ -275,12 +275,12 @@ export default class Walls extends RoomObjectAbstract {
     //   part.material = material;
     // }
 
-    const texture = Loader.assets['baked'];
+    const texture = Loader.assets['baked-big-objects'];
     texture.flipY = false;
     // texture.encoding = THREE.sRGBEncoding;
     // texture.encoding = THREE.SRGBColorSpace;
 
-    const bakedMaterial = new THREE.MeshBasicMaterial({
+    const bakedMaterial = new THREE.MeshStandardMaterial({
       map: texture,
     });
 

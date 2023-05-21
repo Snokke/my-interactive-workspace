@@ -207,6 +207,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initGroups();
     this._initMusic();
     this._initDebugMenu();
     this._initHelpers();
@@ -218,33 +219,23 @@ export default class Speakers extends RoomObjectAbstract {
     this._setPowerOn();
   }
 
-  _addPartsToScene() {
+  _initGroups() {
+    const speakers = this._parts[SPEAKERS_PART_TYPE.Speakers];
+    const speakersDistance = 7.2;
+
     const leftSpeakerGroup = this._leftSpeakerGroup = new THREE.Group();
     this.add(leftSpeakerGroup);
-
-    const leftSpeaker = this._parts[SPEAKERS_PART_TYPE.Left];
-
-    leftSpeakerGroup.add(leftSpeaker);
-    leftSpeakerGroup.position.copy(leftSpeaker.userData.startPosition);
-    leftSpeaker.position.set(0, 0, 0);
+    leftSpeakerGroup.position.copy(speakers.position);
+    leftSpeakerGroup.position.x -= speakersDistance;
 
     const rightSpeakerGroup = this._rightSpeakerGroup = new THREE.Group();
     this.add(rightSpeakerGroup);
+    rightSpeakerGroup.position.copy(speakers.position);
 
-    const rightSpeaker = this._parts[SPEAKERS_PART_TYPE.Right];
-    const powerIndicator = this._parts[SPEAKERS_PART_TYPE.PowerIndicator];
-
-    rightSpeakerGroup.add(rightSpeaker);
-    rightSpeakerGroup.add(powerIndicator);
-    rightSpeakerGroup.position.copy(rightSpeaker.userData.startPosition);
-    powerIndicator.position.sub(rightSpeaker.userData.startPosition);
-    rightSpeaker.position.set(0, 0, 0);
-
-    this._musicGroup = new THREE.Group();
-    this.add(this._musicGroup);
-
-    this._musicGroup.position.copy(rightSpeakerGroup.position);
-    this._musicGroup.position.x -= 3.6;
+    const musicGroup = this._musicGroup = new THREE.Group();
+    this.add(musicGroup);
+    musicGroup.position.copy(speakers.position);
+    musicGroup.position.x -= speakersDistance * 0.5;
   }
 
   _initMusic() {

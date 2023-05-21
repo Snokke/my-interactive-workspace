@@ -228,7 +228,7 @@ export default class KeysBacklight extends THREE.Group {
     this._initStartHSLAngle();
     this._initFunctionsByType();
 
-    this.hide();
+    this.setBacklightType(KEYS_BACKLIGHT_TYPE_ORDER[0]);
   }
 
   _initKeysBacklightInstanceMesh() {

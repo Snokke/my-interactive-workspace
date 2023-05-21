@@ -605,6 +605,22 @@ export default class Chair extends RoomObjectAbstract {
     this._initSignals();
   }
 
+  _addMaterials() {
+    const texture = Loader.assets['baked-small-objects'];
+    texture.flipY = false;
+    // texture.encoding = THREE.sRGBEncoding;
+    // texture.encoding = THREE.SRGBColorSpace;
+
+    const bakedMaterial = new THREE.MeshStandardMaterial({
+      map: texture,
+    });
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = bakedMaterial;
+    }
+  }
+
   _initShadows() {
     for (const key in this._parts) {
       const part = this._parts[key];

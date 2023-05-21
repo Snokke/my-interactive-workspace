@@ -20,16 +20,11 @@ import Table from "../room-active-objects/table/table";
 import TableDebugMenu from "../room-active-objects/table/table-debug-menu";
 import Walls from "../room-active-objects/walls/walls";
 import WindowDebugMenu from "../room-active-objects/walls/window-debug-menu";
-import Carpet from "../room-inactive-objects/objects/carpet";
-import Coaster from "../room-inactive-objects/objects/coaster";
-import Cup from "../room-inactive-objects/objects/cup/cup";
-import Picture from "../room-inactive-objects/objects/picture";
-import MousePad from "../room-inactive-objects/objects/mousepad";
-import Organizer from "../room-inactive-objects/objects/organizer";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
-import Flower from "../room-inactive-objects/objects/flower";
+import TableObjects from "../room-inactive-objects/objects/table-objects";
+import RoomObjects from "../room-inactive-objects/objects/room-objects";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -87,26 +82,11 @@ const ROOM_OBJECT_CLASS = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.Picture]: {
-    object: Picture,
+  [ROOM_OBJECT_TYPE.RoomObjects]: {
+    object: RoomObjects,
   },
-  [ROOM_OBJECT_TYPE.Carpet]: {
-    object: Carpet,
-  },
-  [ROOM_OBJECT_TYPE.MousePad]: {
-    object: MousePad,
-  },
-  [ROOM_OBJECT_TYPE.Coaster]: {
-    object: Coaster,
-  },
-  [ROOM_OBJECT_TYPE.Cup]: {
-    object: Cup,
-  },
-  [ROOM_OBJECT_TYPE.Organizer]: {
-    object: Organizer,
-  },
-  [ROOM_OBJECT_TYPE.Flower]: {
-    object: Flower,
+  [ROOM_OBJECT_TYPE.TableObjects]: {
+    object: TableObjects,
   },
 }
 

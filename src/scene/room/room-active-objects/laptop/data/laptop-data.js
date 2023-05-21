@@ -1,13 +1,9 @@
 const LAPTOP_PART_TYPE = {
   LaptopKeyboard: 'laptop_keyboard',
-  LaptopKeyboardSymbols: 'laptop_keyboard_symbols',
   LaptopMonitor: 'laptop_monitor',
   LaptopScreen: 'laptop_screen',
-  LaptopStand: 'laptop_stand',
-  LaptopArmMountBase: 'laptop_arm_mount_base',
   LaptopArmMountArm01: 'laptop_arm_mount_arm01',
   LaptopArmMountArm02: 'laptop_arm_mount_arm02',
-  LaptopMount: 'laptop_mount',
   LaptopScreenMusic01: 'laptop_screen_music_01',
   LaptopScreenMusic02: 'laptop_screen_music_02',
   LaptopScreenMusic03: 'laptop_screen_music_03',
@@ -15,14 +11,10 @@ const LAPTOP_PART_TYPE = {
 
 const LAPTOP_PART_ACTIVITY_CONFIG = {
   [LAPTOP_PART_TYPE.LaptopKeyboard]: true,
-  [LAPTOP_PART_TYPE.LaptopKeyboardSymbols]: true,
   [LAPTOP_PART_TYPE.LaptopMonitor]: true,
   [LAPTOP_PART_TYPE.LaptopScreen]: true,
-  [LAPTOP_PART_TYPE.LaptopStand]: true,
-  [LAPTOP_PART_TYPE.LaptopArmMountBase]: true,
   [LAPTOP_PART_TYPE.LaptopArmMountArm01]: true,
   [LAPTOP_PART_TYPE.LaptopArmMountArm02]: true,
-  [LAPTOP_PART_TYPE.LaptopMount]: true,
   [LAPTOP_PART_TYPE.LaptopScreenMusic01]: true,
   [LAPTOP_PART_TYPE.LaptopScreenMusic02]: true,
   [LAPTOP_PART_TYPE.LaptopScreenMusic03]: true,
@@ -30,16 +22,12 @@ const LAPTOP_PART_ACTIVITY_CONFIG = {
 
 const LAPTOP_PARTS = [
   LAPTOP_PART_TYPE.LaptopKeyboard,
-  LAPTOP_PART_TYPE.LaptopKeyboardSymbols,
   LAPTOP_PART_TYPE.LaptopMonitor,
 ]
 
 const LAPTOP_MOUNT_PARTS = [
-  LAPTOP_PART_TYPE.LaptopStand,
-  LAPTOP_PART_TYPE.LaptopArmMountBase,
   LAPTOP_PART_TYPE.LaptopArmMountArm01,
   LAPTOP_PART_TYPE.LaptopArmMountArm02,
-  LAPTOP_PART_TYPE.LaptopMount,
 ]
 
 const LAPTOP_SCREEN_MUSIC_PARTS = [

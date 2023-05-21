@@ -1,4 +1,3 @@
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { TABLE_PART_ACTIVITY_CONFIG, TABLE_PART_TYPE } from '../room-active-objects/table/data/table-data';
 import { WALLS_PART_ACTIVITY_CONFIG, WALLS_PART_TYPE } from '../room-active-objects/walls/data/walls-data';
 import { LOCKER_PART_ACTIVITY_CONFIG, LOCKER_PART_TYPE } from '../room-active-objects/locker/data/locker-data';
@@ -36,13 +35,8 @@ const ROOM_OBJECT_TYPE = {
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
 
   // Inactive objects
-  Picture: 'PICTURE',
-  Carpet: 'CARPET',
-  MousePad: 'MOUSE_PAD',
-  Coaster: 'COASTER',
-  Cup: 'CUP',
-  Organizer: 'ORGANIZER',
-  Flower: 'FLOWER',
+  RoomObjects: 'ROOM_OBJECTS',
+  TableObjects: 'TABLE_OBJECTS',
 
   // Other
   Global: 'GLOBAL',
@@ -184,51 +178,17 @@ const ROOM_OBJECT_CONFIG = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.Picture]: {
+  [ROOM_OBJECT_TYPE.RoomObjects]: {
     createObject: true,
-    label: 'Picture',
+    label: 'Room objects',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Picture',
+    meshName: 'Room_objects',
   },
-  [ROOM_OBJECT_TYPE.Carpet]: {
+  [ROOM_OBJECT_TYPE.TableObjects]: {
     createObject: true,
-    label: 'Carpet',
+    label: 'Table objects',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Carpet',
-  },
-  [ROOM_OBJECT_TYPE.MousePad]: {
-    createObject: true,
-    label: 'Mouse pad',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Mouse_pad',
-    tableGroup: true,
-  },
-  [ROOM_OBJECT_TYPE.Coaster]: {
-    createObject: true,
-    label: 'Coaster',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Coaster',
-    tableGroup: true,
-  },
-  [ROOM_OBJECT_TYPE.Cup]: {
-    createObject: true,
-    label: 'Cup',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Cup',
-    tableGroup: true,
-  },
-  [ROOM_OBJECT_TYPE.Organizer]: {
-    createObject: true,
-    label: 'Organizer',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Organizer',
-    tableGroup: true,
-  },
-  [ROOM_OBJECT_TYPE.Flower]: {
-    createObject: true,
-    label: 'Flower',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Flower',
+    meshName: 'Table_objects',
     tableGroup: true,
   },
 }
