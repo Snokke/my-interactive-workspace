@@ -35,7 +35,9 @@ const ROOM_OBJECT_TYPE = {
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
 
   // Inactive objects
-  RoomObjects: 'ROOM_OBJECTS',
+  Picture: 'PICTURE',
+  Carpet: 'CARPET',
+  MousePad: 'MOUSE_PAD',
   TableObjects: 'TABLE_OBJECTS',
 
   // Other
@@ -178,11 +180,24 @@ const ROOM_OBJECT_CONFIG = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.RoomObjects]: {
+  [ROOM_OBJECT_TYPE.Picture]: {
     createObject: true,
-    label: 'Room objects',
+    label: 'Picture',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Room_objects',
+    meshName: 'Picture',
+  },
+  [ROOM_OBJECT_TYPE.Carpet]: {
+    createObject: true,
+    label: 'Carpet',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Carpet',
+  },
+  [ROOM_OBJECT_TYPE.MousePad]: {
+    createObject: true,
+    label: 'Mouse pad',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Mouse_pad',
+    tableGroup: true,
   },
   [ROOM_OBJECT_TYPE.TableObjects]: {
     createObject: true,

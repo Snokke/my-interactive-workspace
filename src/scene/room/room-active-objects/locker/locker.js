@@ -10,6 +10,7 @@ import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -424,6 +425,15 @@ export default class Locker extends RoomObjectAbstract {
     this._initSignals();
 
     this._reset();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
   }
 
   _addPartsToScene() {

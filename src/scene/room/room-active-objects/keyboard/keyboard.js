@@ -12,6 +12,7 @@ import { getClosestKeyByX } from './data/keys-helper';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -576,15 +577,10 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    for (const partName in this._parts) {
-      const part = this._parts[partName];
-      const material = new THREE.MeshStandardMaterial({
-        // color: `hsl(${Math.random() * 360}, 80%, 50%)`,
-        // color: 0x111111,
-      });
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
 
-      part.material = material;
-    }
+    const base = this._parts[KEYBOARD_PART_TYPE.Base];
+    base.material = material;
   }
 
   _initKeys() {

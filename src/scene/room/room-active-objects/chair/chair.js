@@ -14,6 +14,7 @@ import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-co
 import { aabbIntersect, isVectorXZEqual } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -594,7 +595,7 @@ export default class Chair extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
-    this._initShadows();
+    // this._initShadows();
     this._addPartsToScene();
     this._setWheelsRandomData();
     this._initChairMovingAreaHelper();
@@ -606,18 +607,11 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const texture = Loader.assets['baked-small-objects'];
-    texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
-    // texture.encoding = THREE.SRGBColorSpace;
-
-    const bakedMaterial = new THREE.MeshStandardMaterial({
-      map: texture,
-    });
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
 
     for (const partName in this._parts) {
       const part = this._parts[partName];
-      part.material = bakedMaterial;
+      part.material = material;
     }
   }
 

@@ -24,7 +24,9 @@ import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
 import TableObjects from "../room-inactive-objects/objects/table-objects";
-import RoomObjects from "../room-inactive-objects/objects/room-objects";
+import Picture from "../room-inactive-objects/objects/picture";
+import Carpet from "../room-inactive-objects/objects/carpet";
+import MousePad from "../room-inactive-objects/objects/mouse-pad";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -82,8 +84,14 @@ const ROOM_OBJECT_CLASS = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.RoomObjects]: {
-    object: RoomObjects,
+  [ROOM_OBJECT_TYPE.Picture]: {
+    object: Picture,
+  },
+  [ROOM_OBJECT_TYPE.Carpet]: {
+    object: Carpet,
+  },
+  [ROOM_OBJECT_TYPE.MousePad]: {
+    object: MousePad,
   },
   [ROOM_OBJECT_TYPE.TableObjects]: {
     object: TableObjects,

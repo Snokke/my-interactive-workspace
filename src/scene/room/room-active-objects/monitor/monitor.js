@@ -14,6 +14,7 @@ import VolumeIcon from './volume-icon/volume-icon';
 import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { CAMERA_MODE } from '../../camera-controller/data/camera-data';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -493,6 +494,15 @@ export default class Monitor extends RoomObjectAbstract {
     this._initArrows();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
   }
 
   _initGroups() {

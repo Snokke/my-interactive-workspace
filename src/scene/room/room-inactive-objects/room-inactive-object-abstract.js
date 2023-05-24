@@ -10,18 +10,13 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
 
     this._mesh = null;
 
-    this._init();
+    this._initMesh();
   }
 
   update(dt) { }
 
   getMesh() {
     return this._mesh;
-  }
-
-  _init() {
-    this._initMesh();
-    this._addMaterials();
   }
 
   _initMesh() {

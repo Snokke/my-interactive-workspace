@@ -7,6 +7,7 @@ import { AIR_CONDITIONER_CONFIG } from './data/air-conditioner-config';
 import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SnowflakeParticlesController from './snowflake-particles/snowflake-particles-controller';
+import Materials from '../../../../core/materials';
 
 export default class AirConditioner extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -193,6 +194,15 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
   }
 
   _initTemperature() {

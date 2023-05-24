@@ -8,6 +8,7 @@ import SoundParticles from './sound-particles/sound-particels';
 import { MUSIC_TYPE } from '../laptop/data/laptop-data';
 import { MUSIC_CONFIG } from '../laptop/data/laptop-config';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import Materials from '../../../../core/materials';
 
 export default class Speakers extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -217,6 +218,12 @@ export default class Speakers extends RoomObjectAbstract {
     this._music.setVolume(0);
 
     this._setPowerOn();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+
+    this._parts[SPEAKERS_PART_TYPE.Speakers].material = material;
   }
 
   _initGroups() {

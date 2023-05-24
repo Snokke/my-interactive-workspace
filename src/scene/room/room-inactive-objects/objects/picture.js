@@ -1,7 +1,7 @@
 import Materials from "../../../../core/materials";
 import RoomInactiveObjectAbstract from "../room-inactive-object-abstract";
 
-export default class TableObjects extends RoomInactiveObjectAbstract {
+export default class Picture extends RoomInactiveObjectAbstract {
   constructor(roomScene, roomObjectType) {
     super(roomScene, roomObjectType);
 

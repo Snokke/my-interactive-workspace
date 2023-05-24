@@ -9,6 +9,7 @@ import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-con
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
 import Loader from '../../../../core/loader';
+import Materials from '../../../../core/materials';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -245,18 +246,11 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const texture = Loader.assets['baked-small-objects'];
-    texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
-    // texture.encoding = THREE.SRGBColorSpace;
-
-    const bakedMaterial = new THREE.MeshBasicMaterial({
-      map: texture,
-    });
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
 
     for (const partName in this._parts) {
       const part = this._parts[partName];
-      part.material = bakedMaterial;
+      part.material = material;
     }
   }
 

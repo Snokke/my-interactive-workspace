@@ -7,6 +7,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import Materials from '../../../../core/materials';
 
 export default class Table extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -193,6 +194,15 @@ export default class Table extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
   }
 
   _initTopPartsGroup() {

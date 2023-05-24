@@ -12,6 +12,7 @@ import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragmen
 import LaptopParts from './laptop-parts';
 import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -389,6 +390,21 @@ export default class Laptop extends RoomObjectAbstract {
     this._initHelpArrows();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const bigObjectsMaterial = Materials.getMaterial(Materials.type.bakedBigObjects);
+    const smallObjectsMaterial = Materials.getMaterial(Materials.type.bakedSmallObjects);
+
+    const armMount01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
+    const armMount02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
+    armMount01.material = bigObjectsMaterial;
+    armMount02.material = bigObjectsMaterial;
+
+    const keyboard = this._parts[LAPTOP_PART_TYPE.LaptopKeyboard];
+    const monitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
+    keyboard.material = smallObjectsMaterial;
+    monitor.material = smallObjectsMaterial;
   }
 
   _initSignals() {

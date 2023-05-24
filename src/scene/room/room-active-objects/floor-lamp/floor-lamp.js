@@ -4,6 +4,7 @@ import { FLOOR_LAMP_PART_TYPE } from './data/floor-lamp-data';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import Materials from '../../../../core/materials';
 
 export default class FloorLamp extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -30,6 +31,17 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+    this._parts[FLOOR_LAMP_PART_TYPE.Stand].material = material;
+
+    const lampMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+    });
+
+    this._parts[FLOOR_LAMP_PART_TYPE.Lamp].material = lampMaterial;
   }
 
   _initSounds() {

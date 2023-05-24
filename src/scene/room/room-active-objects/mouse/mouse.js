@@ -9,6 +9,7 @@ import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 import { Black } from 'black-engine';
+import Materials from '../../../../core/materials';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -164,6 +165,15 @@ export default class Mouse extends RoomObjectAbstract {
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
+  }
+
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
   }
 
   _addPartsToScene() {

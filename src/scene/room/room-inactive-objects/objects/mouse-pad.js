@@ -1,7 +1,7 @@
 import Materials from "../../../../core/materials";
 import RoomInactiveObjectAbstract from "../room-inactive-object-abstract";
 
-export default class TableObjects extends RoomInactiveObjectAbstract {
+export default class MousePad extends RoomInactiveObjectAbstract {
   constructor(roomScene, roomObjectType) {
     super(roomScene, roomObjectType);
 
@@ -9,7 +9,7 @@ export default class TableObjects extends RoomInactiveObjectAbstract {
   }
 
   _addMaterials() {
-    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
     this._mesh.material = material;
   }
 }

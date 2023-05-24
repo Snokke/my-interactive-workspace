@@ -7,6 +7,7 @@ import SoundHelper from '../../shared-objects/sound-helper';
 import Loader from '../../../../core/loader';
 import { rotateAroundPoint } from '../../shared-objects/helpers';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import Materials from '../../../../core/materials';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -242,7 +243,7 @@ export default class Walls extends RoomObjectAbstract {
 
   _init() {
     this._initParts();
-    this._initShadows();
+    // this._initShadows();
     this._addMaterials();
     this._addPartsToScene();
     this._initGlass();
@@ -262,37 +263,12 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    // for (const partName in this._parts) {
-    //   if (partName === WALLS_PART_TYPE.WallLeft || partName === WALLS_PART_TYPE.Floor) {
-    //     continue;
-    //   }
-
-    //   const part = this._parts[partName];
-    //   const material = new THREE.MeshStandardMaterial({
-    //     color: `hsl(${Math.random() * 360}, 60%, 50%)`,
-    //   });
-
-    //   part.material = material;
-    // }
-
-    const texture = Loader.assets['baked-big-objects'];
-    texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
-    // texture.encoding = THREE.SRGBColorSpace;
-
-    const bakedMaterial = new THREE.MeshStandardMaterial({
-      map: texture,
-    });
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
 
     for (const partName in this._parts) {
       const part = this._parts[partName];
-      part.material = bakedMaterial;
+      part.material = material;
     }
-
-    // const walls = this._parts[WALLS_PART_TYPE.Walls];
-    // const floor = this._parts[WALLS_PART_TYPE.Floor];
-    // walls.material = bakedMaterial;
-    // floor.material = bakedMaterial;
   }
 
   _initGlass() {

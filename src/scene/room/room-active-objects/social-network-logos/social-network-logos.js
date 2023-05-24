@@ -1,3 +1,4 @@
+import Materials from '../../../../core/materials';
 import RoomObjectAbstract from '../room-object.abstract';
 import { SOCIAL_NETWORK_LOGOS_PART_TYPE } from './social-network-logos-data';
 
@@ -34,7 +35,19 @@ export default class SocialNetworkLogos extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._setPositions();
+  }
 
+  _addMaterials() {
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+
+    for (const partName in this._parts) {
+      const part = this._parts[partName];
+      part.material = material;
+    }
+  }
+
+  _setPositions() {
     const githubIcon = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Github];
     const linkedinIcon = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Linkedin];
     githubIcon.position.z -= 0.07;
