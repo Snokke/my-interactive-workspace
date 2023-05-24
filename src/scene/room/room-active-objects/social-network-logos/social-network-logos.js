@@ -35,7 +35,6 @@ export default class SocialNetworkLogos extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._setPositions();
   }
 
   _addMaterials() {
@@ -45,14 +44,5 @@ export default class SocialNetworkLogos extends RoomObjectAbstract {
       const part = this._parts[partName];
       part.material = material;
     }
-  }
-
-  _setPositions() {
-    const githubIcon = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Github];
-    const linkedinIcon = this._parts[SOCIAL_NETWORK_LOGOS_PART_TYPE.Linkedin];
-    githubIcon.position.z -= 0.07;
-    githubIcon.position.x += 0.025;
-    linkedinIcon.position.z -= 0.07;
-    linkedinIcon.position.x += 0.025;
   }
 }

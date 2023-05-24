@@ -207,6 +207,7 @@ export default class Speakers extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
+    this._initPowerIndicatorMaterial();
     this._addPartsToScene();
     this._initGroups();
     this._initMusic();
@@ -224,6 +225,14 @@ export default class Speakers extends RoomObjectAbstract {
     const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
 
     this._parts[SPEAKERS_PART_TYPE.Speakers].material = material;
+  }
+
+  _initPowerIndicatorMaterial() {
+    const material = new THREE.MeshLambertMaterial({
+      color: new THREE.Color(SPEAKERS_CONFIG.turnOnColor),
+    });
+
+    this._parts[SPEAKERS_PART_TYPE.PowerIndicator].material = material;
   }
 
   _initGroups() {

@@ -271,7 +271,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     const buttonTemperatureDownDelta = buttonTemperatureDown.position.clone().sub(base.position);
     const temperatureScreenDelta = temperatureScreen.position.clone().sub(base.position);
 
-    wrapper.position.copy(this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.startPosition);
+    wrapper.position.copy(base.userData.startPosition);
 
     base.position.set(0, 0, 0);
     buttonOnOff.position.copy(buttonOnOffDelta);

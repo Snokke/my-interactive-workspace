@@ -37,11 +37,11 @@ export default class FloorLamp extends RoomObjectAbstract {
     const material = Materials.getMaterial(Materials.type.bakedBigObjects);
     this._parts[FLOOR_LAMP_PART_TYPE.Stand].material = material;
 
-    const lampMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-    });
+    const lampOuterMaterial = new THREE.MeshBasicMaterial({ color: 0xf5f5f5 });
+    const lampInnerMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-    this._parts[FLOOR_LAMP_PART_TYPE.Lamp].material = lampMaterial;
+    this._parts[FLOOR_LAMP_PART_TYPE.LampOuter].material = lampOuterMaterial;
+    this._parts[FLOOR_LAMP_PART_TYPE.LampInner].material = lampInnerMaterial;
   }
 
   _initSounds() {
