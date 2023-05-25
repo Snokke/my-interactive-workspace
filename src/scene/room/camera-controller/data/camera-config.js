@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from "./camera-data";
 import { ROOM_OBJECT_TYPE } from "../../data/room-config";
 

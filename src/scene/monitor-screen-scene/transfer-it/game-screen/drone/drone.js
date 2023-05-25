@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Utils from '../../helpers/utils';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import { DRONE_TYPE, DRONE_MODELS, DRONES } from './drone-config';
 import Loader from '../../../../../core/loader';
 

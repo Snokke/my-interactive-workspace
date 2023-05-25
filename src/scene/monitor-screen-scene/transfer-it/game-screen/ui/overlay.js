@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { UI_CONFIG } from './ui-config';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import { MessageDispatcher } from 'black-engine';
 
 export default class Overlay extends THREE.Group {

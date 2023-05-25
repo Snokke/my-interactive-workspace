@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { SCALE_ZERO } from '../../data/room-config';
@@ -605,7 +605,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const geometry = keyMesh.geometry;
 
     const texture = Loader.assets['keyboard-key-texture'];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
     texture.flipY = false;
 
     const material = new THREE.MeshBasicMaterial({
@@ -680,7 +680,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const spaceKey = model.scene.children[0];
 
     const texture = Loader.assets['keyboard-space-key-texture'];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
     texture.flipY = false;
 
     const material = new THREE.MeshBasicMaterial({

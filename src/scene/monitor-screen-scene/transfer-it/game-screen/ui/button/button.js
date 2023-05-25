@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { BUTTON_CONFIG } from './button-config';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Loader from '../../../../../../core/loader';
 
 export default class Button extends THREE.Group {

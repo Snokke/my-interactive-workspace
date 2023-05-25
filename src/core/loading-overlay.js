@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 
 export default class LoadingOverlay extends THREE.Group {
   constructor() {

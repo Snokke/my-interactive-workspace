@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_ORDER } from './data/laptop-data';
@@ -340,7 +340,7 @@ export default class Laptop extends RoomObjectAbstract {
     const part = this._parts[partType];
     const texturePause = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePause;
     const texture = Loader.assets[texturePause];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
     part.material.uniforms.uTexture.value = texture;
   }
 
@@ -348,7 +348,7 @@ export default class Laptop extends RoomObjectAbstract {
     const part = this._parts[partType];
     const texturePlaying = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePlaying;
     const texture = Loader.assets[texturePlaying];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
     part.material.uniforms.uTexture.value = texture;
   }
 
@@ -448,7 +448,7 @@ export default class Laptop extends RoomObjectAbstract {
   _initScreenTexture() {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
     const texture = Loader.assets['laptop-screen'];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
 
     screen.material = new THREE.MeshBasicMaterial({
       map: texture,

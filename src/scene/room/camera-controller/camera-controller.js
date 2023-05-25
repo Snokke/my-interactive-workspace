@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, FOCUSED_MODE_CAMERA_CONFIG, ORBIT_CONTROLS_MODE_CONFIG, STATIC_MODE_CAMERA_CONFIG } from './data/camera-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera-data';
 import { MessageDispatcher } from 'black-engine';

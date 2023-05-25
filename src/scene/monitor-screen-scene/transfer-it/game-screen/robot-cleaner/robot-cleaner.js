@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import Utils from '../../helpers/utils';
 import SimplePhysics from '../../helpers/simple-physics';
 import { MathEx, MessageDispatcher } from "black-engine";
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Delayed from '../../../../../core/helpers/delayed-call';
 
 export default class RobotCleaner extends THREE.Group {

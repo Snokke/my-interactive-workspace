@@ -4,7 +4,7 @@ import Utils from '../../helpers/utils';
 import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../helpers/simple-physics';
 import { ROOM_TYPE, ROOM_CONFIG } from './room-config';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Loader from '../../../../../core/loader';
 
 export default class Floor extends THREE.Group {

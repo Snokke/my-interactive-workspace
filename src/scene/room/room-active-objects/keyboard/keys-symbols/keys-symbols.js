@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Loader from '../../../../../core/loader';
 import vertexShader from './keys-symbols-shaders/keys-symbols-vertex.glsl';
 import fragmentShader from './keys-symbols-shaders/keys-symbols-fragment.glsl';

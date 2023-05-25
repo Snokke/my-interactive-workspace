@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { Black } from 'black-engine';
 import DEBUG_CONFIG from "../../configs/debug-config";
 import RendererStats from 'three-webgl-stats';
-import Stats from '/node_modules/three/examples/jsm/libs/stats.module.js';
+import Stats from 'three/addons/libs/stats.module.js';
 import GUIHelper from "./gui-helper";
 import { CAMERA_FOCUS_OBJECT_TYPE } from "../../../scene/room/camera-controller/data/camera-data";
 import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";

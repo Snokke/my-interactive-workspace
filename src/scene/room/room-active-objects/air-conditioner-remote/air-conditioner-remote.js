@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { AIR_CONDITIONER_REMOTE_BUTTON_TYPE, AIR_CONDITIONER_REMOTE_PART_TYPE } from './data/air-conditioner-remote-data';

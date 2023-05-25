@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { AssetManager, GameObject, MessageDispatcher } from 'black-engine';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
 
 const textures = [
   'environment.jpg',

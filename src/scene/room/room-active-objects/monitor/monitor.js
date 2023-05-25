@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
@@ -554,7 +554,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _initScreenTexture() {
     const texture = this._screenTexture = Loader.assets['monitor-screen'];
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
 
     const material = new THREE.MeshBasicMaterial({
       map: texture,
@@ -571,7 +571,7 @@ export default class Monitor extends RoomObjectAbstract {
       const part = this._parts[partType];
       const textureName = MONITOR_BUTTONS_CONFIG.buttons[partType].textureName;
       const texture = Loader.assets[textureName];
-      // texture.encoding = THREE.sRGBEncoding;
+      // texture.colorSpace = THREE.SRGBColorSpace;
 
       const uniforms = {
         uTime: { value: 0 },
@@ -613,7 +613,7 @@ export default class Monitor extends RoomObjectAbstract {
     });
 
     const texture = this._showreelTexture = new THREE.VideoTexture(videoElement);
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
   }
 
   _initArrows() {

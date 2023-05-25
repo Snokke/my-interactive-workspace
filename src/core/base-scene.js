@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { EffectComposer } from '/node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
-import { OutlinePass } from '/node_modules/three/examples/jsm/postprocessing/OutlinePass.js';
-import { RenderPass } from '/node_modules/three/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '/node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from '/node_modules/three/examples/jsm/shaders/FXAAShader.js';
-import { GammaCorrectionShader } from '/node_modules/three/examples/jsm/shaders/GammaCorrectionShader.js';
+import TWEEN from 'three/addons/libs/tween.module.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
 import SCENE_CONFIG from './configs/scene-config';
 import MainScene from '../main-scene';
 import LoadingOverlay from './loading-overlay';
@@ -144,8 +144,6 @@ export default class BaseScene {
   }
 
   _initThreeJS() {
-    THREE.ColorManagement.enabled = true;
-
     this._initScene();
     this._initRenderer();
     this._initCamera();
@@ -178,6 +176,12 @@ export default class BaseScene {
 
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // renderer.toneMappingExposure = 1;
+    // renderer.toneMappingWhitePoint = 1.0;
 
     // renderer.outputColorSpace = THREE.SRGBColorSpace;
     // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
@@ -279,11 +283,11 @@ export default class BaseScene {
     // this._scene.background = backgroundTexture;
 
     const texture = Loader.assets['environment'];
+    // texture.colorSpace = THREE.SRGBColorSpace;
 
     const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
     rt.fromEquirectangularTexture(this._renderer, texture);
     this._scene.background = rt.texture;
-
   }
 
   _initPostProcessing() {

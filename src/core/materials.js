@@ -20,7 +20,7 @@ export default class Materials {
   _initBakedBigObjectsMaterial() {
     const texture = Loader.assets['baked-big-objects'];
     texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
 
     this.bakedBigObjects = new THREE.MeshBasicMaterial({
       map: texture,
@@ -30,7 +30,7 @@ export default class Materials {
   _initBakedSmallObjectsMaterial() {
     const texture = Loader.assets['baked-small-objects'];
     texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
+    // texture.colorSpace = THREE.SRGBColorSpace;
 
     this.bakedSmallObjects = new THREE.MeshBasicMaterial({
       map: texture,
