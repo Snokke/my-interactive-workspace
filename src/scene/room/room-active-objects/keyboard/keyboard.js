@@ -604,7 +604,13 @@ export default class Keyboard extends RoomObjectAbstract {
     const keyMesh = keyModel.scene.children[0];
     const geometry = keyMesh.geometry;
 
-    const material = new THREE.MeshStandardMaterial();
+    const texture = Loader.assets['keyboard-key-texture'];
+    // texture.encoding = THREE.sRGBEncoding;
+    texture.flipY = false;
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
 
     const keysCount = this._keysCount = KEYS_CONFIG.length;
 
@@ -673,7 +679,14 @@ export default class Keyboard extends RoomObjectAbstract {
     const model = Loader.assets['keyboard-key-space'];
     const spaceKey = model.scene.children[0];
 
-    const material = new THREE.MeshStandardMaterial();
+    const texture = Loader.assets['keyboard-space-key-texture'];
+    // texture.encoding = THREE.sRGBEncoding;
+    texture.flipY = false;
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
     spaceKey.material = material;
 
     this._keysGroup.add(spaceKey);

@@ -168,17 +168,6 @@ export default class RoomObjectAbstract extends THREE.Group {
     }
   }
 
-  _addMaterials() {
-    for (const partName in this._parts) {
-      const part = this._parts[partName];
-      const material = new THREE.MeshStandardMaterial({
-        color: `hsl(${Math.random() * 360}, 60%, 50%)`,
-      });
-
-      part.material = material;
-    }
-  }
-
   _addPartsToScene() {
     for (let key in this._parts) {
       const part = this._parts[key];

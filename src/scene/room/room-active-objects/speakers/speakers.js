@@ -223,12 +223,15 @@ export default class Speakers extends RoomObjectAbstract {
 
   _addMaterials() {
     const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
-
     this._parts[SPEAKERS_PART_TYPE.Speakers].material = material;
   }
 
   _initPowerIndicatorMaterial() {
-    const material = new THREE.MeshLambertMaterial({
+    const texture = Loader.assets['speakers-indicator'];
+    texture.flipY = false;
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
       color: new THREE.Color(SPEAKERS_CONFIG.turnOnColor),
     });
 

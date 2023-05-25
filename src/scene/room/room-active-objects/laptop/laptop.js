@@ -339,13 +339,17 @@ export default class Laptop extends RoomObjectAbstract {
   _setPartTexturePause(partType) {
     const part = this._parts[partType];
     const texturePause = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePause;
-    part.material.uniforms.uTexture.value = Loader.assets[texturePause];
+    const texture = Loader.assets[texturePause];
+    // texture.encoding = THREE.sRGBEncoding;
+    part.material.uniforms.uTexture.value = texture;
   }
 
   _setPartTexturePlaying(partType) {
     const part = this._parts[partType];
     const texturePlaying = LAPTOP_SCREEN_MUSIC_CONFIG.buttons[partType].texturePlaying;
-    part.material.uniforms.uTexture.value = Loader.assets[texturePlaying];
+    const texture = Loader.assets[texturePlaying];
+    // texture.encoding = THREE.sRGBEncoding;
+    part.material.uniforms.uTexture.value = texture;
   }
 
   _instantCloseLaptop() {

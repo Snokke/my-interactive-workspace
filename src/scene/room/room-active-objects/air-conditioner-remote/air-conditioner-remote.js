@@ -8,7 +8,6 @@ import { Black } from 'black-engine';
 import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-config';
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
-import Loader from '../../../../core/loader';
 import Materials from '../../../../core/materials';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
@@ -241,7 +240,6 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this._initWrapperGroup();
     this._initBaseLastPosition();
     this._initButtonsByType();
-    this._initButtonTextures();
     this._initTemperatureScreen();
   }
 
@@ -303,22 +301,12 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     }
   }
 
-  _initButtonTextures() {
-    const buttonOnOff = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonOnOff];
-    // buttonOnOff.material.color = new THREE.Color(0xcc0000);
-
-    const buttonTemperatureUp = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureUp];
-    // buttonTemperatureUp.material.color = new THREE.Color(0xdddddd);
-
-    const buttonTemperatureDown = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureDown];
-    // buttonTemperatureDown.material.color = new THREE.Color(0xdddddd);
-  }
-
   _initTemperatureScreen() {
     this._initTemperatureScreenBitmap();
     this._initTemperatureText();
 
     setTimeout(() => this.updateTemperatureScreen(), 10);
+    setTimeout(() => this.updateTemperatureScreen(), 1000);
   }
 
   _initTemperatureScreenBitmap() {

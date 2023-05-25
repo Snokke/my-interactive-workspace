@@ -571,6 +571,7 @@ export default class Monitor extends RoomObjectAbstract {
       const part = this._parts[partType];
       const textureName = MONITOR_BUTTONS_CONFIG.buttons[partType].textureName;
       const texture = Loader.assets[textureName];
+      // texture.encoding = THREE.sRGBEncoding;
 
       const uniforms = {
         uTime: { value: 0 },

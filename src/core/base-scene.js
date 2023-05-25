@@ -144,6 +144,8 @@ export default class BaseScene {
   }
 
   _initThreeJS() {
+    THREE.ColorManagement.enabled = true;
+
     this._initScene();
     this._initRenderer();
     this._initCamera();
@@ -177,16 +179,20 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+    // renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    // renderer.toneMapping = THREE.NoToneMapping;
+
     // THREE.ColorManagement.enabled = true;
     // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     // renderer.gammaFactor = 2.2;
 
     // renderer.outputEncoding = THREE.sRGBEncoding;
-    // renderer.useLegacyLights = false;
+    renderer.useLegacyLights = false;
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
-    // renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = true;
     // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
 
@@ -204,14 +210,14 @@ export default class BaseScene {
   }
 
   _initLights() {
-    const ambientLightConfig = SCENE_CONFIG.lights.ambient;
-    const ambientLight = new THREE.AmbientLight(ambientLightConfig.color, ambientLightConfig.intensity);
-    this._scene.add(ambientLight);
+    // const ambientLightConfig = SCENE_CONFIG.lights.ambient;
+    // const ambientLight = new THREE.AmbientLight(ambientLightConfig.color, ambientLightConfig.intensity);
+    // this._scene.add(ambientLight);
 
-    const directionalLightConfig = SCENE_CONFIG.lights.directional;
-    const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
-    directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
-    this._scene.add(directionalLight);
+    // const directionalLightConfig = SCENE_CONFIG.lights.directional;
+    // const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
+    // directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
+    // this._scene.add(directionalLight);
 
     // directionalLight.castShadow = true;
     // directionalLight.shadow.camera.left = -9;
@@ -283,12 +289,12 @@ export default class BaseScene {
   _initPostProcessing() {
     this._initEffectsComposer();
     this._initOutlinePass();
-    this._initGammaCorrectionPass();
     this._initAntiAliasingPass();
+    // this._initGammaCorrectionPass();
   }
 
   _initEffectsComposer() {
-    // const size = this._renderer.getSize(new Vector2());
+    // const size = this._renderer.getSize(new THREE.Vector2());
     // const pixelRatio = this._renderer.getPixelRatio();
     // const width = size.width;
     // const height = size.height;
@@ -298,6 +304,13 @@ export default class BaseScene {
     //   magFilter: THREE.LinearFilter,
     //   format: THREE.RGBAFormat,
     //   encoding: THREE.sRGBEncoding
+    // });
+
+    // const target = new THREE.WebGLRenderTarget(width * pixelRatio, height * pixelRatio, {
+    //   minFilter: THREE.LinearFilter,
+    //   magFilter: THREE.LinearFilter,
+    //   format: THREE.RGBAFormat,
+    //   colorSpace: THREE.SRGBColorSpace,
     // });
 
     const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
@@ -334,7 +347,7 @@ export default class BaseScene {
   }
 
   _initGammaCorrectionPass() {
-    const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
+    const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
     this._effectComposer.addPass(gammaCorrectionPass);
   }
 

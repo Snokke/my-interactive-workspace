@@ -210,6 +210,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._initTemperatureText();
 
     setTimeout(() => this.updateTemperatureScreen(), 10);
+    setTimeout(() => this.updateTemperatureScreen(), 1000);
   }
 
   _initTemperatureScreenBitmap() {

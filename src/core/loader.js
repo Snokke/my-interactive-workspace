@@ -5,9 +5,15 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const textures = [
   'environment.jpg',
 
+  // window
+  'glass-top-texture.png',
+
   // baked textures
   'baked-big-objects.jpg',
   'baked-small-objects.jpg',
+  'keyboard-key-texture.jpg',
+  'keyboard-space-key-texture.jpg',
+  'speakers-indicator.jpg',
 
   // air conditioner
   'snowflake-01.png',

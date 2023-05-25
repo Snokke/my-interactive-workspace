@@ -272,15 +272,22 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initGlass() {
-    const glassMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xffffff),
+    const topTexture = Loader.assets['glass-top-texture'];
+    const glassTopMaterial = new THREE.MeshLambertMaterial({
+      map: topTexture,
       transparent: true,
-      opacity: 0.1,
-      side: THREE.DoubleSide,
+      opacity: 0.2,
     });
 
-    this._parts[WALLS_PART_TYPE.GlassTop].material = glassMaterial;
-    this._parts[WALLS_PART_TYPE.GlassBottom].material = glassMaterial;
+    this._parts[WALLS_PART_TYPE.GlassTop].material = glassTopMaterial;
+
+    const glassBottomMaterial = new THREE.MeshLambertMaterial({
+      transparent: true,
+      opacity: 0.1,
+    });
+
+    this._parts[WALLS_PART_TYPE.GlassTop].material = glassTopMaterial;
+    this._parts[WALLS_PART_TYPE.GlassBottom].material = glassBottomMaterial;
   }
 
   _initWindowGroup() {

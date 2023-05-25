@@ -28,12 +28,4 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
     mesh.userData['objectType'] = this._roomObjectType;
     mesh.userData['startPosition'] = mesh.position.clone();
   }
-
-  _addMaterials() {
-    const material = new THREE.MeshStandardMaterial({
-      color: `hsl(${Math.random() * 360}, 60%, 50%)`,
-    });
-
-    this._mesh.material = material;
-  }
 }
