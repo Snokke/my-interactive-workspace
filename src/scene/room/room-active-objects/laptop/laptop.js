@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_ORDER } from './data/laptop-data';

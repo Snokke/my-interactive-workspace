@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TARGET_TYPE, TARGET_TEXTURE } from './target-config';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Loader from '../../../../../core/loader';
 
 export default class Target extends THREE.Group {

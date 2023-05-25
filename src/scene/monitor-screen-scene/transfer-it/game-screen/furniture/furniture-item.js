@@ -4,7 +4,7 @@ import Utils from '../../helpers/utils';
 import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../helpers/simple-physics';
 import { FURNITURE_SIZE, MIN_VECTOR } from './furniture-config';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 
 export default class FurnitureItem extends THREE.Group {
   constructor(modelConfig, cellSize, material) {

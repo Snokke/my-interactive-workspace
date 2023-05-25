@@ -4,7 +4,7 @@ import { MessageDispatcher, MathEx } from "black-engine";
 import WALL_TYPE from '../walls/wall-config';
 import { CARPET_CONFIG, PICTURE_CONFIG } from './decorations-config';
 import { ROOM_TYPE, ROOM_CONFIG } from '../room-config';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Loader from '../../../../../../core/loader';
 
 export default class Decorations extends THREE.Group {

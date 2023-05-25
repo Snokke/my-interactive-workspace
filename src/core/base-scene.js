@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -144,6 +144,8 @@ export default class BaseScene {
   }
 
   _initThreeJS() {
+    // THREE.ColorManagement.enabled = false;
+
     this._initScene();
     this._initRenderer();
     this._initCamera();
@@ -177,7 +179,7 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;

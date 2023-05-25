@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
 import { CHAIR_INTERSECTION_CONFIG, LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';

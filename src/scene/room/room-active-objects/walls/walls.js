@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './data/walls-data';
 import { WINDOW_CONFIG } from './data/window-config';

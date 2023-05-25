@@ -1,4 +1,4 @@
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from "./keys-config";
 import { SCALE_ZERO } from '../../../data/room-config';
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { HELP_ARROWS_CONFIG } from './help-arrows-config';
 
 export default class HelpArrows extends THREE.Group {

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import Utils from '../../../helpers/utils';
 import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../../helpers/simple-physics';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Loader from '../../../../../../core/loader';
 
 export default class Walls extends THREE.Group {

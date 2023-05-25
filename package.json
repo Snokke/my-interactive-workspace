@@ -22,7 +22,7 @@
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
     "ismobilejs": "^1.1.1",
-    "three": "^0.152.0",
+    "three": "^0.150.0",
     "three-webgl-stats": "^1.0.5",
     "tweakpane": "^3.1.7",
     "vercel": "^28.17.0"

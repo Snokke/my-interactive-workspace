@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TWEEN from 'three/addons/libs/tween.module.js';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import vertexShader from './sound-particles-shaders/sound-particles-vertex.glsl';
 import fragmentShader from './sound-particles-shaders/sound-particles-fragment.glsl';
 import { SOUND_PARTICLES_CONFIG, SPEAKERS_CONFIG } from '../data/speakers-config';
