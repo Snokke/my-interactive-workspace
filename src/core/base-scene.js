@@ -179,6 +179,9 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+
+    // renderer.outputEncoding = THREE.sRGBEncoding
+
     // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -279,17 +282,17 @@ export default class BaseScene {
   }
 
   _setupBackgroundColor() {
-    // this._scene.background = new THREE.Color(SCENE_CONFIG.backgroundColor);
+    this._scene.background = new THREE.Color(0x201919);
     // const backgroundTexture = Loader.assets['transfer-it/bg'];
     // const backgroundTexture = Loader.assets['background'];
     // this._scene.background = backgroundTexture;
 
-    const texture = Loader.assets['environment'];
-    // texture.colorSpace = THREE.SRGBColorSpace;
+    // const texture = Loader.assets['environment'];
+    // // texture.colorSpace = THREE.SRGBColorSpace;
 
-    const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
-    rt.fromEquirectangularTexture(this._renderer, texture);
-    this._scene.background = rt.texture;
+    // const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+    // rt.fromEquirectangularTexture(this._renderer, texture);
+    // this._scene.background = rt.texture;
   }
 
   _initPostProcessing() {
