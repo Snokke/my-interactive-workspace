@@ -37,6 +37,7 @@ const ROOM_OBJECT_TYPE = {
   // Inactive objects
   Picture: 'PICTURE',
   Carpet: 'CARPET',
+  BookShelf: 'BOOK_SHELF',
   MousePad: 'MOUSE_PAD',
   TableObjects: 'TABLE_OBJECTS',
 
@@ -191,6 +192,12 @@ const ROOM_OBJECT_CONFIG = {
     label: 'Carpet',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Carpet',
+  },
+  [ROOM_OBJECT_TYPE.BookShelf]: {
+    createObject: true,
+    label: 'Book shelf',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Book_shelf',
   },
   [ROOM_OBJECT_TYPE.MousePad]: {
     createObject: true,

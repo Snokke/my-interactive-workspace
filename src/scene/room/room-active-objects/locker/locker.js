@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
-import { CHAIR_INTERSECTION_CONFIG, LOCKER_CONFIG } from './data/locker-config';
+import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import Loader from '../../../../core/loader';
@@ -185,37 +185,6 @@ export default class Locker extends RoomObjectAbstract {
       this._soundHelpers.forEach((soundHelper) => {
         soundHelper.hide();
       });
-    }
-  }
-
-  onChairNearLocker(areaType, state) {
-    this._chairIntersect[areaType] = state;
-    let intersectCasesId = [];
-
-    if (state) {
-      const casesIntersectionConfig = CHAIR_INTERSECTION_CONFIG[areaType];
-
-      casesIntersectionConfig.forEach((config) => {
-        const { caseId, maxDistance } = config;
-        this._caseMoveDistance[caseId] = maxDistance;
-        intersectCasesId.push(caseId);
-      });
-    } else {
-      this._setDefaultMoveDistance();
-    }
-
-    let isCaseClosing = false;
-
-    intersectCasesId.forEach((caseId) => {
-      if (this._casesState[caseId] === LOCKER_CASE_STATE.Opened && this._casesOpenState[caseId] === LOCKER_CASE_OPEN_STATE.Full) {
-        this._moveCase(caseId, LOCKER_CASE_MOVE_DIRECTION.In, 0, false);
-        isCaseClosing = true;
-      }
-    });
-
-    if (isCaseClosing) {
-      const time = this._caseMoveDistance[intersectCasesId[0]] / LOCKER_CONFIG.caseMoveSpeed * 1000;
-      Delayed.call(time, () => this._playCloseSound(0));
     }
   }
 

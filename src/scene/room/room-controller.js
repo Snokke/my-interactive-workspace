@@ -417,7 +417,6 @@ export default class RoomController {
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
-    const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
     const locker = this._roomActiveObject[ROOM_OBJECT_TYPE.Locker];
     const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
 
@@ -428,7 +427,6 @@ export default class RoomController {
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
     walls.events.on('onWindowClosed', () => this._onWindowClosed());
     walls.events.on('onWindowOpened', (msg, openType) => this._onWindowFullyOpened(openType));
-    chair.events.on('onLockerAreaChange', (msg, areaType, state) => locker.onChairNearLocker(areaType, state));
     table.events.on('onTableMoving', () => this._onTableMoving());
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));

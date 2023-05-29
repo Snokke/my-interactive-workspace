@@ -38,17 +38,13 @@ const CHAIR_CONFIG = {
     },
     movingArea: {
       [MOVING_AREA_TYPE.Main]: {
-        center: new THREE.Vector2(0.4, 3),
-        size: new THREE.Vector2(10.7, 5.4),
+        center: new THREE.Vector2(1.07, 3),
+        size: new THREE.Vector2(9.23, 5.4),
       },
       [MOVING_AREA_TYPE.UnderTable]: {
         center: new THREE.Vector2(0, -1),
         size: new THREE.Vector2(6.2 , 2.6),
       },
-    },
-    lockerArea: {
-      center: new THREE.Vector2(-4.1, 0.5),
-      size: new THREE.Vector2(1.8, 0.5),
     },
   }
 }

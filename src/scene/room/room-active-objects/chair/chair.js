@@ -50,7 +50,6 @@ export default class Chair extends RoomObjectAbstract {
   update(dt) {
     this._checkIsChairMoving();
     this._updateChairMovement(dt);
-    this._checkLockerArea();
     this._updateWheelsRotation(dt);
     this._updateSeatRotation(dt);
   }
@@ -215,31 +214,17 @@ export default class Chair extends RoomObjectAbstract {
 
   _checkLeftEdge() {
     const chairMainBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.Main);
-    const chairFrontWheelBoundingBox = getChairBoundingBox(CHAIR_BOUNDING_BOX_TYPE.FrontWheel);
     const mainMovingArea = getMovingArea(MOVING_AREA_TYPE.Main);
     const underTableMovingArea = getMovingArea(MOVING_AREA_TYPE.UnderTable);
     const epsilon = CHAIR_CONFIG.chairMoving.borderEpsilon;
     const wrapperPosition = this._wrapper.position;
 
-    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon > mainMovingArea[BORDER_TYPE.Top]) {
-      if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] < mainMovingArea[BORDER_TYPE.Left]) {
-        wrapperPosition.x = mainMovingArea[BORDER_TYPE.Left] + chairMainBoundingBox[BORDER_TYPE.Left];
+    if (wrapperPosition.x - chairMainBoundingBox[BORDER_TYPE.Left] < mainMovingArea[BORDER_TYPE.Left]) {
+      wrapperPosition.x = mainMovingArea[BORDER_TYPE.Left] + chairMainBoundingBox[BORDER_TYPE.Left];
 
-        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
-          const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Left]) + mainMovingArea[BORDER_TYPE.Left];
-          this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
-        }
-      }
-    }
-
-    if (wrapperPosition.z - chairFrontWheelBoundingBox[BORDER_TYPE.Top] + epsilon < mainMovingArea[BORDER_TYPE.Top]) {
-      if (wrapperPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Left] < underTableMovingArea[BORDER_TYPE.Left]) {
-        wrapperPosition.x = underTableMovingArea[BORDER_TYPE.Left] + chairFrontWheelBoundingBox[BORDER_TYPE.Left];
-
-        if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
-          const delta = Math.abs(this._currentPosition.x - chairFrontWheelBoundingBox[BORDER_TYPE.Left]) + underTableMovingArea[BORDER_TYPE.Left];
-          this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
-        }
+      if (!this._isDragActive && !this._bounceDisable[BORDER_TYPE.Left]) {
+        const delta = Math.abs(this._currentPosition.x - chairMainBoundingBox[BORDER_TYPE.Left]) + mainMovingArea[BORDER_TYPE.Left];
+        this._currentPosition.x += delta * CHAIR_CONFIG.chairMoving.bouncingCoefficient;
       }
     }
 
@@ -408,40 +393,6 @@ export default class Chair extends RoomObjectAbstract {
 
     if (CHAIR_CONFIG.seatRotation.showSeatHelper) {
       this._chairSeatHelper.setChairPosition(this._wrapper.position);
-    }
-  }
-
-  _checkLockerArea() {
-    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Idle) {
-      return;
-    }
-
-    const lockerArea = CHAIR_CONFIG.chairMoving.lockerArea;
-    const frontWheelBoundingBox = CHAIR_CONFIG.chairMoving.chairBoundingBox[CHAIR_BOUNDING_BOX_TYPE.FrontWheel];
-    const mainBoundingBox = CHAIR_CONFIG.chairMoving.chairBoundingBox[CHAIR_BOUNDING_BOX_TYPE.Main];
-    const wrapperPosition = this._wrapper.position;
-
-    const chairWheelRectangle = {
-      center: new THREE.Vector2(wrapperPosition.x + frontWheelBoundingBox.center.x, wrapperPosition.z + frontWheelBoundingBox.center.y),
-      size: frontWheelBoundingBox.size,
-    };
-
-    const chairMainRectangle = {
-      center: new THREE.Vector2(wrapperPosition.x + mainBoundingBox.center.x, wrapperPosition.z + mainBoundingBox.center.y),
-      size: mainBoundingBox.size,
-    };
-
-    const isFrontWheelIntersects = aabbIntersect(lockerArea, chairWheelRectangle);
-    const isMainIntersects = aabbIntersect(lockerArea, chairMainRectangle);
-
-    if (this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.FrontWheel] !== isFrontWheelIntersects) {
-      this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.FrontWheel] = isFrontWheelIntersects;
-      this.events.post('onLockerAreaChange', CHAIR_BOUNDING_BOX_TYPE.FrontWheel, isFrontWheelIntersects);
-    }
-
-    if (this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.Main] !== isMainIntersects) {
-      this._lockerIntersect[CHAIR_BOUNDING_BOX_TYPE.Main] = isMainIntersects;
-      this.events.post('onLockerAreaChange', CHAIR_BOUNDING_BOX_TYPE.Main, isMainIntersects);
     }
   }
 
