@@ -11,7 +11,7 @@ export default class BookShelf extends RoomInactiveObjectAbstract {
 
   _addMaterials() {
     const material = new THREE.MeshLambertMaterial({
-      color: 0x999999,
+      color: 0xffffff,
     });
 
     this._mesh.material = material;
