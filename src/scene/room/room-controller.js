@@ -325,14 +325,6 @@ export default class RoomController {
     speakers.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
   }
 
-  _onSongEnded(songType) {
-    if (songType === MUSIC_TYPE.TheStomp) {
-      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].stopShowreelVideo();
-    } else {
-      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onSongEnded();
-    }
-  }
-
   _initCursorSignals() {
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
     const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
@@ -401,24 +393,13 @@ export default class RoomController {
     this._roomDebug.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
   }
 
-  _onSwitchToReserveCamera() {
-    if (this._isReserveCameraActive) {
-      this._isReserveCameraActive = false;
-      this._enableAllObjects();
-    } else {
-      this._isReserveCameraActive = true;
-      this._disableAllObjects();
-    }
-
-    this.events.post('onSwitchToReserveCamera');
-  }
-
   _initOtherSignals() {
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
     const mouse = this._roomActiveObject[ROOM_OBJECT_TYPE.Mouse];
     const walls = this._roomActiveObject[ROOM_OBJECT_TYPE.Walls];
     const locker = this._roomActiveObject[ROOM_OBJECT_TYPE.Locker];
     const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
+    const book = this._roomActiveObject[ROOM_OBJECT_TYPE.Book];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
@@ -431,9 +412,20 @@ export default class RoomController {
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
+    book.events.on('onBookClickToShow', (msg, book, roomObjectType) => this._onBookClickToShow(book, roomObjectType));
+    book.events.on('onBookClickToHide', () => this._onBookClickToHide());
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
     this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
+    this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
+  }
+
+  _onSongEnded(songType) {
+    if (songType === MUSIC_TYPE.TheStomp) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].stopShowreelVideo();
+    } else {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onSongEnded();
+    }
   }
 
   _initRealKeyboardSignals() {
@@ -511,6 +503,18 @@ export default class RoomController {
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
   }
 
+  _onSwitchToReserveCamera() {
+    if (this._isReserveCameraActive) {
+      this._isReserveCameraActive = false;
+      this._enableAllObjects();
+    } else {
+      this._isReserveCameraActive = true;
+      this._disableAllObjects();
+    }
+
+    this.events.post('onSwitchToReserveCamera');
+  }
+
   _disableFocusObjects() {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].setScreenInactive();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].setScreenInactive();
@@ -582,8 +586,8 @@ export default class RoomController {
     this._enableAllObjects();
   }
 
-  _onAirConditionerRemoteClickToShow(workplacePhoto, roomObjectType) {
-    this._cameraController.setStaticState(workplacePhoto, roomObjectType);
+  _onAirConditionerRemoteClickToShow(airConditionerRemote, roomObjectType) {
+    this._cameraController.setStaticState(airConditionerRemote, roomObjectType);
     this._roomDebug.disableStartCameraPositionButton();
     this._disableFocusObjects();
     this._disableAllObjects();
@@ -598,7 +602,7 @@ export default class RoomController {
   }
 
   _onAirConditionerRemoteClickToHide() {
-    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].hideAirConditionerRemotePhoto();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].hideAirConditionerRemote();
     this._cameraController.onExitStaticMode();
 
     if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
@@ -610,6 +614,25 @@ export default class RoomController {
       this._enableFocusObjects();
       this._enableAllObjects();
     }
+
+    this._roomDebug.enableStartCameraPositionButton();
+  }
+
+  _onBookClickToShow(book, roomObjectType) {
+    this._cameraController.setStaticState(book, roomObjectType);
+    this._roomDebug.disableStartCameraPositionButton();
+    this._disableFocusObjects();
+    this._disableAllObjects();
+
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Book] = true;
+  }
+
+  _onBookClickToHide() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Book].hideBook();
+    this._cameraController.onExitStaticMode();
+    this._cameraController.setOrbitState();
+    this._enableFocusObjects();
+    this._enableAllObjects();
 
     this._roomDebug.enableStartCameraPositionButton();
   }

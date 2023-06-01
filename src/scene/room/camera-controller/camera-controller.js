@@ -65,6 +65,8 @@ export default class CameraController extends THREE.Group {
       this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(0, 1, 0), percentX * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
       this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), percentY * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
       this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+      // this._staticObjectRotationObject.rotateZ(-Math.PI * 0.5);
+      // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
     }
   }
 
@@ -238,6 +240,11 @@ export default class CameraController extends THREE.Group {
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Locker) {
       this.events.post('onWorkplacePhotoHide');
     }
+
+
+    if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Book) {
+      this.events.post('onBookHide');
+    }
   }
 
   _updateFocusedMode(dt) {
@@ -335,6 +342,8 @@ export default class CameraController extends THREE.Group {
 
     endPositionObject.rotateX(Math.PI * 0.5);
     endPositionObject.translateY(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
+    // endPositionObject.rotateZ(-Math.PI * 0.5);
+    // endPositionObject.rotateX(Math.PI * 0.5);
 
     const globalPosition = this._staticModeObject.getWorldPosition(new THREE.Vector3());
     this.add(this._staticModeObject);
@@ -358,6 +367,8 @@ export default class CameraController extends THREE.Group {
     this._staticObjectStartQuaternion.copy(this._camera.quaternion);
     this._staticObjectRotationObject.quaternion.copy(this._staticObjectStartQuaternion);
     this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+    // this._staticObjectRotationObject.rotateZ(-Math.PI * 0.5);
+    // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
 
     this._staticModeZoomObject.position.copy(this._staticModeObject.position);
     this._staticModeZoomObject.quaternion.copy(this._camera.quaternion);

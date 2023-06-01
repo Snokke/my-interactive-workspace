@@ -76,10 +76,10 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     }
   }
 
-  hideAirConditionerRemotePhoto() {
+  hideAirConditionerRemote() {
     this._isAirConditionerRemoteShown = false;
     this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = false;
-    this._moveWorkplacePhotoToStartPosition();
+    this._moveRemoteToStartPosition();
   }
 
   setBaseActive() {
@@ -191,7 +191,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     });
   }
 
-  _moveWorkplacePhotoToStartPosition() {
+  _moveRemoteToStartPosition() {
     const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
     base.userData.isActive = false;
 

@@ -11,6 +11,7 @@ import { MONITOR_PART_ACTIVITY_CONFIG, MONITOR_PART_TYPE } from '../room-active-
 import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-objects/laptop/data/laptop-data';
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
 import { AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_REMOTE_PART_TYPE } from '../room-active-objects/air-conditioner-remote/data/air-conditioner-remote-data';
+import { BOOK_PART_ACTIVITY_CONFIG, BOOK_PART_TYPE } from '../room-active-objects/book/data/book-data';
 
 const ROOM_CONFIG = {
   outlineEnabled: true,
@@ -33,6 +34,7 @@ const ROOM_OBJECT_TYPE = {
   Chair: 'CHAIR',
   FloorLamp: 'FLOOR_LAMP',
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
+  Book: 'BOOK',
 
   // Inactive objects
   Picture: 'PICTURE',
@@ -178,6 +180,15 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Logos',
     partTypes: SOCIAL_NETWORK_LOGOS_PART_TYPE,
     partsActiveConfig: SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG,
+  },
+  [ROOM_OBJECT_TYPE.Book]: {
+    createObject: true,
+    label: 'Book',
+    debugFolderLabel: 'Book',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'Book',
+    partTypes: BOOK_PART_TYPE,
+    partsActiveConfig: BOOK_PART_ACTIVITY_CONFIG,
   },
 
   // Inactive objects

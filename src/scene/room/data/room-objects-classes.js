@@ -28,6 +28,7 @@ import Picture from "../room-inactive-objects/objects/picture";
 import Carpet from "../room-inactive-objects/objects/carpet";
 import MousePad from "../room-inactive-objects/objects/mouse-pad";
 import BookShelf from "../room-inactive-objects/objects/book-shelf";
+import Book from "../room-active-objects/book/book";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -81,6 +82,10 @@ const ROOM_OBJECT_CLASS = {
   },
   [ROOM_OBJECT_TYPE.SocialNetworkLogos]: {
     object: SocialNetworkLogos,
+    debugMenu: null,
+  },
+  [ROOM_OBJECT_TYPE.Book]: {
+    object: Book,
     debugMenu: null,
   },
 
