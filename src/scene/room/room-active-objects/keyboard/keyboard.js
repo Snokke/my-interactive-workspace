@@ -577,7 +577,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
 
     const base = this._parts[KEYBOARD_PART_TYPE.Base];
     base.material = material;

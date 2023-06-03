@@ -45,6 +45,9 @@ const textures = [
   // locker
   'workplace-photo.jpg',
 
+  // calendar
+  // 'baked-calendar.jpg',
+
   // Transfer it Game
   'transfer-it/bg.jpg',
   'transfer-it/carpet-texture.png',

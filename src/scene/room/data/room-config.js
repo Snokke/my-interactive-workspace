@@ -40,6 +40,7 @@ const ROOM_OBJECT_TYPE = {
   Picture: 'PICTURE',
   Carpet: 'CARPET',
   BookShelf: 'BOOK_SHELF',
+  Calendar: 'CALENDAR',
   MousePad: 'MOUSE_PAD',
   TableObjects: 'TABLE_OBJECTS',
 
@@ -209,6 +210,12 @@ const ROOM_OBJECT_CONFIG = {
     label: 'Book shelf',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Book_shelf',
+  },
+  [ROOM_OBJECT_TYPE.Calendar]: {
+    createObject: true,
+    label: 'Calendar',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
+    meshName: 'Calendar',
   },
   [ROOM_OBJECT_TYPE.MousePad]: {
     createObject: true,

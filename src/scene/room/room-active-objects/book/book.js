@@ -8,6 +8,7 @@ import { BOOK_PART_TYPE, BOOK_SIDE, OPEN_BOOK_PARTS } from './data/book-data';
 import { BOOK_CONFIG } from './data/book-config';
 import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
+import Materials from '../../../../core/materials';
 
 export default class Book extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -255,10 +256,11 @@ export default class Book extends RoomObjectAbstract {
 
     const closedBook = this._parts[BOOK_PART_TYPE.ClosedBook];
 
-    const material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-    });
+    // const material = new THREE.MeshLambertMaterial({
+    //   color: 0xffffff,
+    // });
 
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
     closedBook.material = material;
   }
 

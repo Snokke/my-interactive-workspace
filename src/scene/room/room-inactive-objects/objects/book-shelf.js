@@ -10,12 +10,12 @@ export default class BookShelf extends RoomInactiveObjectAbstract {
   }
 
   _addMaterials() {
-    const material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-    });
+    // const material = new THREE.MeshLambertMaterial({
+    //   color: 0xffffff,
+    // });
 
-    this._mesh.material = material;
-    // const material = Materials.getMaterial(Materials.type.bakedBigObjects);
     // this._mesh.material = material;
+    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+    this._mesh.material = material;
   }
 }

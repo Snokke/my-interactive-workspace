@@ -29,6 +29,7 @@ import Carpet from "../room-inactive-objects/objects/carpet";
 import MousePad from "../room-inactive-objects/objects/mouse-pad";
 import BookShelf from "../room-inactive-objects/objects/book-shelf";
 import Book from "../room-active-objects/book/book";
+import Calendar from "../room-inactive-objects/objects/calendar";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -98,6 +99,9 @@ const ROOM_OBJECT_CLASS = {
   },
   [ROOM_OBJECT_TYPE.BookShelf]: {
     object: BookShelf,
+  },
+  [ROOM_OBJECT_TYPE.Calendar]: {
+    object: Calendar,
   },
   [ROOM_OBJECT_TYPE.MousePad]: {
     object: MousePad,

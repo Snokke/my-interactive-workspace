@@ -222,7 +222,7 @@ export default class Speakers extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
+    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
     this._parts[SPEAKERS_PART_TYPE.Speakers].material = material;
   }
 
