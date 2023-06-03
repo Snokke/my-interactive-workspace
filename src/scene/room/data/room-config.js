@@ -37,9 +37,8 @@ const ROOM_OBJECT_TYPE = {
   Book: 'BOOK',
 
   // Inactive objects
-  Picture: 'PICTURE',
+  RoomObjects: 'ROOM_OBJECTS',
   Carpet: 'CARPET',
-  BookShelf: 'BOOK_SHELF',
   Calendar: 'CALENDAR',
   MousePad: 'MOUSE_PAD',
   TableObjects: 'TABLE_OBJECTS',
@@ -193,23 +192,17 @@ const ROOM_OBJECT_CONFIG = {
   },
 
   // Inactive objects
-  [ROOM_OBJECT_TYPE.Picture]: {
-    createObject: true,
-    label: 'Picture',
-    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Picture',
-  },
   [ROOM_OBJECT_TYPE.Carpet]: {
     createObject: true,
     label: 'Carpet',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
     meshName: 'Carpet',
   },
-  [ROOM_OBJECT_TYPE.BookShelf]: {
+  [ROOM_OBJECT_TYPE.RoomObjects]: {
     createObject: true,
-    label: 'Book shelf',
+    label: 'Room objects',
     activityType: ROOM_OBJECT_ACTIVITY_TYPE.Inactive,
-    meshName: 'Book_shelf',
+    meshName: 'Room_objects',
   },
   [ROOM_OBJECT_TYPE.Calendar]: {
     createObject: true,

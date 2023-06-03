@@ -18,8 +18,8 @@ const BOOK_PART_ACTIVITY_CONFIG = {
   [BOOK_PART_TYPE.BookRightCover]: true,
   [BOOK_PART_TYPE.BookRightPages]: true,
   [BOOK_PART_TYPE.BookRightTopPage]: true,
-  [BOOK_PART_TYPE.BookBackCover]: true,
-  [BOOK_PART_TYPE.BookPage]: true,
+  [BOOK_PART_TYPE.BookBackCover]: false,
+  [BOOK_PART_TYPE.BookPage]: false,
 }
 
 const OPEN_BOOK_PARTS = [

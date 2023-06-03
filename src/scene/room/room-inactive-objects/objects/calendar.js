@@ -56,7 +56,7 @@ export default class Calendar extends RoomInactiveObjectAbstract {
     context.fillText(month, this._bitmap.width * 0.5, this._bitmap.height * 0.18);
 
     context.font = `50px Arial`;
-    context.fillText(`${day}`, this._bitmap.width * 0.5, this._bitmap.height * 0.5);
+    context.fillText(`${day}`, this._bitmap.width * 0.5, this._bitmap.height * 0.53);
 
     context.beginPath();
     context.moveTo(this._bitmap.width * 0.1, this._bitmap.height * 0.8);
