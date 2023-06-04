@@ -9,6 +9,7 @@ import { BOOK_CONFIG } from './data/book-config';
 import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
 import Materials from '../../../../core/materials';
+import Loader from '../../../../core/loader';
 
 export default class Book extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -120,6 +121,8 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _openBook() {
+    this._hideClosedBook();
+    this._showOpenBook();
     this._parts[BOOK_PART_TYPE.ClosedBook].visible = false;
 
     OPEN_BOOK_PARTS.forEach((partName) => {
@@ -130,7 +133,7 @@ export default class Book extends RoomObjectAbstract {
     this._openBookSide(BOOK_SIDE.Right);
     this._moveOutBackCover();
 
-    // const page = this._parts[BOOK_PART_TYPE.BookPage];
+    // const page = this._parts[BOOK_PART_TYPE.BookPageSide01];
     // page.position.z = 0;
     // page.position.x = 0.3;
     // page.rotation.y = Math.PI * 0.5;
@@ -191,13 +194,13 @@ export default class Book extends RoomObjectAbstract {
   _flipPage() {
     const progress = { value: 0 };
 
-    const bookPage = this._parts[BOOK_PART_TYPE.BookPage];
+    const bookPageSide01 = this._parts[BOOK_PART_TYPE.BookPageSide01];
 
     new TWEEN.Tween(progress)
       .to({ value: 1 }, 1000)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .onUpdate(() => {
-        bookPage.material.uniforms.uProgress.value = progress.value;
+        bookPageSide01.material.uniforms.uProgress.value = progress.value;
       })
       .start();
   }
@@ -214,6 +217,40 @@ export default class Book extends RoomObjectAbstract {
     });
   }
 
+  _hideOpenBook() {
+    OPEN_BOOK_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      part.scale.set(0, 0, 0);
+      part.visible = false;
+    });
+
+    this._parts[BOOK_PART_TYPE.BookPageSide01].scale.set(0, 0, 0);
+    this._parts[BOOK_PART_TYPE.BookPageSide02].scale.set(0, 0, 0);
+  }
+
+  _showOpenBook() {
+    OPEN_BOOK_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      part.scale.set(1, 1, 1);
+      part.visible = true;
+    });
+
+    this._parts[BOOK_PART_TYPE.BookPageSide01].scale.set(1, 1, 1);
+    this._parts[BOOK_PART_TYPE.BookPageSide02].scale.set(1, 1, 1);
+  }
+
+  _showClosedBook() {
+    const closedBook = this._parts[BOOK_PART_TYPE.ClosedBook];
+    closedBook.scale.set(1, 1, 1);
+    closedBook.visible = true;
+  }
+
+  _hideClosedBook() {
+    const closedBook = this._parts[BOOK_PART_TYPE.ClosedBook];
+    closedBook.scale.set(0, 0, 0);
+    closedBook.visible = false;
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -222,9 +259,11 @@ export default class Book extends RoomObjectAbstract {
     this._initOpenBook();
     this._initBookLastPosition();
 
-    // Delayed.call(1500, () => {
-    //   this._openBook();
-    // });
+    this._hideOpenBook();
+
+    Delayed.call(1500, () => {
+      // this._openBook();
+    });
 
     // Delayed.call(2500, () => {
     //   this._flipPage();
@@ -256,10 +295,6 @@ export default class Book extends RoomObjectAbstract {
 
     const closedBook = this._parts[BOOK_PART_TYPE.ClosedBook];
 
-    // const material = new THREE.MeshLambertMaterial({
-    //   color: 0xffffff,
-    // });
-
     const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
     closedBook.material = material;
   }
@@ -276,9 +311,10 @@ export default class Book extends RoomObjectAbstract {
     const bookRightPages = this._parts[BOOK_PART_TYPE.BookRightPages];
     const bookRightTopPage = this._parts[BOOK_PART_TYPE.BookRightTopPage];
     const bookBackCover = this._parts[BOOK_PART_TYPE.BookBackCover];
-    const bookPage = this._parts[BOOK_PART_TYPE.BookPage];
+    const bookPageSide01 = this._parts[BOOK_PART_TYPE.BookPageSide01];
+    const bookPageSide02 = this._parts[BOOK_PART_TYPE.BookPageSide02];
 
-    wrapper.add(closedBook, bookLeftCover, bookLeftPages, bookLeftTopPage, bookRightCover, bookRightPages, bookRightTopPage, bookBackCover, bookPage);
+    wrapper.add(closedBook, bookLeftCover, bookLeftPages, bookLeftTopPage, bookRightCover, bookRightPages, bookRightTopPage, bookBackCover, bookPageSide01, bookPageSide02);
 
     const bookLeftCoverDelta = bookLeftCover.position.clone().sub(closedBook.position);
     const bookLeftPagesDelta = bookLeftPages.position.clone().sub(closedBook.position);
@@ -287,7 +323,8 @@ export default class Book extends RoomObjectAbstract {
     const bookRightPagesDelta = bookRightPages.position.clone().sub(closedBook.position);
     const bookRightTopPageDelta = bookRightTopPage.position.clone().sub(closedBook.position);
     const bookBackCoverDelta = bookBackCover.position.clone().sub(closedBook.position);
-    const bookPageDelta = bookPage.position.clone().sub(closedBook.position);
+    const bookPageSide01Delta = bookPageSide01.position.clone().sub(closedBook.position);
+    const bookPageSide02Delta = bookPageSide02.position.clone().sub(closedBook.position);
 
     wrapper.position.copy(closedBook.userData.startPosition);
     closedBook.position.set(0, 0, 0);
@@ -298,58 +335,119 @@ export default class Book extends RoomObjectAbstract {
     bookRightPages.position.copy(bookRightPagesDelta);
     bookRightTopPage.position.copy(bookRightTopPageDelta);
     bookBackCover.position.copy(bookBackCoverDelta);
-    bookPage.position.copy(bookPageDelta);
+    bookPageSide01.position.copy(bookPageSide01Delta);
+    bookPageSide02.position.copy(bookPageSide02Delta);
 
 
     // wrapper.position.set(0, 5, 0);
+    // wrapper.rotation.y = Math.PI;
     // wrapper.rotation.z = -Math.PI * 0.5;
     wrapper.rotation.x = -30 * Math.PI / 180;
   }
 
   _initOpenBook() {
+    this._initPageBitmaps();
+    this._loadPageTexture();
     this._setOpenBookMaterials();
-    this._setPageMaterial();
+    this._setStaticPagesMaterials();
+    this._setActivePageMaterial();
     this._setPartsSettings();
   }
 
-  _setOpenBookMaterials() {
-    OPEN_BOOK_PARTS.forEach((partName) => {
-      const part = this._parts[partName];
-      part.visible = false;
+  _loadPageTexture() {
+    const pageTexture = this._pageTexture = new Image();
+    pageTexture.src = '/textures/baked-left-page.jpg';
 
-      const color = new THREE.Color('hsl(' + (Math.random() * 360) + ', 100%, 75%)');
-
-      const material = new THREE.MeshLambertMaterial({ color });
-      part.material = material;
-    });
+    pageTexture.onload = () => this._drawPage();
   }
 
-  _setPageMaterial() {
-    const bookPage = this._parts[BOOK_PART_TYPE.BookPage];
-    bookPage.visible = false;
+  _drawPage() {
+    const context = this._bitmap01.getContext('2d');
+    context.clearRect(0, 0, this._bitmap01.width, this._bitmap01.height);
 
+    context.drawImage(this._pageTexture, 0, 0, this._bitmap01.width, this._bitmap01.height);
+
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = '#000000';
+
+    context.font = `12px Arial`;
+    context.fillText('Hello', this._bitmap01.width * 0.5, this._bitmap01.height * 0.5);
+
+    this._parts[BOOK_PART_TYPE.BookLeftTopPage].material.map.needsUpdate = true;
+  }
+
+  _initPageBitmaps() {
+    const bitmap = this._bitmap01 = document.createElement('canvas');
+    bitmap.width = BOOK_CONFIG.page.width * BOOK_CONFIG.page.resolution;
+    bitmap.height = BOOK_CONFIG.page.height * BOOK_CONFIG.page.resolution;
+
+    const texture = new THREE.Texture(bitmap);
+    texture.flipY = false;
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    this._parts[BOOK_PART_TYPE.BookLeftTopPage].material = material;
+  }
+
+  _setOpenBookMaterials() {
+    const bakedTexture = Loader.assets['baked-opened-book'];
+    bakedTexture.flipY = false;
+
+    const bakedMaterial = new THREE.MeshBasicMaterial({
+      map: bakedTexture,
+    });
+
+    this._parts[BOOK_PART_TYPE.BookBackCover].material = bakedMaterial;
+    this._parts[BOOK_PART_TYPE.BookLeftCover].material = bakedMaterial;
+    this._parts[BOOK_PART_TYPE.BookRightCover].material = bakedMaterial;
+    this._parts[BOOK_PART_TYPE.BookLeftPages].material = bakedMaterial;
+    this._parts[BOOK_PART_TYPE.BookRightPages].material = bakedMaterial;
+  }
+
+  _setStaticPagesMaterials() {
+    // const bakedTexture = Loader.assets['baked-left-page'];
+    // bakedTexture.flipY = false;
+
+    // const bakedMaterial = new THREE.MeshBasicMaterial({
+    //   map: bakedTexture,
+    // });
+
+    // this._parts[BOOK_PART_TYPE.BookLeftTopPage].material = bakedMaterial;
+    // this._parts[BOOK_PART_TYPE.BookRightTopPage].material = bakedMaterial;
+  }
+
+  _setActivePageMaterial() {
+    const bookPageSide01 = this._parts[BOOK_PART_TYPE.BookPageSide01];
+    const bookPageSide02 = this._parts[BOOK_PART_TYPE.BookPageSide02];
+
+    this._setActivePageMaterialBySide(bookPageSide01);
+    this._setActivePageMaterialBySide(bookPageSide02);
+  }
+
+  _setActivePageMaterialBySide(mesh) {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uProgress: { value: 0 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
-      side: THREE.DoubleSide,
-      // wireframe: true,
     });
 
-    bookPage.material = material;
+    mesh.material = material;
 
-    const startPositionZ = new Float32Array(bookPage.geometry.attributes.position.count);
+    const startPositionZ = new Float32Array(mesh.geometry.attributes.position.count);
 
     for (let i = 0; i < startPositionZ.length; i += 1) {
-      const z = bookPage.geometry.attributes.position.array[i * 3 + 2];
+      const z = mesh.geometry.attributes.position.array[i * 3 + 2];
       startPositionZ[i] = z;
     }
 
     const startPositionAttribute = new THREE.BufferAttribute(startPositionZ, 1);
 
-    bookPage.geometry.setAttribute('startPositionZ', startPositionAttribute);
+    mesh.geometry.setAttribute('startPositionZ', startPositionAttribute);
   }
 
   _setPartsSettings() {

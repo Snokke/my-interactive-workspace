@@ -248,7 +248,6 @@ export default class Walls extends RoomObjectAbstract {
     this._addPartsToScene();
     this._initGlass();
     this._initWindowGroup();
-    this._initRightWallGroup();
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
@@ -297,16 +296,6 @@ export default class Walls extends RoomObjectAbstract {
     windowGroup.add(this._parts[WALLS_PART_TYPE.Window]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.WindowHandle]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.GlassTop]);
-  }
-
-  _initRightWallGroup() {
-    // const rightWallGroup = this._rightWallGroup = new THREE.Group();
-    // this.add(rightWallGroup);
-
-    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.WallRight]);
-    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.WindowFrame]);
-    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.Windowsill]);
-    // rightWallGroup.add(this._parts[WALLS_PART_TYPE.GlassBottom]);
   }
 
   _initSounds() {
