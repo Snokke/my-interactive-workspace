@@ -44,10 +44,15 @@ const textures = [
 
   // locker
   'workplace-photo.jpg',
+  'baked-workplace-photo.jpg',
 
   // book
   'baked-opened-book.jpg',
   'baked-left-page.jpg',
+
+  // air conditioner remote
+  'baked-air-conditioner-remote.jpg',
+  'baked-air-conditioner-remote-light.jpg',
 
   // Transfer it Game
   'transfer-it/bg.jpg',

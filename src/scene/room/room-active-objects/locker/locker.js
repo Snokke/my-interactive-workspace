@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE, WORKPLACE_PHOTO_MATERIAL_TYPE } from './data/locker-data';
 import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -28,6 +28,7 @@ export default class Locker extends RoomObjectAbstract {
 
     this._chairIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._caseMoveDistance = {};
+    this._workplacePhotoMaterialByType = {};
 
     this._isWorkplacePhotoShown = false;
     this._workplacePhotoLastTransform = {};
@@ -236,7 +237,7 @@ export default class Locker extends RoomObjectAbstract {
       this._soundHelpers[caseId].position.copy(this._openSounds[caseId].position);
 
       if (caseId === 0) {
-        workplacePhoto.position.z = casePart.position.z;
+        workplacePhoto.position.z = casePart.position.z + 0.2;
       }
     });
 
@@ -295,6 +296,7 @@ export default class Locker extends RoomObjectAbstract {
 
   _showWorkplacePhoto() {
     this._isWorkplacePhotoShown = true;
+    this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.Focused);
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
     this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
@@ -323,6 +325,7 @@ export default class Locker extends RoomObjectAbstract {
       .start()
       .onComplete(() => {
         workplacePhoto.userData.isActive = true;
+        this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn);
       });
 
     new TWEEN.Tween(workplacePhoto.rotation)
@@ -382,6 +385,12 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
+  _setWorkplacePhotoMaterial(type) {
+    const material = this._workplacePhotoMaterialByType[type];
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+    workplacePhoto.material = material;
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();
@@ -419,15 +428,26 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _initWorkplacePhoto() {
-    const texture = Loader.assets['workplace-photo'];
-    texture.flipY = false;
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
 
-    const material = new THREE.MeshBasicMaterial({
-      map: texture,
+    const focusedTexture = Loader.assets['workplace-photo'];
+    focusedTexture.flipY = false;
+
+    const focusedMaterial = new THREE.MeshBasicMaterial({
+      map: focusedTexture,
     });
 
-    workplacePhoto.material = material;
+    const bakedTexture = Loader.assets['baked-workplace-photo'];
+    bakedTexture.flipY = false;
+
+    const bakedMaterial = new THREE.MeshBasicMaterial({
+      map: bakedTexture,
+    });
+
+    this._workplacePhotoMaterialByType[WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn] = bakedMaterial;
+    this._workplacePhotoMaterialByType[WORKPLACE_PHOTO_MATERIAL_TYPE.Focused] = focusedMaterial;
+
+    this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn);
 
     this._workplacePhotoLastTransform = {
       position: new THREE.Vector3(),
