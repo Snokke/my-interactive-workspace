@@ -1,6 +1,6 @@
 const BOOK_CONFIG = {
   openAnimation: {
-    duration: 500,
+    duration: 1000,
     sideCoverOffset: 0.04,
     backCoverOffset: 0.009,
   },

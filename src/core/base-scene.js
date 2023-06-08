@@ -18,6 +18,7 @@ import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
 import Materials from './materials';
+import WebGL from 'three/addons/capabilities/WebGL.js';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -322,13 +323,25 @@ export default class BaseScene {
     //   colorSpace: THREE.SRGBColorSpace,
     // });
 
-    const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
+    console.log('isWebGL2Available:', WebGL.isWebGL2Available());
+
+    if (WebGL.isWebGL2Available()) {
+      const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
+      const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 } );
+      this._effectComposer = new EffectComposer(this._renderer, target);
+    } else {
+      SCENE_CONFIG.fxaaPass = true;
+      this._effectComposer = new EffectComposer(this._renderer);
+    }
+
+
+    // const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
     // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
     // effectComposer.renderTarget2.texture.encoding = THREE.sRGBEncoding;
 
     const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
     const renderPass = this._renderPass = new RenderPass(this._scene, camera);
-    effectComposer.addPass(renderPass);
+    this._effectComposer.addPass(renderPass);
   }
 
   _initOutlinePass() {
@@ -340,7 +353,7 @@ export default class BaseScene {
     // outlinePass.visibleEdgeColor.set('#00ff00');
     outlinePass.edgeGlow = 1;
     outlinePass.edgeStrength = 4;
-    outlinePass.edgeThickness = 2;
+    // outlinePass.edgeThickness = 1;
     outlinePass.pulsePeriod = 2.5;
   }
 

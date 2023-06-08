@@ -5,7 +5,7 @@ const ROOM_OBJECT_ENABLED_CONFIG = {
   [ROOM_OBJECT_TYPE.Walls]: true,
   [ROOM_OBJECT_TYPE.AirConditioner]: true,
   [ROOM_OBJECT_TYPE.AirConditionerRemote]: true,
-  [ROOM_OBJECT_TYPE.FloorLamp]: true,
+  [ROOM_OBJECT_TYPE.FloorLamp]: false,
   [ROOM_OBJECT_TYPE.Locker]: true,
   [ROOM_OBJECT_TYPE.Chair]: true,
   [ROOM_OBJECT_TYPE.Table]: true,

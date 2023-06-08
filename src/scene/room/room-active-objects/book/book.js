@@ -133,10 +133,10 @@ export default class Book extends RoomObjectAbstract {
     this._openBookSide(BOOK_SIDE.Right);
     this._moveOutBackCover();
 
-    // const page = this._parts[BOOK_PART_TYPE.BookPageSide01];
-    // page.position.z = 0;
+    const page = this._parts[BOOK_PART_TYPE.BookPageSide01];
+    page.position.z = 0;
     // page.position.x = 0.3;
-    // page.rotation.y = Math.PI * 0.5;
+    page.rotation.y = Math.PI * 0.5;
   }
 
   _openBookSide(sideType) {
@@ -195,14 +195,18 @@ export default class Book extends RoomObjectAbstract {
     const progress = { value: 0 };
 
     const bookPageSide01 = this._parts[BOOK_PART_TYPE.BookPageSide01];
+    bookPageSide01.visible = true;
 
     new TWEEN.Tween(progress)
-      .to({ value: 1 }, 1000)
+      .to({ value: 1 }, 2000)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .onUpdate(() => {
         bookPageSide01.material.uniforms.uProgress.value = progress.value;
       })
-      .start();
+      .start()
+      .onComplete(() => {
+        bookPageSide01.visible = false;
+      });
   }
 
   _disableActivity() {
@@ -261,11 +265,11 @@ export default class Book extends RoomObjectAbstract {
 
     this._hideOpenBook();
 
-    Delayed.call(1500, () => {
-      // this._openBook();
-    });
+    // Delayed.call(1500, () => {
+    //   this._openBook();
+    // });
 
-    // Delayed.call(2500, () => {
+    // Delayed.call(3500, () => {
     //   this._flipPage();
     // });
   }
@@ -422,6 +426,8 @@ export default class Book extends RoomObjectAbstract {
   _setActivePageMaterial() {
     const bookPageSide01 = this._parts[BOOK_PART_TYPE.BookPageSide01];
     const bookPageSide02 = this._parts[BOOK_PART_TYPE.BookPageSide02];
+    bookPageSide01.visible = false;
+    bookPageSide02.visible = false;
 
     this._setActivePageMaterialBySide(bookPageSide01);
     this._setActivePageMaterialBySide(bookPageSide02);
@@ -434,6 +440,7 @@ export default class Book extends RoomObjectAbstract {
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
+      side: THREE.DoubleSide,
     });
 
     mesh.material = material;
