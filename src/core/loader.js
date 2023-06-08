@@ -48,7 +48,7 @@ const textures = [
 
   // book
   'baked-opened-book.jpg',
-  'baked-left-page.jpg',
+  'baked-page.jpg',
 
   // air conditioner remote
   'baked-air-conditioner-remote.jpg',

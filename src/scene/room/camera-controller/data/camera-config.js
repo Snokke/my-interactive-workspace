@@ -74,10 +74,10 @@ const CAMERA_FOCUS_POSITION_CONFIG = {
   [CAMERA_FOCUS_OBJECT_TYPE.Room]: {
     focusType: FOCUS_TYPE.Position,
     focus: {
-      position: new THREE.Vector3(14, 14, 14),
-      lookAt: new THREE.Vector3(0, 3.5, 0),
-      // position: new THREE.Vector3(5, 8, 5),
-      // lookAt: new THREE.Vector3(0, 5, 0),
+      // position: new THREE.Vector3(14, 14, 14),
+      // lookAt: new THREE.Vector3(0, 3.5, 0),
+      position: new THREE.Vector3(-2, 8, 0),
+      lookAt: new THREE.Vector3(0, 5, 0),
     },
     positionEasing: TWEEN.Easing.Linear.None,
     rotationEasing: TWEEN.Easing.Linear.None,

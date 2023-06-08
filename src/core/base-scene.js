@@ -323,8 +323,6 @@ export default class BaseScene {
     //   colorSpace: THREE.SRGBColorSpace,
     // });
 
-    console.log('isWebGL2Available:', WebGL.isWebGL2Available());
-
     if (WebGL.isWebGL2Available()) {
       const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
       const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 } );
