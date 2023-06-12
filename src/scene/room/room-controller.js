@@ -109,12 +109,6 @@ export default class RoomController {
 
     const intersectObject = intersect.object;
 
-    if (intersectObject && intersectObject.userData.objectType === ROOM_OBJECT_TYPE.Global && intersectObject.userData.isActive) {
-      if (intersectObject.userData.type === 'staticModeBackPlane') {
-        this._cameraController.onStaticModeBackPlaneClick();
-      }
-    }
-
     if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;
       const objectConfig = ROOM_OBJECT_CONFIG[objectType];
@@ -185,6 +179,12 @@ export default class RoomController {
     }
 
     const intersectObject = intersect.object;
+
+    if (intersectObject && intersectObject.userData.objectType === ROOM_OBJECT_TYPE.Global && intersectObject.userData.isActive) {
+      if (intersectObject.userData.type === 'staticModeBackPlane') {
+        this._cameraController.onStaticModeBackPlaneClick();
+      }
+    }
 
     if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;

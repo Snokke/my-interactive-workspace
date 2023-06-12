@@ -323,7 +323,7 @@ export default class BaseScene {
     //   colorSpace: THREE.SRGBColorSpace,
     // });
 
-    if (WebGL.isWebGL2Available()) {
+    if (!WebGL.isWebGL2Available()) {
       const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
       const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 } );
       this._effectComposer = new EffectComposer(this._renderer, target);
@@ -331,7 +331,6 @@ export default class BaseScene {
       SCENE_CONFIG.fxaaPass = true;
       this._effectComposer = new EffectComposer(this._renderer);
     }
-
 
     // const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
     // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;

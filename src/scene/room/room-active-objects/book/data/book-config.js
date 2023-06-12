@@ -8,7 +8,7 @@ const BOOK_CONFIG = {
     width: 950,
     height: 1370,
     resolution: 0.5,
-    flipDuration: 1000,
+    flipDuration: 700,
   }
 }
 

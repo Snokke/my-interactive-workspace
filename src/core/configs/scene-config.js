@@ -1,5 +1,5 @@
 const SCENE_CONFIG = {
-  antialias: true,
+  antialias: false,
   fxaaPass: false,
   backgroundColor: 0x222222,
   lights: {

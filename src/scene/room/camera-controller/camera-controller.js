@@ -64,8 +64,8 @@ export default class CameraController extends THREE.Group {
       this._staticObjectRotationObject.quaternion.copy(this._staticObjectStartQuaternion);
       this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(0, 1, 0), percentX * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
       this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), percentY * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
-      this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
-      // this._staticObjectRotationObject.rotateZ(-Math.PI * 0.5);
+      // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+      this._staticObjectRotationObject.rotateY(Math.PI * 0.5);
       // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
     }
   }
@@ -241,7 +241,6 @@ export default class CameraController extends THREE.Group {
       this.events.post('onWorkplacePhotoHide');
     }
 
-
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Book) {
       this.events.post('onBookHide');
     }
@@ -340,10 +339,12 @@ export default class CameraController extends THREE.Group {
     endPositionObject.position.copy(this._camera.position);
     endPositionObject.quaternion.copy(this._camera.quaternion);
 
-    endPositionObject.rotateX(Math.PI * 0.5);
-    endPositionObject.translateY(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
+    // endPositionObject.rotateX(Math.PI * 0.5);
+    // endPositionObject.translateY(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
+    endPositionObject.translateZ(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
     // endPositionObject.rotateZ(-Math.PI * 0.5);
     // endPositionObject.rotateX(Math.PI * 0.5);
+    endPositionObject.rotateY(Math.PI * 0.5);
 
     const globalPosition = this._staticModeObject.getWorldPosition(new THREE.Vector3());
     this.add(this._staticModeObject);
@@ -366,7 +367,8 @@ export default class CameraController extends THREE.Group {
   _onObjectMovedToCamera() {
     this._staticObjectStartQuaternion.copy(this._camera.quaternion);
     this._staticObjectRotationObject.quaternion.copy(this._staticObjectStartQuaternion);
-    this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+    // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+    this._staticObjectRotationObject.rotateY(Math.PI * 0.5);
     // this._staticObjectRotationObject.rotateZ(-Math.PI * 0.5);
     // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
 
