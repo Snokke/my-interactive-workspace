@@ -42,17 +42,59 @@ const FOCUSED_MODE_CAMERA_CONFIG = {
 }
 
 const STATIC_MODE_CAMERA_CONFIG = {
-  objectMoveTime: 500,
-  rotation: {
-    coefficient: 0.5,
-    lerpTime: 0.05,
+  [ROOM_OBJECT_TYPE.Book]: {
+    objectMoveTime: 500,
+    rotation: {
+      coefficient: 0.1,
+      lerpTime: 0.05,
+      startRotation: {
+        axis: new THREE.Vector3(0, 1, 0),
+        angle: Math.PI * 0.5,
+      },
+    },
+    zoom: {
+      defaultDistance: 2,
+      minDistance: 1,
+      maxDistance: 2.7,
+      coefficient: 0.1,
+      lerpTime: 0.05,
+    },
   },
-  zoom: {
-    defaultDistance: 1.5,
-    minDistance: 1,
-    maxDistance: 2,
-    coefficient: 0.1,
-    lerpTime: 0.05,
+  [ROOM_OBJECT_TYPE.AirConditionerRemote]: {
+    objectMoveTime: 250,
+    rotation: {
+      coefficient: 0.5,
+      lerpTime: 0.05,
+      startRotation: {
+        axis: new THREE.Vector3(1, 0, 0),
+        angle: Math.PI * 0.5,
+      },
+    },
+    zoom: {
+      defaultDistance: 1.5,
+      minDistance: 1,
+      maxDistance: 2,
+      coefficient: 0.1,
+      lerpTime: 0.05,
+    },
+  },
+  [ROOM_OBJECT_TYPE.Locker]: {
+    objectMoveTime: 250,
+    rotation: {
+      coefficient: 0.5,
+      lerpTime: 0.05,
+      startRotation: {
+        axis: new THREE.Vector3(1, 0, 0),
+        angle: Math.PI * 0.5,
+      },
+    },
+    zoom: {
+      defaultDistance: 1.5,
+      minDistance: 1,
+      maxDistance: 2,
+      coefficient: 0.1,
+      lerpTime: 0.05,
+    },
   },
 }
 

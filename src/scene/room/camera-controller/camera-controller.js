@@ -29,7 +29,7 @@ export default class CameraController extends THREE.Group {
     this._focusLookAtVector = new THREE.Vector3();
     this._lastCameraPosition = new THREE.Vector3();
     this._lastCameraLookAt = new THREE.Vector3();
-    this._currentZoomDistanceStaticMode = STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance;
+    this._currentZoomDistanceStaticMode = 0;
     this._currentZoomDistanceFocusedMode = 0;
     this._currentPointerPosition = new THREE.Vector2();
 
@@ -61,20 +61,22 @@ export default class CameraController extends THREE.Group {
     }
 
     if (this._cameraMode === CAMERA_MODE.Static) {
+      const config = STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType];
+
       this._staticObjectRotationObject.quaternion.copy(this._staticObjectStartQuaternion);
-      this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(0, 1, 0), percentX * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
-      this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), percentY * STATIC_MODE_CAMERA_CONFIG.rotation.coefficient);
-      // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
-      this._staticObjectRotationObject.rotateY(Math.PI * 0.5);
-      // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+      this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(0, 1, 0), percentX * config.rotation.coefficient);
+      this._staticObjectRotationObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), percentY * config.rotation.coefficient);
+      this._staticObjectRotationObject.rotateOnAxis(config.rotation.startRotation.axis, config.rotation.startRotation.angle);
     }
   }
 
   onWheelScroll(delta) {
     if (this._cameraMode === CAMERA_MODE.Static) {
-      const zoomDelta = -delta * STATIC_MODE_CAMERA_CONFIG.zoom.coefficient;
-      const minDistance = STATIC_MODE_CAMERA_CONFIG.zoom.minDistance;
-      const maxDistance = STATIC_MODE_CAMERA_CONFIG.zoom.maxDistance;
+      const config = STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType];
+
+      const zoomDelta = -delta * config.zoom.coefficient;
+      const minDistance = config.zoom.minDistance;
+      const maxDistance = config.zoom.maxDistance;
       this._currentZoomDistanceStaticMode = THREE.MathUtils.clamp(this._currentZoomDistanceStaticMode + zoomDelta, minDistance, maxDistance);
 
       if (this._currentZoomDistanceStaticMode !== minDistance && this._currentZoomDistanceStaticMode !== maxDistance) {
@@ -261,8 +263,8 @@ export default class CameraController extends THREE.Group {
 
   _updateStaticMode(dt) {
     if (this._cameraMode === CAMERA_MODE.Static) {
-      this._staticModeObject.quaternion.slerp(this._staticObjectRotationObject.quaternion, dt * 60 * STATIC_MODE_CAMERA_CONFIG.rotation.lerpTime);
-      this._staticModeObject.position.lerp(this._staticModeZoomObject.position, dt * 60 * STATIC_MODE_CAMERA_CONFIG.zoom.lerpTime);
+      this._staticModeObject.quaternion.slerp(this._staticObjectRotationObject.quaternion, dt * 60 * STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType].rotation.lerpTime);
+      this._staticModeObject.position.lerp(this._staticModeZoomObject.position, dt * 60 * STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType].zoom.lerpTime);
     }
   }
 
@@ -334,24 +336,21 @@ export default class CameraController extends THREE.Group {
   }
 
   _moveObjectToCamera() {
+    const config = STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType];
     const endPositionObject = new THREE.Object3D();
 
     endPositionObject.position.copy(this._camera.position);
     endPositionObject.quaternion.copy(this._camera.quaternion);
 
-    // endPositionObject.rotateX(Math.PI * 0.5);
-    // endPositionObject.translateY(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
-    endPositionObject.translateZ(-STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance);
-    // endPositionObject.rotateZ(-Math.PI * 0.5);
-    // endPositionObject.rotateX(Math.PI * 0.5);
-    endPositionObject.rotateY(Math.PI * 0.5);
+    endPositionObject.translateZ(-config.zoom.defaultDistance);
+    endPositionObject.rotateOnAxis(config.rotation.startRotation.axis, config.rotation.startRotation.angle);
 
     const globalPosition = this._staticModeObject.getWorldPosition(new THREE.Vector3());
     this.add(this._staticModeObject);
     this._staticModeObject.position.copy(globalPosition);
 
     new TWEEN.Tween(this._staticModeObject.position)
-      .to({ x: endPositionObject.position.x, y: endPositionObject.position.y, z: endPositionObject.position.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endPositionObject.position.x, y: endPositionObject.position.y, z: endPositionObject.position.z }, config.objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start()
       .onComplete(() => {
@@ -359,23 +358,22 @@ export default class CameraController extends THREE.Group {
       });
 
     new TWEEN.Tween(this._staticModeObject.rotation)
-      .to({ x: endPositionObject.rotation.x, y: endPositionObject.rotation.y, z: endPositionObject.rotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endPositionObject.rotation.x, y: endPositionObject.rotation.y, z: endPositionObject.rotation.z }, config.objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start();
   }
 
   _onObjectMovedToCamera() {
+    const config = STATIC_MODE_CAMERA_CONFIG[this._staticModeRoomObjectType];
+
     this._staticObjectStartQuaternion.copy(this._camera.quaternion);
     this._staticObjectRotationObject.quaternion.copy(this._staticObjectStartQuaternion);
-    // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
-    this._staticObjectRotationObject.rotateY(Math.PI * 0.5);
-    // this._staticObjectRotationObject.rotateZ(-Math.PI * 0.5);
-    // this._staticObjectRotationObject.rotateX(Math.PI * 0.5);
+    this._staticObjectRotationObject.rotateOnAxis(config.rotation.startRotation.axis, config.rotation.startRotation.angle);
 
     this._staticModeZoomObject.position.copy(this._staticModeObject.position);
     this._staticModeZoomObject.quaternion.copy(this._camera.quaternion);
 
-    this._currentZoomDistanceStaticMode = STATIC_MODE_CAMERA_CONFIG.zoom.defaultDistance;
+    this._currentZoomDistanceStaticMode = config.zoom.defaultDistance;
 
     this._cameraMode = CAMERA_MODE.Static;
     CAMERA_CONFIG.mode = this._cameraMode;
@@ -386,7 +384,7 @@ export default class CameraController extends THREE.Group {
     this._staticModeBackPlane.scale.set(1, 1, 1);
     this._staticModeBackPlane.position.copy(this._camera.position);
     this._staticModeBackPlane.quaternion.copy(this._camera.quaternion);
-    this._staticModeBackPlane.translateZ(-(STATIC_MODE_CAMERA_CONFIG.zoom.maxDistance + 1));
+    this._staticModeBackPlane.translateZ(-(config.zoom.maxDistance + 1));
     this._staticModeBackPlane.userData.isActive = true;
   }
 

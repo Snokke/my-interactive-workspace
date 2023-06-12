@@ -307,7 +307,7 @@ export default class Locker extends RoomObjectAbstract {
     workplacePhoto.userData.isActive = false;
     workplacePhoto.userData.hideOutline = true;
 
-    Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
+    Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       workplacePhoto.userData.isActive = true;
     });
   }
@@ -320,7 +320,7 @@ export default class Locker extends RoomObjectAbstract {
     const endRotation = this._workplacePhotoLastTransform.rotation;
 
     new TWEEN.Tween(workplacePhoto.position)
-      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start()
       .onComplete(() => {
@@ -329,7 +329,7 @@ export default class Locker extends RoomObjectAbstract {
       });
 
     new TWEEN.Tween(workplacePhoto.rotation)
-      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start();
   }

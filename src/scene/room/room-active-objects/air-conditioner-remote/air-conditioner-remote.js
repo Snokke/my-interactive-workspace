@@ -189,7 +189,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = true;
     this._disableActivity();
 
-    Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
+    Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       this._enableActivity();
     });
   }
@@ -202,7 +202,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     const endRotation = this._airConditionerRemoteLastTransform.rotation;
 
     new TWEEN.Tween(this._wrapper.position)
-      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start()
       .onComplete(() => {
@@ -214,7 +214,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
       });
 
     new TWEEN.Tween(this._wrapper.rotation)
-      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start();
   }

@@ -4,7 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
-import { BOOK_PART_TYPE, BOOK_SIDE, OPEN_BOOK_PARTS, OPEN_BOOK_WITHOUT_ACTIVE_PAGES_PARTS, OPEN_BOOK_WITHOUT_ALL_PAGES_PARTS, PAGE_FLIP_DIRECTION, PAGE_MATERIAL_TYPE, PAGE_SIDE } from './data/book-data';
+import { BOOK_PART_TYPE, BOOK_SIDE, OPEN_BOOK_ACTIVE_PAGES_PARTS, OPEN_BOOK_INACTIVE_PARTS, OPEN_BOOK_PARTS, OPEN_BOOK_TOP_PAGES_PARTS, PAGE_FLIP_DIRECTION, PAGE_MATERIAL_TYPE, PAGE_SIDE } from './data/book-data';
 import { BOOK_CONFIG } from './data/book-config';
 import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
@@ -39,7 +39,7 @@ export default class Book extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
 
-    if (partType === BOOK_PART_TYPE.ClosedBook) {
+    if (partType === BOOK_PART_TYPE.ClosedBook || OPEN_BOOK_INACTIVE_PARTS.includes(partType)) {
       this._onBookClick();
     }
 
@@ -66,7 +66,7 @@ export default class Book extends RoomObjectAbstract {
       Black.engine.containerElement.style.cursor = 'grab';
     }
 
-    if (OPEN_BOOK_WITHOUT_ALL_PAGES_PARTS.includes(type) && this._isBookShown) {
+    if (OPEN_BOOK_INACTIVE_PARTS.includes(type) && this._isBookShown) {
       Black.engine.containerElement.style.cursor = 'zoom-out';
     }
   }
@@ -112,7 +112,7 @@ export default class Book extends RoomObjectAbstract {
 
     this._openBook();
 
-    Delayed.call(STATIC_MODE_CAMERA_CONFIG.objectMoveTime, () => {
+    Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       this._enableActivity();
     });
   }
@@ -125,7 +125,7 @@ export default class Book extends RoomObjectAbstract {
     const endRotation = this._bookLastTransform.rotation;
 
     new TWEEN.Tween(this._wrapper.position)
-      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start()
       .onComplete(() => {
@@ -136,7 +136,7 @@ export default class Book extends RoomObjectAbstract {
       });
 
     new TWEEN.Tween(this._wrapper.rotation)
-      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG.objectMoveTime)
+      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start();
   }
@@ -150,10 +150,6 @@ export default class Book extends RoomObjectAbstract {
     this._openBookSide(BOOK_SIDE.Left);
     this._openBookSide(BOOK_SIDE.Right);
     this._moveOutBackCover();
-
-    Delayed.call(BOOK_CONFIG.openAnimation.duration, () => {
-      this._enablePagesActivity();
-    });
   }
 
   _closeBook() {
@@ -175,18 +171,21 @@ export default class Book extends RoomObjectAbstract {
     const sign = sideType === BOOK_SIDE.Left ? -1 : 1;
 
     new TWEEN.Tween(cover.rotation)
-      .to({ y: sign * Math.PI * 0.5 }, config.duration)
+      .to({ y: sign * Math.PI * 0.5 }, config.duration * 0.8)
       .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(config.duration * 0.2)
       .start();
 
     new TWEEN.Tween(pages.rotation)
-      .to({ y: sign * Math.PI * 0.5 }, config.duration)
+      .to({ y: sign * Math.PI * 0.5 }, config.duration * 0.8)
       .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(config.duration * 0.2)
       .start();
 
     new TWEEN.Tween(topPage.rotation)
-      .to({ y: sign * Math.PI * 0.5 }, config.duration)
+      .to({ y: sign * Math.PI * 0.5 }, config.duration * 0.8)
       .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(config.duration * 0.2)
       .start();
 
     const startPositionZ = this._startCoverPosition[sideType].z;
@@ -197,12 +196,12 @@ export default class Book extends RoomObjectAbstract {
       .start();
 
     new TWEEN.Tween(pages.position)
-      .to({ z: 0 }, config.duration)
+      .to({ z: 0 }, config.duration * 0.7)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start();
 
     new TWEEN.Tween(topPage.position)
-      .to({ z: 0 }, config.duration)
+      .to({ z: 0 }, config.duration * 0.7)
       .easing(TWEEN.Easing.Sinusoidal.Out)
       .start();
   }
@@ -246,13 +245,15 @@ export default class Book extends RoomObjectAbstract {
       .start();
 
     new TWEEN.Tween(pages.position)
-      .to({ z: startPositionZ }, config.duration)
+      .to({ z: startPositionZ }, config.duration * 0.7)
       .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(config.duration * 0.3)
       .start();
 
     new TWEEN.Tween(topPage.position)
-      .to({ z: startPositionZ }, config.duration)
+      .to({ z: startPositionZ }, config.duration * 0.7)
       .easing(TWEEN.Easing.Sinusoidal.Out)
+      .delay(config.duration * 0.3)
       .start();
   }
 
@@ -324,6 +325,9 @@ export default class Book extends RoomObjectAbstract {
     for (const partName in this._parts) {
       this._parts[partName].userData.isActive = true;
     }
+
+    this._disablePagesActivity();
+    this._enablePagesActivity();
   }
 
   _hideOpenBook() {
@@ -335,7 +339,9 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _showOpenBook() {
-    OPEN_BOOK_WITHOUT_ACTIVE_PAGES_PARTS.forEach((partName) => {
+    const partsWithoutActivePages = [...OPEN_BOOK_TOP_PAGES_PARTS, ...OPEN_BOOK_INACTIVE_PARTS];
+
+    partsWithoutActivePages.forEach((partName) => {
       const part = this._parts[partName];
       part.scale.set(1, 1, 1);
       part.visible = true;
@@ -407,7 +413,6 @@ export default class Book extends RoomObjectAbstract {
     this._initWrapperGroup();
     this._initOpenBook();
     this._initBookLastPosition();
-
     this._hideOpenBook();
   }
 
@@ -441,9 +446,8 @@ export default class Book extends RoomObjectAbstract {
     closedBook.position.set(0, 0, 0);
 
     // wrapper.position.set(0, 5, 0);
-    // wrapper.rotation.y = Math.PI;
     // wrapper.rotation.z = -Math.PI * 0.5;
-    wrapper.rotation.x = -30 * Math.PI / 180;
+    wrapper.rotation.x = -30 * THREE.MathUtils.DEG2RAD;
   }
 
   _initOpenBook() {
@@ -456,7 +460,7 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _setOpenBookPartsData() {
-    OPEN_BOOK_WITHOUT_ALL_PAGES_PARTS.forEach((partName) => {
+    OPEN_BOOK_INACTIVE_PARTS.forEach((partName) => {
       const part = this._parts[partName];
       part.userData.hideOutline = true;
     });
@@ -499,14 +503,15 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _initPagesMaterials() {
-    this._createPageMaterial(this._parts[BOOK_PART_TYPE.BookLeftTopPage]);
-    this._createPageMaterial(this._parts[BOOK_PART_TYPE.BookRightTopPage]);
+    OPEN_BOOK_TOP_PAGES_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      this._createPageMaterial(part);
+    });
 
-    this._createShaderPageTexture(this._parts[BOOK_PART_TYPE.BookLeftPageSide01]);
-    this._createShaderPageTexture(this._parts[BOOK_PART_TYPE.BookLeftPageSide02]);
-
-    this._createShaderPageTexture(this._parts[BOOK_PART_TYPE.BookRightPageSide01]);
-    this._createShaderPageTexture(this._parts[BOOK_PART_TYPE.BookRightPageSide02]);
+    OPEN_BOOK_ACTIVE_PAGES_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      this._createShaderPageTexture(part);
+    });
   }
 
   _createPageMaterial(page) {
@@ -546,11 +551,10 @@ export default class Book extends RoomObjectAbstract {
       map: bakedTexture,
     });
 
-    this._parts[BOOK_PART_TYPE.BookBackCover].material = bakedMaterial;
-    this._parts[BOOK_PART_TYPE.BookLeftCover].material = bakedMaterial;
-    this._parts[BOOK_PART_TYPE.BookRightCover].material = bakedMaterial;
-    this._parts[BOOK_PART_TYPE.BookLeftPages].material = bakedMaterial;
-    this._parts[BOOK_PART_TYPE.BookRightPages].material = bakedMaterial;
+    OPEN_BOOK_INACTIVE_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      part.material = bakedMaterial;
+    });
   }
 
   _setActivePagesMaterial() {
