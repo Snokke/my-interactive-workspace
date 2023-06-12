@@ -12,6 +12,8 @@ import Materials from '../../../../core/materials';
 import Loader from '../../../../core/loader';
 import BookPageRender from './book-page-render/book-page-render';
 import { BOOK_PAGES } from './book-page-render/data/book-pages-config';
+import { SOUNDS_CONFIG } from '../../data/sounds-config';
+import SoundHelper from '../../shared-objects/sound-helper';
 
 export default class Book extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -273,6 +275,7 @@ export default class Book extends RoomObjectAbstract {
     const progress = { value: 0 };
     this._disablePagesActivity();
     this._drawPagesOnFlipProgress(direction);
+    this._playSound();
 
     const config = this._pageFlipConfigByDirection[direction];
     const pages = config.pages;
@@ -412,8 +415,10 @@ export default class Book extends RoomObjectAbstract {
     this._addPartsToScene();
     this._initWrapperGroup();
     this._initOpenBook();
+    this._initSounds();
     this._initBookLastPosition();
     this._hideOpenBook();
+
   }
 
   _initBookPageRender() {
@@ -600,6 +605,35 @@ export default class Book extends RoomObjectAbstract {
     const startPositionAttribute = new THREE.BufferAttribute(startPositionZ, 1);
 
     mesh.geometry.setAttribute('startPositionZ', startPositionAttribute);
+  }
+
+  _initSounds() {
+    this._initSound();
+    this._initSoundHelper();
+  }
+
+  _initSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
+    const sound = this._sound = new THREE.PositionalAudio(this._audioListener);
+    this._wrapper.add(sound);
+
+    sound.setRefDistance(soundConfig.refDistance);
+    sound.position.x = 0.3;
+
+    sound.setVolume(this._globalVolume * this._objectVolume);
+
+    Loader.events.on('onAudioLoaded', () => {
+      sound.setBuffer(Loader.assets['page-flip']);
+    });
+  }
+
+  _initSoundHelper() {
+    const helperSize = SOUNDS_CONFIG.objects[this._roomObjectType].helperSize;
+    const soundHelper = this._soundHelper = new SoundHelper(helperSize);
+    this._wrapper.add(soundHelper);
+
+    soundHelper.position.copy(this._sound.position);
   }
 
   _setPartsSettings() {

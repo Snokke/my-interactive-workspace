@@ -59,6 +59,11 @@ const SOUNDS_CONFIG = {
       refDistance: 10,
       helperSize: 0.3,
     },
+    [ROOM_OBJECT_TYPE.Book]: {
+      volume: 1,
+      refDistance: 10,
+      helperSize: 0.3,
+    },
   }
 }
 

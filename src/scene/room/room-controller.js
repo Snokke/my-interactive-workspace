@@ -11,6 +11,7 @@ import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/la
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
+import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from './data/global-room-objects-enabled-config';
 
 export default class RoomController {
   constructor(data) {
@@ -109,7 +110,8 @@ export default class RoomController {
 
     const intersectObject = intersect.object;
 
-    if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
+    if (intersectObject && intersectObject.userData.isActive
+      && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType] && GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;
       const objectConfig = ROOM_OBJECT_CONFIG[objectType];
       const roomObject = this._roomActiveObject[objectType];
@@ -186,7 +188,8 @@ export default class RoomController {
       }
     }
 
-    if (intersectObject && intersectObject.userData.isActive && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
+    if (intersectObject && intersectObject.userData.isActive
+      && ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType] && GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[intersect.object.userData.objectType]) {
       const objectType = intersect.object.userData.objectType;
       const roomObject = this._roomActiveObject[objectType];
 
@@ -200,7 +203,8 @@ export default class RoomController {
 
     const isObjectActive = object === null || !object.userData.isActive
       || (this._roomActiveObject[object.userData.objectType] && !this._roomActiveObject[object.userData.objectType].isInputEnabled())
-      || !ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType];
+      || !ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType]
+      || !GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType];
 
     if (isObjectActive) {
       this._resetGlow();

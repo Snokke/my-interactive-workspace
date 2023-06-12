@@ -4,6 +4,7 @@ import GUIHelper from '../../../core/helpers/gui-helper/gui-helper';
 import { ROOM_OBJECT_CONFIG } from '../data/room-config';
 import { DEBUG_MENU_START_STATE } from '../../../core/configs/debug-menu-start-state';
 import { ROOM_OBJECT_ENABLED_CONFIG } from '../data/room-objects-enabled-config';
+import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from '../data/global-room-objects-enabled-config';
 
 export default class RoomObjectDebugAbstract extends THREE.Group {
   constructor(roomObjectType) {
@@ -79,6 +80,10 @@ export default class RoomObjectDebugAbstract extends THREE.Group {
       });
 
     debugFolder.addSeparator();
+
+    if (!GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[this._roomObjectType]) {
+      debugFolder.hidden = true;
+    }
   }
 
   _checkToDisableFolder() {
