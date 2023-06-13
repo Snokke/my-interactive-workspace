@@ -415,7 +415,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _onOpenCV() {
-    console.log('CV');
+    window.open('https://www.andriibabintsev.com/pdf/cv.pdf', '_blank').focus();
   }
 
   _updatePosition() {

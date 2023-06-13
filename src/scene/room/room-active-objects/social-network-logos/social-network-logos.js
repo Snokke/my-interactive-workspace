@@ -19,7 +19,6 @@ export default class SocialNetworkLogos extends RoomObjectAbstract {
 
     if (partType === SOCIAL_NETWORK_LOGOS_PART_TYPE.Github) {
       window.open('https://github.com/Snokke/room-project', '_blank').focus();
-
     }
 
     if (partType === SOCIAL_NETWORK_LOGOS_PART_TYPE.Linkedin) {
