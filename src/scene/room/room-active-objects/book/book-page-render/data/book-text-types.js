@@ -6,7 +6,7 @@ const BOOK_TEXT_STYLE_TYPE = {
 const BOOK_TEXT_STYLE_CONFIG = {
   [BOOK_TEXT_STYLE_TYPE.Regular]: {
     font: 'Arial',
-    size: 30,
+    size: 25,
     lineHeightMultiplier: 1.2,
     fillStyle: '#000000',
     textAlign: 'left',
