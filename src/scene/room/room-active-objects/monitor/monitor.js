@@ -606,7 +606,7 @@ export default class Monitor extends RoomObjectAbstract {
     videoElement.muted = true;
     videoElement.controls = true;
     videoElement.playsInline = true;
-    videoElement.src = '/video/games_showreel_360.mp4';
+    videoElement.src = '/video/games_showreel.mp4';
 
     videoElement.addEventListener('ended', () => {
       this._stopShowreel();
