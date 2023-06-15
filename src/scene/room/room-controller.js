@@ -47,7 +47,7 @@ export default class RoomController {
 
     this._isGameActive = false;
     this._isReserveCameraActive = false;
-    this._isAllObjectsHighlighted = false;
+    this._isActiveObjectsHighlighted = false;
     this._isObjectsMoving = false;
 
     this._init();
@@ -77,7 +77,7 @@ export default class RoomController {
       }
     }
 
-    if (!this._isAllObjectsHighlighted && (intersect === null || intersect.instanceId !== undefined)) {
+    if (!this._isActiveObjectsHighlighted && (intersect === null || intersect.instanceId !== undefined)) {
       this._resetGlow();
     }
 
@@ -143,6 +143,9 @@ export default class RoomController {
 
   onPointerLeave() {
     this._resetGlow();
+
+    this._isActiveObjectsHighlighted = false;
+    this._roomDebug.setActiveObjectsHighlightState(this._isActiveObjectsHighlighted);
   }
 
   onWheelScroll(delta) {
@@ -215,7 +218,7 @@ export default class RoomController {
       || !GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType];
 
     if (isObjectActive) {
-      if (!this._isAllObjectsHighlighted) {
+      if (!this._isActiveObjectsHighlighted) {
         this._resetGlow();
       }
 
@@ -244,7 +247,8 @@ export default class RoomController {
         this._resetGlow();
       } else {
         this._setGlow(meshes);
-        this._isAllObjectsHighlighted = false;
+        this._isActiveObjectsHighlighted = false;
+        this._roomDebug.setActiveObjectsHighlightState(this._isActiveObjectsHighlighted);
       }
 
       roomObject.onPointerOver(intersect);
@@ -873,7 +877,14 @@ export default class RoomController {
   }
 
   _highlightAllActiveObjects() {
-    this._isAllObjectsHighlighted = true;
+    if (this._isActiveObjectsHighlighted) {
+      this._isActiveObjectsHighlighted = false;
+      this._resetGlow();
+
+      return;
+    }
+
+    this._isActiveObjectsHighlighted = true;
     const allMeshes = [];
 
     for (let key in this._roomActiveObject) {

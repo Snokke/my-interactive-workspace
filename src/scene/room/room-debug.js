@@ -24,6 +24,9 @@ export default class RoomDebug {
     this._monitorFocusButton = null;
     this._keyboardFocusButton = null;
     this._startCameraPositionButton = null;
+    this._highlightActiveObjectsButton = null;
+
+    this._isActiveObjectsHighlighted = false;
 
     this._init();
   }
@@ -88,13 +91,23 @@ export default class RoomDebug {
     this._startCameraPositionButton.disabled = true;
   }
 
+  updateHighlightActiveObjectsButton() {
+    const title = this._isActiveObjectsHighlighted ? 'Hide highlight of active objects' : 'Highlight active objects';
+    this._highlightActiveObjectsButton.title = title;
+  }
+
+  setActiveObjectsHighlightState(state) {
+    this._isActiveObjectsHighlighted = state;
+    this.updateHighlightActiveObjectsButton();
+  }
+
   _init() {
     this._initTheatreJsDebug();
     this._initSettingsFolder();
     this._initGeneralDebug();
     this._initSoundsDebug();
     this._initCameraDebug();
-    this._initAllObjectsShowFolder();
+    this._initActiveObjectsShowFolder();
     this._initActiveRoomObjectsFolder();
   }
 
@@ -219,19 +232,19 @@ export default class RoomDebug {
     });
   }
 
-  _initAllObjectsShowFolder() {
-    const allObjectsInteractionFolder = this._roomFolder.addFolder({
-      title: 'All objects interaction',
-      expanded: DEBUG_MENU_START_STATE.AllObjectsInteraction,
+  _initActiveObjectsShowFolder() {
+    const activeObjectsInteractionFolder = this._roomFolder.addFolder({
+      title: 'Active objects',
+      expanded: DEBUG_MENU_START_STATE.ActiveObjects,
     });
 
-    allObjectsInteractionFolder.addButton({
-      title: 'Highlight all active objects',
+    this._highlightActiveObjectsButton = activeObjectsInteractionFolder.addButton({
+      title: 'Highlight active objects',
     }).on('click', () => {
-      this.events.post('highlightAllActiveObjects');
+      this._onHighlightAllActiveObjects();
     });
 
-    allObjectsInteractionFolder.addButton({
+    activeObjectsInteractionFolder.addButton({
       title: 'Interact with all objects',
     }).on('click', () => {
       this.events.post('allObjectsInteraction');
@@ -247,5 +260,11 @@ export default class RoomDebug {
     roomObjectsFolder.addInput(ROOM_CONFIG, 'autoOpenActiveDebugFolder', {
       label: 'Auto open ↓',
     });
+  }
+
+  _onHighlightAllActiveObjects() {
+    this._isActiveObjectsHighlighted = !this._isActiveObjectsHighlighted;
+    this.updateHighlightActiveObjectsButton();
+    this.events.post('highlightAllActiveObjects');
   }
 }
