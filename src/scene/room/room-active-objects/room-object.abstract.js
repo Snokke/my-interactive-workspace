@@ -76,6 +76,10 @@ export default class RoomObjectAbstract extends THREE.Group {
     return this._activeMeshes;
   }
 
+  getMeshesForOutlinePreview() {
+    return this._allMeshes;
+  }
+
   getObjectType() {
     return this._roomObjectType;
   }

@@ -294,6 +294,15 @@ export default class Monitor extends RoomObjectAbstract {
     this._sceneRenderTexture = texture;
   }
 
+  getMeshesForOutlinePreview() {
+    const monitor = this._parts[MONITOR_PART_TYPE.Monitor];
+    const monitorArmMountBase = this._parts[MONITOR_PART_TYPE.MonitorArmMountBase];
+    const monitorArmMountArm01 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm01];
+    const monitorArmMountArm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
+
+    return [monitor, monitorArmMountBase, monitorArmMountArm01, monitorArmMountArm02];
+  }
+
   _clearButtonsColor() {
     MONITOR_SCREEN_BUTTONS.forEach((partType) => {
       const button = this._parts[partType];

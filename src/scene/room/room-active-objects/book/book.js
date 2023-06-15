@@ -98,6 +98,12 @@ export default class Book extends RoomObjectAbstract {
     this._parts[BOOK_PART_TYPE.ClosedBook].userData.isActive = false;
   }
 
+  getMeshesForOutlinePreview() {
+    const closedBook = this._parts[BOOK_PART_TYPE.ClosedBook];
+
+    return [closedBook];
+  }
+
   _onBookClick() {
     if (!this._isBookShown) {
       this._showBook();
@@ -298,6 +304,7 @@ export default class Book extends RoomObjectAbstract {
     this._disablePagesActivity();
     this._drawPagesOnFlipProgress(direction);
     this._playSound();
+    this.events.post('onPageMoving');
 
     const config = this._pageFlipConfigByDirection[direction];
     const pages = config.pages;
@@ -327,6 +334,10 @@ export default class Book extends RoomObjectAbstract {
         if (this._bookPagePDFRender) {
           this._bookPagePDFRender.setCurrentPage(this._currentPage);
         }
+
+        Delayed.call(10, () => {
+          this.events.post('onPageStopMoving');
+        })
       });
   }
 

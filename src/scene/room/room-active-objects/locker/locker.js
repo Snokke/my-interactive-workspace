@@ -77,6 +77,7 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   pushAllCases() {
+    this.events.post('onCaseMoving');
     const isAllCasesClosed = this._casesState.every(state => state === LOCKER_CASE_STATE.Closed);
 
     if (isAllCasesClosed) {
@@ -99,6 +100,8 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   pushCase(caseId) {
+    this.events.post('onCaseMoving');
+
     if (this._casesState[caseId] === LOCKER_CASE_STATE.Moving) {
       this._stopCaseMoveTween(caseId);
 
@@ -189,20 +192,23 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _onWorkplacePhotoClick() {
-    if (!this._isWorkplacePhotoShown) {
-      this._showWorkplacePhoto();
-    } else {
-      this.events.post('onWorkplacePhotoClickToHide');
-    }
-  }
-
   hideWorkplacePhoto() {
+    this.events.post('onWorkplacePhotoMoving');
     this._isWorkplacePhotoShown = false;
     this._moveWorkplacePhotoToStartPosition();
     this._debugMenu.enableCaseMovement();
     this._parts[LOCKER_PART_TYPE.WorkplacePhoto].userData.hideOutline = false;
     this._enableActivity();
+  }
+
+  _onWorkplacePhotoClick() {
+    this.events.post('onWorkplacePhotoMoving');
+
+    if (!this._isWorkplacePhotoShown) {
+      this._showWorkplacePhoto();
+    } else {
+      this.events.post('onWorkplacePhotoClickToHide');
+    }
   }
 
   _moveCase(caseId, direction, delay = 0, playSound = true) {
@@ -268,6 +274,8 @@ export default class Locker extends RoomObjectAbstract {
       if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
         workplacePhoto.visible = false;
       }
+
+      this.events.post('onCaseStopMoving');
     });
   }
 
@@ -309,6 +317,7 @@ export default class Locker extends RoomObjectAbstract {
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       workplacePhoto.userData.isActive = true;
+      this.events.post('onWorkplacePhotoStopMoving');
     });
   }
 
@@ -326,6 +335,7 @@ export default class Locker extends RoomObjectAbstract {
       .onComplete(() => {
         workplacePhoto.userData.isActive = true;
         this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn);
+        this.events.post('onWorkplacePhotoStopMoving');
       });
 
     new TWEEN.Tween(workplacePhoto.rotation)

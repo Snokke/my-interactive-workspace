@@ -31,6 +31,8 @@ export default class AirConditioner extends RoomObjectAbstract {
       return;
     }
 
+    this.events.post('onDoorMoving');
+
     const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
 
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
@@ -123,6 +125,8 @@ export default class AirConditioner extends RoomObjectAbstract {
       this._snowflakeParticlesController.show();
       this._sound.play();
     }
+
+    this.events.post('onDoorStopMoving');
   }
 
   _updatePowerState() {

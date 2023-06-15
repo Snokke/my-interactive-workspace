@@ -226,6 +226,12 @@ export default class RoomDebug {
     });
 
     allObjectsInteractionFolder.addButton({
+      title: 'Highlight all active objects',
+    }).on('click', () => {
+      this.events.post('highlightAllActiveObjects');
+    });
+
+    allObjectsInteractionFolder.addButton({
       title: 'Show all objects interaction',
     }).on('click', () => {
       this.events.post('allObjectsInteraction');

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
+import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, CHAIR_ROTATION_STATE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
 import { CHAIR_CONFIG } from './data/chair-config';
 import Loader from '../../../../core/loader';
 import SoundHelper from '../../shared-objects/sound-helper';
@@ -11,7 +11,7 @@ import ChairMovingAreaHelper from './helpers/chair-moving-area-helper';
 import { checkBottomBorderBounce, checkLeftBorderBounce, checkRightBorderBounce, checkTopBorderBounce, getChairBoundingBox, getMovingArea, getWheelsParts } from './helpers/chair-helpers';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import { aabbIntersect, isVectorXZEqual } from '../../shared-objects/helpers';
+import { isVectorXZEqual } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
@@ -43,6 +43,9 @@ export default class Chair extends RoomObjectAbstract {
     this._isDragActive = false;
     this._autoMoving = false;
     this._bounceDisable = {};
+    this._chairMovementPreviousState = CHAIR_MOVEMENT_STATE.Idle;
+    this._chairRotationState = CHAIR_ROTATION_STATE.Idle;
+    this._chairPreviousRotationState = CHAIR_ROTATION_STATE.Idle;
 
     this._init();
   }
@@ -173,8 +176,15 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _checkIsChairMoving() {
+    this._chairMovementPreviousState = CHAIR_CONFIG.chairMoving.movementState;
+
     if (this._autoMoving) {
       CHAIR_CONFIG.chairMoving.movementState = CHAIR_MOVEMENT_STATE.Moving;
+
+      if (this._chairMovementPreviousState !== CHAIR_CONFIG.chairMoving.movementState) {
+        this._onChairMovementStateChanged();
+      }
+
       return;
     }
 
@@ -189,6 +199,10 @@ export default class Chair extends RoomObjectAbstract {
     }
 
     this._debugMenu.updateChairMovementState();
+
+    if (this._chairMovementPreviousState !== CHAIR_CONFIG.chairMoving.movementState) {
+      this._onChairMovementStateChanged();
+    }
   }
 
   _updateChairMovement(dt) {
@@ -210,6 +224,26 @@ export default class Chair extends RoomObjectAbstract {
     this._updateHelpArrowsPosition();
     this._updateHelpersPosition();
     this._updateAvailableSeatRotationAngle();
+  }
+
+  _onChairMovementStateChanged() {
+    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Moving) {
+      this.events.post('onChairMoving');
+    }
+
+    if (CHAIR_CONFIG.chairMoving.movementState === CHAIR_MOVEMENT_STATE.Idle) {
+      this.events.post('onChairStopMoving');
+    }
+  }
+
+  _onChairRotationSpeedChange() {
+    if (this._chairRotationState === CHAIR_ROTATION_STATE.Rotating) {
+      this.events.post('onChairRotation');
+    }
+
+    if (this._chairRotationState === CHAIR_ROTATION_STATE.Idle) {
+      this.events.post('onChairStopRotation');
+    }
   }
 
   _checkLeftEdge() {
@@ -413,9 +447,17 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _updateSeatRotation(dt) {
+    this._chairPreviousRotationState = this._chairRotationState;
+
     if (CHAIR_CONFIG.seatRotation.speed === 0) {
+      if (this._chairPreviousRotationState !== this._chairRotationState) {
+        this._onChairRotationSpeedChange();
+      }
+
       return;
     }
+
+    this._chairPreviousRotationSpeed = CHAIR_CONFIG.seatRotation.speed;
 
     const seat = this._parts[CHAIR_PART_TYPE.Seat];
     const direction = CHAIR_CONFIG.seatRotation.direction === SEAT_ROTATION_DIRECTION.Clockwise ? -1 : 1;
@@ -439,6 +481,16 @@ export default class Chair extends RoomObjectAbstract {
     this._updateRotationWithAvailableAngle();
     this._chairSeatHelper.updateSeatAngle(seat.rotation.y);
     this._debugMenu.updateSeatSpeed();
+
+    if (CHAIR_CONFIG.seatRotation.speed !== 0) {
+      this._chairRotationState = CHAIR_ROTATION_STATE.Rotating;
+    } else {
+      this._chairRotationState = CHAIR_ROTATION_STATE.Idle;
+    }
+
+    if (this._chairPreviousRotationState !== this._chairRotationState) {
+      this._onChairRotationSpeedChange();
+    }
   }
 
   _updateRotationWithAvailableAngle() {

@@ -78,6 +78,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   }
 
   hideAirConditionerRemote() {
+    this.events.post('onRemoteMoving');
     this._isAirConditionerRemoteShown = false;
     this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = false;
     this._moveRemoteToStartPosition();
@@ -168,6 +169,8 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   }
 
   _onAirConditionerRemoteClick() {
+    this.events.post('onRemoteMoving');
+
     if (!this._isAirConditionerRemoteShown) {
       this._showAirConditionerRemote();
     } else {
@@ -191,6 +194,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       this._enableActivity();
+      this.events.post('onRemoteStopMoving');
     });
   }
 
@@ -211,6 +215,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
         this._wrapper.position.copy(this._airConditionerRemoteLastPosition);
         this._enableActivity();
         this._setMaterial(AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.BakedLightOn);
+        this.events.post('onRemoteStopMoving');
       });
 
     new TWEEN.Tween(this._wrapper.rotation)

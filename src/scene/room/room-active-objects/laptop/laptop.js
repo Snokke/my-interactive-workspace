@@ -154,6 +154,15 @@ export default class Laptop extends RoomObjectAbstract {
     }
   }
 
+  getMeshesForOutlinePreview() {
+    const laptopKeyboard = this._parts[LAPTOP_PART_TYPE.LaptopKeyboard];
+    const laptopMonitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
+    const laptopArmMountArm01 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm01];
+    const laptopArmMountArm02 = this._parts[LAPTOP_PART_TYPE.LaptopArmMountArm02];
+
+    return [laptopKeyboard, laptopMonitor, laptopArmMountArm01, laptopArmMountArm02];
+  }
+
   getScreen() {
     return this._parts[LAPTOP_PART_TYPE.LaptopScreen];
   }
@@ -251,6 +260,7 @@ export default class Laptop extends RoomObjectAbstract {
 
   _laptopInteract() {
     this._isMountSelected = false;
+    this.events.post('onLaptopMoving');
 
     if (LAPTOP_CONFIG.state === LAPTOP_STATE.Moving) {
       this._updateLaptopPositionType();
@@ -288,6 +298,8 @@ export default class Laptop extends RoomObjectAbstract {
 
         LAPTOP_CONFIG.state = LAPTOP_STATE.Idle;
         this._debugMenu.updateTopPanelState();
+
+        this.events.post('onLaptopStopMoving');
       });
   }
 

@@ -54,6 +54,13 @@ export default class Table extends RoomObjectAbstract {
     return this._topPartsGroup;
   }
 
+  getMeshesForOutlinePreview() {
+    const handle = this._parts[TABLE_PART_TYPE.Handle];
+    const legs = this._parts[TABLE_PART_TYPE.Legs];
+
+    return [handle, legs];
+  }
+
   _changeDirection(handle) {
     this._updateTableState();
     this._stopTweens();

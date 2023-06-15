@@ -41,6 +41,7 @@ export default class Walls extends RoomObjectAbstract {
 
     this._stopTweens();
     this._debugMenu.disableActiveOpenType();
+    this.events.post('onWindowMoving');
 
     if (this._windowState === WINDOW_STATE.Opening || this._windowState === WINDOW_STATE.Closing) {
       this._updateWindowState();
@@ -84,6 +85,13 @@ export default class Walls extends RoomObjectAbstract {
     this._closeSound.setVolume(0);
   }
 
+  getMeshesForOutlinePreview() {
+    const window = this._parts[WALLS_PART_TYPE.Window];
+    const windowHandle = this._parts[WALLS_PART_TYPE.WindowHandle];
+
+    return [window, windowHandle];
+  }
+
   _startFromHandle() {
     const newState = this._previousWindowState === WINDOW_STATE.Opened ? WINDOW_STATE.Closing : WINDOW_STATE.Opening;
     this._setWindowState(newState);
@@ -100,6 +108,8 @@ export default class Walls extends RoomObjectAbstract {
         if (this._windowState === WINDOW_STATE.Opened) {
           this.events.post('onWindowOpened', this._windowOpenType);
         }
+
+        this.events.post('onWindowStopMoving');
       });
     });
   }
@@ -125,6 +135,8 @@ export default class Walls extends RoomObjectAbstract {
         if (this._windowState === WINDOW_STATE.Opened) {
           this.events.post('onWindowOpened', this._windowOpenType);
         }
+
+        this.events.post('onWindowStopMoving');
       });
     });
   }

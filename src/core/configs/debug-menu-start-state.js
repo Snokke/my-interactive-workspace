@@ -6,7 +6,7 @@ const DEBUG_MENU_START_STATE = {
       General: false,
       Sound: false,
       Camera: false,
-      AllObjectsInteraction: false,
+      AllObjectsInteraction: true,
     ActiveRoomObjects: true,
       [ROOM_OBJECT_TYPE.Walls]: false,
       [ROOM_OBJECT_TYPE.AirConditioner]: false,

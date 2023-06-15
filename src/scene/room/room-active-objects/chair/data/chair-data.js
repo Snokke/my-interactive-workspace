@@ -45,6 +45,11 @@ const CHAIR_MOVEMENT_STATE = {
   Idle: 'IDLE',
 }
 
+const CHAIR_ROTATION_STATE = {
+  Rotating: 'ROTATING',
+  Idle: 'IDLE',
+}
+
 const BORDER_TYPE = {
   Left: 'LEFT',
   Right: 'RIGHT',
@@ -72,4 +77,5 @@ export {
   MOVING_AREA_TYPE,
   WHEELS_PARTS,
   LEGS_PARTS,
+  CHAIR_ROTATION_STATE,
 };

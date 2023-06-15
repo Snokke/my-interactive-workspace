@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
-import { ROOM_CONFIG, ROOM_OBJECT_ACTIVITY_TYPE, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
+import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
 import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
 import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
-import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_ORDER, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
+import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
 import { LAPTOP_SCREEN_MUSIC_CONFIG } from './room-active-objects/laptop/data/laptop-config';
 import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/camera-data';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
@@ -47,6 +47,8 @@ export default class RoomController {
 
     this._isGameActive = false;
     this._isReserveCameraActive = false;
+    this._isAllObjectsHighlighted = false;
+    this._isObjectsMoving = false;
 
     this._init();
   }
@@ -56,6 +58,7 @@ export default class RoomController {
       dt = 0.1;
     }
 
+    const isPointerMoved = this._isObjectsMoving || (this._previousPointerPosition.x !== this._pointerPosition.x || this._previousPointerPosition.y !== this._pointerPosition.y) ;
     const intersect = this._raycasterController.checkIntersection(this._pointerPosition.x, this._pointerPosition.y);
 
     if (intersect === null) {
@@ -64,7 +67,7 @@ export default class RoomController {
       this._previousGlowMeshesNames = [];
     }
 
-    if (intersect && intersect.object && !this._draggingObject) {
+    if (intersect && intersect.object && !this._draggingObject && isPointerMoved) {
       this._checkToGlow(intersect);
     }
 
@@ -74,20 +77,12 @@ export default class RoomController {
       }
     }
 
-    if (intersect === null || intersect.instanceId !== undefined) {
+    if (!this._isAllObjectsHighlighted && (intersect === null || intersect.instanceId !== undefined)) {
       this._resetGlow();
     }
 
-    for (const objectType in this._roomActiveObject) {
-      this._roomActiveObject[objectType].update(dt);
-    }
-
-    for (const objectType in this._roomInactiveObject) {
-      this._roomInactiveObject[objectType].update(dt);
-    }
-
-    this._cursor.update(dt);
-    this._cameraController.update(dt);
+    this._updateObjects(dt);
+    this._previousPointerPosition.set(this._pointerPosition.x, this._pointerPosition.y);
   }
 
   onPointerMove(x, y) {
@@ -198,6 +193,19 @@ export default class RoomController {
     }
   }
 
+  _updateObjects(dt) {
+    for (const objectType in this._roomActiveObject) {
+      this._roomActiveObject[objectType].update(dt);
+    }
+
+    for (const objectType in this._roomInactiveObject) {
+      this._roomInactiveObject[objectType].update(dt);
+    }
+
+    this._cursor.update(dt);
+    this._cameraController.update(dt);
+  }
+
   _checkToGlow(intersect) {
     const object = intersect.object;
 
@@ -213,6 +221,7 @@ export default class RoomController {
       this._glowMeshesNames = [];
       this._previousGlowMeshesNames = [];
       this._resetRoomObjectsPointerOver();
+      this._isAllObjectsHighlighted = false;
 
       return;
     }
@@ -378,11 +387,15 @@ export default class RoomController {
     airConditioner.events.on('onChangePowerState', () => airConditionerRemote.updateTemperatureScreen());
     airConditioner.events.on('onIncreaseTemperature', () => this._onAirConditionerTemperatureUpClick());
     airConditioner.events.on('onDecreaseTemperature', () => this._onAirConditionerTemperatureDownClick());
+    airConditioner.events.on('onDoorMoving', () => this._onObjectsMoving());
+    airConditioner.events.on('onDoorStopMoving', () => this._onObjectsStopMoving());
     airConditionerRemote.events.on('onAirConditionerRemoteClickToShow', (msg, airConditionerRemote, roomObjectType) => this._onAirConditionerRemoteClickToShow(airConditionerRemote, roomObjectType));
     airConditionerRemote.events.on('onAirConditionerRemoteClickToHide', () => this._onAirConditionerRemoteClickToHide());
     airConditionerRemote.events.on('onButtonOnOffClick', () => this._onAirConditionerRemoteButtonOnOffClick());
     airConditionerRemote.events.on('onButtonTemperatureUpClick', () => this._onAirConditionerTemperatureUpClick());
     airConditionerRemote.events.on('onButtonTemperatureDownClick', () => this._onAirConditionerTemperatureDownClick());
+    airConditionerRemote.events.on('onRemoteMoving', () => this._onObjectsMoving());
+    airConditionerRemote.events.on('onRemoteStopMoving', () => this._onObjectsStopMoving());
   }
 
   _initDebugMenuSignals() {
@@ -395,6 +408,7 @@ export default class RoomController {
     this._roomDebug.events.on('onRoomFocus', () => this._onRoomFocus());
     this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
     this._roomDebug.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
+    this._roomDebug.events.on('highlightAllActiveObjects', () => this._highlightAllActiveObjects());
   }
 
   _initOtherSignals() {
@@ -404,25 +418,48 @@ export default class RoomController {
     const locker = this._roomActiveObject[ROOM_OBJECT_TYPE.Locker];
     const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
     const book = this._roomActiveObject[ROOM_OBJECT_TYPE.Book];
+    const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
+    laptop.events.on('onLaptopMoving', () => this._onObjectsMoving());
+    laptop.events.on('onLaptopStopMoving', () => this._onObjectsStopMoving());
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
     walls.events.on('onWindowClosed', () => this._onWindowClosed());
     walls.events.on('onWindowOpened', (msg, openType) => this._onWindowFullyOpened(openType));
+    walls.events.on('onWindowMoving', () => this._onObjectsMoving());
+    walls.events.on('onWindowStopMoving', () => this._onObjectsStopMoving());
     table.events.on('onTableMoving', () => this._onTableMoving());
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
+    locker.events.on('onCaseMoving', () => this._onObjectsMoving());
+    locker.events.on('onCaseStopMoving', () => this._onObjectsStopMoving());
+    locker.events.on('onWorkplacePhotoMoving', () => this._onObjectsMoving());
+    locker.events.on('onWorkplacePhotoStopMoving', () => this._onObjectsStopMoving());
     book.events.on('onBookClickToShow', (msg, book, roomObjectType) => this._onBookClickToShow(book, roomObjectType));
     book.events.on('onBookClickToHide', () => this._onBookClickToHide());
+    book.events.on('onPageMoving', () => this._onObjectsMoving());
+    book.events.on('onPageStopMoving', () => this._onObjectsStopMoving());
+    chair.events.on('onChairMoving', () => this._onObjectsMoving());
+    chair.events.on('onChairStopMoving', () => this._onObjectsStopMoving());
+    chair.events.on('onChairRotation', () => this._onObjectsMoving());
+    chair.events.on('onChairStopRotation', () => this._onObjectsStopMoving());
 
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
     this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
+  }
+
+  _onObjectsMoving() {
+    this._isObjectsMoving = true;
+  }
+
+  _onObjectsStopMoving() {
+    this._isObjectsMoving = false;
   }
 
   _onSongEnded(songType) {
@@ -562,11 +599,13 @@ export default class RoomController {
   }
 
   _onTableMoving() {
+    this._onObjectsMoving();
     this._disableFocusObjects();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseInactive();
   }
 
   _onTableStop(tableState) {
+    this._onObjectsStopMoving();
     this._enableFocusObjects();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].setTableState(tableState);
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseActive();
@@ -824,5 +863,18 @@ export default class RoomController {
     if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
       monitor.onLeftKeyClick(buttonType);
     }
+  }
+
+  _highlightAllActiveObjects() {
+    this._isAllObjectsHighlighted = true;
+    const allMeshes = [];
+
+    for (let key in this._roomActiveObject) {
+      const roomObject = this._roomActiveObject[key];
+      const meshes = roomObject.getMeshesForOutlinePreview();
+      allMeshes.push(...meshes);
+    }
+
+    this._outlinePass.selectedObjects = allMeshes;
   }
 }
