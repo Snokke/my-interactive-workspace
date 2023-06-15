@@ -29,6 +29,7 @@ import MousePad from "../room-inactive-objects/objects/mouse-pad";
 import RoomObjects from "../room-inactive-objects/objects/room-objects";
 import Book from "../room-active-objects/book/book";
 import Calendar from "../room-inactive-objects/objects/calendar";
+import BookDebugMenu from "../room-active-objects/book/book-debug-menu";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -86,7 +87,7 @@ const ROOM_OBJECT_CLASS = {
   },
   [ROOM_OBJECT_TYPE.Book]: {
     object: Book,
-    debugMenu: null,
+    debugMenu: BookDebugMenu,
   },
 
   // Inactive objects

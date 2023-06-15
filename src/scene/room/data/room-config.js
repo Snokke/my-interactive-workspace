@@ -32,9 +32,9 @@ const ROOM_OBJECT_TYPE = {
   AirConditionerRemote: 'AIR_CONDITIONER_REMOTE',
   Locker: 'LOCKER',
   Chair: 'CHAIR',
+  Book: 'BOOK',
   FloorLamp: 'FLOOR_LAMP',
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
-  Book: 'BOOK',
 
   // Inactive objects
   RoomObjects: 'ROOM_OBJECTS',

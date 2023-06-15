@@ -68,18 +68,18 @@ export default class RoomObjectDebugAbstract extends THREE.Group {
       expanded: DEBUG_MENU_START_STATE[this._roomObjectType],
     });
 
-    debugFolder.addInput(ROOM_OBJECT_ENABLED_CONFIG, this._roomObjectType, {
-      label: 'Enabled',
-    })
-      .on('change', (enabled) => {
-        if (enabled.value) {
-          this.enable();
-        } else {
-          this.disable();
-        }
-      });
+    // debugFolder.addInput(ROOM_OBJECT_ENABLED_CONFIG, this._roomObjectType, {
+    //   label: 'Enabled',
+    // })
+    //   .on('change', (enabled) => {
+    //     if (enabled.value) {
+    //       this.enable();
+    //     } else {
+    //       this.disable();
+    //     }
+    //   });
 
-    debugFolder.addSeparator();
+    // debugFolder.addSeparator();
 
     if (!GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[this._roomObjectType]) {
       debugFolder.hidden = true;

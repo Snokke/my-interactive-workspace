@@ -418,6 +418,7 @@ export default class RoomController {
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
     book.events.on('onBookClickToShow', (msg, book, roomObjectType) => this._onBookClickToShow(book, roomObjectType));
     book.events.on('onBookClickToHide', () => this._onBookClickToHide());
+
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
     this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
@@ -627,6 +628,8 @@ export default class RoomController {
     this._roomDebug.disableStartCameraPositionButton();
     this._disableFocusObjects();
     this._disableAllObjects();
+
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Book].enableDebugMenu();
 
     ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.Book] = true;
   }

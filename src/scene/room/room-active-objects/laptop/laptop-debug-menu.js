@@ -180,7 +180,7 @@ export default class LaptopDebugMenu extends RoomObjectDebugAbstract {
     if (this._time >= this._stepTime) {
       this._time = 0;
 
-      const fittedSongName = this._currentSong.slice(this._currentMusicNameOffset, this._maxMusicNameLength + this._currentMusicNameOffset)
+      const fittedSongName = this._currentSong.slice(this._currentMusicNameOffset, this._maxMusicNameLength + this._currentMusicNameOffset);
       this._currentMusicName.value = fittedSongName;
       this._musicTypeController.refresh();
 

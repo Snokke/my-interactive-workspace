@@ -7,14 +7,14 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
     super(roomObjectType);
 
-    this._currentTypeButton = null;
+    this._currentTypeController = null;
 
     this._init();
     this._checkToDisableFolder();
   }
 
   updateBacklightType() {
-    this._currentTypeButton.refresh();
+    this._currentTypeController.refresh();
   }
 
   _init() {
@@ -31,11 +31,11 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
 
     this._debugFolder.addSeparator();
 
-    this._currentTypeButton = this._debugFolder.addInput(KEYS_BACKLIGHT_CONFIG, 'currentType', {
+    this._currentTypeController = this._debugFolder.addInput(KEYS_BACKLIGHT_CONFIG, 'currentType', {
       label: 'Current backlight',
       disabled: true,
     });
-    this._currentTypeButton.customDisabled = true;
+    this._currentTypeController.customDisabled = true;
 
     this._debugFolder.addButton({
       title: 'Change backlight type',

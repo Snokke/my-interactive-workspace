@@ -19,6 +19,7 @@ const DEBUG_MENU_START_STATE = {
       [ROOM_OBJECT_TYPE.Laptop]: false,
       [ROOM_OBJECT_TYPE.Keyboard]: false,
       [ROOM_OBJECT_TYPE.Mouse]: false,
+      [ROOM_OBJECT_TYPE.Book]: false,
 }
 
 export { DEBUG_MENU_START_STATE };

@@ -35,6 +35,10 @@ export default class Book extends RoomObjectAbstract {
     this._init();
   }
 
+  update(dt) {
+    this._debugMenu.update(dt);
+  }
+
   onClick(intersect) {
     if (!this._isInputEnabled) {
       return;
@@ -98,12 +102,19 @@ export default class Book extends RoomObjectAbstract {
     if (!this._isBookShown) {
       this._showBook();
     } else {
-      this.events.post('onBookClickToHide');
+      this._onHideBookStart();
     }
+  }
+
+  _onHideBookStart() {
+    this._debugMenu.disableShowButton();
+    this._debugMenu.disablePageFlipButtons();
+    this.events.post('onBookClickToHide');
   }
 
   _showBook() {
     this._isBookShown = true;
+    this._debugMenu.disableShowButton();
 
     this._bookLastPosition.copy(this._wrapper.position);
     const globalPosition = this._wrapper.getWorldPosition(new THREE.Vector3());
@@ -118,6 +129,8 @@ export default class Book extends RoomObjectAbstract {
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       this._enableActivity();
+      this._debugMenu.enableShowButton();
+      this._debugMenu.onBookShow();
     });
   }
 
@@ -137,6 +150,9 @@ export default class Book extends RoomObjectAbstract {
         this.add(this._wrapper);
         this._wrapper.position.copy(this._bookLastPosition);
         this._enableActivity();
+        this._debugMenu.onBookHide();
+        this._debugMenu.enableShowButton();
+        this._debugMenu.disablePageFlipButtons();
       });
 
     new TWEEN.Tween(this._wrapper.rotation)
@@ -166,7 +182,10 @@ export default class Book extends RoomObjectAbstract {
     Delayed.call(BOOK_CONFIG.openAnimation.duration, () => {
       this._hideOpenBook();
       this._showClosedBook();
-      this._bookPagePDFRender.renderTopPages();
+
+      if (this._bookPagePDFRender) {
+        this._bookPagePDFRender.renderTopPages();
+      }
     });
   }
 
@@ -300,6 +319,7 @@ export default class Book extends RoomObjectAbstract {
       .start()
       .onComplete(() => {
         this._currentPage = direction === PAGE_FLIP_DIRECTION.Forward ? this._currentPage + 2 : this._currentPage - 2;
+        this._debugMenu.setCurrentPage(this._currentPage);
         this._hidePages(pages[0], pages[1]);
         this._drawPagesOnFlipEnd(direction);
         this._enablePagesActivity();
@@ -313,16 +333,19 @@ export default class Book extends RoomObjectAbstract {
   _enablePagesActivity() {
     if (this._currentPage + 2 < this._pagesCount) {
       this._parts[BOOK_PART_TYPE.BookRightTopPage].userData.isActive = true;
+      this._debugMenu.enableNextPageButton();
     }
 
     if (this._currentPage >= 2) {
       this._parts[BOOK_PART_TYPE.BookLeftTopPage].userData.isActive = true;
+      this._debugMenu.enablePreviousPageButton();
     }
   }
 
   _disablePagesActivity() {
     this._parts[BOOK_PART_TYPE.BookLeftTopPage].userData.isActive = false;
     this._parts[BOOK_PART_TYPE.BookRightTopPage].userData.isActive = false;
+    this._debugMenu.disablePageFlipButtons();
   }
 
   _disableActivity() {
@@ -438,6 +461,8 @@ export default class Book extends RoomObjectAbstract {
     this._initOpenBook();
     this._initSounds();
     this._initBookLastPosition();
+    this._initDebugMenu();
+    this._initSignals();
     this._hideOpenBook();
 
     // Delayed.call(500, () => {
@@ -449,7 +474,7 @@ export default class Book extends RoomObjectAbstract {
   _initBookPageRender() {
     // this._bookPageRender = new BookPageRender();
 
-    if (typeof window === 'undefined' || !('Worker' in window)) {
+    if (typeof window === 'undefined' || (!'Worker' in window)) {
       console.log('Web Workers not supported in this environment.');
 
       return;
@@ -459,6 +484,7 @@ export default class Book extends RoomObjectAbstract {
 
     bookPagePDFRender.events.on('onPdfLoaded', (msg, pagesCount) => {
       this._pagesCount = pagesCount;
+      this._debugMenu.updatePagesCount(pagesCount);
     });
   }
 
@@ -679,6 +705,20 @@ export default class Book extends RoomObjectAbstract {
     this._wrapper.add(soundHelper);
 
     soundHelper.position.copy(this._sound.position);
+  }
+
+  _initSignals() {
+    this._debugMenu.events.on('onShowBook', () => this._onDebugShowBookClick());
+    this._debugMenu.events.on('onNextPageClick', () => this._flipPage(PAGE_FLIP_DIRECTION.Forward));
+    this._debugMenu.events.on('onPreviousPageClick', () => this._flipPage(PAGE_FLIP_DIRECTION.Backward));
+  }
+
+  _onDebugShowBookClick() {
+    if (!this._isBookShown) {
+      this._showBook();
+    } else {
+      this._onHideBookStart();
+    }
   }
 
   _setPartsSettings() {
