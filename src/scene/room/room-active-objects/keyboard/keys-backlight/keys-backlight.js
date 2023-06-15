@@ -148,7 +148,7 @@ export default class KeysBacklight extends THREE.Group {
     this._view.instanceColor.needsUpdate = true;
   }
 
-  _updateScale(dt) {
+  _updateScale(dt) { // eslint-disable-line
     const matrix = new THREE.Matrix4();
     const position = new THREE.Vector3();
     const rotation = new THREE.Quaternion();

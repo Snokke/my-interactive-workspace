@@ -30,10 +30,6 @@ export default class FurnitureItem extends THREE.Group {
     this._init();
   }
 
-  kill() {
-    SimplePhysics.removeBody(this.body);
-  }
-
   show(isAnimated = false) {
     this.visible = true;
 

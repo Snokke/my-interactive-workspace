@@ -852,7 +852,7 @@ export default class RoomController {
     this.events.post('onSoundsEnabledChanged');
   }
 
-  _onMouseOnButtonClick(buttonType, monitorType) {
+  _onMouseOnButtonClick(buttonType, monitorType) { // eslint-disable-line
     const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
     const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
 

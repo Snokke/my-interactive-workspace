@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
-import { MONITOR_TYPE, ROOM_CONFIG } from '../../data/room-config';
+import { MONITOR_TYPE } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
 import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
@@ -621,7 +621,7 @@ export default class Monitor extends RoomObjectAbstract {
       this._stopShowreel();
     });
 
-    const texture = this._showreelTexture = new THREE.VideoTexture(videoElement);
+    this._showreelTexture = new THREE.VideoTexture(videoElement);
     // texture.colorSpace = THREE.SRGBColorSpace;
   }
 

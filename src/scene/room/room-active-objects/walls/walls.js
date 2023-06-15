@@ -34,7 +34,7 @@ export default class Walls extends RoomObjectAbstract {
     this._init();
   }
 
-  onClick(intersect) {
+  onClick(intersect) { // eslint-disable-line
     if (!this._isInputEnabled) {
       return;
     }
@@ -379,6 +379,6 @@ export default class Walls extends RoomObjectAbstract {
       this._windowOpenType = openType;
     }
 
-    debugMenu.updateWindowOpenType(this._windowOpenType);
+    this._debugMenu.updateWindowOpenType(this._windowOpenType);
   }
 }

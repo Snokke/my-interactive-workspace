@@ -15,7 +15,7 @@ export default class Delayed {
 
     if (delay > 0) {
       let t = new Tween({}, delay * 0.001);
-      t.on('complete', x => {
+      t.on('complete', () => {
         callback.apply(context, params);
         this.__removeCall(callback);
       });

@@ -31,7 +31,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._init();
   }
 
-  update(dt) {
+  update(dt) { // eslint-disable-line
     if (this._currentPosition.equals(this._previousPosition)) {
       return;
     }

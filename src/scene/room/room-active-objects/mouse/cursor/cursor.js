@@ -39,7 +39,7 @@ export default class Cursor extends THREE.Group {
     this._init();
   }
 
-  update(dt) {
+  update(dt) { // eslint-disable-line
     this._mousePosition = this._mouse.getCurrentPosition();
 
     if (this._mousePosition.x !== this._previousMousePosition.x || this._mousePosition.y !== this._previousMousePosition.y) {

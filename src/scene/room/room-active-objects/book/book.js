@@ -10,7 +10,7 @@ import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
 import Materials from '../../../../core/materials';
 import Loader from '../../../../core/loader';
-import BookPageRender from './book-page-render/book-page-render';
+// import BookPageRender from './book-page-render/book-page-render';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 import BookPagePDFRender from './book-page-pdf-render/book-page-pdf-render';
@@ -485,7 +485,7 @@ export default class Book extends RoomObjectAbstract {
   _initBookPageRender() {
     // this._bookPageRender = new BookPageRender();
 
-    if (typeof window === 'undefined' || (!'Worker' in window)) {
+    if (typeof window === 'undefined' || !('Worker' in window)) {
       console.log('Web Workers not supported in this environment.');
 
       return;

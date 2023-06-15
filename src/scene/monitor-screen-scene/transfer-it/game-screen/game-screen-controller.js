@@ -321,20 +321,20 @@ export default class GameScreenController extends THREE.Group{
       }
     }
 
-    let rating;
+    // let rating;
 
     if (distance < (RATING_DISTANCE[RATING_TYPE.perfect] * RATING_DISTANCE[RATING_TYPE.perfect]) * bigFurnitureCoeff) {
-      rating = RATING_TYPE.perfect;
+      // rating = RATING_TYPE.perfect;
 
       this._furnitureController.showStars(furniture);
 
       this._score += 2;
     } else if (distance < (RATING_DISTANCE[RATING_TYPE.good] * RATING_DISTANCE[RATING_TYPE.good]) * bigFurnitureCoeff) {
-      rating = RATING_TYPE.good;
+      // rating = RATING_TYPE.good;
 
-      this._score += 1;
+      // this._score += 1;
     } else {
-      rating = RATING_TYPE.bad;
+      // rating = RATING_TYPE.bad;
     }
   }
 

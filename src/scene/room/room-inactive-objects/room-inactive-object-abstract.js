@@ -13,7 +13,7 @@ export default class RoomInactiveObjectAbstract extends THREE.Group {
     this._initMesh();
   }
 
-  update(dt) { }
+  update(dt) { } // eslint-disable-line
 
   getMesh() {
     return this._mesh;

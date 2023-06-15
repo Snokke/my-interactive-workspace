@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { CHAIR_CONFIG } from '../data/chair-config';
 
 export default class ChairSeatHelper extends THREE.Group {

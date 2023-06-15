@@ -26,7 +26,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     this._snowflakeParticlesController.update(dt);
   }
 
-  onClick(intersect) {
+  onClick(intersect) { // eslint-disable-line
     if (!this._isInputEnabled) {
       return;
     }

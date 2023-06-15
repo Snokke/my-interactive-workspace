@@ -33,7 +33,7 @@ export default class RoomObjectAbstract extends THREE.Group {
     this._hasDebugMenu = ROOM_OBJECT_CLASS[this._roomObjectType].debugMenu ? true : false;
   }
 
-  update(dt) { }
+  update(dt) { } // eslint-disable-line
 
   show() {
     this._allMeshes.forEach(mesh => mesh.visible = true);
@@ -61,7 +61,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   onClick() { }
 
-  onPointerOver(intersect) {
+  onPointerOver(intersect) { // eslint-disable-line
     this._isPointerOver = true;
     Black.engine.containerElement.style.cursor = 'pointer';
   }
@@ -72,7 +72,7 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   onPointerUp() { }
 
-  getMeshesForOutline(mesh) {
+  getMeshesForOutline(mesh) { // eslint-disable-line
     return this._activeMeshes;
   }
 

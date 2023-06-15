@@ -1,4 +1,4 @@
-import { Black, DisplayObject, Sprite } from "black-engine";
+import { DisplayObject, Sprite } from "black-engine";
 import { SOUNDS_CONFIG } from "../scene/room/data/sounds-config";
 
 export default class SoundIcon extends DisplayObject {

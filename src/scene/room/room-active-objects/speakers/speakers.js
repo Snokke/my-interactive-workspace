@@ -4,7 +4,7 @@ import { SPEAKERS_PART_TYPE, SPEAKERS_POWER_STATUS } from './data/speakers-data'
 import { SPEAKERS_CONFIG } from './data/speakers-config';
 import Loader from '../../../../core/loader';
 import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
-import SoundParticles from './sound-particles/sound-particels';
+import SoundParticles from './sound-particles/sound-particles';
 import { MUSIC_TYPE } from '../laptop/data/laptop-data';
 import { MUSIC_CONFIG } from '../laptop/data/laptop-config';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
@@ -43,7 +43,7 @@ export default class Speakers extends RoomObjectAbstract {
     this._updateSongCurrentTime();
   }
 
-  onClick(intersect) {
+  onClick(intersect) { // eslint-disable-line
     if (!this._isInputEnabled) {
       return;
     }

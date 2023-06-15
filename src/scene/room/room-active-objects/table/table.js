@@ -32,7 +32,7 @@ export default class Table extends RoomObjectAbstract {
     this._init();
   }
 
-  onClick(intersect) {
+  onClick(intersect) { // eslint-disable-line
     if (!this._isInputEnabled) {
       return;
     }
