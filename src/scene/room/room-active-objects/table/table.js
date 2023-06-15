@@ -50,6 +50,10 @@ export default class Table extends RoomObjectAbstract {
     this.events.post('onTableMoving');
   }
 
+  onAllObjectsInteraction() {
+    this.onClick();
+  }
+
   getTopTableGroup() {
     return this._topPartsGroup;
   }

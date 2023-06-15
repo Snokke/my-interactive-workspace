@@ -215,13 +215,15 @@ export default class RoomController {
       || !GLOBAL_ROOM_OBJECT_ENABLED_CONFIG[object.userData.objectType];
 
     if (isObjectActive) {
-      this._resetGlow();
+      if (!this._isAllObjectsHighlighted) {
+        this._resetGlow();
+      }
+
       Black.engine.containerElement.style.cursor = 'auto';
 
       this._glowMeshesNames = [];
       this._previousGlowMeshesNames = [];
       this._resetRoomObjectsPointerOver();
-      this._isAllObjectsHighlighted = false;
 
       return;
     }
@@ -242,6 +244,7 @@ export default class RoomController {
         this._resetGlow();
       } else {
         this._setGlow(meshes);
+        this._isAllObjectsHighlighted = false;
       }
 
       roomObject.onPointerOver(intersect);
@@ -318,6 +321,7 @@ export default class RoomController {
     this._initAirConditionerSignals();
     this._initDebugMenuSignals();
     this._initRealKeyboardSignals();
+    this._initCameraControllerSignals();
     this._initOtherSignals();
   }
 
@@ -409,6 +413,14 @@ export default class RoomController {
     this._roomDebug.events.on('onExitFocusMode', () => this._onExitFocusMode());
     this._roomDebug.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
     this._roomDebug.events.on('highlightAllActiveObjects', () => this._highlightAllActiveObjects());
+    this._roomDebug.events.on('allObjectsInteraction', () => this._allObjectsInteraction());
+  }
+
+  _initCameraControllerSignals() {
+    this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
+    this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
+    this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
+    this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
   }
 
   _initOtherSignals() {
@@ -447,27 +459,6 @@ export default class RoomController {
     chair.events.on('onChairStopMoving', () => this._onObjectsStopMoving());
     chair.events.on('onChairRotation', () => this._onObjectsMoving());
     chair.events.on('onChairStopRotation', () => this._onObjectsStopMoving());
-
-    this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
-    this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
-    this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
-    this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
-  }
-
-  _onObjectsMoving() {
-    this._isObjectsMoving = true;
-  }
-
-  _onObjectsStopMoving() {
-    this._isObjectsMoving = false;
-  }
-
-  _onSongEnded(songType) {
-    if (songType === MUSIC_TYPE.TheStomp) {
-      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].stopShowreelVideo();
-    } else {
-      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onSongEnded();
-    }
   }
 
   _initRealKeyboardSignals() {
@@ -498,6 +489,22 @@ export default class RoomController {
         }
       }
     });
+  }
+
+  _onObjectsMoving() {
+    this._isObjectsMoving = true;
+  }
+
+  _onObjectsStopMoving() {
+    this._isObjectsMoving = false;
+  }
+
+  _onSongEnded(songType) {
+    if (songType === MUSIC_TYPE.TheStomp) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].stopShowreelVideo();
+    } else {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onSongEnded();
+    }
   }
 
   _onMonitorFocus() {
@@ -876,5 +883,24 @@ export default class RoomController {
     }
 
     this._outlinePass.selectedObjects = allMeshes;
+  }
+
+  _allObjectsInteraction() {
+    const monitorOrLaptop = Math.random() > 0.5;
+    const monitor = this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor];
+    const laptop = this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop];
+
+    if (monitorOrLaptop) {
+      monitor.enableAllObjectsInteraction();
+      laptop.disableAllObjectsInteraction();
+    } else {
+      laptop.enableAllObjectsInteraction();
+      monitor.disableAllObjectsInteraction();
+    }
+
+    for (let key in this._roomActiveObject) {
+      const roomObject = this._roomActiveObject[key];
+      roomObject.onAllObjectsInteraction();
+    }
   }
 }

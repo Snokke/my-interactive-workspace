@@ -24,6 +24,10 @@ export default class FloorLamp extends RoomObjectAbstract {
     console.log('Switch light');
   }
 
+  onAllObjectsInteraction() {
+    this.onClick();
+  }
+
   _init() {
     this._initParts();
     this._addMaterials();

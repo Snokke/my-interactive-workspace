@@ -69,6 +69,10 @@ export default class AirConditioner extends RoomObjectAbstract {
     this.events.post('onChangePowerState');
   }
 
+  onAllObjectsInteraction() {
+    this.onClick();
+  }
+
   setTableState(state) {
     this._snowflakeParticlesController.setTableState(state);
   }

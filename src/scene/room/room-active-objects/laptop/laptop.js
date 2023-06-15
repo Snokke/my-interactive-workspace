@@ -31,6 +31,7 @@ export default class Laptop extends RoomObjectAbstract {
     this._currentMusicIndex = 0;
 
     this._isScreenHided = false;
+    this._isAllObjectsInteractionEnabled = false;
 
     this._init();
   }
@@ -74,6 +75,24 @@ export default class Laptop extends RoomObjectAbstract {
 
     return isObjectDraggable;
   }
+
+  onAllObjectsInteraction() {
+    if (this._isAllObjectsInteractionEnabled) {
+      if (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Closed) {
+        this._laptopInteract();
+      }
+
+      if (LAPTOP_CONFIG.currentMusicType) {
+        const partType = this._getPartTypeByMusicType(LAPTOP_CONFIG.currentMusicType);
+        this._switchMusic(partType);
+      } else {
+        this.playNextSong();
+      }
+    } else {
+      this._laptopInteract();
+    }
+  }
+
 
   onPointerMove(raycaster) {
     if (!this._isMountSelected) {
@@ -249,6 +268,14 @@ export default class Laptop extends RoomObjectAbstract {
 
   setScreenInactive() {
     this._parts[LAPTOP_PART_TYPE.LaptopScreen].userData.isActive = false;
+  }
+
+  enableAllObjectsInteraction() {
+    this._isAllObjectsInteractionEnabled = true;
+  }
+
+  disableAllObjectsInteraction() {
+    this._isAllObjectsInteractionEnabled = false;
   }
 
   _clearButtonsColor() {

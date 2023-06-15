@@ -57,6 +57,17 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
+  onAllObjectsInteraction() {
+    const pushAllCasesOrOne = Math.random() > 0.5;
+
+    if (pushAllCasesOrOne) {
+      this.pushAllCases();
+    } else {
+      const randomCaseId = Math.floor(Math.random() * CASES.length);
+      this.pushCase(randomCaseId);
+    }
+  }
+
   onPointerOver(intersect) {
     if (this._isPointerOver) {
       return;

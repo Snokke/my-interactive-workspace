@@ -41,6 +41,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._isShowreelPaused = false;
     this._isGameActive = false;
     this._isScreenActiveForGame = false;
+    this._isAllObjectsInteractionEnabled = false;
 
     this._init();
   }
@@ -98,6 +99,30 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     return isObjectDraggable;
+  }
+
+  onAllObjectsInteraction() {
+    if (this._isAllObjectsInteractionEnabled) {
+      if (this._isShowreelPlaying) {
+        this._stopShowreel();
+
+        return;
+      }
+
+      if (this._isGameActive) {
+        this._hideGame();
+
+        return;
+      }
+
+      const isVideoOrGame = Math.random() > 0.5;
+
+      if (isVideoOrGame) {
+        this._playShowreel();
+      } else {
+        this._showGame();
+      }
+    }
   }
 
   onPointerMove(raycaster) {
@@ -301,6 +326,14 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorArmMountArm02 = this._parts[MONITOR_PART_TYPE.MonitorArmMountArm02];
 
     return [monitor, monitorArmMountBase, monitorArmMountArm01, monitorArmMountArm02];
+  }
+
+  enableAllObjectsInteraction() {
+    this._isAllObjectsInteractionEnabled = true;
+  }
+
+  disableAllObjectsInteraction() {
+    this._isAllObjectsInteractionEnabled = false;
   }
 
   _clearButtonsColor() {

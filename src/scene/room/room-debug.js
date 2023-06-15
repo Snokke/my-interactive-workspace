@@ -232,7 +232,7 @@ export default class RoomDebug {
     });
 
     allObjectsInteractionFolder.addButton({
-      title: 'Show all objects interaction',
+      title: 'Interact with all objects',
     }).on('click', () => {
       this.events.post('allObjectsInteraction');
     });

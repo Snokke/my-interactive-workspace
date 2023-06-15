@@ -61,6 +61,8 @@ export default class RoomObjectAbstract extends THREE.Group {
 
   onClick() { }
 
+  onAllObjectsInteraction() { }
+
   onPointerOver(intersect) { // eslint-disable-line
     this._isPointerOver = true;
     Black.engine.containerElement.style.cursor = 'pointer';

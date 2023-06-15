@@ -66,6 +66,10 @@ export default class Keyboard extends RoomObjectAbstract {
     }
   }
 
+  onAllObjectsInteraction() {
+    this._keysBacklight.switchType();
+  }
+
   onPointerOver(intersect) {
     if (this._isPointerOver) {
       return;

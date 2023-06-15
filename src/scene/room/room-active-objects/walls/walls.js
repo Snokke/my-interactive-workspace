@@ -62,6 +62,10 @@ export default class Walls extends RoomObjectAbstract {
     }
   }
 
+  onAllObjectsInteraction() {
+    this.onClick();
+  }
+
   onVolumeChanged(volume) {
     this._globalVolume = volume;
 

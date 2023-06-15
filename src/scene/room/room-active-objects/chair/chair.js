@@ -11,7 +11,7 @@ import ChairMovingAreaHelper from './helpers/chair-moving-area-helper';
 import { checkBottomBorderBounce, checkLeftBorderBounce, checkRightBorderBounce, checkTopBorderBounce, getChairBoundingBox, getMovingArea, getWheelsParts } from './helpers/chair-helpers';
 import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
 import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import { isVectorXZEqual } from '../../shared-objects/helpers';
+import { isVectorXZEqual, randomBetween } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
@@ -78,6 +78,30 @@ export default class Chair extends RoomObjectAbstract {
     }
 
     return isObjectDraggable;
+  }
+
+  onAllObjectsInteraction() {
+    if (CHAIR_CONFIG.seatRotation.speed < 5) {
+      const randomRotateCount = Math.round(randomBetween(1, 2));
+
+      for (let i = 0; i < randomRotateCount; i++) {
+        this._rotateSeat();
+      }
+    }
+
+    const movingAreaConfig = CHAIR_CONFIG.chairMoving.movingArea[MOVING_AREA_TYPE.Main];
+
+    const leftX = movingAreaConfig.center.x - movingAreaConfig.size.x * 0.5;
+    const rightX = movingAreaConfig.center.x + movingAreaConfig.size.x * 0.5;
+    const topZ = movingAreaConfig.center.y + movingAreaConfig.size.y * 0.5;
+    const bottomZ = movingAreaConfig.center.y - movingAreaConfig.size.y * 0.5;
+
+    const randomX = randomBetween(leftX, rightX);
+    const randomZ = randomBetween(bottomZ, topZ);
+
+    const position = new THREE.Vector3(randomX, 0, randomZ);
+
+    this._moveChairToPosition(position);
   }
 
   onPointerMove(raycaster) {
