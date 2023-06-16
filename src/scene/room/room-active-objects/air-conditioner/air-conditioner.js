@@ -38,6 +38,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
       this._snowflakeParticlesController.hide();
       this._sound.stop();
+      this.events.post('onStopSnowing');
     }
 
     if (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving) {
@@ -128,6 +129,7 @@ export default class AirConditioner extends RoomObjectAbstract {
     if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
       this._snowflakeParticlesController.show();
       this._sound.play();
+      this.events.post('onStartSnowing');
     }
 
     this.events.post('onDoorStopMoving');

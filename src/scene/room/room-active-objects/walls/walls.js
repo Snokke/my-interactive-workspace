@@ -126,7 +126,7 @@ export default class Walls extends RoomObjectAbstract {
 
     this._windowTween.onComplete(() => {
       if (this._previousWindowState === WINDOW_STATE.Opened) {
-        this.events.post('onWindowClosed');
+        this.events.post('onWindowClosed', this._windowOpenType);
       }
 
       this._rotateHandle();

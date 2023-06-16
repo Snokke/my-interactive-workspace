@@ -23,7 +23,7 @@ import WindowDebugMenu from "../room-active-objects/walls/window-debug-menu";
 import { ROOM_OBJECT_TYPE } from "./room-config";
 import SocialNetworkLogos from "../room-active-objects/social-network-logos/social-network-logos";
 import AirConditionerRemote from "../room-active-objects/air-conditioner-remote/air-conditioner-remote";
-import TableObjects from "../room-inactive-objects/objects/table-objects";
+import TableObjects from "../room-inactive-objects/objects/table-objects/table-objects";
 import Carpet from "../room-inactive-objects/objects/carpet";
 import MousePad from "../room-inactive-objects/objects/mouse-pad";
 import RoomObjects from "../room-inactive-objects/objects/room-objects";

@@ -233,18 +233,18 @@ export default class RoomDebug {
   }
 
   _initActiveObjectsShowFolder() {
-    const activeObjectsInteractionFolder = this._roomFolder.addFolder({
-      title: 'Active objects',
-      expanded: DEBUG_MENU_START_STATE.ActiveObjects,
-    });
+    // const activeObjectsInteractionFolder = this._roomFolder.addFolder({
+    //   title: 'Active objects',
+    //   expanded: DEBUG_MENU_START_STATE.ActiveObjects,
+    // });
 
-    this._highlightActiveObjectsButton = activeObjectsInteractionFolder.addButton({
+    this._highlightActiveObjectsButton = this._roomFolder.addButton({
       title: 'Highlight active objects',
     }).on('click', () => {
       this._onHighlightAllActiveObjects();
     });
 
-    activeObjectsInteractionFolder.addButton({
+    this._roomFolder.addButton({
       title: 'Interact with all objects',
     }).on('click', () => {
       this.events.post('allObjectsInteraction');

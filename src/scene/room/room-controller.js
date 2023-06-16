@@ -397,6 +397,8 @@ export default class RoomController {
     airConditioner.events.on('onDecreaseTemperature', () => this._onAirConditionerTemperatureDownClick());
     airConditioner.events.on('onDoorMoving', () => this._onObjectsMoving());
     airConditioner.events.on('onDoorStopMoving', () => this._onObjectsStopMoving());
+    airConditioner.events.on('onStartSnowing', () => this._onStartSnowing());
+    airConditioner.events.on('onStopSnowing', () => this._onStopSnowing());
     airConditionerRemote.events.on('onAirConditionerRemoteClickToShow', (msg, airConditionerRemote, roomObjectType) => this._onAirConditionerRemoteClickToShow(airConditionerRemote, roomObjectType));
     airConditionerRemote.events.on('onAirConditionerRemoteClickToHide', () => this._onAirConditionerRemoteClickToHide());
     airConditionerRemote.events.on('onButtonOnOffClick', () => this._onAirConditionerRemoteButtonOnOffClick());
@@ -443,7 +445,7 @@ export default class RoomController {
     mouse.events.on('onCursorScaleChanged', () => this._cursor.onCursorScaleChanged());
     mouse.events.on('onLeftKeyClick', () => this._cursor.onMouseLeftKeyClicked());
     walls.events.on('onWindowStartOpening', () => this._onWindowStartOpening());
-    walls.events.on('onWindowClosed', () => this._onWindowClosed());
+    walls.events.on('onWindowClosed', (msg, openType) => this._onWindowClosed(openType));
     walls.events.on('onWindowOpened', (msg, openType) => this._onWindowFullyOpened(openType));
     walls.events.on('onWindowMoving', () => this._onObjectsMoving());
     walls.events.on('onWindowStopMoving', () => this._onObjectsStopMoving());
@@ -818,14 +820,19 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowOpened();
   }
 
-  _onWindowClosed() {
+  _onWindowClosed(openType) {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].onWindowClosed();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowClosed();
+
+    if (openType === WINDOW_OPEN_TYPE.Horizontally) {
+      this._roomInactiveObject[ROOM_OBJECT_TYPE.TableObjects].onWindowClosed();
+    }
   }
 
   _onWindowFullyOpened(openType) {
     if (openType === WINDOW_OPEN_TYPE.Horizontally) {
       this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditioner].onWindowFullyOpened();
+      this._roomInactiveObject[ROOM_OBJECT_TYPE.TableObjects].onWindowOpened();
     }
   }
 
@@ -874,6 +881,14 @@ export default class RoomController {
     if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
       monitor.onLeftKeyClick(buttonType);
     }
+  }
+
+  _onStartSnowing() {
+    this._roomInactiveObject[ROOM_OBJECT_TYPE.TableObjects].onStartSnowing();
+  }
+
+  _onStopSnowing() {
+    this._roomInactiveObject[ROOM_OBJECT_TYPE.TableObjects].onStopSnowing();
   }
 
   _highlightAllActiveObjects() {
