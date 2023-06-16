@@ -183,6 +183,10 @@ export default class Monitor extends RoomObjectAbstract {
     if (buttonType !== null && MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
       this._onButtonsClick(buttonType);
     }
+
+    if (this._isGameActive) {
+      this.events.post('onMonitorScreenClickForGame');
+    }
   }
 
   onButtonOver(buttonType) {
