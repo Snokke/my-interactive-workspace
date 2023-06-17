@@ -5,12 +5,12 @@ const SCENE_CONFIG = {
   lights: {
     ambient: {
       color: 0xFFEFE4,
-      intensity: 0.5,
+      intensity: 2,
     },
     directional: {
       color: 0xFFEFE4,
-      intensity: 0.5,
-      position: { x: 3, y: 13, z: -3 },
+      intensity: 1,
+      position: { x: -4, y: 8, z: -4 },
     },
   },
 };

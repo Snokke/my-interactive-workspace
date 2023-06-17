@@ -46,7 +46,6 @@ export default class CoffeeSteam extends THREE.Group {
   }
 
   onWindowOpened() {
-    console.log('window opened');
     this._isWindowOpen = true;
 
     if (this._isAirConditionerOn) {
@@ -124,7 +123,6 @@ export default class CoffeeSteam extends THREE.Group {
         uWindAngle: { value: 0 },
         uWindPower: { value: 0 },
       },
-      side: THREE.DoubleSide,
     });
 
     const geometry = new THREE.PlaneGeometry(0.3, 1.2, 8, 30);

@@ -8,6 +8,7 @@ import Loader from '../../../../core/loader';
 import { rotateAroundPoint } from '../../shared-objects/helpers';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
+// import Materials from '../../../../core/materials';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -259,25 +260,34 @@ export default class Walls extends RoomObjectAbstract {
 
   _init() {
     this._initParts();
-    // this._initShadows();
+    this._initShadows();
     this._addMaterials();
     this._addPartsToScene();
     this._initGlass();
     this._initWindowGroup();
+    this._initShadowPlane();
     this._initSounds();
     this._initDebugMenu();
     this._initSignals();
   }
 
   _initShadows() {
-    for (const key in this._parts) {
-      const part = this._parts[key];
-      part.castShadow = true;
-      part.receiveShadow = true;
-    }
+    const walls = this._parts[WALLS_PART_TYPE.Walls];
+
+    // walls.castShadow = true;
+    walls.receiveShadow = true;
   }
 
   _addMaterials() {
+    // const texture = Loader.assets['baked-big-objects'];
+    // texture.flipY = false;
+
+    // // const material = new THREE.MeshBasicMaterial({
+    // const material = new THREE.MeshStandardMaterial({
+    //   map: texture,
+    // });
+
+
     const material = Materials.getMaterial(Materials.type.bakedBigObjects);
 
     for (const partName in this._parts) {
@@ -312,6 +322,21 @@ export default class Walls extends RoomObjectAbstract {
     windowGroup.add(this._parts[WALLS_PART_TYPE.Window]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.WindowHandle]);
     windowGroup.add(this._parts[WALLS_PART_TYPE.GlassTop]);
+  }
+
+  _initShadowPlane() {
+    const geometry = new THREE.PlaneGeometry(10.71, 10.71);
+    const material = new THREE.ShadowMaterial();
+    material.opacity = 0.15;
+
+    const shadowPlane = new THREE.Mesh(geometry, material);
+    this.add(shadowPlane);
+
+    shadowPlane.receiveShadow = true;
+
+    shadowPlane.rotation.x = -Math.PI * 0.5;
+    shadowPlane.position.x = 0.42;
+    shadowPlane.position.z = 0.4;
   }
 
   _initSounds() {

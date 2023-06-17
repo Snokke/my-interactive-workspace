@@ -20,5 +20,7 @@ void main()
     perlin *= 1.1;
     perlin = min(perlin, 1.0);
 
-    gl_FragColor = vec4(uColor, perlin);
+    float alpha = mix(0.0, perlin, vUv.y * 3.0 - 0.1);
+
+    gl_FragColor = vec4(uColor, alpha);
 }

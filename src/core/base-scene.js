@@ -18,7 +18,7 @@ import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
 import Materials from './materials';
-import WebGL from 'three/addons/capabilities/WebGL.js';
+// import WebGL from 'three/addons/capabilities/WebGL.js';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -180,7 +180,6 @@ export default class BaseScene {
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-
     // renderer.outputEncoding = THREE.sRGBEncoding
 
     // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
@@ -198,12 +197,12 @@ export default class BaseScene {
     // renderer.gammaFactor = 2.2;
 
     // renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.useLegacyLights = false;
+    // renderer.useLegacyLights = false;
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
     renderer.shadowMap.enabled = true;
-    // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
 
   _initCamera() {
@@ -220,14 +219,14 @@ export default class BaseScene {
   }
 
   _initLights() {
-    const ambientLightConfig = SCENE_CONFIG.lights.ambient;
-    const ambientLight = new THREE.AmbientLight(ambientLightConfig.color, ambientLightConfig.intensity);
-    this._scene.add(ambientLight);
+    // const ambientLightConfig = SCENE_CONFIG.lights.ambient;
+    // const ambientLight = new THREE.AmbientLight(ambientLightConfig.color, ambientLightConfig.intensity);
+    // this._scene.add(ambientLight);
 
-    const directionalLightConfig = SCENE_CONFIG.lights.directional;
-    const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
-    directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
-    this._scene.add(directionalLight);
+    // const directionalLightConfig = SCENE_CONFIG.lights.directional;
+    // const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
+    // directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
+    // this._scene.add(directionalLight);
 
     // directionalLight.castShadow = true;
     // directionalLight.shadow.camera.left = -9;
@@ -235,13 +234,30 @@ export default class BaseScene {
     // directionalLight.shadow.camera.top = 12;
     // directionalLight.shadow.camera.bottom = -9;
     // directionalLight.shadow.camera.far = 18;
-    // directionalLight.shadow.mapSize.set(2048, 2048);
+    // directionalLight.shadow.mapSize.set(512, 512);
 
     // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1);
     // this._scene.add(directionalLightHelper);
 
     // const shadowCameraHelper = this._shadowCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
     // this._scene.add(shadowCameraHelper);
+
+    const spotLight = new THREE.SpotLight(0xffffff);
+    this._scene.add(spotLight);
+
+    spotLight.position.set(-5, 12, -5);
+
+    spotLight.castShadow = true;
+
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 3;
+    spotLight.shadow.camera.far = 20;
+    spotLight.shadow.camera.fov = 80;
+
+    // const lightHelper = new THREE.SpotLightHelper(spotLight);
+    // this._scene.add(lightHelper);
   }
 
   _initMaterials() {
@@ -323,14 +339,14 @@ export default class BaseScene {
     //   colorSpace: THREE.SRGBColorSpace,
     // });
 
-    if (!WebGL.isWebGL2Available()) {
-      const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
-      const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 } );
-      this._effectComposer = new EffectComposer(this._renderer, target);
-    } else {
+    // if (WebGL.isWebGL2Available()) {
+    //   const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
+    //   const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 });
+    //   this._effectComposer = new EffectComposer(this._renderer, target);
+    // } else {
       SCENE_CONFIG.fxaaPass = true;
       this._effectComposer = new EffectComposer(this._renderer);
-    }
+    // }
 
     // const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
     // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
@@ -420,11 +436,11 @@ export default class BaseScene {
           this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
         }
 
-        // this._renderer.setRenderTarget( null );
-        // this._renderer.clear();
-        // this._renderer.render(this._scene, this._camera);
+        this._renderer.setRenderTarget( null );
+        this._renderer.clear();
+        this._renderer.render(this._scene, this._camera);
 
-        this._effectComposer.render();
+        // this._effectComposer.render();
       }
 
       this._scene3DDebugMenu.postUpdate();

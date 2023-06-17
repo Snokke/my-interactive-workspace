@@ -15,6 +15,7 @@ import { isVectorXZEqual, randomBetween } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+// import Materials from '../../../../core/materials';
 
 export default class Chair extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -622,7 +623,7 @@ export default class Chair extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
-    // this._initShadows();
+    this._initShadows();
     this._addPartsToScene();
     this._setWheelsRandomData();
     this._initChairMovingAreaHelper();
@@ -646,7 +647,6 @@ export default class Chair extends RoomObjectAbstract {
     for (const key in this._parts) {
       const part = this._parts[key];
       part.castShadow = true;
-      part.receiveShadow = true;
     }
   }
 

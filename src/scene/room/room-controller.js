@@ -3,7 +3,6 @@ import DEBUG_CONFIG from '../../core/configs/debug-config';
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
-import { MONITOR_SCREEN_BUTTONS } from './room-active-objects/monitor/data/monitor-data';
 import { arraysEqual } from './shared-objects/helpers';
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { LAPTOP_SCREEN_MUSIC_PARTS, MUSIC_TYPE } from './room-active-objects/laptop/data/laptop-data';
@@ -878,9 +877,7 @@ export default class RoomController {
       laptop.onLeftKeyClick(buttonType);
     }
 
-    if (MONITOR_SCREEN_BUTTONS.includes(buttonType)) {
-      monitor.onLeftKeyClick(buttonType);
-    }
+    monitor.onLeftKeyClick(buttonType);
   }
 
   _onStartSnowing() {

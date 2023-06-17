@@ -200,6 +200,7 @@ export default class Table extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
+    this._initShadows();
     this._initTopPartsGroup();
     this._addPartsToScene();
     this._initSounds();
@@ -214,6 +215,11 @@ export default class Table extends RoomObjectAbstract {
       const part = this._parts[partName];
       part.material = material;
     }
+  }
+
+  _initShadows() {
+    const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
+    tableTop.castShadow = true;
   }
 
   _initTopPartsGroup() {
