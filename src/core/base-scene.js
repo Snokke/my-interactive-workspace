@@ -18,7 +18,7 @@ import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import { ROOM_CONFIG } from '../scene/room/data/room-config';
 import Materials from './materials';
-// import WebGL from 'three/addons/capabilities/WebGL.js';
+import WebGL from 'three/addons/capabilities/WebGL.js';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -197,7 +197,7 @@ export default class BaseScene {
     // renderer.gammaFactor = 2.2;
 
     // renderer.outputEncoding = THREE.sRGBEncoding;
-    // renderer.useLegacyLights = false;
+    renderer.useLegacyLights = false;
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
@@ -339,14 +339,16 @@ export default class BaseScene {
     //   colorSpace: THREE.SRGBColorSpace,
     // });
 
-    // if (WebGL.isWebGL2Available()) {
-    //   const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
-    //   const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 4 });
-    //   this._effectComposer = new EffectComposer(this._renderer, target);
-    // } else {
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+
+    if (WebGL.isWebGL2Available() && pixelRatio === 1) {
+      const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
+      const target = new THREE.WebGLRenderTarget(size.width, size.height, { samples: 3 });
+      this._effectComposer = new EffectComposer(this._renderer, target);
+    } else {
       SCENE_CONFIG.fxaaPass = true;
       this._effectComposer = new EffectComposer(this._renderer);
-    // }
+    }
 
     // const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
     // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
@@ -436,11 +438,11 @@ export default class BaseScene {
           this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
         }
 
-        this._renderer.setRenderTarget( null );
-        this._renderer.clear();
-        this._renderer.render(this._scene, this._camera);
+        // this._renderer.setRenderTarget( null );
+        // this._renderer.clear();
+        // this._renderer.render(this._scene, this._camera);
 
-        // this._effectComposer.render();
+        this._effectComposer.render();
       }
 
       this._scene3DDebugMenu.postUpdate();

@@ -1,6 +1,6 @@
 const DEBUG_CONFIG = {
   fpsMeter: true,
-  rendererStats: true,
+  rendererStats: false,
   wireframe: false,
   gridHelper: false,
 };
