@@ -8,7 +8,6 @@ import Loader from '../../../../core/loader';
 import { rotateAroundPoint } from '../../shared-objects/helpers';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
-// import Materials from '../../../../core/materials';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -260,7 +259,6 @@ export default class Walls extends RoomObjectAbstract {
 
   _init() {
     this._initParts();
-    this._initShadows();
     this._addMaterials();
     this._addPartsToScene();
     this._initGlass();
@@ -271,23 +269,7 @@ export default class Walls extends RoomObjectAbstract {
     this._initSignals();
   }
 
-  _initShadows() {
-    const walls = this._parts[WALLS_PART_TYPE.Walls];
-
-    // walls.castShadow = true;
-    walls.receiveShadow = true;
-  }
-
   _addMaterials() {
-    // const texture = Loader.assets['baked-big-objects'];
-    // texture.flipY = false;
-
-    // // const material = new THREE.MeshBasicMaterial({
-    // const material = new THREE.MeshStandardMaterial({
-    //   map: texture,
-    // });
-
-
     const material = Materials.getMaterial(Materials.type.bakedBigObjects);
 
     for (const partName in this._parts) {
@@ -298,17 +280,17 @@ export default class Walls extends RoomObjectAbstract {
 
   _initGlass() {
     const topTexture = Loader.assets['glass-top-texture'];
-    const glassTopMaterial = new THREE.MeshLambertMaterial({
+    const glassTopMaterial = new THREE.MeshBasicMaterial({
       map: topTexture,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.05,
     });
 
     this._parts[WALLS_PART_TYPE.GlassTop].material = glassTopMaterial;
 
-    const glassBottomMaterial = new THREE.MeshLambertMaterial({
+    const glassBottomMaterial = new THREE.MeshBasicMaterial({
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.02,
     });
 
     this._parts[WALLS_PART_TYPE.GlassTop].material = glassTopMaterial;
@@ -327,7 +309,7 @@ export default class Walls extends RoomObjectAbstract {
   _initShadowPlane() {
     const geometry = new THREE.PlaneGeometry(10.71, 10.71);
     const material = new THREE.ShadowMaterial();
-    material.opacity = 0.15;
+    material.opacity = 0.12;
 
     const shadowPlane = new THREE.Mesh(geometry, material);
     this.add(shadowPlane);

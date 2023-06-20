@@ -28,7 +28,7 @@ import Carpet from "../room-inactive-objects/objects/carpet";
 import MousePad from "../room-inactive-objects/objects/mouse-pad";
 import RoomObjects from "../room-inactive-objects/objects/room-objects";
 import Book from "../room-active-objects/book/book";
-import Calendar from "../room-inactive-objects/objects/calendar";
+import Calendar from "../room-inactive-objects/objects/calendar/calendar";
 import BookDebugMenu from "../room-active-objects/book/book-debug-menu";
 
 const ROOM_OBJECT_CLASS = {

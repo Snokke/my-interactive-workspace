@@ -14,9 +14,8 @@ import { AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_REMOTE_PAR
 import { BOOK_PART_ACTIVITY_CONFIG, BOOK_PART_TYPE } from '../room-active-objects/book/data/book-data';
 
 const ROOM_CONFIG = {
-  outlineEnabled: true,
   autoOpenActiveDebugFolder: true,
-  clickActiveObjectError: 2,
+  clickActiveObjectError: 2, // pixels
 }
 
 const ROOM_OBJECT_TYPE = {

@@ -7,6 +7,7 @@ import Cursor from './room-active-objects/mouse/cursor/cursor';
 import RoomController from './room-controller';
 import CameraController from './camera-controller/camera-controller';
 import { MessageDispatcher } from 'black-engine';
+import LightsController from './lights-controller/lights-controller';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -26,6 +27,7 @@ export default class Room extends THREE.Group {
     this._roomScene = null;
     this._roomDebug = null;
     this._cursor = null;
+    this._lightsController = null;
 
     this._roomActiveObject = {};
     this._roomInactiveObject = {};
@@ -81,6 +83,7 @@ export default class Room extends THREE.Group {
   _initRoomObjects() {
     this._roomScene = Loader.assets['room'].scene;
 
+    this._initLightsController();
     this._initActiveObjects();
     this._initInactiveObjects();
     this._initCameraController();
@@ -197,6 +200,10 @@ export default class Room extends THREE.Group {
     this._data.raycasterController.addMeshes(allMeshes);
   }
 
+  _initLightsController() {
+    this._lightsController = new LightsController(this._data.scene);
+  }
+
   _initRoomController() {
     this._data.roomScene = this._roomScene;
     this._data.roomDebug = this._roomDebug;
@@ -206,6 +213,7 @@ export default class Room extends THREE.Group {
     this._data.roomActiveObject = this._roomActiveObject;
     this._data.roomInactiveObject = this._roomInactiveObject;
     this._data.roomObjectsByActivityType = this._roomObjectsByActivityType;
+    this._data.lights = this._lightsController;
 
     this._roomController = new RoomController(this._data);
   }

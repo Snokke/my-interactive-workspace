@@ -7,6 +7,7 @@ import { SOUNDS_CONFIG } from './data/sounds-config';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { CAMERA_MODE } from './camera-controller/data/camera-data';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
+import SCENE_CONFIG from "../../core/configs/scene-config";
 
 export default class RoomDebug {
   constructor(scene) {
@@ -153,14 +154,12 @@ export default class RoomDebug {
     });
 
     const isMobileDevice = isMobile(window.navigator).any;
-    // ROOM_CONFIG.outlineEnabled = !isMobileDevice;
+    // SCENE_CONFIG.outlinePass.enabled = !isMobileDevice;
 
-    generalFolder.addInput(ROOM_CONFIG, 'outlineEnabled', {
+    generalFolder.addInput(SCENE_CONFIG.outlinePass, 'enabled', {
       label: 'Outline',
       disabled: isMobileDevice,
-    }).on('change', (outlineState) => {
-        ROOM_CONFIG.outlineEnabled = outlineState.value;
-      });
+    });
   }
 
   _initSoundsDebug() {

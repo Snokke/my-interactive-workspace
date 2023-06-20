@@ -3,6 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import vertexShader from './sound-particles-shaders/sound-particles-vertex.glsl';
 import fragmentShader from './sound-particles-shaders/sound-particles-fragment.glsl';
 import { SOUND_PARTICLES_CONFIG, SPEAKERS_CONFIG } from '../data/speakers-config';
+import SCENE_CONFIG from '../../../../../core/configs/scene-config';
 
 export default class SoundParticles extends THREE.Group {
   constructor(analyser) {
@@ -181,7 +182,7 @@ export default class SoundParticles extends THREE.Group {
 
     const material = this._particlesMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio) },
         uSize: { value: SOUND_PARTICLES_CONFIG.size },
         uColor: { value: new THREE.Color(0xffffff) },
         uAlpha: { value: 0 },
@@ -234,7 +235,7 @@ export default class SoundParticles extends THREE.Group {
 
   _initSignals() {
     window.addEventListener('resize', () => {
-      this._particlesMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+      this._particlesMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio);
     });
   }
 }

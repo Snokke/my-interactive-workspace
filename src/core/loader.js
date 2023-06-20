@@ -11,14 +11,16 @@ const textures = [
   // baked textures
   'baked-big-objects.jpg',
   'baked-small-objects.jpg',
-  'keyboard-key-texture.jpg',
-  'keyboard-space-key-texture.jpg',
-  'speakers-indicator.jpg',
+  'baked-big-objects-light-off.jpg',
+  'baked-small-objects-light-off.jpg',
 
   // air conditioner
   'snowflake-01.png',
   'snowflake-02.png',
   'snowflake-03.png',
+
+  // floor lamp
+  'baked-lamp-off.jpg',
 
   // monitor
   'monitor-screen.jpg',
@@ -41,10 +43,13 @@ const textures = [
 
   // keyboard
   'keyboard-keys-atlas.png',
+  'keyboard-key-texture.jpg',
+  'keyboard-space-key-texture.jpg',
 
   // locker
   'workplace-photo.jpg',
   'baked-workplace-photo.jpg',
+  'baked-workplace-photo-light-off.jpg',
 
   // book
   'baked-opened-book.jpg',
@@ -52,7 +57,15 @@ const textures = [
 
   // air conditioner remote
   'baked-air-conditioner-remote.jpg',
-  'baked-air-conditioner-remote-light.jpg',
+  'baked-air-conditioner-remote-light-off.jpg',
+  'baked-air-conditioner-remote-focus.jpg',
+
+  // calendar
+  'baked-calendar.jpg',
+  'baked-calendar-light-off.jpg',
+
+  // speakers
+  'speakers-indicator.jpg',
 
   // Transfer it Game
   'transfer-it/bg.jpg',

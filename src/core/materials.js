@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import Loader from './loader';
+import vertexShader from '../scene/room/shared-objects/mix-textures-shaders/mix-textures-vertex.glsl';
+import fragmentShader from '../scene/room/shared-objects/mix-textures-shaders/mix-textures-fragment.glsl';
 
 export default class Materials {
   constructor() {
@@ -18,24 +20,40 @@ export default class Materials {
   }
 
   _initBakedBigObjectsMaterial() {
-    const texture = Loader.assets['baked-big-objects'];
-    texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
-    // texture.colorSpace = THREE.SRGBColorSpace;
+    const textureLightOn = Loader.assets['baked-big-objects'];
+    textureLightOn.flipY = false;
 
-    this.bakedBigObjects = new THREE.MeshBasicMaterial({
-      map: texture,
+    const textureLightOff = Loader.assets['baked-big-objects-light-off'];
+    textureLightOff.flipY = false;
+
+    this.bakedBigObjects = new THREE.ShaderMaterial({
+      uniforms:
+      {
+        uTexture01: { value: textureLightOff },
+        uTexture02: { value: textureLightOn },
+        uMixPercent: { value: 1 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
     });
   }
 
   _initBakedSmallObjectsMaterial() {
-    const texture = Loader.assets['baked-small-objects'];
-    texture.flipY = false;
-    // texture.encoding = THREE.sRGBEncoding;
-    // texture.colorSpace = THREE.SRGBColorSpace;
+    const textureLightOn = Loader.assets['baked-small-objects'];
+    textureLightOn.flipY = false;
 
-    this.bakedSmallObjects = new THREE.MeshBasicMaterial({
-      map: texture,
+    const textureLightOff = Loader.assets['baked-small-objects-light-off'];
+    textureLightOff.flipY = false;
+
+    this.bakedSmallObjects = new THREE.ShaderMaterial({
+      uniforms:
+      {
+        uTexture01: { value: textureLightOff },
+        uTexture02: { value: textureLightOn },
+        uMixPercent: { value: 1 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
     });
   }
 
@@ -53,6 +71,11 @@ export default class Materials {
     }
 
     return material;
+  }
+
+  static setLightPercent(percent) {
+    Materials.instance.bakedBigObjects.uniforms.uMixPercent.value = percent;
+    Materials.instance.bakedSmallObjects.uniforms.uMixPercent.value = percent;
   }
 }
 

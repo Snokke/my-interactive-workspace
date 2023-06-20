@@ -10,7 +10,6 @@ import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
 import Materials from '../../../../core/materials';
 import Loader from '../../../../core/loader';
-// import BookPageRender from './book-page-render/book-page-render';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import SoundHelper from '../../shared-objects/sound-helper';
 import BookPagePDFRender from './book-page-pdf-render/book-page-pdf-render';
@@ -475,16 +474,9 @@ export default class Book extends RoomObjectAbstract {
     this._initDebugMenu();
     this._initSignals();
     this._hideOpenBook();
-
-    // Delayed.call(500, () => {
-    //   this._openBook();
-    //   this._enablePagesActivity();
-    // });
   }
 
   _initBookPageRender() {
-    // this._bookPageRender = new BookPageRender();
-
     if (typeof window === 'undefined' || !('Worker' in window)) {
       console.log('Web Workers not supported in this environment.');
 
@@ -524,8 +516,6 @@ export default class Book extends RoomObjectAbstract {
     wrapper.position.copy(closedBook.userData.startPosition);
     closedBook.position.set(0, 0, 0);
 
-    // wrapper.position.set(0, 5, 0);
-    // wrapper.rotation.z = -Math.PI * 0.5;
     wrapper.rotation.x = -30 * THREE.MathUtils.DEG2RAD;
   }
 
@@ -557,7 +547,6 @@ export default class Book extends RoomObjectAbstract {
     context.clearRect(0, 0, bitmap.width, bitmap.height);
 
     this._drawBakedPageTexture(bitmap, pageSide);
-    // this._bookPageRender.drawPage(bitmap, pageId, pageSide);
 
     if (this._bookPagePDFRender) {
       this._bookPagePDFRender.drawPage(context, pageId);

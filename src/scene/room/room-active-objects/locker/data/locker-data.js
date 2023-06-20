@@ -50,11 +50,6 @@ const LOCKER_CASES_ANIMATION_TYPE = {
   FromBottom: 'FROM_BOTTOM',
   FromCenter: 'FROM_CENTER',
   ToCenter: 'TO_CENTER',
-  FromTopByThree: 'FROM_TOP_BY_THREE',
-  FromBottomByThree: 'FROM_BOTTOM_BY_THREE',
-  Random01: 'RANDOM_01',
-  Random02: 'RANDOM_02',
-  Random03: 'RANDOM_03',
 }
 
 const LOCKER_CASES_ANIMATION_SEQUENCE = {
@@ -70,21 +65,21 @@ const LOCKER_CASES_ANIMATION_SEQUENCE = {
   [LOCKER_CASES_ANIMATION_TYPE.ToCenter]: [
     [0, 5], [1, 4], [2, 3],
   ],
-  [LOCKER_CASES_ANIMATION_TYPE.FromTopByThree]: [
-    [0, 2, 4], [1, 3, 5],
-  ],
-  [LOCKER_CASES_ANIMATION_TYPE.FromBottomByThree]: [
-    [1, 3, 5], [0, 2, 4],
-  ],
-  [LOCKER_CASES_ANIMATION_TYPE.Random01]: [
-    [0], [4], [1], [5], [2], [3],
-  ],
-  [LOCKER_CASES_ANIMATION_TYPE.Random02]: [
-    [3], [1], [0], [5], [4], [2],
-  ],
-  [LOCKER_CASES_ANIMATION_TYPE.Random03]: [
-    [5], [2], [1], [4], [0], [3],
-  ],
+  // [LOCKER_CASES_ANIMATION_TYPE.FromTopByThree]: [
+  //   [0, 2, 4], [1, 3, 5],
+  // ],
+  // [LOCKER_CASES_ANIMATION_TYPE.FromBottomByThree]: [
+  //   [1, 3, 5], [0, 2, 4],
+  // ],
+  // [LOCKER_CASES_ANIMATION_TYPE.Random01]: [
+  //   [0], [4], [1], [5], [2], [3],
+  // ],
+  // [LOCKER_CASES_ANIMATION_TYPE.Random02]: [
+  //   [3], [1], [0], [5], [4], [2],
+  // ],
+  // [LOCKER_CASES_ANIMATION_TYPE.Random03]: [
+  //   [5], [2], [1], [4], [0], [3],
+  // ],
 }
 
 const WORKPLACE_PHOTO_MATERIAL_TYPE = {

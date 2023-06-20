@@ -16,9 +16,9 @@ import { CAMERA_CONFIG } from '../scene/room/camera-controller/data/camera-confi
 import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
 import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
-import { ROOM_CONFIG } from '../scene/room/data/room-config';
 import Materials from './materials';
 import WebGL from 'three/addons/capabilities/WebGL.js';
+import { GLOBAL_LIGHT_CONFIG } from './configs/global-light-config';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -118,12 +118,12 @@ export default class BaseScene {
   _checkDeploymentConfig() {
     if (DEPLOYMENT_CONFIG.production) {
       DEBUG_CONFIG.fpsMeter = false;
-      ROOM_CONFIG.outlineEnabled = true;
+      SCENE_CONFIG.outlinePass.enabled = true;
     }
 
     if (CAMERA_CONFIG.theatreJs.studioEnabled) {
       DEBUG_CONFIG.fpsMeter = false;
-      ROOM_CONFIG.outlineEnabled = false;
+      SCENE_CONFIG.outlinePass.enabled = false;
       SCENE_CONFIG.fxaaPass = false;
       CAMERA_CONFIG.far = 500;
 
@@ -145,8 +145,6 @@ export default class BaseScene {
   }
 
   _initThreeJS() {
-    // THREE.ColorManagement.enabled = false;
-
     this._initScene();
     this._initRenderer();
     this._initCamera();
@@ -178,26 +176,10 @@ export default class BaseScene {
     });
 
     renderer.setSize(this._windowSizes.width, this._windowSizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio));
 
-    // renderer.outputEncoding = THREE.sRGBEncoding
-
-    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-
-    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    // renderer.toneMappingExposure = 1;
-    // renderer.toneMappingWhitePoint = 1.0;
-
-    // renderer.outputColorSpace = THREE.SRGBColorSpace;
-    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-    // renderer.toneMapping = THREE.NoToneMapping;
-
-    // THREE.ColorManagement.enabled = true;
-    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-    // renderer.gammaFactor = 2.2;
-
-    // renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.useLegacyLights = false;
+    // renderer.outputEncoding = THREE.sRGBEncoding;
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // renderer.toneMappingExposure = 1;
 
@@ -219,45 +201,10 @@ export default class BaseScene {
   }
 
   _initLights() {
-    // const ambientLightConfig = SCENE_CONFIG.lights.ambient;
-    // const ambientLight = new THREE.AmbientLight(ambientLightConfig.color, ambientLightConfig.intensity);
-    // this._scene.add(ambientLight);
-
-    // const directionalLightConfig = SCENE_CONFIG.lights.directional;
-    // const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
-    // directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
-    // this._scene.add(directionalLight);
-
-    // directionalLight.castShadow = true;
-    // directionalLight.shadow.camera.left = -9;
-    // directionalLight.shadow.camera.right = 9;
-    // directionalLight.shadow.camera.top = 12;
-    // directionalLight.shadow.camera.bottom = -9;
-    // directionalLight.shadow.camera.far = 18;
-    // directionalLight.shadow.mapSize.set(512, 512);
-
-    // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1);
-    // this._scene.add(directionalLightHelper);
-
-    // const shadowCameraHelper = this._shadowCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
-    // this._scene.add(shadowCameraHelper);
-
-    const spotLight = new THREE.SpotLight(0xffffff);
-    this._scene.add(spotLight);
-
-    spotLight.position.set(-5, 12, -5);
-
-    spotLight.castShadow = true;
-
-    spotLight.shadow.mapSize.width = 1024;
-    spotLight.shadow.mapSize.height = 1024;
-
-    spotLight.shadow.camera.near = 3;
-    spotLight.shadow.camera.far = 20;
-    spotLight.shadow.camera.fov = 80;
-
-    // const lightHelper = new THREE.SpotLightHelper(spotLight);
-    // this._scene.add(lightHelper);
+    if (GLOBAL_LIGHT_CONFIG.ambient.enabled) {
+      const ambientLight = new THREE.AmbientLight(GLOBAL_LIGHT_CONFIG.ambient.color, GLOBAL_LIGHT_CONFIG.ambient.intensity);
+      this._scene.add(ambientLight);
+    }
   }
 
   _initMaterials() {
@@ -276,7 +223,7 @@ export default class BaseScene {
   _onResize() {
     this._windowSizes.width = window.innerWidth;
     this._windowSizes.height = window.innerHeight;
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    const pixelRatio = Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio);
 
     this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
     this._camera.updateProjectionMatrix();
@@ -300,13 +247,11 @@ export default class BaseScene {
 
   _setupBackgroundColor() {
     this._scene.background = new THREE.Color(0x201919);
-    // const backgroundTexture = Loader.assets['transfer-it/bg'];
+
     // const backgroundTexture = Loader.assets['background'];
     // this._scene.background = backgroundTexture;
 
     // const texture = Loader.assets['environment'];
-    // // texture.colorSpace = THREE.SRGBColorSpace;
-
     // const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
     // rt.fromEquirectangularTexture(this._renderer, texture);
     // this._scene.background = rt.texture;
@@ -316,30 +261,11 @@ export default class BaseScene {
     this._initEffectsComposer();
     this._initOutlinePass();
     this._initAntiAliasingPass();
-    // this._initGammaCorrectionPass();
+    this._initGammaCorrectionPass();
   }
 
   _initEffectsComposer() {
-    // const size = this._renderer.getSize(new THREE.Vector2());
-    // const pixelRatio = this._renderer.getPixelRatio();
-    // const width = size.width;
-    // const height = size.height;
-
-    // const target = new THREE.WebGLRenderTarget(width * pixelRatio, height * pixelRatio, {
-    //   minFilter: THREE.LinearFilter,
-    //   magFilter: THREE.LinearFilter,
-    //   format: THREE.RGBAFormat,
-    //   encoding: THREE.sRGBEncoding
-    // });
-
-    // const target = new THREE.WebGLRenderTarget(width * pixelRatio, height * pixelRatio, {
-    //   minFilter: THREE.LinearFilter,
-    //   magFilter: THREE.LinearFilter,
-    //   format: THREE.RGBAFormat,
-    //   colorSpace: THREE.SRGBColorSpace,
-    // });
-
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    const pixelRatio = Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio);
 
     if (WebGL.isWebGL2Available() && pixelRatio === 1) {
       const size = this._renderer.getDrawingBufferSize(new THREE.Vector2());
@@ -349,10 +275,6 @@ export default class BaseScene {
       SCENE_CONFIG.fxaaPass = true;
       this._effectComposer = new EffectComposer(this._renderer);
     }
-
-    // const effectComposer = this._effectComposer = new EffectComposer(this._renderer);
-    // effectComposer.renderTarget1.texture.encoding = THREE.sRGBEncoding;
-    // effectComposer.renderTarget2.texture.encoding = THREE.sRGBEncoding;
 
     const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
     const renderPass = this._renderPass = new RenderPass(this._scene, camera);
@@ -365,11 +287,13 @@ export default class BaseScene {
     const outlinePass = this._outlinePass = new OutlinePass(new THREE.Vector2(bounds.width, bounds.height), this._scene, this._camera);
     this._effectComposer.addPass(outlinePass);
 
-    // outlinePass.visibleEdgeColor.set('#00ff00');
-    outlinePass.edgeGlow = 1;
-    outlinePass.edgeStrength = 4;
-    // outlinePass.edgeThickness = 1;
-    outlinePass.pulsePeriod = 2.5;
+    const outlinePassConfig = SCENE_CONFIG.outlinePass;
+
+    outlinePass.visibleEdgeColor.set(outlinePassConfig.color);
+    outlinePass.edgeGlow = outlinePassConfig.edgeGlow;
+    outlinePass.edgeStrength = outlinePassConfig.edgeStrength;
+    outlinePass.edgeThickness = outlinePassConfig.edgeThickness;
+    outlinePass.pulsePeriod = outlinePassConfig.pulsePeriod;
   }
 
   _initAntiAliasingPass() {
@@ -377,15 +301,17 @@ export default class BaseScene {
       const fxaaPass = this._fxaaPass = new ShaderPass(FXAAShader);
       this._effectComposer.addPass(fxaaPass);
 
-      const pixelRatio = Math.min(window.devicePixelRatio, 2);
+      const pixelRatio = Math.min(window.devicePixelRatio, SCENE_CONFIG.maxPixelRatio);
       fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
       fxaaPass.material.uniforms['resolution'].value.y = 1 / (this._windowSizes.height * pixelRatio);
     }
   }
 
   _initGammaCorrectionPass() {
-    const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-    this._effectComposer.addPass(gammaCorrectionPass);
+    if (SCENE_CONFIG.gammaCorrectionPass) {
+      const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+      this._effectComposer.addPass(gammaCorrectionPass);
+    }
   }
 
   _initAudioListener() {
@@ -438,11 +364,13 @@ export default class BaseScene {
           this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
         }
 
-        // this._renderer.setRenderTarget( null );
-        // this._renderer.clear();
-        // this._renderer.render(this._scene, this._camera);
-
-        this._effectComposer.render();
+        if (DEBUG_CONFIG.rendererStats) {
+          this._renderer.setRenderTarget( null );
+          this._renderer.clear();
+          this._renderer.render(this._scene, this._camera);
+        } else {
+          this._effectComposer.render();
+        }
       }
 
       this._scene3DDebugMenu.postUpdate();

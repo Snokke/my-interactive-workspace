@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE, WORKPLACE_PHOTO_MATERIAL_TYPE } from './data/locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
 import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -11,6 +11,8 @@ import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+import vertexShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import fragmentShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -28,7 +30,6 @@ export default class Locker extends RoomObjectAbstract {
 
     this._chairIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._caseMoveDistance = {};
-    this._workplacePhotoMaterialByType = {};
 
     this._isWorkplacePhotoShown = false;
     this._workplacePhotoLastTransform = {};
@@ -212,6 +213,11 @@ export default class Locker extends RoomObjectAbstract {
     this._enableActivity();
   }
 
+  onLightPercentChange(lightPercent) {
+    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+    workplacePhoto.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+  }
+
   _onWorkplacePhotoClick() {
     this.events.post('onWorkplacePhotoMoving');
 
@@ -254,7 +260,7 @@ export default class Locker extends RoomObjectAbstract {
       this._soundHelpers[caseId].position.copy(this._openSounds[caseId].position);
 
       if (caseId === 0) {
-        workplacePhoto.position.z = casePart.position.z + 0.2;
+        workplacePhoto.position.z = casePart.position.z + 0.23;
       }
     });
 
@@ -315,7 +321,7 @@ export default class Locker extends RoomObjectAbstract {
 
   _showWorkplacePhoto() {
     this._isWorkplacePhotoShown = true;
-    this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.Focused);
+    this._updateMaterialOnFocus();
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
     this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
@@ -333,6 +339,8 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _moveWorkplacePhotoToStartPosition() {
+    this._updateMaterialOnFocus();
+
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     workplacePhoto.userData.isActive = false;
 
@@ -345,7 +353,6 @@ export default class Locker extends RoomObjectAbstract {
       .start()
       .onComplete(() => {
         workplacePhoto.userData.isActive = true;
-        this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn);
         this.events.post('onWorkplacePhotoStopMoving');
       });
 
@@ -406,10 +413,26 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
-  _setWorkplacePhotoMaterial(type) {
-    const material = this._workplacePhotoMaterialByType[type];
+  _updateMaterialOnFocus() {
+    let endMixTexturesValue;
+
+    if (this._isWorkplacePhotoShown) {
+      endMixTexturesValue = 1;
+    } else {
+      endMixTexturesValue = 0;
+    }
+
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
-    workplacePhoto.material = material;
+    const mixTexturesObject = { value: workplacePhoto.material.uniforms.uMixTexture03Percent.value };
+
+    new TWEEN.Tween(mixTexturesObject)
+      .to({ value: endMixTexturesValue }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .onUpdate(() => {
+        workplacePhoto.material.uniforms.uMixTexture03Percent.value = mixTexturesObject.value;
+      })
+      .start();
+
   }
 
   _init() {
@@ -451,24 +474,42 @@ export default class Locker extends RoomObjectAbstract {
   _initWorkplacePhoto() {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
 
-    const focusedTexture = Loader.assets['workplace-photo'];
-    focusedTexture.flipY = false;
+    // const focusedTexture = Loader.assets['workplace-photo'];
+    // focusedTexture.flipY = false;
 
-    const focusedMaterial = new THREE.MeshBasicMaterial({
-      map: focusedTexture,
+    // const focusedMaterial = new THREE.MeshBasicMaterial({
+    //   map: focusedTexture,
+    // });
+
+    // const bakedTexture = Loader.assets['baked-workplace-photo'];
+    // bakedTexture.flipY = false;
+
+    // const bakedMaterial = new THREE.MeshBasicMaterial({
+    //   map: bakedTexture,
+    // });
+
+    const bakedTextureLightOn = Loader.assets['baked-workplace-photo'];
+    bakedTextureLightOn.flipY = false;
+
+    const bakedTextureLightOff = Loader.assets['baked-workplace-photo-light-off'];
+    bakedTextureLightOff.flipY = false;
+
+    const bakedTextureFocus = Loader.assets['workplace-photo'];
+    bakedTextureFocus.flipY = false;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture01: { value: bakedTextureLightOff },
+        uTexture02: { value: bakedTextureLightOn },
+        uTexture03: { value: bakedTextureFocus },
+        uMixTextures0102Percent: { value: 1 },
+        uMixTexture03Percent: { value: 0 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
     });
 
-    const bakedTexture = Loader.assets['baked-workplace-photo'];
-    bakedTexture.flipY = false;
-
-    const bakedMaterial = new THREE.MeshBasicMaterial({
-      map: bakedTexture,
-    });
-
-    this._workplacePhotoMaterialByType[WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn] = bakedMaterial;
-    this._workplacePhotoMaterialByType[WORKPLACE_PHOTO_MATERIAL_TYPE.Focused] = focusedMaterial;
-
-    this._setWorkplacePhotoMaterial(WORKPLACE_PHOTO_MATERIAL_TYPE.BakedLightOn);
+    workplacePhoto.material = material;
 
     this._workplacePhotoLastTransform = {
       position: new THREE.Vector3(),

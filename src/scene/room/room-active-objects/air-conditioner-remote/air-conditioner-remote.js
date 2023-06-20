@@ -2,13 +2,15 @@ import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
-import { AIR_CONDITIONER_REMOTE_BUTTON_TYPE, AIR_CONDITIONER_REMOTE_MATERIAL_TYPE, AIR_CONDITIONER_REMOTE_PART_TYPE, AIR_CONDITIONER_REMOTE_STATIC_PARTS } from './data/air-conditioner-remote-data';
+import { AIR_CONDITIONER_REMOTE_BUTTON_TYPE, AIR_CONDITIONER_REMOTE_PART_TYPE, AIR_CONDITIONER_REMOTE_STATIC_PARTS } from './data/air-conditioner-remote-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
 import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-config';
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
 import Loader from '../../../../core/loader';
+import vertexShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import fragmentShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -18,11 +20,11 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this._airConditionerRemoteLastTransform = {};
     this._airConditionerRemoteLastPosition = new THREE.Vector3();
     this._wrapper = null;
-    this._materialByType = {};
 
     this._buttonClickTween = {};
     this._buttonByType = {};
     this._temperatureScreenBitmap = null;
+    this._screenBackgroundColor = null;
 
     this._init();
   }
@@ -35,7 +37,9 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
 
-    if (partType === AIR_CONDITIONER_REMOTE_PART_TYPE.Base || partType === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
+    if (partType === AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined
+      || partType === AIR_CONDITIONER_REMOTE_PART_TYPE.Base
+      || partType === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
       this._onAirConditionerRemoteClick();
     }
 
@@ -68,7 +72,9 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const type = roomObject.userData.partType;
 
-    if (type === AIR_CONDITIONER_REMOTE_PART_TYPE.Base || type === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
+    if (type === AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined
+      || type === AIR_CONDITIONER_REMOTE_PART_TYPE.Base
+      || type === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
       if (this._isAirConditionerRemoteShown) {
         Black.engine.containerElement.style.cursor = 'zoom-out';
       } else {
@@ -81,23 +87,25 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this.events.post('onRemoteMoving');
     this._isAirConditionerRemoteShown = false;
     this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = false;
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined].userData.hideOutline = false;
+    this._hideRemoteOnFocus();
     this._moveRemoteToStartPosition();
   }
 
   setBaseActive() {
-    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.isActive = true;
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined].userData.isActive = true;
   }
 
   setBaseInactive() {
-    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.isActive = false;
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined].userData.isActive = false;
   }
 
   getMeshesForOutline(mesh) {
     const partType = mesh.userData.partType;
 
-    if (partType === AIR_CONDITIONER_REMOTE_PART_TYPE.Base || partType === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
-      const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
-      return [base];
+    if (partType === AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined || partType === AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen) {
+      const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+      return [baseJoined];
     }
 
     return [mesh];
@@ -132,7 +140,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
     context.font = `${AIR_CONDITIONER_REMOTE_CONFIG.screen.textSize}px AlarmClock`;
     context.textAlign = 'center';
-    context.fillStyle = AIR_CONDITIONER_REMOTE_CONFIG.screen.backgroundColor;
+    context.fillStyle = `#${this._screenBackgroundColor.getHexString()}`;
     context.fillRect(0, 0, bitmap.width, bitmap.height);
 
     context.fillStyle = AIR_CONDITIONER_REMOTE_CONFIG.screen.textColor;
@@ -151,6 +159,11 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
     const temperatureScreen = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen];
     temperatureScreen.material.map.needsUpdate = true;
+  }
+
+  onLightPercentChange(lightPercent) {
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    baseJoined.material.uniforms.uMixTextures0102Percent.value = lightPercent;
   }
 
   _buttonClickAnimation(buttonType) {
@@ -181,7 +194,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   _showAirConditionerRemote() {
     this._isAirConditionerRemoteShown = true;
 
-    this._setMaterial(AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.Focused);
+    this._updateMaterialOnFocus();
 
     this._airConditionerRemoteLastPosition.copy(this._wrapper.position);
     const globalPosition = this._wrapper.getWorldPosition(new THREE.Vector3());
@@ -190,17 +203,20 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     this.events.post('onAirConditionerRemoteClickToShow', this._wrapper, this._roomObjectType);
 
     this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base].userData.hideOutline = true;
+    this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined].userData.hideOutline = true;
     this._disableActivity();
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
       this._enableActivity();
+      this._showRemoteOnFocus();
       this.events.post('onRemoteStopMoving');
     });
   }
 
   _moveRemoteToStartPosition() {
-    const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
-    base.userData.isActive = false;
+    this._updateMaterialOnFocus();
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    baseJoined.userData.isActive = false;
 
     const endPosition = this._airConditionerRemoteLastTransform.position;
     const endRotation = this._airConditionerRemoteLastTransform.rotation;
@@ -210,11 +226,10 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
       .easing(TWEEN.Easing.Sinusoidal.In)
       .start()
       .onComplete(() => {
-        base.userData.isActive = true;
+        baseJoined.userData.isActive = true;
         this.add(this._wrapper);
         this._wrapper.position.copy(this._airConditionerRemoteLastPosition);
         this._enableActivity();
-        this._setMaterial(AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.BakedLightOn);
         this.events.post('onRemoteStopMoving');
       });
 
@@ -225,15 +240,15 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   }
 
   _disableActivity() {
-    Object.values(this._parts).forEach((part) => {
-      part.userData.isActive = false;
-    });
+    for (const partType in this._parts) {
+      this._parts[partType].userData.isActive = false;
+    }
   }
 
   _enableActivity() {
-    Object.values(this._parts).forEach((part) => {
-      part.userData.isActive = true;
-    });
+    for (const partType in this._parts) {
+      this._parts[partType].userData.isActive = true;
+    }
   }
 
   _stopButtonTween(buttonType) {
@@ -242,56 +257,127 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     }
   }
 
-  _setMaterial(type) {
-    const material = this._materialByType[type];
+  _updateMaterialOnFocus() {
+    let endMixTexturesValue;
+    let endScreenColor;
+    const startScreenColor = new THREE.Color(this._screenBackgroundColor);
+
+    if (this._isAirConditionerRemoteShown) {
+      endScreenColor = new THREE.Color(AIR_CONDITIONER_REMOTE_CONFIG.screen.backgroundColorFocused);
+      endMixTexturesValue = 1;
+    } else {
+      endScreenColor = new THREE.Color(AIR_CONDITIONER_REMOTE_CONFIG.screen.backgroundColor);
+      endMixTexturesValue = 0;
+    }
+
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    const mixTexturesObject = { value: baseJoined.material.uniforms.uMixTexture03Percent.value };
+
+    new TWEEN.Tween(mixTexturesObject)
+      .to({ value: endMixTexturesValue }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .onUpdate(() => {
+        const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+        baseJoined.material.uniforms.uMixTexture03Percent.value = mixTexturesObject.value;
+      })
+      .start();
+
+    const lerpColorObject = { value: 0 };
+
+    new TWEEN.Tween(lerpColorObject)
+      .to({ value: 1 }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .onUpdate(() => {
+        this._screenBackgroundColor = new THREE.Color().lerpColors(startScreenColor, endScreenColor, lerpColorObject.value);
+        this.updateTemperatureScreen();
+      })
+      .start();
+  }
+
+  _showRemoteOnFocus() {
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    baseJoined.scale.set(0.001, 0.001, 0.001);
+    baseJoined.visible = false;
 
     AIR_CONDITIONER_REMOTE_STATIC_PARTS.forEach((partName) => {
       const part = this._parts[partName];
-      part.material = material;
+      part.scale.set(1, 1, 1);
+      part.visible = true;
+    });
+  }
+
+  _hideRemoteOnFocus() {
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    baseJoined.scale.set(1, 1, 1);
+    baseJoined.visible = true;
+
+    AIR_CONDITIONER_REMOTE_STATIC_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      part.scale.set(0.001, 0.001, 0.001);
+      part.visible = false;
     });
   }
 
   _init() {
     this._initParts();
     this._addMaterials();
-    this._setMaterial(AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.BakedLightOn);
     this._addPartsToScene();
     this._initWrapperGroup();
     this._initBaseLastPosition();
     this._initButtonsByType();
     this._initTemperatureScreen();
+    this._hideRemoteOnFocus();
   }
 
   _addMaterials() {
-    const bakedTexture = Loader.assets['baked-air-conditioner-remote']
-    bakedTexture.flipY = false;
+    const bakedTextureLightOn = Loader.assets['baked-air-conditioner-remote'];
+    bakedTextureLightOn.flipY = false;
 
-    const bakedMaterial = new THREE.MeshBasicMaterial({
-      map: bakedTexture,
+    const bakedTextureLightOff = Loader.assets['baked-air-conditioner-remote-light-off'];
+    bakedTextureLightOff.flipY = false;
+
+    const bakedTextureFocus = Loader.assets['baked-air-conditioner-remote-focus'];
+    bakedTextureFocus.flipY = false;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture01: { value: bakedTextureLightOff },
+        uTexture02: { value: bakedTextureLightOn },
+        uTexture03: { value: bakedTextureFocus },
+        uMixTextures0102Percent: { value: 1 },
+        uMixTexture03Percent: { value: 0 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
     });
 
-    const bakedTextureLight = Loader.assets['baked-air-conditioner-remote-light']
-    bakedTextureLight.flipY = false;
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
+    baseJoined.material = material;
 
-    const bakedMaterialLight = new THREE.MeshBasicMaterial({
-      map: bakedTextureLight,
+    const focusMaterial = new THREE.MeshBasicMaterial({
+      map: bakedTextureFocus,
     });
 
-    this._materialByType[AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.BakedLightOn] = bakedMaterial;
-    this._materialByType[AIR_CONDITIONER_REMOTE_MATERIAL_TYPE.Focused] = bakedMaterialLight;
+    AIR_CONDITIONER_REMOTE_STATIC_PARTS.forEach((partName) => {
+      const part = this._parts[partName];
+      part.material = focusMaterial;
+    });
+
+    this._screenBackgroundColor = new THREE.Color(AIR_CONDITIONER_REMOTE_CONFIG.screen.backgroundColor);
   }
 
   _initWrapperGroup() {
     const wrapper = this._wrapper = new THREE.Group();
     this.add(wrapper);
 
+    const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
     const base = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.Base];
     const buttonOnOff = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonOnOff];
     const buttonTemperatureUp = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureUp];
     const buttonTemperatureDown = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.ButtonTemperatureDown];
     const temperatureScreen = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.TemperatureScreen];
 
-    wrapper.add(base, buttonOnOff, buttonTemperatureUp, buttonTemperatureDown, temperatureScreen);
+    wrapper.add(baseJoined, base, buttonOnOff, buttonTemperatureUp, buttonTemperatureDown, temperatureScreen);
 
     const buttonOnOffDelta = buttonOnOff.position.clone().sub(base.position);
     const buttonTemperatureUpDelta = buttonTemperatureUp.position.clone().sub(base.position);
@@ -300,6 +386,7 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
 
     wrapper.position.copy(base.userData.startPosition);
 
+    baseJoined.position.set(0, 0, 0);
     base.position.set(0, 0, 0);
     buttonOnOff.position.copy(buttonOnOffDelta);
     buttonTemperatureUp.position.copy(buttonTemperatureUpDelta);

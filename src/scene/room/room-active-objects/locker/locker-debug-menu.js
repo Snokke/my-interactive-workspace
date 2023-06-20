@@ -53,11 +53,6 @@ export default class LockerDebugMenu extends RoomObjectDebugAbstract {
         { text: 'From bottom', value: LOCKER_CASES_ANIMATION_TYPE.FromBottom },
         { text: 'From center', value: LOCKER_CASES_ANIMATION_TYPE.FromCenter },
         { text: 'To center', value: LOCKER_CASES_ANIMATION_TYPE.ToCenter },
-        { text: 'From top by 3', value: LOCKER_CASES_ANIMATION_TYPE.FromTopByThree },
-        { text: 'From bottom by 3', value: LOCKER_CASES_ANIMATION_TYPE.FromBottomByThree },
-        { text: 'Random sequence 1', value: LOCKER_CASES_ANIMATION_TYPE.Random01 },
-        { text: 'Random sequence 2', value: LOCKER_CASES_ANIMATION_TYPE.Random02 },
-        { text: 'Random sequence 3', value: LOCKER_CASES_ANIMATION_TYPE.Random03 },
       ],
       value: this._allCasesAnimationType,
     }).on('change', (animationType) => {

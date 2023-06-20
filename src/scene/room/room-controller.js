@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import DEBUG_CONFIG from '../../core/configs/debug-config';
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
@@ -11,6 +10,7 @@ import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE } from './camera-controller/data/
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
 import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from './data/global-room-objects-enabled-config';
+import SCENE_CONFIG from '../../core/configs/scene-config';
 
 export default class RoomController {
   constructor(data) {
@@ -24,6 +24,7 @@ export default class RoomController {
     this._audioListener = data.audioListener,
     this._cameraController = data.cameraController;
     this._raycasterController = data.raycasterController;
+    this._lightsController = data.lightsController;
 
     this._roomScene = data.roomScene;
     this._roomDebug = data.roomDebug;
@@ -257,7 +258,7 @@ export default class RoomController {
   }
 
   _setGlow(items) {
-    if (ROOM_CONFIG.outlineEnabled && !DEBUG_CONFIG.wireframe && !this._isInstancedObject(items[0])) {
+    if (SCENE_CONFIG.outlinePass.enabled && !this._isInstancedObject(items[0])) {
       this._outlinePass.selectedObjects = items;
     }
   }
@@ -436,6 +437,7 @@ export default class RoomController {
     const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
     const book = this._roomActiveObject[ROOM_OBJECT_TYPE.Book];
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
+    const floorLamp = this._roomActiveObject[ROOM_OBJECT_TYPE.FloorLamp];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
@@ -464,6 +466,7 @@ export default class RoomController {
     chair.events.on('onChairStopMoving', () => this._onObjectsStopMoving());
     chair.events.on('onChairRotation', () => this._onObjectsMoving());
     chair.events.on('onChairStopRotation', () => this._onObjectsStopMoving());
+    floorLamp.events.on('onLightPercentChange', (msg, lightPercent) => this._onLightPercentChange(lightPercent));
   }
 
   _initRealKeyboardSignals() {
@@ -925,5 +928,11 @@ export default class RoomController {
       const roomObject = this._roomActiveObject[key];
       roomObject.onAllObjectsInteraction();
     }
+  }
+
+  _onLightPercentChange(lightPercent) {
+    this._roomInactiveObject[ROOM_OBJECT_TYPE.Calendar].onLightPercentChange(lightPercent);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].onLightPercentChange(lightPercent);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].onLightPercentChange(lightPercent);
   }
 }

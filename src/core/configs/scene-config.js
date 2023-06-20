@@ -1,17 +1,16 @@
 const SCENE_CONFIG = {
+  backgroundColor: 0x222222,
   antialias: false,
   fxaaPass: false,
-  backgroundColor: 0x222222,
-  lights: {
-    ambient: {
-      color: 0xFFEFE4,
-      intensity: 2,
-    },
-    directional: {
-      color: 0xFFEFE4,
-      intensity: 1,
-      position: { x: -4, y: 8, z: -4 },
-    },
+  gammaCorrectionPass: false,
+  maxPixelRatio: 2,
+  outlinePass: {
+    enabled: true,
+    color: '#ffffff',
+    edgeGlow: 1,
+    edgeStrength: 4,
+    edgeThickness: 1,
+    pulsePeriod: 2.5,
   },
 };
 
