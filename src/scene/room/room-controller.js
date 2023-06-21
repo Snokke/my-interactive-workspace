@@ -120,7 +120,8 @@ export default class RoomController {
           this._draggingObject = roomObject;
           this._cameraController.onObjectDragStart();
 
-          this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
+          this._resetGlow();
+          // this._setGlow(this._draggingObject.getMeshesForOutline(intersectObject));
         }
       }
     }
@@ -138,6 +139,7 @@ export default class RoomController {
       this._draggingObject.onPointerUp();
       this._draggingObject = null;
       this._cameraController.onObjectDragEnd();
+      this._previousGlowMeshesNames = [];
     }
   }
 
@@ -207,6 +209,7 @@ export default class RoomController {
 
     this._cursor.update(dt);
     this._cameraController.update(dt);
+    this._lightsController.update(dt);
   }
 
   _checkToGlow(intersect) {
@@ -467,6 +470,9 @@ export default class RoomController {
     chair.events.on('onChairRotation', () => this._onObjectsMoving());
     chair.events.on('onChairStopRotation', () => this._onObjectsStopMoving());
     floorLamp.events.on('onLightPercentChange', (msg, lightPercent) => this._onLightPercentChange(lightPercent));
+    floorLamp.events.on('onLightHalfOn', () => this._onLightHalfOn());
+    floorLamp.events.on('onLightHalfOff', () => this._onLightHalfOff());
+    floorLamp.events.on('onHelpersChange', () => this._onHelpersChange());
   }
 
   _initRealKeyboardSignals() {
@@ -934,5 +940,18 @@ export default class RoomController {
     this._roomInactiveObject[ROOM_OBJECT_TYPE.Calendar].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].onLightPercentChange(lightPercent);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].onLightPercentChange(lightPercent);
+  }
+
+  _onLightHalfOn() {
+    this._lightsController.onLightHalfOn();
+  }
+
+  _onLightHalfOff() {
+    this._lightsController.onLightHalfOff();
+  }
+
+  _onHelpersChange() {
+    this._lightsController.onHelpersChange();
   }
 }

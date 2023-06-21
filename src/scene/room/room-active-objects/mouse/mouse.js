@@ -38,12 +38,14 @@ export default class Mouse extends RoomObjectAbstract {
 
     const body = this._parts[MOUSE_PART_TYPE.Body];
     const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
+    const mouseShadow = this._parts[MOUSE_PART_TYPE.MouseShadow];
 
     const newPosition = new THREE.Vector3()
       .copy(body.userData.startPosition)
       .add(this._currentPosition);
     body.position.copy(newPosition);
     leftKey.position.copy(newPosition).add(this._leftKeyPositionOffset);
+    mouseShadow.position.copy(newPosition).add(this._shadowPositionOffset);
     this._sound.position.copy(leftKey.position);
     this._soundHelper.position.copy(this._sound.position);
 
@@ -159,7 +161,6 @@ export default class Mouse extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initShadows();
     this._calculateMovingArea();
     this._initHelpArrows();
     this._initMouseAreaBorders();
@@ -171,23 +172,33 @@ export default class Mouse extends RoomObjectAbstract {
   _addMaterials() {
     const material = Materials.getMaterial(Materials.type.bakedSmallObjects);
 
-    for (const partName in this._parts) {
-      const part = this._parts[partName];
-      part.material = material;
-    }
+    const body = this._parts[MOUSE_PART_TYPE.Body];
+    const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
+
+    body.material = material;
+    leftKey.material = material;
+
+    const mouseShadow = this._parts[MOUSE_PART_TYPE.MouseShadow];
+
+    const shadowTexture = Loader.assets['mouse-shadow'];
+    shadowTexture.flipY = false;
+
+    const shadowMaterial = new THREE.MeshBasicMaterial({
+      map: shadowTexture,
+      transparent: true,
+    });
+
+    mouseShadow.material = shadowMaterial;
   }
 
   _addPartsToScene() {
     const body = this._parts[MOUSE_PART_TYPE.Body];
     const leftKey = this._parts[MOUSE_PART_TYPE.LeftKey];
-    this.add(body, leftKey);
+    const mouseShadow = this._parts[MOUSE_PART_TYPE.MouseShadow];
+    this.add(body, leftKey, mouseShadow);
 
     this._leftKeyPositionOffset = leftKey.position.clone().sub(body.position);
-  }
-
-  _initShadows() {
-    const body = this._parts[MOUSE_PART_TYPE.Body];
-    body.castShadow = true;
+    this._shadowPositionOffset = mouseShadow.position.clone().sub(body.position);
   }
 
   _calculateMovingArea() {

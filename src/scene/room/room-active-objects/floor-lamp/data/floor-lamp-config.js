@@ -9,6 +9,7 @@ const FLOOR_LAMP_CONFIG = {
     inner: 0xffffff,
     outer: 0xfafafa,
   },
+  helpers: false,
 }
 
 export { FLOOR_LAMP_CONFIG };

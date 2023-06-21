@@ -67,6 +67,9 @@ const textures = [
   // speakers
   'speakers-indicator.jpg',
 
+  // mouse
+  'mouse-shadow.png',
+
   // Transfer it Game
   'transfer-it/bg.jpg',
   'transfer-it/carpet-texture.png',

@@ -68,5 +68,11 @@ export default class FloorLampDebugMenu extends RoomObjectDebugAbstract {
       max: 1000,
       format: (value) => `${Math.floor(value)}`,
     });
+
+    this._debugFolder.addInput(FLOOR_LAMP_CONFIG, 'helpers', {
+      label: 'Light helpers',
+    }).on('change', () => {
+      this.events.post('onHelpersChange');
+    });
   }
 }

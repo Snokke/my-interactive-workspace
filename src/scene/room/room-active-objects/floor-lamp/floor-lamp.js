@@ -16,6 +16,7 @@ export default class FloorLamp extends RoomObjectAbstract {
 
     this._sound = null;
     this._lightPercentTween = null;
+    this._lightPreviousPercent = FLOOR_LAMP_CONFIG.lightPercent;
 
     this._init();
   }
@@ -56,6 +57,7 @@ export default class FloorLamp extends RoomObjectAbstract {
       .to({ lightPercent: endValue }, duration)
       .easing(TWEEN.Easing.Sinusoidal.In)
       .onUpdate(() => {
+
         this._debugMenu.updateLightPercent(tweenObject.lightPercent);
       })
       .start()
@@ -80,6 +82,16 @@ export default class FloorLamp extends RoomObjectAbstract {
     this._debugMenu.updateLightState();
 
     this.events.post('onLightPercentChange', FLOOR_LAMP_CONFIG.lightPercent);
+
+    if (this._lightPreviousPercent < 0.5 && FLOOR_LAMP_CONFIG.lightPercent >= 0.5) {
+      this.events.post('onLightHalfOn');
+    }
+
+    if (this._lightPreviousPercent > 0.5 && FLOOR_LAMP_CONFIG.lightPercent <= 0.5) {
+      this.events.post('onLightHalfOff');
+    }
+
+    this._lightPreviousPercent = FLOOR_LAMP_CONFIG.lightPercent;
   }
 
   _updateLampTexture(lightPercent) {
@@ -202,6 +214,10 @@ export default class FloorLamp extends RoomObjectAbstract {
 
     this._debugMenu.events.on('onLightPercentChange', () => {
       this._onLightPercentChange();
+    });
+
+    this._debugMenu.events.on('onHelpersChange', () => {
+      this.events.post('onHelpersChange');
     });
   }
 }

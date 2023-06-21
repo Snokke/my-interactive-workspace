@@ -83,9 +83,9 @@ export default class Room extends THREE.Group {
   _initRoomObjects() {
     this._roomScene = Loader.assets['room'].scene;
 
-    this._initLightsController();
     this._initActiveObjects();
     this._initInactiveObjects();
+    this._initLightsController();
     this._initCameraController();
     this._addObjectsToTableGroup();
     this._initCursor();
@@ -201,7 +201,8 @@ export default class Room extends THREE.Group {
   }
 
   _initLightsController() {
-    this._lightsController = new LightsController(this._data.scene);
+    const table = this._roomActiveObject[ROOM_OBJECT_TYPE.Table];
+    this._lightsController = new LightsController(this._data.scene, table);
   }
 
   _initRoomController() {
@@ -213,7 +214,7 @@ export default class Room extends THREE.Group {
     this._data.roomActiveObject = this._roomActiveObject;
     this._data.roomInactiveObject = this._roomInactiveObject;
     this._data.roomObjectsByActivityType = this._roomObjectsByActivityType;
-    this._data.lights = this._lightsController;
+    this._data.lightsController = this._lightsController;
 
     this._roomController = new RoomController(this._data);
   }
