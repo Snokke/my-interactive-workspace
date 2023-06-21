@@ -159,6 +159,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
+    this._initShadows();
     this._calculateMovingArea();
     this._initHelpArrows();
     this._initMouseAreaBorders();
@@ -182,6 +183,11 @@ export default class Mouse extends RoomObjectAbstract {
     this.add(body, leftKey);
 
     this._leftKeyPositionOffset = leftKey.position.clone().sub(body.position);
+  }
+
+  _initShadows() {
+    const body = this._parts[MOUSE_PART_TYPE.Body];
+    body.castShadow = true;
   }
 
   _calculateMovingArea() {

@@ -309,7 +309,7 @@ export default class Walls extends RoomObjectAbstract {
   _initShadowPlane() {
     const geometry = new THREE.PlaneGeometry(10.71, 10.71);
     const material = new THREE.ShadowMaterial();
-    material.opacity = 0.12;
+    material.opacity = 0.12; // 0.12
 
     const shadowPlane = new THREE.Mesh(geometry, material);
     this.add(shadowPlane);

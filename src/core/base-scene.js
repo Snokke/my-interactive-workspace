@@ -246,15 +246,12 @@ export default class BaseScene {
   }
 
   _setupBackgroundColor() {
-    this._scene.background = new THREE.Color(0x201919);
+    // this._scene.background = new THREE.Color(0x201919);
 
-    // const backgroundTexture = Loader.assets['background'];
-    // this._scene.background = backgroundTexture;
-
-    // const texture = Loader.assets['environment'];
-    // const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
-    // rt.fromEquirectangularTexture(this._renderer, texture);
-    // this._scene.background = rt.texture;
+    const texture = Loader.assets['environment'];
+    const renderTarget = new THREE.WebGLCubeRenderTarget(texture.image.height);
+    renderTarget.fromEquirectangularTexture(this._renderer, texture);
+    this._scene.background = renderTarget.texture;
   }
 
   _initPostProcessing() {

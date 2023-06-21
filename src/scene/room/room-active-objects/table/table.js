@@ -202,6 +202,7 @@ export default class Table extends RoomObjectAbstract {
     this._addMaterials();
     this._initShadows();
     this._initTopPartsGroup();
+    this._initShadowPlane();
     this._addPartsToScene();
     this._initSounds();
     this._initDebugMenu();
@@ -220,6 +221,26 @@ export default class Table extends RoomObjectAbstract {
   _initShadows() {
     const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
     tableTop.castShadow = true;
+  }
+
+  _initShadowPlane() {
+    const geometry = new THREE.PlaneGeometry(2.4, 2.4);
+    const material = new THREE.ShadowMaterial();
+    material.opacity = 0.5;
+
+    const shadowPlane = new THREE.Mesh(geometry, material);
+    this._topPartsGroup.add(shadowPlane);
+
+    const tableTop = this._parts[TABLE_PART_TYPE.Tabletop];
+
+    shadowPlane.receiveShadow = true;
+
+    shadowPlane.rotation.x = -Math.PI * 0.5;
+
+    shadowPlane.position.copy(tableTop.position);
+    shadowPlane.position.y += 0.075;
+    shadowPlane.position.x += 1.85;
+    shadowPlane.position.z += 0.7;
   }
 
   _initTopPartsGroup() {
