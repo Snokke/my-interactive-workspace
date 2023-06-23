@@ -1,3 +1,4 @@
+import SCENE_CONFIG from "../../../../core/configs/scene-config";
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
 import { FLOOR_LAMP_CONFIG } from "./data/floor-lamp-config";
 import { LIGHT_STATE } from "./data/floor-lamp-data";
@@ -69,10 +70,13 @@ export default class FloorLampDebugMenu extends RoomObjectDebugAbstract {
       format: (value) => `${Math.floor(value)}`,
     });
 
-    this._debugFolder.addInput(FLOOR_LAMP_CONFIG, 'helpers', {
+    const helpersController = this._debugFolder.addInput(FLOOR_LAMP_CONFIG, 'helpers', {
       label: 'Light helpers',
+      disabled: SCENE_CONFIG.isMobile,
     }).on('change', () => {
       this.events.post('onHelpersChange');
     });
+
+    helpersController.customDisabled = SCENE_CONFIG.isMobile;
   }
 }

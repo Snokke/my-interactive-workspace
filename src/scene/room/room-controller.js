@@ -267,7 +267,7 @@ export default class RoomController {
   }
 
   _resetGlow() {
-    if (this._outlinePass.selectedObjects.length > 0) {
+    if (SCENE_CONFIG.outlinePass.enabled && this._outlinePass.selectedObjects.length > 0) {
       this._outlinePass.selectedObjects = [];
     }
   }

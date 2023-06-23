@@ -4,6 +4,7 @@ const SCENE_CONFIG = {
   fxaaPass: false,
   gammaCorrectionPass: false,
   maxPixelRatio: 2,
+  isMobile: false,
   outlinePass: {
     enabled: true,
     color: '#ffffff',

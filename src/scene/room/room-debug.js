@@ -1,7 +1,6 @@
 import { MessageDispatcher } from "black-engine";
 import GUIHelper from "../../core/helpers/gui-helper/gui-helper";
 import { ROOM_CONFIG } from "./data/room-config";
-import isMobile from 'ismobilejs';
 import { DEBUG_MENU_START_STATE } from "../../core/configs/debug-menu-start-state";
 import { SOUNDS_CONFIG } from './data/sounds-config';
 import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
@@ -153,12 +152,11 @@ export default class RoomDebug {
       this.events.post('fpsMeterChanged');
     });
 
-    const isMobileDevice = isMobile(window.navigator).any;
-    // SCENE_CONFIG.outlinePass.enabled = !isMobileDevice;
+    SCENE_CONFIG.outlinePass.enabled = !SCENE_CONFIG.isMobile;
 
     generalFolder.addInput(SCENE_CONFIG.outlinePass, 'enabled', {
       label: 'Outline',
-      disabled: isMobileDevice,
+      disabled: SCENE_CONFIG.isMobile,
     });
   }
 

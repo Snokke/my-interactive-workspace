@@ -9,6 +9,7 @@ import { rotateAroundPoint } from '../../shared-objects/helpers';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
 import { FLOOR_SHADOW_CONFIG } from './data/floor-shadow-config';
+import SCENE_CONFIG from '../../../../core/configs/scene-config';
 
 export default class Walls extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -32,6 +33,7 @@ export default class Walls extends RoomObjectAbstract {
     this._previousWindowState = this._windowState;
     this._windowOpenType = WINDOW_OPEN_TYPE.Horizontally;
     this._isBothOpenTypeSelected = true;
+
 
     this._init();
   }
@@ -99,6 +101,10 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   onLightPercentChange(percent) {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     if (percent < 0.5) {
       const coeff = 1 - percent / 0.5;
       this._shadowPlane.material.opacity = coeff * FLOOR_SHADOW_CONFIG.lampOffShadowOpacity;
@@ -321,6 +327,10 @@ export default class Walls extends RoomObjectAbstract {
   }
 
   _initShadowPlane() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     const geometry = new THREE.PlaneGeometry(10.71, 10.71);
     const material = new THREE.ShadowMaterial();
     material.opacity = FLOOR_SHADOW_CONFIG.lampOnShadowOpacity;

@@ -332,7 +332,7 @@ export default class GameScreenController extends THREE.Group{
     } else if (distance < (RATING_DISTANCE[RATING_TYPE.good] * RATING_DISTANCE[RATING_TYPE.good]) * bigFurnitureCoeff) {
       // rating = RATING_TYPE.good;
 
-      // this._score += 1;
+      this._score += 1;
     } else {
       // rating = RATING_TYPE.bad;
     }

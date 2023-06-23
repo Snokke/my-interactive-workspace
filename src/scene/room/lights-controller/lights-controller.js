@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { FLOOR_LAMP_CONFIG } from '../room-active-objects/floor-lamp/data/floor-lamp-config';
 import { LIGHTS_CONTROLLER_CONFIG } from './data/lights-controller-config';
 import { LIGHT_TYPE } from './data/lights-controller-data';
+import SCENE_CONFIG from '../../../core/configs/scene-config';
 
 export default class LightsController {
   constructor(scene, table) {
@@ -22,6 +23,10 @@ export default class LightsController {
   }
 
   update() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     this._previousTablePositionY = this._tablePositionY;
     this._tablePositionY = this._table.getTopTableGroup().position.y;
 
@@ -31,6 +36,10 @@ export default class LightsController {
   }
 
   onLightHalfOn() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     this._lampSpotlight.visible = true;
     this._monitorSpotlight.visible = false;
 
@@ -41,6 +50,10 @@ export default class LightsController {
   }
 
   onLightHalfOff() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     this._lampSpotlight.visible = false;
     this._monitorSpotlight.visible = true;
 
@@ -51,6 +64,10 @@ export default class LightsController {
   }
 
   onHelpersChange() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     if (FLOOR_LAMP_CONFIG.helpers) {
       if (this._lampSpotlightHelper) {
         this._showHelpers();
@@ -93,6 +110,10 @@ export default class LightsController {
   }
 
   _init() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     this._initLampSpotlight();
     this._initMonitorSpotlight();
 

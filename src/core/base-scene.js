@@ -47,7 +47,8 @@ export default class BaseScene {
     this._isGameActive = false;
 
     this._isSecondaryCameraActive = false;
-    this._isMobileDevice = isMobile(window.navigator).any;
+
+    SCENE_CONFIG.isMobile = isMobile(window.navigator).any;
 
     this._init();
   }
@@ -238,8 +239,10 @@ export default class BaseScene {
     this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     this._renderer.setPixelRatio(pixelRatio);
 
-    this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
-    this._effectComposer.setPixelRatio(pixelRatio);
+    if (this._effectComposer)  {
+      this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
+      this._effectComposer.setPixelRatio(pixelRatio);
+    }
 
     if (SCENE_CONFIG.fxaaPass) {
       this._fxaaPass.material.uniforms['resolution'].value.x = 1 / (this._windowSizes.width * pixelRatio);
@@ -257,6 +260,10 @@ export default class BaseScene {
   }
 
   _initPostProcessing() {
+    if (SCENE_CONFIG.isMobile) {
+      return;
+    }
+
     this._initEffectsComposer();
     this._initOutlinePass();
     this._initAntiAliasingPass();
@@ -363,7 +370,7 @@ export default class BaseScene {
           this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
         }
 
-        if (this._isMobileDevice || DEBUG_CONFIG.rendererStats) {
+        if (SCENE_CONFIG.isMobile || DEBUG_CONFIG.rendererStats) {
           this._renderer.setRenderTarget( null );
           this._renderer.clear();
           this._renderer.render(this._scene, this._camera);
