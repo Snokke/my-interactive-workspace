@@ -1,6 +1,7 @@
 import { Pane } from 'tweakpane';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
 import { DEBUG_MENU_START_STATE } from '../../configs/debug-menu-start-state';
+import isMobile from 'ismobilejs';
 
 export default class GUIHelper {
   constructor() {
@@ -12,6 +13,12 @@ export default class GUIHelper {
     this.gui.containerElem_.style.width = '275px';
 
     this.gui.registerPlugin(EssentialsPlugin);
+
+    const isMobileDevice = isMobile(window.navigator).any;
+
+    if (isMobileDevice) {
+      this.gui.expanded = false;
+    }
 
     if (!DEBUG_MENU_START_STATE.ControlPanel) {
       this.gui.expanded = false;

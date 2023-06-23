@@ -19,6 +19,7 @@ import DEBUG_CONFIG from './configs/debug-config';
 import Materials from './materials';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import { GLOBAL_LIGHT_CONFIG } from './configs/global-light-config';
+import isMobile from 'ismobilejs';
 
 if (CAMERA_CONFIG.theatreJs.studioEnabled) {
   import('@theatre/studio').then((module) => {
@@ -46,6 +47,7 @@ export default class BaseScene {
     this._isGameActive = false;
 
     this._isSecondaryCameraActive = false;
+    this._isMobileDevice = isMobile(window.navigator).any;
 
     this._init();
   }
@@ -361,7 +363,7 @@ export default class BaseScene {
           this._renderer.render(this._monitorScreenScene, this._monitorScreenCamera);
         }
 
-        if (DEBUG_CONFIG.rendererStats) {
+        if (this._isMobileDevice || DEBUG_CONFIG.rendererStats) {
           this._renderer.setRenderTarget( null );
           this._renderer.clear();
           this._renderer.render(this._scene, this._camera);
