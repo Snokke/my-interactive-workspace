@@ -24,7 +24,7 @@ const SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE = {
   [SNOWFLAKE_PARTICLES_TYPE.Type01]: {
     count: 80,
     size: 0.3,
-    texture: 'snowflake-01',
+    texture: 'air-conditioner-particles/snowflake-01',
     color: 0xffffff,
     speed: 1,
     countIncrement: 0.5,
@@ -32,7 +32,7 @@ const SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE = {
   [SNOWFLAKE_PARTICLES_TYPE.Type02]: {
     count: 250,
     size: 0.14,
-    texture: 'snowflake-02',
+    texture: 'air-conditioner-particles/snowflake-02',
     color: 0xa5b9fd,
     speed: 1.8,
     countIncrement: 0.5,
@@ -40,7 +40,7 @@ const SNOWFLAKE_PARTICLES_CONFIG_BY_TYPE = {
   [SNOWFLAKE_PARTICLES_TYPE.Type03]: {
     count: 150,
     size: 0.2,
-    texture: 'snowflake-03',
+    texture: 'air-conditioner-particles/snowflake-03',
     color: 0x9ba6f9,
     speed: 1.4,
     countIncrement: 0.5,

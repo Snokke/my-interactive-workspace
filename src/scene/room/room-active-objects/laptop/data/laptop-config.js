@@ -29,8 +29,8 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
         position: new THREE.Vector2(0.14, 0.67),
         size: new THREE.Vector2(0.92, 0.14),
       },
-      texturePlaying: 'laptop-music-01-playing',
-      texturePause: 'laptop-music-01-pause',
+      texturePlaying: 'screens/laptop/laptop-music-01-playing',
+      texturePause: 'screens/laptop/laptop-music-01-pause',
     },
     [LAPTOP_PART_TYPE.LaptopScreenMusic02]: {
       signalName: 'onLaptopScreenMusic02Click',
@@ -39,8 +39,8 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
         position: new THREE.Vector2(0.14, 0.48),
         size: new THREE.Vector2(0.92, 0.14),
       },
-      texturePlaying: 'laptop-music-02-playing',
-      texturePause: 'laptop-music-02-pause',
+      texturePlaying: 'screens/laptop/laptop-music-02-playing',
+      texturePause: 'screens/laptop/laptop-music-02-pause',
     },
     [LAPTOP_PART_TYPE.LaptopScreenMusic03]: {
       signalName: 'onLaptopScreenMusic03Click',
@@ -49,8 +49,8 @@ const LAPTOP_SCREEN_MUSIC_CONFIG = {
         position: new THREE.Vector2(0.14, 0.29),
         size: new THREE.Vector2(0.92, 0.14),
       },
-      texturePlaying: 'laptop-music-03-playing',
-      texturePause: 'laptop-music-03-pause',
+      texturePlaying: 'screens/laptop/laptop-music-03-playing',
+      texturePause: 'screens/laptop/laptop-music-03-pause',
     },
   },
 }

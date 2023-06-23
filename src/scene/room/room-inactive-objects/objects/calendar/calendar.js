@@ -32,10 +32,10 @@ export default class Calendar extends RoomInactiveObjectAbstract {
     const bitmapTexture = this._bitmapTexture = new THREE.Texture(bitmap);
     bitmapTexture.flipY = false;
 
-    const bakedTextureLightOn = Loader.assets['baked-calendar'];
+    const bakedTextureLightOn = Loader.assets['baked-textures/baked-calendar'];
     bakedTextureLightOn.flipY = false;
 
-    const bakedTextureLightOff = Loader.assets['baked-calendar-light-off'];
+    const bakedTextureLightOff = Loader.assets['baked-textures/baked-calendar-light-off'];
     bakedTextureLightOff.flipY = false;
 
     const material = new THREE.ShaderMaterial({

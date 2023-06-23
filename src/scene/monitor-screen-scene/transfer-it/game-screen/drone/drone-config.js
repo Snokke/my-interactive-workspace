@@ -8,7 +8,7 @@ const DRONE_MODELS = {
     modelName: 'transfer-it/drone-01',
   },
   [DRONE_TYPE.blue]: {
-    modelName: 'transfer-it/drone-02',
+    modelName: 'transfer-it/drone-01',
   },
 };
 

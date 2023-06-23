@@ -341,7 +341,7 @@ export default class Cursor extends THREE.Group {
   }
 
   _initCursorView() {
-    const texture = Loader.assets['cursor'];
+    const texture = Loader.assets['screens/cursor'];
 
     const geometry = new THREE.PlaneGeometry(CURSOR_CONFIG.view.width, CURSOR_CONFIG.view.height);
     const material = new THREE.MeshBasicMaterial({

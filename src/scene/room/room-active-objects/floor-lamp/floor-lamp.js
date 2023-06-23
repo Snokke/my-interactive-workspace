@@ -147,7 +147,7 @@ export default class FloorLamp extends RoomObjectAbstract {
     const material = Materials.getMaterial(Materials.type.bakedBigObjects);
     this._parts[FLOOR_LAMP_PART_TYPE.Stand].material = material;
 
-    const lampTexture = Loader.assets['baked-lamp-off'];
+    const lampTexture = Loader.assets['baked-textures/baked-lamp-off'];
     lampTexture.flipY = false;
 
     const lampOuterMaterial = new THREE.ShaderMaterial({

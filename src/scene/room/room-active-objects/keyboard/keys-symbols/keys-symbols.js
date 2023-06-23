@@ -116,7 +116,7 @@ export default class KeysSymbols extends THREE.Group {
   }
 
   _initInstanceMesh() {
-    const texture = Loader.assets['keyboard-keys-atlas'];
+    const texture = Loader.assets['keyboard/keyboard-keys-atlas'];
 
     const geometry = new THREE.PlaneGeometry();
     const instancedGeometry = new THREE.InstancedBufferGeometry().copy(geometry);

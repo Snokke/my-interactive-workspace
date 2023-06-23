@@ -474,27 +474,13 @@ export default class Locker extends RoomObjectAbstract {
   _initWorkplacePhoto() {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
 
-    // const focusedTexture = Loader.assets['workplace-photo'];
-    // focusedTexture.flipY = false;
-
-    // const focusedMaterial = new THREE.MeshBasicMaterial({
-    //   map: focusedTexture,
-    // });
-
-    // const bakedTexture = Loader.assets['baked-workplace-photo'];
-    // bakedTexture.flipY = false;
-
-    // const bakedMaterial = new THREE.MeshBasicMaterial({
-    //   map: bakedTexture,
-    // });
-
-    const bakedTextureLightOn = Loader.assets['baked-workplace-photo'];
+    const bakedTextureLightOn = Loader.assets['baked-textures/baked-workplace-photo'];
     bakedTextureLightOn.flipY = false;
 
-    const bakedTextureLightOff = Loader.assets['baked-workplace-photo-light-off'];
+    const bakedTextureLightOff = Loader.assets['baked-textures/baked-workplace-photo-light-off'];
     bakedTextureLightOff.flipY = false;
 
-    const bakedTextureFocus = Loader.assets['workplace-photo'];
+    const bakedTextureFocus = Loader.assets['baked-textures/baked-workplace-photo-focus'];
     bakedTextureFocus.flipY = false;
 
     const material = new THREE.ShaderMaterial({

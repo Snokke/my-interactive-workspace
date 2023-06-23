@@ -20,10 +20,10 @@ export default class Materials {
   }
 
   _initBakedBigObjectsMaterial() {
-    const textureLightOn = Loader.assets['baked-big-objects'];
+    const textureLightOn = Loader.assets['baked-textures/baked-big-objects'];
     textureLightOn.flipY = false;
 
-    const textureLightOff = Loader.assets['baked-big-objects-light-off'];
+    const textureLightOff = Loader.assets['baked-textures/baked-big-objects-light-off'];
     textureLightOff.flipY = false;
 
     this.bakedBigObjects = new THREE.ShaderMaterial({
@@ -39,10 +39,10 @@ export default class Materials {
   }
 
   _initBakedSmallObjectsMaterial() {
-    const textureLightOn = Loader.assets['baked-small-objects'];
+    const textureLightOn = Loader.assets['baked-textures/baked-small-objects'];
     textureLightOn.flipY = false;
 
-    const textureLightOff = Loader.assets['baked-small-objects-light-off'];
+    const textureLightOff = Loader.assets['baked-textures/baked-small-objects-light-off'];
     textureLightOff.flipY = false;
 
     this.bakedSmallObjects = new THREE.ShaderMaterial({

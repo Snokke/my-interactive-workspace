@@ -9,60 +9,60 @@ const textures = [
   'glass-top-texture.png',
 
   // baked textures
-  'baked-big-objects.jpg',
-  'baked-small-objects.jpg',
-  'baked-big-objects-light-off.jpg',
-  'baked-small-objects-light-off.jpg',
+  'baked-textures/baked-big-objects.jpg',
+  'baked-textures/baked-small-objects.jpg',
+  'baked-textures/baked-big-objects-light-off.jpg',
+  'baked-textures/baked-small-objects-light-off.jpg',
 
   // air conditioner
-  'snowflake-01.png',
-  'snowflake-02.png',
-  'snowflake-03.png',
+  'air-conditioner-particles/snowflake-01.png',
+  'air-conditioner-particles/snowflake-02.png',
+  'air-conditioner-particles/snowflake-03.png',
 
   // floor lamp
-  'baked-lamp-off.jpg',
+  'baked-textures/baked-lamp-off.jpg',
 
   // monitor
-  'monitor-screen.jpg',
-  'cursor.png',
-  'showreel-icon.jpg',
-  'game-transfer-it-icon.jpg',
-  'cv-icon.jpg',
+  'screens/monitor/monitor-screen.jpg',
+  'screens/monitor/showreel-icon.jpg',
+  'screens/monitor/game-transfer-it-icon.jpg',
+  'screens/monitor/cv-icon.jpg',
+  'screens/monitor/volume.png',
+  'screens/monitor/volume-muted.png',
+  'screens/cursor.png',
   'close-icon.png',
-  'volume.png',
-  'volume-muted.png',
 
   // laptop
-  'laptop-screen.jpg',
-  'laptop-music-01-playing.jpg',
-  'laptop-music-01-pause.jpg',
-  'laptop-music-02-playing.jpg',
-  'laptop-music-02-pause.jpg',
-  'laptop-music-03-playing.jpg',
-  'laptop-music-03-pause.jpg',
+  'screens/laptop/laptop-screen.jpg',
+  'screens/laptop/laptop-music-01-playing.jpg',
+  'screens/laptop/laptop-music-01-pause.jpg',
+  'screens/laptop/laptop-music-02-playing.jpg',
+  'screens/laptop/laptop-music-02-pause.jpg',
+  'screens/laptop/laptop-music-03-playing.jpg',
+  'screens/laptop/laptop-music-03-pause.jpg',
 
   // keyboard
-  'keyboard-keys-atlas.png',
-  'keyboard-key-texture.jpg',
-  'keyboard-space-key-texture.jpg',
+  'keyboard/keyboard-keys-atlas.png',
+  'keyboard/keyboard-key-texture.jpg',
+  'keyboard/keyboard-space-key-texture.jpg',
 
   // locker
-  'workplace-photo.jpg',
-  'baked-workplace-photo.jpg',
-  'baked-workplace-photo-light-off.jpg',
+  'baked-textures/baked-workplace-photo.jpg',
+  'baked-textures/baked-workplace-photo-light-off.jpg',
+  'baked-textures/baked-workplace-photo-focus.jpg',
 
   // book
-  'baked-opened-book.jpg',
-  'baked-page.jpg',
+  'baked-textures/baked-opened-book.jpg',
+  'baked-textures/baked-page.jpg',
 
   // air conditioner remote
-  'baked-air-conditioner-remote.jpg',
-  'baked-air-conditioner-remote-light-off.jpg',
-  'baked-air-conditioner-remote-focus.jpg',
+  'baked-textures/baked-air-conditioner-remote.jpg',
+  'baked-textures/baked-air-conditioner-remote-light-off.jpg',
+  'baked-textures/baked-air-conditioner-remote-focus.jpg',
 
   // calendar
-  'baked-calendar.jpg',
-  'baked-calendar-light-off.jpg',
+  'baked-textures/baked-calendar.jpg',
+  'baked-textures/baked-calendar-light-off.jpg',
 
   // speakers
   'speakers-indicator.jpg',
@@ -97,7 +97,6 @@ const models = [
   'transfer-it/cloud.glb',
   'transfer-it/cup.glb',
   'transfer-it/drone-01.glb',
-  'transfer-it/drone-02.glb',
   'transfer-it/floor.glb',
   'transfer-it/gas-stove.glb',
   'transfer-it/left-wall.glb',

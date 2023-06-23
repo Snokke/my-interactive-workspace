@@ -31,21 +31,21 @@ const MONITOR_BUTTONS_CONFIG = {
         position: new THREE.Vector2(-0.495, 0.27),
         size: new THREE.Vector2(0.332, 0.332),
       },
-      textureName: 'showreel-icon',
+      textureName: 'screens/monitor/showreel-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCVIcon]: {
       area: {
         position: new THREE.Vector2(1.275, 0.58),
         size: new THREE.Vector2(0.332, 0.332),
       },
-      textureName: 'cv-icon',
+      textureName: 'screens/monitor/cv-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenTransferItIcon]: {
       area: {
         position: new THREE.Vector2(-0.06, 0.27),
         size: new THREE.Vector2(0.332, 0.332),
       },
-      textureName: 'game-transfer-it-icon',
+      textureName: 'screens/monitor/game-transfer-it-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {

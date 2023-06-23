@@ -608,7 +608,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const keyMesh = keyModel.scene.children[0];
     const geometry = keyMesh.geometry;
 
-    const texture = Loader.assets['keyboard-key-texture'];
+    const texture = Loader.assets['keyboard/keyboard-key-texture'];
     // texture.colorSpace = THREE.SRGBColorSpace;
     texture.flipY = false;
 
@@ -683,7 +683,7 @@ export default class Keyboard extends RoomObjectAbstract {
     const model = Loader.assets['keyboard-key-space'];
     const spaceKey = model.scene.children[0];
 
-    const texture = Loader.assets['keyboard-space-key-texture'];
+    const texture = Loader.assets['keyboard/keyboard-space-key-texture'];
     // texture.colorSpace = THREE.SRGBColorSpace;
     texture.flipY = false;
 

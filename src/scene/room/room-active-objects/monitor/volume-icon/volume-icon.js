@@ -26,7 +26,7 @@ export default class VolumeIcon {
 
   enableSound() {
     this._isSoundEnabled = true;
-    const texture = Loader.assets['volume'];
+    const texture = Loader.assets['screens/monitor/volume'];
     this._view.material.uniforms.uTexture.value = texture;
 
     this._show(this._currentVolume);
@@ -34,7 +34,7 @@ export default class VolumeIcon {
 
   disableSound() {
     this._isSoundEnabled = false;
-    const texture = Loader.assets['volume-muted'];
+    const texture = Loader.assets['screens/monitor/volume-muted'];
     this._view.material.uniforms.uTexture.value = texture;
 
     this._show(0);
@@ -66,7 +66,7 @@ export default class VolumeIcon {
   }
 
   _init() {
-    const texture = Loader.assets['volume'];
+    const texture = Loader.assets['screens/monitor/volume'];
 
     const uniforms = {
       uTexture: { value: texture },

@@ -599,7 +599,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _initScreenTexture() {
-    const texture = this._screenTexture = Loader.assets['monitor-screen'];
+    const texture = this._screenTexture = Loader.assets['screens/monitor/monitor-screen'];
     // texture.colorSpace = THREE.SRGBColorSpace;
 
     const material = new THREE.MeshBasicMaterial({

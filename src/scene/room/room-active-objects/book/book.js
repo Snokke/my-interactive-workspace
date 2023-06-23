@@ -537,7 +537,7 @@ export default class Book extends RoomObjectAbstract {
 
   _loadPageTexture() {
     const pageTexture = this._pageTexture = new Image();
-    pageTexture.src = '/textures/baked-page.jpg';
+    pageTexture.src = '/textures/baked-textures/baked-page.jpg';
   }
 
   _drawPage(pageId, page, pageSide, materialType) {
@@ -620,7 +620,7 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _setOpenBookMaterials() {
-    const bakedTexture = Loader.assets['baked-opened-book'];
+    const bakedTexture = Loader.assets['baked-textures/baked-opened-book'];
     bakedTexture.flipY = false;
 
     const bakedMaterial = new THREE.MeshBasicMaterial({

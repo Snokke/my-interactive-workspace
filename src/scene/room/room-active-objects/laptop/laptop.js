@@ -486,7 +486,7 @@ export default class Laptop extends RoomObjectAbstract {
 
   _initScreenTexture() {
     const screen = this._parts[LAPTOP_PART_TYPE.LaptopScreen];
-    const texture = Loader.assets['laptop-screen'];
+    const texture = Loader.assets['screens/laptop/laptop-screen'];
     // texture.colorSpace = THREE.SRGBColorSpace;
 
     screen.material = new THREE.MeshBasicMaterial({

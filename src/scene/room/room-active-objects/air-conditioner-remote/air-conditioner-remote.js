@@ -330,13 +330,13 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const bakedTextureLightOn = Loader.assets['baked-air-conditioner-remote'];
+    const bakedTextureLightOn = Loader.assets['baked-textures/baked-air-conditioner-remote'];
     bakedTextureLightOn.flipY = false;
 
-    const bakedTextureLightOff = Loader.assets['baked-air-conditioner-remote-light-off'];
+    const bakedTextureLightOff = Loader.assets['baked-textures/baked-air-conditioner-remote-light-off'];
     bakedTextureLightOff.flipY = false;
 
-    const bakedTextureFocus = Loader.assets['baked-air-conditioner-remote-focus'];
+    const bakedTextureFocus = Loader.assets['baked-textures/baked-air-conditioner-remote-focus'];
     bakedTextureFocus.flipY = false;
 
     const material = new THREE.ShaderMaterial({
