@@ -23,7 +23,7 @@ export default class CoffeeSteam extends THREE.Group {
     this._init();
   }
 
-  update(dt) { // eslint-disable-line
+  update(dt) {
     this._mesh.material.uniforms.uTime.value = this._time;
     this._time += dt * 1000;
   }
@@ -31,18 +31,18 @@ export default class CoffeeSteam extends THREE.Group {
   onStartSnowing() {
     this._isAirConditionerOn = true;
 
-    if (!this._isWindowOpen) {
+    this._windPowerChange(COFFEE_STEAM_CONFIG.wind.power);
+
+    if (this._isWindowOpen) {
+      this._setWindAngle(COFFEE_STEAM_CONFIG.wind.windowAngle);
+    } else {
       this._setWindAngle(COFFEE_STEAM_CONFIG.wind.airConditionerAngle);
-      this._windPowerChange(COFFEE_STEAM_CONFIG.wind.power);
     }
   }
 
   onStopSnowing() {
     this._isAirConditionerOn = false;
-
-    if (!this._isWindowOpen) {
-      this._windPowerChange(0);
-    }
+    this._windPowerChange(0);
   }
 
   onWindowOpened() {
@@ -50,9 +50,6 @@ export default class CoffeeSteam extends THREE.Group {
 
     if (this._isAirConditionerOn) {
       this._windAngleChange(COFFEE_STEAM_CONFIG.wind.windowAngle);
-    } else {
-      this._setWindAngle(COFFEE_STEAM_CONFIG.wind.windowAngle);
-      this._windPowerChange(COFFEE_STEAM_CONFIG.wind.power);
     }
   }
 
@@ -61,10 +58,7 @@ export default class CoffeeSteam extends THREE.Group {
 
     if (this._isAirConditionerOn) {
       this._windAngleChange(COFFEE_STEAM_CONFIG.wind.airConditionerAngle);
-    } else {
-      this._windPowerChange(0);
     }
-
   }
 
   onWindowOpen() {

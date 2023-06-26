@@ -7,6 +7,10 @@ const LOCKER_PART_TYPE = {
   Case05: 'case05',
   Case06: 'case06',
   WorkplacePhoto: 'workplace_photo',
+  LockerOpenedPartCase01: 'locker_opened_part_case01',
+  LockerOpenedPartCase02: 'locker_opened_part_case02',
+  LockerClosedPartCase01: 'locker_closed_part_case01',
+  LockerClosedPartCase02: 'locker_closed_part_case02',
 }
 
 const LOCKER_PART_ACTIVITY_CONFIG = {
@@ -18,6 +22,10 @@ const LOCKER_PART_ACTIVITY_CONFIG = {
   [LOCKER_PART_TYPE.Case05]: true,
   [LOCKER_PART_TYPE.Case06]: true,
   [LOCKER_PART_TYPE.WorkplacePhoto]: true,
+  [LOCKER_PART_TYPE.LockerOpenedPartCase01]: true,
+  [LOCKER_PART_TYPE.LockerOpenedPartCase02]: true,
+  [LOCKER_PART_TYPE.LockerClosedPartCase01]: true,
+  [LOCKER_PART_TYPE.LockerClosedPartCase02]: true,
 }
 
 const CASES = [
@@ -27,6 +35,18 @@ const CASES = [
   LOCKER_PART_TYPE.Case04,
   LOCKER_PART_TYPE.Case05,
   LOCKER_PART_TYPE.Case06,
+]
+
+const CASE_01_PARTS = [
+  LOCKER_PART_TYPE.Case01,
+  LOCKER_PART_TYPE.LockerOpenedPartCase01,
+  LOCKER_PART_TYPE.LockerClosedPartCase01,
+]
+
+const CASE_02_PARTS = [
+  LOCKER_PART_TYPE.Case02,
+  LOCKER_PART_TYPE.LockerOpenedPartCase02,
+  LOCKER_PART_TYPE.LockerClosedPartCase02,
 ]
 
 const LOCKER_CASE_STATE = {
@@ -100,4 +120,6 @@ export {
   LOCKER_PART_ACTIVITY_CONFIG,
   LOCKER_CASE_OPEN_STATE,
   WORKPLACE_PHOTO_MATERIAL_TYPE,
+  CASE_01_PARTS,
+  CASE_02_PARTS,
 };

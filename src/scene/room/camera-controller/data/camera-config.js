@@ -107,7 +107,7 @@ const ORBIT_CONTROLS_MODE_CONFIG = {
   minPolarAngle: 0,
   maxPolarAngle: Math.PI * 0.5,
   minDistance: 1.7,
-  maxDistance: 35,
+  maxDistance: 33,
   minPan: new THREE.Vector3(-5, 0, -5),
   maxPan: new THREE.Vector3(5, 10, 5),
 }

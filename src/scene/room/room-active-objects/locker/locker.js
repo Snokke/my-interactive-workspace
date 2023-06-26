@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
+import { CASES, CASE_01_PARTS, CASE_02_PARTS, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
 import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -51,6 +51,14 @@ export default class Locker extends RoomObjectAbstract {
 
     if (CASES.includes(partType) && !this._isWorkplacePhotoShown) {
       this.pushCase(roomObject.userData.caseId);
+    }
+
+    if (CASE_01_PARTS.includes(partType) && !this._isWorkplacePhotoShown) {
+      this.pushCase(0);
+    }
+
+    if (CASE_02_PARTS.includes(partType) && !this._isWorkplacePhotoShown) {
+      this.pushCase(1);
     }
 
     if (partType === LOCKER_PART_TYPE.WorkplacePhoto) {
@@ -142,6 +150,14 @@ export default class Locker extends RoomObjectAbstract {
 
     if (mesh.userData.partType === LOCKER_PART_TYPE.WorkplacePhoto) {
       return [mesh];
+    }
+
+    if (CASE_01_PARTS.includes(mesh.userData.partType)) {
+      return CASE_01_PARTS.map((partName) => this._parts[partName]);
+    }
+
+    if (CASE_02_PARTS.includes(mesh.userData.partType)) {
+      return CASE_02_PARTS.map((partName) => this._parts[partName]);
     }
 
     const partName = `case0${mesh.userData.caseId + 1}`;
@@ -242,6 +258,16 @@ export default class Locker extends RoomObjectAbstract {
 
     if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
       workplacePhoto.visible = true;
+
+      this._parts[LOCKER_PART_TYPE.LockerClosedPartCase01].visible = false;
+      this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = true;
+    }
+
+    if (caseId === 1 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+      workplacePhoto.visible = true;
+
+      this._parts[LOCKER_PART_TYPE.LockerClosedPartCase02].visible = false;
+      this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = true;
     }
 
     const startPositionZ = casePart.userData.startPosition.z;
@@ -261,6 +287,11 @@ export default class Locker extends RoomObjectAbstract {
 
       if (caseId === 0) {
         workplacePhoto.position.z = casePart.position.z + 0.23;
+        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].position.z = casePart.position.z;
+      }
+
+      if (caseId === 1) {
+        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].position.z = casePart.position.z;
       }
     });
 
@@ -290,6 +321,14 @@ export default class Locker extends RoomObjectAbstract {
 
       if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
         workplacePhoto.visible = false;
+
+        this._parts[LOCKER_PART_TYPE.LockerClosedPartCase01].visible = true;
+        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = false;
+      }
+
+      if (caseId === 1 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+        this._parts[LOCKER_PART_TYPE.LockerClosedPartCase02].visible = true;
+        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = false;
       }
 
       this.events.post('onCaseStopMoving');
@@ -469,6 +508,9 @@ export default class Locker extends RoomObjectAbstract {
 
       this.add(part);
     }
+
+    this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = false;
+    this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = false;
   }
 
   _initWorkplacePhoto() {
