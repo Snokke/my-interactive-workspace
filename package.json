@@ -13,6 +13,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.22.5",
     "eslint": "^8.42.0",
+    "three-webgl-stats": "^1.0.5",
     "vite": "^4.1.0",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-glsl": "^1.1.2"
@@ -28,7 +29,6 @@
     "ismobilejs": "^1.1.1",
     "pdfjs-dist": "^3.7.107",
     "three": "^0.150.0",
-    "three-webgl-stats": "^1.0.5",
     "tweakpane": "^3.1.7",
     "vercel": "^28.17.0"
   }

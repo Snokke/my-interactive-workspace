@@ -8,6 +8,7 @@ import RoomController from './room-controller';
 import CameraController from './camera-controller/camera-controller';
 import { MessageDispatcher } from 'black-engine';
 import LightsController from './lights-controller/lights-controller';
+import SCENE_CONFIG from '../../core/configs/scene-config';
 
 export default class Room extends THREE.Group {
   constructor(data, raycasterController) {
@@ -32,6 +33,8 @@ export default class Room extends THREE.Group {
     this._roomActiveObject = {};
     this._roomInactiveObject = {};
     this._roomObjectsByActivityType = {};
+
+    this._isSoundPlayed = false;
 
     this._init();
   }
@@ -73,6 +76,7 @@ export default class Room extends THREE.Group {
     this._initRoomObjects();
     this._configureRaycaster();
     this._initRoomController();
+    this._initEmptySound();
     this._initSignals();
   }
 
@@ -217,6 +221,22 @@ export default class Room extends THREE.Group {
     this._data.lightsController = this._lightsController;
 
     this._roomController = new RoomController(this._data);
+  }
+
+  _initEmptySound() {
+    if (SCENE_CONFIG.isMobile) {
+      window.addEventListener('touchstart', () => {
+        if (this._isSoundPlayed) {
+          return;
+        }
+
+        const sound = new THREE.PositionalAudio(this._data.audioListener);
+        sound.setVolume(0);
+        sound.play();
+
+        this._isSoundPlayed = true;
+      });
+    }
   }
 
   _initSignals() {

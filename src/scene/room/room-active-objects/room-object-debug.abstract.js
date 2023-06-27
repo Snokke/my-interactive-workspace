@@ -61,7 +61,7 @@ export default class RoomObjectDebugAbstract extends THREE.Group {
   }
 
   _initDebugFolder() {
-    const roomObjectsFolder = GUIHelper.getFolder('Active room objects');
+    const roomObjectsFolder = GUIHelper.getFolder('Active objects');
 
     const debugFolder = this._debugFolder = roomObjectsFolder.addFolder({
       title: this._folderLabel,

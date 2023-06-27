@@ -6,6 +6,7 @@ import { MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
 import { ROOM_OBJECT_TYPE } from '../data/room-config';
 import TheatreJS from './theatrejs';
+import SCENE_CONFIG from '../../../core/configs/scene-config';
 
 export default class CameraController extends THREE.Group {
   constructor(camera, orbitControls, focusObjects, roomDebug) {
@@ -40,6 +41,8 @@ export default class CameraController extends THREE.Group {
     this._staticModeRoomObjectType = null;
     this._staticModeBackPlane = null;
 
+    this._isPointerDown = false;
+
     this._init();
   }
 
@@ -49,6 +52,10 @@ export default class CameraController extends THREE.Group {
   }
 
   onPointerMove(x, y) {
+    if (SCENE_CONFIG.isMobile && !this._isPointerDown) {
+      return;
+    }
+
     this._currentPointerPosition.set(x, y);
 
     const percentX = x / window.innerWidth * 2 - 1;
@@ -108,6 +115,18 @@ export default class CameraController extends THREE.Group {
     if (this._orbitControls) {
       this._orbitControls.enabled = false;
       ORBIT_CONTROLS_MODE_CONFIG.enabled = false;
+    }
+  }
+
+  onPointerUp() {
+    if (SCENE_CONFIG.isMobile) {
+      this._isPointerDown = false;
+    }
+  }
+
+  onPointerDown() {
+    if (SCENE_CONFIG.isMobile) {
+      this._isPointerDown = true;
     }
   }
 
@@ -392,6 +411,7 @@ export default class CameraController extends THREE.Group {
     this._initTheatreJS();
     this._initStaticModeBackPlane();
     this._setCameraStartPosition();
+    this._setParametersForMobile();
   }
 
   _initTheatreJS() {
@@ -420,5 +440,12 @@ export default class CameraController extends THREE.Group {
 
     this._camera.position.copy(focusConfig.focus.position)
     this._camera.lookAt(focusConfig.focus.lookAt.x, focusConfig.focus.lookAt.y, focusConfig.focus.lookAt.z);
+  }
+
+  _setParametersForMobile() {
+    if (SCENE_CONFIG.isMobile) {
+      STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.defaultDistance = 4;
+      STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.maxDistance = 4;
+    }
   }
 }

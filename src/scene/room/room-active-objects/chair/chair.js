@@ -15,6 +15,7 @@ import { isVectorXZEqual, randomBetween } from '../../shared-objects/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+import SCENE_CONFIG from '../../../../core/configs/scene-config';
 // import Materials from '../../../../core/materials';
 
 export default class Chair extends RoomObjectAbstract {
@@ -76,6 +77,10 @@ export default class Chair extends RoomObjectAbstract {
       this._autoMoving = false;
       this._dragChair(intersect);
       Black.engine.containerElement.style.cursor = 'grabbing';
+
+      if (SCENE_CONFIG.isMobile) {
+        this._helpArrows.show();
+      }
     }
 
     return isObjectDraggable;
@@ -121,6 +126,10 @@ export default class Chair extends RoomObjectAbstract {
     Black.engine.containerElement.style.cursor = 'grab';
 
     this._checkToBounce();
+
+    if (SCENE_CONFIG.isMobile) {
+      this._helpArrows.hide();
+    }
   }
 
   getMeshesForOutline(mesh) {
@@ -139,7 +148,7 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver) {
+    if (this._isPointerOver || SCENE_CONFIG.isMobile) {
       return;
     }
 

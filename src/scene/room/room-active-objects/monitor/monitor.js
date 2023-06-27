@@ -15,6 +15,7 @@ import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { CAMERA_MODE } from '../../camera-controller/data/camera-data';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+import SCENE_CONFIG from '../../../../core/configs/scene-config';
 
 export default class Monitor extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -80,6 +81,10 @@ export default class Monitor extends RoomObjectAbstract {
       isObjectDraggable = true;
       this._onMonitorClick(intersect);
       Black.engine.containerElement.style.cursor = 'grabbing';
+
+      if (SCENE_CONFIG.isMobile) {
+        this._helpArrows.show();
+      }
     }
 
     if (onPointerDownClick === false && MONITOR_SCREEN_BUTTONS.includes(partType)) {
@@ -143,7 +148,7 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver) {
+    if (this._isPointerOver || SCENE_CONFIG.isMobile) {
       return;
     }
 
@@ -167,6 +172,10 @@ export default class Monitor extends RoomObjectAbstract {
 
   onPointerUp() {
     Black.engine.containerElement.style.cursor = 'grab';
+
+    if (SCENE_CONFIG.isMobile) {
+      this._helpArrows.hide();
+    }
   }
 
   onPointerOut() {
@@ -461,7 +470,13 @@ export default class Monitor extends RoomObjectAbstract {
   }
 
   _onOpenCV() {
-    window.open('https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf', '_blank').focus();
+    if (SCENE_CONFIG.isMobile) {
+      const link = document.getElementById('cv_link');
+      link.setAttribute('href', 'https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf');
+      link.click();
+    } else {
+      window.open('https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf', '_blank').focus();
+    }
   }
 
   _updatePosition() {
@@ -539,6 +554,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._updateArmRotation();
     this._initArrows();
     this._initDebugMenu();
+    this._initCVLink();
     this._initSignals();
   }
 
@@ -668,6 +684,14 @@ export default class Monitor extends RoomObjectAbstract {
     this.add(helpArrows);
 
     helpArrows.position.copy(this._parts[MONITOR_PART_TYPE.Monitor].position.clone());
+  }
+
+  _initCVLink() {
+    if (SCENE_CONFIG.isMobile) {
+      const linkElement = document.createElement('a');
+      linkElement.id = 'cv_link';
+      window.document.body.appendChild(linkElement);
+    }
   }
 
   _initCloseFocusIcon() {

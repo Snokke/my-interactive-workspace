@@ -125,6 +125,8 @@ export default class RoomController {
         }
       }
     }
+
+    this._cameraController.onPointerDown();
   }
 
   onPointerUp(x, y) {
@@ -141,6 +143,8 @@ export default class RoomController {
       this._cameraController.onObjectDragEnd();
       this._previousGlowMeshesNames = [];
     }
+
+    this._cameraController.onPointerUp();
   }
 
   onPointerLeave() {

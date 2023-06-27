@@ -14,7 +14,6 @@ import Loader from './loader';
 import Scene3DDebugMenu from './helpers/gui-helper/scene-3d-debug-menu';
 import { CAMERA_CONFIG } from '../scene/room/camera-controller/data/camera-config';
 import MONITOR_SCREEN_SCENE_CONFIG from './configs/monitor-screen-scene-config';
-import { DEPLOYMENT_CONFIG } from './configs/deployment-config';
 import DEBUG_CONFIG from './configs/debug-config';
 import Materials from './materials';
 import WebGL from 'three/addons/capabilities/WebGL.js';
@@ -119,11 +118,6 @@ export default class BaseScene {
   }
 
   _checkDeploymentConfig() {
-    if (DEPLOYMENT_CONFIG.production) {
-      DEBUG_CONFIG.fpsMeter = false;
-      SCENE_CONFIG.outlinePass.enabled = true;
-    }
-
     if (CAMERA_CONFIG.theatreJs.studioEnabled) {
       DEBUG_CONFIG.fpsMeter = false;
       SCENE_CONFIG.outlinePass.enabled = false;

@@ -13,6 +13,7 @@ import SoundHelper from '../../shared-objects/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+import SCENE_CONFIG from '../../../../core/configs/scene-config';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -71,7 +72,7 @@ export default class Keyboard extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver) {
+    if (this._isPointerOver || SCENE_CONFIG.isMobile) {
       return;
     }
 

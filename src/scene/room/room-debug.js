@@ -250,7 +250,7 @@ export default class RoomDebug {
 
   _initActiveRoomObjectsFolder() {
     const roomObjectsFolder = GUIHelper.getGui().addFolder({
-      title: 'Active room objects',
+      title: 'Active objects',
       expanded: DEBUG_MENU_START_STATE.ActiveRoomObjects,
     });
 

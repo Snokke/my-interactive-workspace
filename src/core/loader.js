@@ -147,7 +147,7 @@ const sounds = [
 const loadingPercentElement = document.querySelector('.loading-percent');
 let progressRatio = 0;
 const blackAssetsProgressPart = 0;
-let isSoundsLoaded = false;
+let isSoundsLoaded = false; // eslint-disable-line no-unused-vars
 
 export default class Loader extends GameObject {
   constructor() {
@@ -180,11 +180,11 @@ export default class Loader extends GameObject {
     this._blackManager.loadQueue();
   }
 
-  _onBlackAssetsProgress(item, progress) {
-    progressRatio = progress;
+  _onBlackAssetsProgress(item, progress) { // eslint-disable-line no-unused-vars
+    // progressRatio = progress;
 
-    const percent = Math.floor(progressRatio * 100);
-    loadingPercentElement.innerHTML = `${percent}%`;
+    // const percent = Math.floor(progressRatio * 100);
+    // loadingPercentElement.innerHTML = `${percent}%`;
   }
 
   _onBlackAssetsLoaded() {
@@ -213,12 +213,13 @@ export default class Loader extends GameObject {
 
   _onThreeJSAssetsLoaded() {
     setTimeout(() => {
+      loadingPercentElement.innerHTML = `100%`;
       loadingPercentElement.classList.add('ended');
 
       setTimeout(() => {
         loadingPercentElement.style.display = 'none';
       }, 300);
-    }, 300);
+    }, 450);
 
 
     setTimeout(() => {
@@ -232,7 +233,7 @@ export default class Loader extends GameObject {
   }
 
   _onThreeJSAssetsProgress(itemUrl, itemsLoaded, itemsTotal) {
-    progressRatio = Math.max(blackAssetsProgressPart + (itemsLoaded / itemsTotal) * 0.5, progressRatio);
+    progressRatio = Math.min(blackAssetsProgressPart + (itemsLoaded / itemsTotal), 0.98);
 
     const percent = Math.floor(progressRatio * 100);
     loadingPercentElement.innerHTML = `${percent}%`;

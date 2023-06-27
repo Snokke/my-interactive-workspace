@@ -165,7 +165,8 @@ export default class Overlay extends THREE.Group {
 
       context.fillStyle = '#ffffff';
       context.beginPath();
-      context.roundRect(x - width * 0.5, y - height * 0.5, width, height, 40);
+
+      this._roundRect(context, x - width * 0.5, y - height * 0.5, width, height, 40, true, false);
       context.fill();
 
       context.font = '45px Arial';
@@ -276,5 +277,33 @@ export default class Overlay extends THREE.Group {
     const context = this._bitmap.getContext('2d');
     context.textAlign = 'center';
     context.textBaseline = 'middle';
+  }
+
+  _roundRect(ctx, x, y, width, height, radius = 5, fill = false, stroke = true) {
+    if (typeof radius === 'number') {
+      radius = { tl: radius, tr: radius, br: radius, bl: radius };
+    } else {
+      radius = { ...{ tl: 0, tr: 0, br: 0, bl: 0 }, ...radius };
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(x + radius.tl, y);
+    ctx.lineTo(x + width - radius.tr, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    ctx.lineTo(x + width, y + height - radius.br);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    ctx.lineTo(x + radius.bl, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    ctx.lineTo(x, y + radius.tl);
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    ctx.closePath();
+
+    if (fill) {
+      ctx.fill();
+    }
+
+    if (stroke) {
+      ctx.stroke();
+    }
   }
 }

@@ -13,6 +13,7 @@ import LaptopParts from './laptop-parts';
 import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
+import SCENE_CONFIG from '../../../../core/configs/scene-config';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -57,6 +58,10 @@ export default class Laptop extends RoomObjectAbstract {
       isObjectDraggable = true;
       this._standInteract(intersect);
       Black.engine.containerElement.style.cursor = 'grabbing';
+
+      if (SCENE_CONFIG.isMobile) {
+        this._helpArrows.show();
+      }
     }
 
     if (onPointerDownClick === false) {
@@ -121,7 +126,7 @@ export default class Laptop extends RoomObjectAbstract {
   }
 
   onPointerOver(intersect) {
-    if (this._isPointerOver) {
+    if (this._isPointerOver || SCENE_CONFIG.isMobile) {
       return;
     }
 
@@ -141,6 +146,10 @@ export default class Laptop extends RoomObjectAbstract {
 
   onPointerUp() {
     Black.engine.containerElement.style.cursor = 'grab';
+
+    if (SCENE_CONFIG.isMobile) {
+      this._helpArrows.hide();
+    }
   }
 
   onPointerOut() {
