@@ -19,8 +19,9 @@ import Materials from './materials';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import { GLOBAL_LIGHT_CONFIG } from './configs/global-light-config';
 import isMobile from 'ismobilejs';
+import { THEATRE_JS_CONFIG } from '../scene/room/camera-controller/theatre-js/data/theatre-js-config';
 
-if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+if (THEATRE_JS_CONFIG.studioEnabled) {
   import('@theatre/studio').then((module) => {
     module.default.initialize();
   });
@@ -118,13 +119,13 @@ export default class BaseScene {
   }
 
   _checkDeploymentConfig() {
-    if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+    if (THEATRE_JS_CONFIG.studioEnabled) {
       DEBUG_CONFIG.fpsMeter = false;
       SCENE_CONFIG.outlinePass.enabled = false;
       SCENE_CONFIG.fxaaPass = false;
       CAMERA_CONFIG.far = 500;
 
-      if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+      if (THEATRE_JS_CONFIG.studioEnabled) {
         this._isSecondaryCameraActive = true;
       }
     }
@@ -188,7 +189,7 @@ export default class BaseScene {
     const camera = this._camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fov, this._windowSizes.width / this._windowSizes.height, CAMERA_CONFIG.near, CAMERA_CONFIG.far);
     this._scene.add(camera);
 
-    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+    if (THEATRE_JS_CONFIG.studioEnabled) {
       const helper = new THREE.CameraHelper(camera);
       this._scene.add(helper);
 
@@ -225,7 +226,7 @@ export default class BaseScene {
     this._camera.aspect = this._windowSizes.width / this._windowSizes.height;
     this._camera.updateProjectionMatrix();
 
-    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+    if (THEATRE_JS_CONFIG.studioEnabled) {
       this._reserveCamera.aspect = this._windowSizes.width / this._windowSizes.height;
       this._reserveCamera.updateProjectionMatrix();
     }
@@ -233,7 +234,7 @@ export default class BaseScene {
     this._renderer.setSize(this._windowSizes.width, this._windowSizes.height);
     this._renderer.setPixelRatio(pixelRatio);
 
-    if (this._effectComposer)  {
+    if (this._effectComposer) {
       this._effectComposer.setSize(this._windowSizes.width, this._windowSizes.height);
       this._effectComposer.setPixelRatio(pixelRatio);
     }
@@ -276,7 +277,7 @@ export default class BaseScene {
       this._effectComposer = new EffectComposer(this._renderer);
     }
 
-    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
+    const camera = THEATRE_JS_CONFIG.studioEnabled ? this._reserveCamera : this._camera;
     const renderPass = this._renderPass = new RenderPass(this._scene, camera);
     this._effectComposer.addPass(renderPass);
   }
@@ -315,13 +316,13 @@ export default class BaseScene {
   }
 
   _initAudioListener() {
-    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
+    const camera = THEATRE_JS_CONFIG.studioEnabled ? this._reserveCamera : this._camera;
     const audioListener = this._audioListener = new THREE.AudioListener();
     camera.add(audioListener);
   }
 
   _initScene3DDebugMenu() {
-    const camera = CAMERA_CONFIG.theatreJs.useReserveCamera ? this._reserveCamera : this._camera;
+    const camera = THEATRE_JS_CONFIG.studioEnabled ? this._reserveCamera : this._camera;
     this._scene3DDebugMenu = new Scene3DDebugMenu(this._scene, camera, this._renderer);
     this._orbitControls = this._scene3DDebugMenu.getOrbitControls();
   }
@@ -365,7 +366,7 @@ export default class BaseScene {
         }
 
         if (SCENE_CONFIG.isMobile || DEBUG_CONFIG.rendererStats) {
-          this._renderer.setRenderTarget( null );
+          this._renderer.setRenderTarget(null);
           this._renderer.clear();
           this._renderer.render(this._scene, this._camera);
         } else {

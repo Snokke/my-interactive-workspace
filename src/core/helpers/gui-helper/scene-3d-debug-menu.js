@@ -5,8 +5,9 @@ import RendererStats from 'three-webgl-stats';
 import Stats from 'three/addons/libs/stats.module.js';
 import GUIHelper from "./gui-helper";
 import { CAMERA_FOCUS_OBJECT_TYPE } from "../../../scene/room/camera-controller/data/camera-data";
-import { CAMERA_CONFIG, CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";
+import { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";
 import { OrbitControls } from "../../OrbitControls";
+import { THEATRE_JS_CONFIG } from "../../../scene/room/camera-controller/theatre-js/data/theatre-js-config";
 
 export default class Scene3DDebugMenu {
   constructor(scene, camera, renderer) {
@@ -114,7 +115,7 @@ export default class Scene3DDebugMenu {
       const lookAt = CAMERA_FOCUS_POSITION_CONFIG[cameraFocusType].focus.lookAt;
       orbitControls.target.set(lookAt.x, lookAt.y, lookAt.z);
 
-      if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+      if (THEATRE_JS_CONFIG.studioEnabled) {
         const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[cameraFocusType];
         this._camera.position.copy(focusConfig.focus.position)
         this._camera.lookAt(focusConfig.focus.lookAt.x, focusConfig.focus.lookAt.y, focusConfig.focus.lookAt.z);

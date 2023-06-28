@@ -11,6 +11,7 @@ import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
 import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from './data/global-room-objects-enabled-config';
 import SCENE_CONFIG from '../../core/configs/scene-config';
+import { THEATRE_JS_CONFIG } from './camera-controller/theatre-js/data/theatre-js-config';
 
 export default class RoomController {
   constructor(data) {
@@ -318,7 +319,7 @@ export default class RoomController {
       }
     }
 
-    if (CAMERA_CONFIG.theatreJs.useReserveCamera) {
+    if (THEATRE_JS_CONFIG.studioEnabled) {
       this._isReserveCameraActive = true;
       this._disableAllObjects();
     }
@@ -427,13 +428,16 @@ export default class RoomController {
     this._roomDebug.events.on('onSwitchToReserveCamera', () => this._onSwitchToReserveCamera());
     this._roomDebug.events.on('highlightAllActiveObjects', () => this._highlightAllActiveObjects());
     this._roomDebug.events.on('allObjectsInteraction', () => this._allObjectsInteraction());
+    this._roomDebug.events.on('onShowIntro', () => this._onDebugShowIntro());
   }
 
   _initCameraControllerSignals() {
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
+    this._cameraController.events.on('onRoomFocused', () => this._onRoomFocused());
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
     this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
+    this._cameraController.events.on('onIntroFinished', () => this._onIntroFinished());
   }
 
   _initOtherSignals() {
@@ -536,6 +540,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].hideCloseFocusIcon();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].enableRealKeyboard();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Monitor);
+    this._roomDebug.disableIntroButton();
   }
 
   _onKeyboardFocus() {
@@ -546,6 +551,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].enableRealKeyboard();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Keyboard);
+    this._roomDebug.disableIntroButton();
   }
 
   _onRoomFocus() {
@@ -557,6 +563,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].disableRealKeyboard();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
+    this._roomDebug.disableIntroButton();
   }
 
   _onExitFocusMode() {
@@ -568,6 +575,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].disableRealKeyboard();
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
+    this._roomDebug.enableIntroButton();
   }
 
   _onSwitchToReserveCamera() {
@@ -588,6 +596,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseInactive();
     this._roomDebug.disableMonitorFocusButton();
     this._roomDebug.disableKeyboardFocusButton();
+    this._roomDebug.disableIntroButton();
   }
 
   _enableFocusObjects() {
@@ -596,6 +605,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Keyboard].setBaseActive();
     this._roomDebug.enableMonitorFocusButton();
     this._roomDebug.enableKeyboardFocusButton();
+    this._roomDebug.enableIntroButton();
   }
 
   _onShowGame() {
@@ -741,6 +751,10 @@ export default class RoomController {
 
   _onObjectFocused(focusedObjectType) {
     this._roomActiveObject[focusedObjectType].showCloseFocusIcon();
+  }
+
+  _onRoomFocused() {
+    this._roomDebug.enableIntroButton();
   }
 
   _disableBaseOnKeyboardFocus() {
@@ -957,5 +971,38 @@ export default class RoomController {
 
   _onHelpersChange() {
     this._lightsController.onHelpersChange();
+  }
+
+  _onDebugShowIntro() {
+    if (THEATRE_JS_CONFIG.isIntroActive) {
+      this._cameraController.stopIntro();
+    } else {
+      this._showIntro();
+    }
+  }
+
+  _showIntro() {
+    THEATRE_JS_CONFIG.isIntroActive = true;
+
+    this._roomDebug.updateIntroButton();
+    this._roomDebug.disableMonitorFocusButton();
+    this._roomDebug.disableKeyboardFocusButton();
+    this._roomDebug.disableStartCameraPositionButton();
+
+    this._disableAllObjects();
+    this._cameraController.setNoControlsState();
+    this._cameraController.showIntro();
+  }
+
+  _onIntroFinished() {
+    THEATRE_JS_CONFIG.isIntroActive = false;
+
+    this._roomDebug.updateIntroButton();
+    this._roomDebug.enableMonitorFocusButton();
+    this._roomDebug.enableKeyboardFocusButton();
+    this._roomDebug.enableStartCameraPositionButton();
+
+    this._enableAllObjects();
+    this._cameraController.setOrbitState();
   }
 }

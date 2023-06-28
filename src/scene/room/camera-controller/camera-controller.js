@@ -5,7 +5,7 @@ import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera
 import { MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
 import { ROOM_OBJECT_TYPE } from '../data/room-config';
-import TheatreJS from './theatrejs';
+import TheatreJS from './theatre-js/theatre-js';
 import SCENE_CONFIG from '../../../core/configs/scene-config';
 
 export default class CameraController extends THREE.Group {
@@ -104,7 +104,7 @@ export default class CameraController extends THREE.Group {
     }
   }
 
-  enableOrbitControls() {
+  _enableOrbitControls() {
     if (this._orbitControls) {
       this._orbitControls.enabled = true;
       ORBIT_CONTROLS_MODE_CONFIG.enabled = true;
@@ -138,7 +138,7 @@ export default class CameraController extends THREE.Group {
 
   onObjectDragEnd() {
     if (this._cameraMode === CAMERA_MODE.OrbitControls) {
-      this.enableOrbitControls();
+      this._enableOrbitControls();
     }
   }
 
@@ -177,7 +177,7 @@ export default class CameraController extends THREE.Group {
     this._rotationTween.onComplete(() => {
       if (focusConfig.enableOrbitControlsOnComplete) {
         this._orbitControls.target.set(focusLookAt.x, focusLookAt.y, focusLookAt.z);
-        this.enableOrbitControls();
+        this._enableOrbitControls();
         this._cameraMode = CAMERA_MODE.OrbitControls;
       }
 
@@ -193,6 +193,10 @@ export default class CameraController extends THREE.Group {
         this.events.post('onObjectFocused', focusObjectType);
 
         this.onPointerMove(this._currentPointerPosition.x, this._currentPointerPosition.y);
+      }
+
+      if (focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Room) {
+        this.events.post('onRoomFocused');
       }
 
       CAMERA_CONFIG.mode = this._cameraMode;
@@ -224,7 +228,7 @@ export default class CameraController extends THREE.Group {
     this._staticModeObject = null;
     this._staticModeRoomObjectType = null;
 
-    this.enableOrbitControls();
+    this._enableOrbitControls();
   }
 
   setNoControlsState() {
@@ -265,6 +269,14 @@ export default class CameraController extends THREE.Group {
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Book) {
       this.events.post('onBookHide');
     }
+  }
+
+  showIntro() {
+    this._theatreJs.showIntro();
+  }
+
+  stopIntro() {
+    this._theatreJs.stopIntro();
   }
 
   _updateFocusedMode(dt) {
@@ -412,6 +424,7 @@ export default class CameraController extends THREE.Group {
     this._initStaticModeBackPlane();
     this._setCameraStartPosition();
     this._setParametersForMobile();
+    this._intiSignals();
   }
 
   _initTheatreJS() {
@@ -447,5 +460,11 @@ export default class CameraController extends THREE.Group {
       STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.defaultDistance = 4;
       STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.maxDistance = 4;
     }
+  }
+
+  _intiSignals() {
+    this._theatreJs.events.on('onIntroFinished', () => {
+      this.events.post('onIntroFinished');
+    });
   }
 }

@@ -2,10 +2,10 @@ import { ROOM_OBJECT_TYPE } from "../../scene/room/data/room-config";
 
 const DEBUG_MENU_START_STATE = {
   ControlPanel: true,
-    Settings: false,
+    Settings: true,
       General: false,
       Sound: false,
-      Camera: false,
+      Camera: true,
     ActiveRoomObjects: false,
       [ROOM_OBJECT_TYPE.Walls]: false,
       [ROOM_OBJECT_TYPE.AirConditioner]: false,

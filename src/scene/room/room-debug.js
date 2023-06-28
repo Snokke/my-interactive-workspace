@@ -7,6 +7,7 @@ import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { CAMERA_MODE } from './camera-controller/data/camera-data';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
 import SCENE_CONFIG from "../../core/configs/scene-config";
+import { THEATRE_JS_CONFIG } from "./camera-controller/theatre-js/data/theatre-js-config";
 
 export default class RoomDebug {
   constructor(scene) {
@@ -25,6 +26,7 @@ export default class RoomDebug {
     this._keyboardFocusButton = null;
     this._startCameraPositionButton = null;
     this._highlightActiveObjectsButton = null;
+    this._introButton = null;
 
     this._isActiveObjectsHighlighted = false;
 
@@ -101,6 +103,19 @@ export default class RoomDebug {
     this.updateHighlightActiveObjectsButton();
   }
 
+  updateIntroButton() {
+    const title = THEATRE_JS_CONFIG.isIntroActive ? 'Stop intro' : 'Show intro';
+    this._introButton.title = title;
+  }
+
+  enableIntroButton() {
+    this._introButton.disabled = false;
+  }
+
+  disableIntroButton() {
+    this._introButton.disabled = true;
+  }
+
   _init() {
     this._initTheatreJsDebug();
     this._initSettingsFolder();
@@ -112,7 +127,7 @@ export default class RoomDebug {
   }
 
   _initTheatreJsDebug() {
-    if (CAMERA_CONFIG.theatreJs.studioEnabled) {
+    if (THEATRE_JS_CONFIG.studioEnabled) {
       this._reserveCameraButton = GUIHelper.getGui().addButton({
         title: 'Switch to reserve camera',
       }).on('click', () => {
@@ -223,9 +238,17 @@ export default class RoomDebug {
     cameraFolder.addSeparator();
 
     this._startCameraPositionButton = cameraFolder.addButton({
-      title: 'Start camera position',
+      title: 'Set start position',
     }).on('click', () => {
       this.events.post('onRoomFocus');
+    });
+
+    cameraFolder.addSeparator();
+
+    this._introButton = cameraFolder.addButton({
+      title: 'Show intro',
+    }).on('click', () => {
+      this.events.post('onShowIntro');
     });
   }
 
