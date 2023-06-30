@@ -5,7 +5,6 @@ import { CAMERA_FOCUS_OBJECT_TYPE, CAMERA_MODE, FOCUS_TYPE } from './data/camera
 import { MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from '../../monitor-screen-scene/transfer-it/configs/transfer-it-debug-config';
 import { ROOM_OBJECT_TYPE } from '../data/room-config';
-import TheatreJS from './theatre-js/theatre-js';
 import SCENE_CONFIG from '../../../core/configs/scene-config';
 
 export default class CameraController extends THREE.Group {
@@ -271,14 +270,6 @@ export default class CameraController extends THREE.Group {
     }
   }
 
-  showIntro() {
-    this._theatreJs.showIntro();
-  }
-
-  stopIntro() {
-    this._theatreJs.stopIntro();
-  }
-
   _updateFocusedMode(dt) {
     if (this._cameraMode === CAMERA_MODE.Focused) {
       if (TRANSFER_IT_DEBUG_CONFIG.orbitControls && CAMERA_CONFIG.focusObjectType === CAMERA_FOCUS_OBJECT_TYPE.Monitor) {
@@ -420,16 +411,9 @@ export default class CameraController extends THREE.Group {
   }
 
   _init() {
-    this._initTheatreJS();
     this._initStaticModeBackPlane();
     this._setCameraStartPosition();
     this._setParametersForMobile();
-    this._intiSignals();
-  }
-
-  _initTheatreJS() {
-    const theatreJs = this._theatreJs = new TheatreJS(this._camera);
-    this.add(theatreJs);
   }
 
   _initStaticModeBackPlane() {
@@ -460,11 +444,5 @@ export default class CameraController extends THREE.Group {
       STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.defaultDistance = 4;
       STATIC_MODE_CAMERA_CONFIG[ROOM_OBJECT_TYPE.Book].zoom.maxDistance = 4;
     }
-  }
-
-  _intiSignals() {
-    this._theatreJs.events.on('onIntroFinished', () => {
-      this.events.post('onIntroFinished');
-    });
   }
 }

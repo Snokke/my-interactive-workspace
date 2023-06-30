@@ -19,7 +19,7 @@ import Materials from './materials';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import { GLOBAL_LIGHT_CONFIG } from './configs/global-light-config';
 import isMobile from 'ismobilejs';
-import { THEATRE_JS_CONFIG } from '../scene/room/camera-controller/theatre-js/data/theatre-js-config';
+import { THEATRE_JS_CONFIG } from '../scene/room/intro/theatre-js/data/theatre-js-config';
 
 if (THEATRE_JS_CONFIG.studioEnabled) {
   import('@theatre/studio').then((module) => {

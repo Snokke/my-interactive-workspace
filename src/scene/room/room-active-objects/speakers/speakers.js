@@ -81,6 +81,16 @@ export default class Speakers extends RoomObjectAbstract {
     this._music.stop();
   }
 
+  stopMusic() {
+    setTimeout(() => {
+      this._audioContextCurrentTime = this._music.context.currentTime;
+      this._audioCurrentTime = 0;
+      this._audioPrevTime = 0;
+
+      this._music.stop();
+    }, 10);
+  }
+
   onWindowOpened() {
     const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
     this._music.setDirectionalCone(soundConfig.coneInnerAngle, soundConfig.coneOuterAngle, SOUNDS_CONFIG.openedWindowOuterGain);
@@ -144,6 +154,14 @@ export default class Speakers extends RoomObjectAbstract {
   setGameInactive() {
     this._rightSoundParticles.setGameInactive();
     this._leftSoundParticles.setGameInactive();
+  }
+
+  resetToInitState() {
+    if (this._powerStatus === SPEAKERS_POWER_STATUS.Off) {
+      this._setPowerOn();
+    }
+
+    this.stopMusic();
   }
 
   _setPowerOn() {

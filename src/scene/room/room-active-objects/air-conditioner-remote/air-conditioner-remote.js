@@ -9,8 +9,8 @@ import { AIR_CONDITIONER_REMOTE_CONFIG } from './data/air-conditioner-remote-con
 import { AIR_CONDITIONER_CONFIG } from '../air-conditioner/data/air-conditioner-config';
 import { AIR_CONDITIONER_STATE } from '../air-conditioner/data/air-conditioner-data';
 import Loader from '../../../../core/loader';
-import vertexShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
-import fragmentShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
+import vertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import fragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 
 export default class AirConditionerRemote extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -111,6 +111,12 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
     return [mesh];
   }
 
+  setTemperature(temperature) {
+    AIR_CONDITIONER_CONFIG.temperature.current = temperature;
+    this.updateTemperatureScreen();
+    this.events.post('onTemperatureChange');
+  }
+
   increaseTemperature() {
     AIR_CONDITIONER_CONFIG.temperature.current += 1;
 
@@ -164,6 +170,10 @@ export default class AirConditionerRemote extends RoomObjectAbstract {
   onLightPercentChange(lightPercent) {
     const baseJoined = this._parts[AIR_CONDITIONER_REMOTE_PART_TYPE.BaseJoined];
     baseJoined.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+  }
+
+  resetToInitState() {
+    this.setTemperature(AIR_CONDITIONER_CONFIG.temperature.init);
   }
 
   _buttonClickAnimation(buttonType) {

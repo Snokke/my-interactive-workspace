@@ -1,7 +1,7 @@
 import RoomObjectDebugAbstract from "../room-object-debug.abstract";
-import { KEYS_BACKLIGHT_CONFIG } from "./keys-backlight/keys-backlight-config";
+import { KEYS_BACKLIGHT_CONFIG } from "./keys-backlight/data/keys-backlight-config";
 import { KEYBOARD_CONFIG } from "./data/keyboard-config";
-import { KEYS_BACKLIGHT_TYPE } from "./keys-backlight/keys-backlight-data";
+import { KEYS_BACKLIGHT_TYPE } from "./keys-backlight/data/keys-backlight-data";
 
 export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
   constructor(roomObjectType) {
@@ -51,8 +51,8 @@ export default class KeyboardDebugMenu extends RoomObjectDebugAbstract {
       options: [
         { text: 'From left to right', value: KEYS_BACKLIGHT_TYPE.FromLeftToRight },
         { text: 'From top to bottom', value: KEYS_BACKLIGHT_TYPE.FromTopToBottom },
-        { text: 'Same color', value: KEYS_BACKLIGHT_TYPE.SameColor },
         { text: 'From center to sides', value: KEYS_BACKLIGHT_TYPE.FromCenterToSides },
+        { text: 'Same color', value: KEYS_BACKLIGHT_TYPE.SameColor },
         { text: 'Random colors', value: KEYS_BACKLIGHT_TYPE.RandomColors },
         { text: 'From first key to last key', value: KEYS_BACKLIGHT_TYPE.FromFirstToLastKey },
         { text: 'Pressed key', value: KEYS_BACKLIGHT_TYPE.PressKey },

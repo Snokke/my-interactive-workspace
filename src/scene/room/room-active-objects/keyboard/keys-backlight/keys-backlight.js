@@ -3,10 +3,10 @@ import { MessageDispatcher } from 'black-engine';
 import vertexShader from './keys-backlight-shaders/keys-backlight-vertex.glsl';
 import fragmentShader from './keys-backlight-shaders/keys-backlight-fragment.glsl';
 import { KEYBOARD_CONFIG } from '../data/keyboard-config';
-import { KEYS_BACKLIGHT_TYPE_CONFIG, KEYS_BACKLIGHT_CONFIG } from './keys-backlight-config';
+import { KEYS_BACKLIGHT_TYPE_CONFIG, KEYS_BACKLIGHT_CONFIG } from './data/keys-backlight-config';
 import { Vector2 } from 'three';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from '../data/keys-config';
-import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight-data';
+import { KEYS_BACKLIGHT_TYPE, KEYS_BACKLIGHT_TYPE_ORDER } from './data/keys-backlight-data';
 import Delayed from '../../../../../core/helpers/delayed-call';
 import { from0To1Tween, from0To1YoyoTween, getClosestKeyByX, toZeroTween } from '../data/keys-helper';
 import { SCALE_ZERO } from '../../../data/room-config';
@@ -61,7 +61,7 @@ export default class KeysBacklight extends THREE.Group {
   }
 
   setBacklightType(type) {
-    this._updateBacklightType(type)
+    this._updateBacklightType(type);
 
     if (type !== KEYS_BACKLIGHT_TYPE.None) {
       this._startColorsFunctionByType[type]();

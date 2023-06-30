@@ -5,7 +5,7 @@ import TABLE_CONFIG from './data/table-config';
 import RoomObjectAbstract from '../room-object.abstract';
 import Delayed from '../../../../core/helpers/delayed-call';
 import Loader from '../../../../core/loader';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
 
@@ -63,6 +63,14 @@ export default class Table extends RoomObjectAbstract {
     const legs = this._parts[TABLE_PART_TYPE.Legs];
 
     return [handle, legs];
+  }
+
+  resetToInitState() {
+    if (this._currentTableState === TABLE_STATE.StandingMode) {
+      this._setTableState(TABLE_STATE.Moving);
+      this._startFromHandleMoveOut(this._parts[TABLE_PART_TYPE.Handle]);
+      this.events.post('onTableMoving');
+    }
   }
 
   _changeDirection(handle) {

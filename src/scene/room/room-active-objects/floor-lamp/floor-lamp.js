@@ -3,7 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import RoomObjectAbstract from '../room-object.abstract';
 import { FLOOR_LAMP_PART_TYPE, LIGHT_STATE } from './data/floor-lamp-data';
 import Loader from '../../../../core/loader';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
 import { FLOOR_LAMP_CONFIG } from './data/floor-lamp-config';
@@ -32,6 +32,13 @@ export default class FloorLamp extends RoomObjectAbstract {
 
   onAllObjectsInteraction() {
     this.onClick();
+  }
+
+  resetToInitState() {
+    if (FLOOR_LAMP_CONFIG.lightState === LIGHT_STATE.Off) {
+      this._playSound();
+      this._changeLightPercent(FLOOR_LAMP_CONFIG.lightState);
+    }
   }
 
   _changeLightPercent(lightState) {

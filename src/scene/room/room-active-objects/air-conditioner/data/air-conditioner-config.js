@@ -9,6 +9,7 @@ const AIR_CONDITIONER_CONFIG = {
   maxOpenAngle: 80,
   doorWidth: 2.7,
   temperature: {
+    init: 20,
     current: 20,
     min: 15,
     max: 23,

@@ -4,13 +4,13 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE } from '../../data/room-config';
 import { LAPTOP_MOUNT_PARTS, LAPTOP_PARTS, LAPTOP_PART_TYPE, LAPTOP_POSITION_STATE, LAPTOP_SCREEN_MUSIC_PARTS, LAPTOP_STATE, MUSIC_ORDER } from './data/laptop-data';
 import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from './data/laptop-config';
-import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
+import HelpArrows from '../../shared/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
-import vertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
-import fragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
+import vertexShader from '../../shared/sparkle-shaders/sparkle-vertex.glsl';
+import fragmentShader from '../../shared/sparkle-shaders/sparkle-fragment.glsl';
 import LaptopParts from './laptop-parts';
-import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
+import { SPARKLE_CONFIG } from '../../shared/sparkle-shaders/sparkle-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
 import SCENE_CONFIG from '../../../../core/configs/scene-config';
@@ -285,6 +285,19 @@ export default class Laptop extends RoomObjectAbstract {
 
   disableAllObjectsInteraction() {
     this._isAllObjectsInteractionEnabled = false;
+  }
+
+  resetToInitState() {
+    this._onDebugStopMusic();
+    this._currentMusicIndex = 0;
+
+    if ((LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Closed && LAPTOP_CONFIG.state === LAPTOP_STATE.Idle)
+      || (LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened && LAPTOP_CONFIG.state === LAPTOP_STATE.Moving)) {
+      this._laptopInteract();
+    }
+
+    LAPTOP_MOUNT_CONFIG.angle = LAPTOP_MOUNT_CONFIG.startAngle;
+    this._onMountAngleChanged();
   }
 
   _clearButtonsColor() {

@@ -7,7 +7,8 @@ import { CAMERA_CONFIG } from './camera-controller/data/camera-config';
 import { CAMERA_MODE } from './camera-controller/data/camera-data';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
 import SCENE_CONFIG from "../../core/configs/scene-config";
-import { THEATRE_JS_CONFIG } from "./camera-controller/theatre-js/data/theatre-js-config";
+import { THEATRE_JS_CONFIG } from "./intro/theatre-js/data/theatre-js-config";
+import { INTRO_CONFIG } from "./intro/intro-config";
 
 export default class RoomDebug {
   constructor(scene) {
@@ -27,6 +28,7 @@ export default class RoomDebug {
     this._startCameraPositionButton = null;
     this._highlightActiveObjectsButton = null;
     this._introButton = null;
+    this._introTimeController = null;
 
     this._isActiveObjectsHighlighted = false;
 
@@ -104,7 +106,7 @@ export default class RoomDebug {
   }
 
   updateIntroButton() {
-    const title = THEATRE_JS_CONFIG.isIntroActive ? 'Stop intro' : 'Show intro';
+    const title = INTRO_CONFIG.active ? 'Stop intro' : 'Show intro';
     this._introButton.title = title;
   }
 
@@ -116,12 +118,26 @@ export default class RoomDebug {
     this._introButton.disabled = true;
   }
 
+  updateIntroTime() {
+    this._introTimeController.refresh();
+  }
+
+  highlightAllActiveObjects() {
+    this.events.post('highlightAllActiveObjects');
+  }
+
+  onHighlightAllActiveObjects() {
+    this._isActiveObjectsHighlighted = !this._isActiveObjectsHighlighted;
+    this.updateHighlightActiveObjectsButton();
+  }
+
   _init() {
     this._initTheatreJsDebug();
     this._initSettingsFolder();
     this._initGeneralDebug();
     this._initSoundsDebug();
     this._initCameraDebug();
+    this._initIntroDebug();
     this._initActiveObjectsShowFolder();
     this._initActiveRoomObjectsFolder();
   }
@@ -242,13 +258,34 @@ export default class RoomDebug {
     }).on('click', () => {
       this.events.post('onRoomFocus');
     });
+  }
 
-    cameraFolder.addSeparator();
+  _initIntroDebug() {
+    const introFolder = this._roomFolder.addFolder({
+      title: 'Intro',
+      expanded: DEBUG_MENU_START_STATE.Intro,
+    });
 
-    this._introButton = cameraFolder.addButton({
+    this._introTimeController = introFolder.addInput(THEATRE_JS_CONFIG, 'sequencePosition', {
+      label: 'Time',
+      min: 0,
+      max: 30,
+      disabled: true,
+    });
+    this._introTimeController.customDisabled = true;
+
+    this._introButton = introFolder.addButton({
       title: 'Show intro',
     }).on('click', () => {
       this.events.post('onShowIntro');
+    });
+
+    introFolder.addSeparator();
+
+    introFolder.addInput(THEATRE_JS_CONFIG, 'rate', {
+      label: 'Rate',
+      min: 0.3,
+      max: 3,
     });
   }
 
@@ -261,7 +298,7 @@ export default class RoomDebug {
     this._highlightActiveObjectsButton = this._roomFolder.addButton({
       title: 'Highlight active objects',
     }).on('click', () => {
-      this._onHighlightAllActiveObjects();
+      this.highlightAllActiveObjects();
     });
 
     this._roomFolder.addButton({
@@ -280,11 +317,5 @@ export default class RoomDebug {
     roomObjectsFolder.addInput(ROOM_CONFIG, 'autoOpenActiveDebugFolder', {
       label: 'Auto open ↓',
     });
-  }
-
-  _onHighlightAllActiveObjects() {
-    this._isActiveObjectsHighlighted = !this._isActiveObjectsHighlighted;
-    this.updateHighlightActiveObjectsButton();
-    this.events.post('highlightAllActiveObjects');
   }
 }

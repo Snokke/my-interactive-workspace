@@ -9,11 +9,12 @@ import Loader from '../../../../core/loader';
 import { KEYS_CONFIG, KEYS_ID_BY_ROW } from './data/keys-config';
 import { KEYBOARD_CONFIG } from './data/keyboard-config';
 import { getClosestKeyByX } from './data/keys-helper';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
 import SCENE_CONFIG from '../../../../core/configs/scene-config';
+import { KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight/data/keys-backlight-data';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -54,7 +55,7 @@ export default class Keyboard extends RoomObjectAbstract {
     if (partType === KEYBOARD_PART_TYPE.Keys) {
       const keyId = intersect.instanceId;
       if (keyId !== 79) {
-        this._onKeyClick(keyId);
+        this.keyClick(keyId);
       }
     }
 
@@ -204,16 +205,26 @@ export default class Keyboard extends RoomObjectAbstract {
     this._onChangeRealKeyboardEnabled();
   }
 
-  _onKeyClick(keyId) {
-    this._onKeyPressDown(keyId);
+  setBacklightType(type) {
+    this._keysBacklight.setBacklightType(type);
+  }
+
+  keyClick(keyId, enableSound = true) {
+    this._onKeyPressDown(keyId, enableSound);
 
     this._keysDownTweens[keyId].onComplete(() => {
       this._onKeyPressUp(keyId);
     });
   }
 
-  _onKeyPressDown(keyId) {
-    this._playSound(keyId);
+  resetToInitState() {
+    this.setBacklightType(KEYS_BACKLIGHT_TYPE_ORDER[0]);
+  }
+
+  _onKeyPressDown(keyId, enableSound = true) {
+    if (enableSound) {
+      this._playSound(keyId);
+    }
 
     if (this._keysDownTweens[keyId] && this._keysDownTweens[keyId].isPlaying()) {
       this._keysDownTweens[keyId].stop();
@@ -806,7 +817,7 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     if (e.code === KEYS_CONFIG[33].code) {
-      this._onKeyClick(33);
+      this.keyClick(33);
       return;
     }
 

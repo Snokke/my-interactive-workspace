@@ -5,14 +5,14 @@ import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import Loader from '../../../../core/loader';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
-import vertexShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
-import fragmentShader from '../../shared-objects/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
+import vertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import fragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -117,6 +117,11 @@ export default class Locker extends RoomObjectAbstract {
       const time = this._caseMoveDistance[3] / LOCKER_CONFIG.caseMoveSpeed * 1000;
       Delayed.call(time, () => this._playCloseSound(0));
     }
+  }
+
+  pushAllCasesByType(animationType) {
+    this._setAnimationType(animationType);
+    this.pushAllCases();
   }
 
   pushCase(caseId) {
@@ -232,6 +237,19 @@ export default class Locker extends RoomObjectAbstract {
   onLightPercentChange(lightPercent) {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     workplacePhoto.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+  }
+
+  resetToInitState() {
+    const isAllCasesClosed = this._casesState.every(state => state === LOCKER_CASE_STATE.Closed);
+
+    if (!isAllCasesClosed) {
+      for (let i = 0; i < LOCKER_CONFIG.casesCount; i += 1) {
+        this._moveCase(i, LOCKER_CASE_MOVE_DIRECTION.In, 0, false);
+      }
+
+      const time = this._caseMoveDistance[3] / LOCKER_CONFIG.caseMoveSpeed * 1000;
+      Delayed.call(time, () => this._playCloseSound(0));
+    }
   }
 
   _onWorkplacePhotoClick() {
@@ -471,7 +489,10 @@ export default class Locker extends RoomObjectAbstract {
         workplacePhoto.material.uniforms.uMixTexture03Percent.value = mixTexturesObject.value;
       })
       .start();
+  }
 
+  _setAnimationType(allCasesAnimation) {
+    this._currentAnimationType = allCasesAnimation;
   }
 
   _init() {
@@ -616,7 +637,7 @@ export default class Locker extends RoomObjectAbstract {
   _initSignals() {
     this._debugMenu.events.on('pushCase', (msg, caseId) => this.pushCase(caseId));
     this._debugMenu.events.on('pushAllCases', () => this.pushAllCases());
-    this._debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._currentAnimationType = allCasesAnimation);
+    this._debugMenu.events.on('changeAllCasesAnimation', (msg, allCasesAnimation) => this._setAnimationType(allCasesAnimation));
     this._debugMenu.events.on('changeCaseMoveDistance', () => this._setDefaultMoveDistance());
   }
 }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import Loader from './loader';
-import vertexShader from '../scene/room/shared-objects/mix-textures-shaders/mix-textures-vertex.glsl';
-import fragmentShader from '../scene/room/shared-objects/mix-textures-shaders/mix-textures-fragment.glsl';
+import vertexShader from '../scene/room/shared/mix-textures-shaders/mix-textures-vertex.glsl';
+import fragmentShader from '../scene/room/shared/mix-textures-shaders/mix-textures-fragment.glsl';
 
 export default class Materials {
   constructor() {

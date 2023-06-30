@@ -5,13 +5,13 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { BORDER_TYPE, CHAIR_BOUNDING_BOX_TYPE, CHAIR_MOVEMENT_STATE, CHAIR_PART_TYPE, CHAIR_ROTATION_STATE, LEGS_PARTS, MOVING_AREA_TYPE, SEAT_ROTATION_DIRECTION } from './data/chair-data';
 import { CHAIR_CONFIG } from './data/chair-config';
 import Loader from '../../../../core/loader';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import ChairMovingAreaHelper from './helpers/chair-moving-area-helper';
 import { checkBottomBorderBounce, checkLeftBorderBounce, checkRightBorderBounce, checkTopBorderBounce, getChairBoundingBox, getMovingArea, getWheelsParts } from './helpers/chair-helpers';
-import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
-import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import { isVectorXZEqual, randomBetween } from '../../shared-objects/helpers';
+import HelpArrows from '../../shared/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
+import { isVectorXZEqual, randomBetween } from '../../shared/helpers';
 import ChairSeatHelper from './helpers/chair-seat-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
@@ -69,7 +69,7 @@ export default class Chair extends RoomObjectAbstract {
     let isObjectDraggable = false;
 
     if (onPointerDownClick === false && partType === CHAIR_PART_TYPE.Seat) {
-      this._rotateSeat();
+      this.rotateSeat();
     }
 
     if (partType === CHAIR_PART_TYPE.Legs) {
@@ -91,7 +91,7 @@ export default class Chair extends RoomObjectAbstract {
       const randomRotateCount = Math.round(randomBetween(1, 2));
 
       for (let i = 0; i < randomRotateCount; i++) {
-        this._rotateSeat();
+        this.rotateSeat();
       }
     }
 
@@ -188,7 +188,11 @@ export default class Chair extends RoomObjectAbstract {
     }
   }
 
-  _rotateSeat() {
+  resetToInitState() {
+    this.moveToStartPosition();
+  }
+
+  rotateSeat() {
     this._stopTweens();
 
     if (CHAIR_CONFIG.seatRotation.speed === 0) {
@@ -754,7 +758,7 @@ export default class Chair extends RoomObjectAbstract {
   }
 
   _initSignals() {
-    this._debugMenu.events.on('rotate', () => this._rotateSeat());
+    this._debugMenu.events.on('rotate', () => this.rotateSeat());
     this._debugMenu.events.on('moveChairToStartPosition', () => this.moveToStartPosition());
     this._debugMenu.events.on('onShowSeatHelper', () => this._onShowSeatHelper());
     this._debugMenu.events.on('onShowMovingArea', () => this._onShowMovingArea());

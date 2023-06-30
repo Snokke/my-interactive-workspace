@@ -3,9 +3,9 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import RoomObjectAbstract from '../room-object.abstract';
 import { WALLS_PART_TYPE, WINDOW_HANDLE_STATE, WINDOW_OPEN_TYPE, WINDOW_OPEN_TYPE_BOTH, WINDOW_STATE } from './data/walls-data';
 import { WINDOW_CONFIG } from './data/window-config';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import Loader from '../../../../core/loader';
-import { rotateAroundPoint } from '../../shared-objects/helpers';
+import { rotateAroundPoint } from '../../shared/helpers';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import Materials from '../../../../core/materials';
 import { FLOOR_SHADOW_CONFIG } from './data/floor-shadow-config';
@@ -43,27 +43,12 @@ export default class Walls extends RoomObjectAbstract {
       return;
     }
 
-    this._stopTweens();
-    this._debugMenu.disableActiveOpenType();
-    this.events.post('onWindowMoving');
+    this._changeWindowState();
+  }
 
-    if (this._windowState === WINDOW_STATE.Opening || this._windowState === WINDOW_STATE.Closing) {
-      this._updateWindowState();
-
-      if (this._windowHandleState === WINDOW_HANDLE_STATE.Rotating) {
-        this._startFromHandle();
-      } else {
-        this._startFromWindow();
-      }
-
-      return;
-    }
-
-    if (this._windowState === WINDOW_STATE.Opened) {
-      this._startFromWindow();
-    } else {
-      this._startFromHandle();
-    }
+  openWindow(type) {
+    this._windowOpenType = type;
+    this._changeWindowState();
   }
 
   onAllObjectsInteraction() {
@@ -113,6 +98,37 @@ export default class Walls extends RoomObjectAbstract {
     if (percent >= 0.5) {
       const coeff = (percent - 0.5) / 0.5;
       this._shadowPlane.material.opacity = coeff * FLOOR_SHADOW_CONFIG.lampOnShadowOpacity;
+    }
+  }
+
+  resetToInitState() {
+    if (this._windowState === WINDOW_STATE.Opened
+      || (this._previousWindowState === WINDOW_STATE.Closed && this._windowState === WINDOW_STATE.Opening)) {
+      this._changeWindowState();
+    }
+  }
+
+  _changeWindowState() {
+    this._stopTweens();
+    this._debugMenu.disableActiveOpenType();
+    this.events.post('onWindowMoving');
+
+    if (this._windowState === WINDOW_STATE.Opening || this._windowState === WINDOW_STATE.Closing) {
+      this._updateWindowState();
+
+      if (this._windowHandleState === WINDOW_HANDLE_STATE.Rotating) {
+        this._startFromHandle();
+      } else {
+        this._startFromWindow();
+      }
+
+      return;
+    }
+
+    if (this._windowState === WINDOW_STATE.Opened) {
+      this._startFromWindow();
+    } else {
+      this._startFromHandle();
     }
   }
 

@@ -31,43 +31,7 @@ export default class AirConditioner extends RoomObjectAbstract {
       return;
     }
 
-    this.events.post('onDoorMoving');
-
-    const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
-
-    if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
-      this._snowflakeParticlesController.hide();
-      this._sound.stop();
-      this.events.post('onStopSnowing');
-    }
-
-    if (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving) {
-      this._updateAirConditionerDoorPositionType();
-    }
-
-    this._updatePowerState();
-
-    AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Moving;
-    this._stopAirConditionerTween();
-
-    const maxAngle = AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened ? 0 : AIR_CONDITIONER_CONFIG.maxOpenAngle;
-
-    const remainingRotationAngle = maxAngle - (door.rotation.z * THREE.MathUtils.RAD2DEG);
-    const time = Math.abs(remainingRotationAngle) / AIR_CONDITIONER_CONFIG.rotationSpeed * 100;
-
-    this._airConditionerTween = new TWEEN.Tween(door.rotation)
-      .to({ z: -maxAngle * THREE.MathUtils.DEG2RAD }, time)
-      .easing(TWEEN.Easing.Sinusoidal.Out)
-      .start()
-      .onUpdate(() => {
-        AIR_CONDITIONER_CONFIG.doorAngle = door.rotation.z * THREE.MathUtils.RAD2DEG;
-      })
-      .onComplete(() => {
-        this._onConditionerTweenComplete();
-      });
-
-    this._updateTemperatureVisibility();
-    this.events.post('onChangePowerState');
+    this._changeAirConditionerState();
   }
 
   onAllObjectsInteraction() {
@@ -119,6 +83,53 @@ export default class AirConditioner extends RoomObjectAbstract {
 
     const temperatureScreen = this._parts[AIR_CONDITIONER_PART_TYPE.TemperatureScreen];
     temperatureScreen.material.map.needsUpdate = true;
+  }
+
+  resetToInitState() {
+    if ((AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened && AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Idle)
+      || (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving && AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Closed)) {
+      this._changeAirConditionerState();
+    }
+  }
+
+  _changeAirConditionerState() {
+    this.events.post('onDoorMoving');
+
+    const door = this._parts[AIR_CONDITIONER_PART_TYPE.Door];
+
+    if (AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened) {
+      this._snowflakeParticlesController.hide();
+      this._sound.stop();
+      this.events.post('onStopSnowing');
+    }
+
+    if (AIR_CONDITIONER_CONFIG.doorState === AIR_CONDITIONER_DOOR_STATE.Moving) {
+      this._updateAirConditionerDoorPositionType();
+    }
+
+    this._updatePowerState();
+
+    AIR_CONDITIONER_CONFIG.doorState = AIR_CONDITIONER_DOOR_STATE.Moving;
+    this._stopAirConditionerTween();
+
+    const maxAngle = AIR_CONDITIONER_CONFIG.doorPositionType === AIR_CONDITIONER_DOOR_POSITION_STATE.Opened ? 0 : AIR_CONDITIONER_CONFIG.maxOpenAngle;
+
+    const remainingRotationAngle = maxAngle - (door.rotation.z * THREE.MathUtils.RAD2DEG);
+    const time = Math.abs(remainingRotationAngle) / AIR_CONDITIONER_CONFIG.rotationSpeed * 100;
+
+    this._airConditionerTween = new TWEEN.Tween(door.rotation)
+      .to({ z: -maxAngle * THREE.MathUtils.DEG2RAD }, time)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+      .onUpdate(() => {
+        AIR_CONDITIONER_CONFIG.doorAngle = door.rotation.z * THREE.MathUtils.RAD2DEG;
+      })
+      .onComplete(() => {
+        this._onConditionerTweenComplete();
+      });
+
+    this._updateTemperatureVisibility();
+    this.events.post('onChangePowerState');
   }
 
   _onConditionerTweenComplete() {

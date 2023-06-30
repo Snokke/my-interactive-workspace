@@ -7,7 +7,7 @@ import GUIHelper from "./gui-helper";
 import { CAMERA_FOCUS_OBJECT_TYPE } from "../../../scene/room/camera-controller/data/camera-data";
 import { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from "../../../scene/room/camera-controller/data/camera-config";
 import { OrbitControls } from "../../OrbitControls";
-import { THEATRE_JS_CONFIG } from "../../../scene/room/camera-controller/theatre-js/data/theatre-js-config";
+import { THEATRE_JS_CONFIG } from "../../../scene/room/intro/theatre-js/data/theatre-js-config";
 
 export default class Scene3DDebugMenu {
   constructor(scene, camera, renderer) {

@@ -2,8 +2,8 @@ const THEATRE_JS_CONFIG = {
   studioEnabled: false,
   projectName: 'intro',
   sheetName: 'Animated scene',
-  rate: 0.1,
-  isIntroActive: false,
+  rate: 1,
+  sequencePosition: 0,
 }
 
 export { THEATRE_JS_CONFIG };

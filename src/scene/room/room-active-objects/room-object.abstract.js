@@ -150,6 +150,8 @@ export default class RoomObjectAbstract extends THREE.Group {
     }
   }
 
+  resetToInitState() { }
+
   _initParts() {
     const partTypes = ROOM_OBJECT_CONFIG[this._roomObjectType].partTypes;
     const config = ROOM_OBJECT_CONFIG[this._roomObjectType].partsActiveConfig;

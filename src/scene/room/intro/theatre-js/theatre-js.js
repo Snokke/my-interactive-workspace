@@ -15,10 +15,23 @@ export default class TheatreJS extends THREE.Group {
     this._lookAtObject = null;
     this._introProject = null;
 
+    this._previousSequencePosition = 0;
+
     this._init();
   }
 
-  showIntro() {
+  update(dt) { // eslint-disable-line no-unused-vars
+    const sheet = this._introProject.sheet(THEATRE_JS_CONFIG.sheetName);
+
+    if (sheet.sequence.position !== this._previousSequencePosition) {
+      THEATRE_JS_CONFIG.sequencePosition = sheet.sequence.position;
+      this.events.post('onSequencePositionChanged');
+    }
+
+    this._previousSequencePosition = sheet.sequence.position;
+  }
+
+  startAnimation() {
     const sheet = this._introProject.sheet(THEATRE_JS_CONFIG.sheetName);
     this._introProject.ready.then(() => {
       sheet.sequence.play({
@@ -28,7 +41,7 @@ export default class TheatreJS extends THREE.Group {
     });
   }
 
-  stopIntro() {
+  stopAnimation() {
     const sheet = this._introProject.sheet(THEATRE_JS_CONFIG.sheetName);
     sheet.sequence.position = 0;
   }
@@ -55,7 +68,7 @@ export default class TheatreJS extends THREE.Group {
     let introProject;
 
     if (THEATRE_JS_CONFIG.studioEnabled) {
-      introProject = getProject(THEATRE_JS_CONFIG.projectName);
+      introProject = this._introProject = getProject(THEATRE_JS_CONFIG.projectName);
     } else {
       introProject = this._introProject = getProject(THEATRE_JS_CONFIG.projectName, { state: projectState });
     }

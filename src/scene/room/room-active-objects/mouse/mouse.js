@@ -1,16 +1,17 @@
 import * as THREE from 'three';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import RoomObjectAbstract from '../room-object.abstract';
 import { MOUSE_PART_TYPE } from './data/mouse-data';
 import { MOUSE_CONFIG } from './data/mouse-config';
-import MouseAreaBorders from './mouse-area-borders';
-import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
-import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
+import HelpArrows from '../../shared/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
 import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
 import SCENE_CONFIG from '../../../../core/configs/scene-config';
+import MouseAreaBorders from './mouse-area-borders/mouse-area-borders';
 
 export default class Mouse extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -74,7 +75,7 @@ export default class Mouse extends RoomObjectAbstract {
     }
 
     if (onPointerDownClick === false && partType === MOUSE_PART_TYPE.LeftKey) {
-      this._onLeftKeyClick();
+      this.onLeftKeyClick();
     }
 
     return isObjectDraggable;
@@ -146,17 +147,37 @@ export default class Mouse extends RoomObjectAbstract {
     this._helpArrows.hide();
   }
 
+  moveToPosition(x, z, time = 300) {
+    new TWEEN.Tween(this._currentPosition)
+      .to({ x, z }, time)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .onUpdate(() => {
+        this._updatePosition();
+      })
+      .start();
+  }
+
+  getMeshesForOutlinePreview() {
+    const body = this._parts[MOUSE_PART_TYPE.Body];
+
+    return [body];
+  }
+
+  resetToInitState() {
+    this._resetMousePosition();
+  }
+
+  onLeftKeyClick() {
+    this._playSound();
+    this._isMouseClick = false;
+    this.events.post('onLeftKeyClick');
+  }
+
   _onMouseClick(intersect) {
     this._isMouseClick = true;
     const pIntersect = new THREE.Vector3().copy(intersect.point);
     this._plane.setFromNormalAndCoplanarPoint(this._pNormal, pIntersect);
     this._shift.subVectors(intersect.object.position, intersect.point);
-  }
-
-  _onLeftKeyClick() {
-    this._playSound();
-    this._isMouseClick = false;
-    this.events.post('onLeftKeyClick');
   }
 
   _updatePosition() {
@@ -279,7 +300,7 @@ export default class Mouse extends RoomObjectAbstract {
     this._debugMenu.events.on('onDistanceToShowBorderChanged', () => this._onDistanceToShowBorderChanged());
     this._debugMenu.events.on('onBorderColorUpdated', () => this._onBorderColorUpdated());
     this._debugMenu.events.on('onCursorScaleChanged', () => this.events.post('onCursorScaleChanged'));
-    this._debugMenu.events.on('onLeftKeyClick', () => this._onLeftKeyClick());
+    this._debugMenu.events.on('onLeftKeyClick', () => this.onLeftKeyClick());
   }
 
   _onDebugPositionChanged(position) {
@@ -291,15 +312,19 @@ export default class Mouse extends RoomObjectAbstract {
 
   _onDebugAreaChanged() {
     this._calculateMovingArea();
+    this._mouseAreaBorders.onAreaChanged();
 
+    this._resetMousePosition();
+  }
+
+  _resetMousePosition() {
     this._currentPosition.x = 0;
     this._currentPosition.z = 0;
 
     this._updatePosition();
-    this._mouseAreaBorders.onAreaChanged();
+    this._mouseAreaBorders.updateMousePosition(this._currentPosition);
 
     this.events.post('onAreaChanged');
-    this._mouseAreaBorders.updateMousePosition(this._currentPosition);
   }
 
   _onDistanceToShowBorderChanged() {

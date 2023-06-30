@@ -11,7 +11,7 @@ import fragmentShader from './page-shaders/page-fragment.glsl';
 import Materials from '../../../../core/materials';
 import Loader from '../../../../core/loader';
 import { SOUNDS_CONFIG } from '../../data/sounds-config';
-import SoundHelper from '../../shared-objects/sound-helper';
+import SoundHelper from '../../shared/sound-helper';
 import BookPagePDFRender from './book-page-pdf-render/book-page-pdf-render';
 
 export default class Book extends RoomObjectAbstract {

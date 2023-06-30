@@ -4,12 +4,12 @@ import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
 import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
-import { HELP_ARROW_TYPE } from '../../shared-objects/help-arrows/help-arrows-config';
-import HelpArrows from '../../shared-objects/help-arrows/help-arrows';
+import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
+import HelpArrows from '../../shared/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
-import { SPARKLE_CONFIG } from '../../shared-objects/sparkle-shaders/sparkle-config';
-import sparkleVertexShader from '../../shared-objects/sparkle-shaders/sparkle-vertex.glsl';
-import sparkleFragmentShader from '../../shared-objects/sparkle-shaders/sparkle-fragment.glsl';
+import { SPARKLE_CONFIG } from '../../shared/sparkle-shaders/sparkle-config';
+import sparkleVertexShader from '../../shared/sparkle-shaders/sparkle-vertex.glsl';
+import sparkleFragmentShader from '../../shared/sparkle-shaders/sparkle-fragment.glsl';
 import VolumeIcon from './volume-icon/volume-icon';
 import { CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { CAMERA_MODE } from '../../camera-controller/data/camera-data';
@@ -125,7 +125,7 @@ export default class Monitor extends RoomObjectAbstract {
       if (isVideoOrGame) {
         this._playShowreel();
       } else {
-        this._showGame();
+        this.startGame();
       }
     }
   }
@@ -349,6 +349,19 @@ export default class Monitor extends RoomObjectAbstract {
     this._isAllObjectsInteractionEnabled = false;
   }
 
+  resetToInitState() {
+    if (this._isShowreelPlaying) {
+      this._stopShowreel();
+    }
+
+    if (this._isGameActive) {
+      this._hideGame();
+    }
+
+    this._onPositionChanged(0);
+    this._updatePosition();
+  }
+
   _clearButtonsColor() {
     MONITOR_SCREEN_BUTTONS.forEach((partType) => {
       const button = this._parts[partType];
@@ -376,7 +389,7 @@ export default class Monitor extends RoomObjectAbstract {
       }
 
       if (partType === MONITOR_PART_TYPE.MonitorScreenTransferItIcon) {
-        this._showGame();
+        this.startGame();
       }
     }
 
@@ -737,11 +750,11 @@ export default class Monitor extends RoomObjectAbstract {
     if (this._isGameActive) {
       this._hideGame();
     } else {
-      this._showGame();
+      this.startGame();
     }
   }
 
-  _showGame() {
+  startGame() {
     this._isGameActive = true;
     this._onFullScreenEnabled();
 
