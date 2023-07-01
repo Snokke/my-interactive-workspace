@@ -51,6 +51,14 @@ export default class Scene3D extends THREE.Group {
     this._room.setGameSoundsAnalyzer(soundAnalyser);
   }
 
+  onIntroStart() {
+    this._room.onIntroStart();
+  }
+
+  onIntroSkip() {
+    this._room.onIntroSkip();
+  }
+
   _init() {
     this._initRaycaster();
     this._initRoom();
@@ -75,5 +83,6 @@ export default class Scene3D extends THREE.Group {
     this._room.events.on('onGameKeyPressed', () => this.events.post('onGameKeyPressed'));
     this._room.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
     this._room.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
+    this._room.events.on('onIntroStop', () => this.events.post('onIntroStop'));
   }
 }

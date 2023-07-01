@@ -277,8 +277,10 @@ export default class Monitor extends RoomObjectAbstract {
     this._parts[MONITOR_PART_TYPE.MonitorScreen].userData.hideOutline = false;
   }
 
-  onVolumeChanged(volume) {
-    this._volumeIcon.onVolumeChanged(volume);
+  onVolumeChanged(volume, showIcon = true) {
+    if (showIcon) {
+      this._volumeIcon.onVolumeChanged(volume);
+    }
   }
 
   enableSound() {

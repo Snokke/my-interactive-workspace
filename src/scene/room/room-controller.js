@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { ROOM_CONFIG, ROOM_OBJECT_CONFIG, ROOM_OBJECT_TYPE } from './data/room-config';
 import { Black, MessageDispatcher } from 'black-engine';
 import { ROOM_OBJECT_ENABLED_CONFIG } from './data/room-objects-enabled-config';
@@ -12,6 +13,7 @@ import { WINDOW_OPEN_TYPE } from './room-active-objects/walls/data/walls-data';
 import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from './data/global-room-objects-enabled-config';
 import SCENE_CONFIG from '../../core/configs/scene-config';
 import { THEATRE_JS_CONFIG } from './intro/theatre-js/data/theatre-js-config';
+import { INTRO_CONFIG } from './intro/intro-config';
 
 export default class RoomController {
   constructor(data) {
@@ -179,6 +181,44 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Speakers].setGameSoundsAnalyzer(analyzer);
   }
 
+  onIntroStart() {
+    this._roomDebug.enableIntroButton();
+    this._unblurScene();
+    this._intro.start();
+  }
+
+  onIntroSkip() {
+    if (INTRO_CONFIG.active) {
+      this._intro.stop();
+    } else {
+      this._unblurScene();
+      this._enableAllObjects();
+      this._cameraController.setOrbitState();
+
+      this._roomDebug.enableMonitorFocusButton();
+      this._roomDebug.enableKeyboardFocusButton();
+      this._roomDebug.enableStartCameraPositionButton();
+      this._roomDebug.enableIntroButton();
+      this._roomDebug.enableInteractWithAllObjectsButton();
+    }
+  }
+
+  _blurScene() {
+    this._renderer.domElement.style.filter = `blur(${INTRO_CONFIG.sceneBlur}px)`;
+  }
+
+  _unblurScene() {
+    const blurObject = { value: INTRO_CONFIG.sceneBlur };
+
+    new TWEEN.Tween(blurObject)
+      .to({ value: 0 }, 500)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+      .onUpdate(() => {
+        this._renderer.domElement.style.filter = `blur(${blurObject.value}px)`;
+      });
+  }
+
   _onPointerClick(x, y) {
     const intersect = this._raycasterController.checkIntersection(x, y);
 
@@ -325,6 +365,21 @@ export default class RoomController {
       this._isReserveCameraActive = true;
       this._disableAllObjects();
     }
+
+    this._onStart();
+  }
+
+  _onStart() {
+    this._blurScene();
+    this._disableAllObjects();
+    this._cameraController.setNoControlsState();
+
+    this._roomDebug.disableMonitorFocusButton();
+    this._roomDebug.disableKeyboardFocusButton();
+    this._roomDebug.disableStartCameraPositionButton();
+
+    this._roomDebug.disableIntroButton();
+    this._roomDebug.disableInteractWithAllObjectsButton();
   }
 
   _initSignals() {
@@ -336,6 +391,7 @@ export default class RoomController {
     this._initDebugMenuSignals();
     this._initRealKeyboardSignals();
     this._initCameraControllerSignals();
+    this._initIntroSignals();
     this._initOtherSignals();
   }
 
@@ -440,6 +496,11 @@ export default class RoomController {
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
     this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
     this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
+  }
+
+  _initIntroSignals() {
+    this._intro.events.on('onResetActiveObjects', () => this._onResetActiveObjects());
+    this._intro.events.on('onIntroStop', () => this.events.post('onIntroStop'));
   }
 
   _initOtherSignals() {
@@ -761,6 +822,7 @@ export default class RoomController {
 
   _onRoomFocused() {
     this._roomDebug.enableIntroButton();
+    this._orbitControls.customReset();
   }
 
   _disableBaseOnKeyboardFocus() {
@@ -889,9 +951,9 @@ export default class RoomController {
     }
   }
 
-  _onVolumeChanged() {
+  _onVolumeChanged(showIcon = true) {
     for (const key in this._roomActiveObject) {
-      this._roomActiveObject[key].onVolumeChanged(SOUNDS_CONFIG.volume);
+      this._roomActiveObject[key].onVolumeChanged(SOUNDS_CONFIG.volume, showIcon);
     }
 
     this.events.post('onVolumeChanged');
@@ -979,5 +1041,11 @@ export default class RoomController {
 
   _onHelpersChange() {
     this._lightsController.onHelpersChange();
+  }
+
+  _onResetActiveObjects() {
+    SOUNDS_CONFIG.volume = 0.5;
+    this._roomDebug.updateSoundsVolumeController();
+    this._onVolumeChanged(false);
   }
 }

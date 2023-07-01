@@ -73,6 +73,15 @@ export default class Room extends THREE.Group {
     this._roomController.setGameSoundsAnalyzer(soundAnalyser);
   }
 
+  onIntroStart() {
+    this._roomController.onIntroStart();
+  }
+
+  onIntroSkip() {
+    this._roomController.onIntroSkip();
+  }
+
+
   _init() {
     this._initRoomDebug();
     this._initRoomObjects();
@@ -190,6 +199,7 @@ export default class Room extends THREE.Group {
       activeObjects: this._roomActiveObject,
       roomDebug: this._roomDebug,
       cameraController: this._cameraController,
+      orbitControls: this._orbitControls,
     };
 
     const intro = this._intro = new Intro(data);
@@ -264,5 +274,6 @@ export default class Room extends THREE.Group {
     this._roomController.events.on('onGameKeyPressed', () => this.events.post('onGameKeyPressed'));
     this._roomController.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this.events.post('onSpeakersPowerChanged', powerStatus));
     this._roomController.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
+    this._roomController.events.on('onIntroStop', () => this.events.post('onIntroStop'));
   }
 }

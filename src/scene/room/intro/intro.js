@@ -8,6 +8,7 @@ import Delayed from '../../../core/helpers/delayed-call';
 import { WINDOW_OPEN_TYPE } from '../room-active-objects/walls/data/walls-data';
 import { INTRO_CONFIG } from './intro-config';
 import { LOCKER_CASES_ANIMATION_TYPE } from '../room-active-objects/locker/data/locker-data';
+import { CAMERA_FOCUS_OBJECT_TYPE } from '../camera-controller/data/camera-data';
 
 export default class Intro extends THREE.Group {
   constructor(data) {
@@ -19,6 +20,7 @@ export default class Intro extends THREE.Group {
     this._activeObjects = data.activeObjects;
     this._roomDebug = data.roomDebug;
     this._cameraController = data.cameraController;
+    this._orbitControls = data.orbitControls;
 
     this._theatreJs = null;
     this._activeObjectsTweens = [];
@@ -45,6 +47,7 @@ export default class Intro extends THREE.Group {
     this._roomDebug.disableMonitorFocusButton();
     this._roomDebug.disableKeyboardFocusButton();
     this._roomDebug.disableStartCameraPositionButton();
+    this._roomDebug.disableInteractWithAllObjectsButton();
 
     this._resetActiveObjects();
     this._disableAllObjects();
@@ -57,16 +60,22 @@ export default class Intro extends THREE.Group {
   stop() {
     INTRO_CONFIG.active = false;
 
+    this._theatreJs.stopAnimation();
+
+    this._cameraController.setOrbitState();
+    this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.Room);
+
     this._roomDebug.updateIntroButton();
+    this._roomDebug.disableIntroButton();
     this._roomDebug.enableMonitorFocusButton();
     this._roomDebug.enableKeyboardFocusButton();
     this._roomDebug.enableStartCameraPositionButton();
+    this._roomDebug.enableInteractWithAllObjectsButton();
 
     this._stopActiveObjectsTweens();
     this._enableAllObjects();
     this._resetActiveObjects();
-    this._cameraController.setOrbitState();
-    this._theatreJs.stopAnimation();
+    this.events.post('onIntroStop');
   }
 
   _showActiveObjectsForIntro() {
@@ -75,7 +84,6 @@ export default class Intro extends THREE.Group {
     this._activateIntroObject(2000, () => this._activeObjects[ROOM_OBJECT_TYPE.Mouse].moveToPosition(0, -0.08, 500 / THEATRE_JS_CONFIG.rate));
     this._activateIntroObject(2600, () => this._activeObjects[ROOM_OBJECT_TYPE.Mouse].onLeftKeyClick());
 
-    this._activateIntroObject(3200, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(12));
     this._activateIntroObject(5000, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(15));
     this._activateIntroObject(6500, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(62));
     this._activateIntroObject(8000, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(15));
@@ -85,8 +93,6 @@ export default class Intro extends THREE.Group {
     this._activateIntroObject(10600, () => this._activeObjects[ROOM_OBJECT_TYPE.Mouse].moveToPosition(0, 0, 500 / THEATRE_JS_CONFIG.rate));
 
     this._activateIntroObject(10500, () => this._activeObjects[ROOM_OBJECT_TYPE.Walls].openWindow(WINDOW_OPEN_TYPE.Vertically));
-
-    this._activateIntroObject(11000, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(11));
 
     this._activateIntroObject(12500, () => this._activeObjects[ROOM_OBJECT_TYPE.AirConditioner].onClick());
     this._activateIntroObject(17000, () => this._activeObjects[ROOM_OBJECT_TYPE.AirConditioner].onClick());
@@ -100,11 +106,9 @@ export default class Intro extends THREE.Group {
     this._activateIntroObject(25215, () => this._activeObjects[ROOM_OBJECT_TYPE.Chair].rotateSeat());
 
     this._activateIntroObject(26500, () => this._activeObjects[ROOM_OBJECT_TYPE.FloorLamp].onClick());
-    this._activateIntroObject(28000, () => this._activeObjects[ROOM_OBJECT_TYPE.FloorLamp].onClick());
+    this._activateIntroObject(28500, () => this._activeObjects[ROOM_OBJECT_TYPE.FloorLamp].onClick());
 
-    this._activateIntroObject(29500, () => this._roomDebug.highlightAllActiveObjects());
-
-    this._activateIntroObject(29800, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(8));
+    // this._activateIntroObject(29500, () => this._roomDebug.highlightAllActiveObjects());
   }
 
   _activateIntroObject(delay, showFunction) {
@@ -129,6 +133,8 @@ export default class Intro extends THREE.Group {
     for (const key in this._activeObjects) {
       this._activeObjects[key].resetToInitState();
     }
+
+    this.events.post('onResetActiveObjects');
   }
 
   _disableAllObjects() {

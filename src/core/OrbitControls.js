@@ -7,7 +7,8 @@ import {
 	Vector2,
 	Vector3
 } from 'three';
-import { ORBIT_CONTROLS_MODE_CONFIG } from '../scene/room/camera-controller/data/camera-config';
+import { CAMERA_FOCUS_POSITION_CONFIG, ORBIT_CONTROLS_MODE_CONFIG } from '../scene/room/camera-controller/data/camera-config';
+import { CAMERA_FOCUS_OBJECT_TYPE } from '../scene/room/camera-controller/data/camera-data';
 
 // OrbitControls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
@@ -160,6 +161,21 @@ class OrbitControls extends EventDispatcher {
 			state = STATE.NONE;
 
 		};
+
+    this.customReset = function() {
+      const config = CAMERA_FOCUS_POSITION_CONFIG[CAMERA_FOCUS_OBJECT_TYPE.Room].focus;
+
+      scope.target.copy( config.lookAt );
+			scope.object.position.copy( config.position );
+			scope.object.zoom = scope.zoom0;
+
+			scope.object.updateProjectionMatrix();
+			scope.dispatchEvent( _changeEvent );
+
+			scope.update();
+
+			state = STATE.NONE;
+    }
 
 		// this method is exposed, but perhaps it would be better if we can make it private...
 		this.update = function () {

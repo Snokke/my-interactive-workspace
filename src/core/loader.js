@@ -115,6 +115,7 @@ const images = [
   'overlay.png',
   'sound-icon.png',
   'sound-icon-mute.png',
+  'button-green.png',
 ];
 
 const sounds = [

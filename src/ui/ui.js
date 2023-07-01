@@ -1,6 +1,7 @@
 import { Black, DisplayObject, Message } from "black-engine";
 import Overlay from "./overlay";
 import SoundIcon from "./sound-icon";
+import IntroUI from "./intro-ui/intro-ui";
 
 export default class UI extends DisplayObject {
   constructor() {
@@ -8,6 +9,7 @@ export default class UI extends DisplayObject {
 
     this._overlay = null;
     this._soundIcon = null;
+    this._introUI = null;
 
     this.touchable = true;
   }
@@ -16,9 +18,14 @@ export default class UI extends DisplayObject {
     this._soundIcon.updateTexture();
   }
 
+  onIntroStop() {
+    this._introUI.onIntroStop();
+  }
+
   onAdded() {
     this._initOverlay();
     this._initSoundIcon();
+    this._initIntroUI();
     this._initSignals();
 
     this.stage.on(Message.RESIZE, this._handleResize, this);
@@ -35,6 +42,11 @@ export default class UI extends DisplayObject {
     this.add(soundIcon);
   }
 
+  _initIntroUI() {
+    const introUI = this._introUI = new IntroUI();
+    this.add(introUI);
+  }
+
   _initSignals() {
     this._overlay.on('onPointerMove', (msg, x, y) => this.post('onPointerMove', x, y));
     this._overlay.on('onPointerDown', (msg, x, y) => this.post('onPointerDown', x, y));
@@ -42,6 +54,8 @@ export default class UI extends DisplayObject {
     this._overlay.on('onPointerLeave', () => this.post('onPointerLeave'));
     this._overlay.on('onWheelScroll', (msg, delta) => this.post('onWheelScroll', delta));
     this._soundIcon.on('onSoundChanged', () => this.post('onSoundChanged'));
+    this._introUI.on('onStartClick', () => this.post('onIntroStart'));
+    this._introUI.on('onSkipClick', () => this.post('onIntroSkip'));
   }
 
   _handleResize() {

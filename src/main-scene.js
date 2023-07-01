@@ -48,6 +48,9 @@ export default class MainScene {
     this._ui.on('onPointerLeave', () => this._scene3D.onPointerLeave());
     this._ui.on('onWheelScroll', (msg, delta) => this._scene3D.onWheelScroll(delta));
     this._ui.on('onSoundChanged', () => this._scene3D.onSoundChanged());
+    this._ui.on('onIntroStart', () => this._scene3D.onIntroStart());
+    this._ui.on('onIntroSkip', () => this._scene3D.onIntroSkip());
+
     this._scene3D.events.on('fpsMeterChanged', () => this.events.post('fpsMeterChanged'));
     this._scene3D.events.on('onSoundsEnabledChanged', () => this._onSoundsEnabledChanged());
     this._scene3D.events.on('onVolumeChanged', () => this._onVolumeChanged());
@@ -56,6 +59,7 @@ export default class MainScene {
     this._scene3D.events.on('onGameKeyPressed', () => this._monitorScreenScene.onKeyPressed());
     this._scene3D.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this._monitorScreenScene.onSpeakersPowerChanged(powerStatus));
     this._scene3D.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
+    this._scene3D.events.on('onIntroStop', () => this._ui.onIntroStop());
   }
 
   _onSoundsEnabledChanged() {

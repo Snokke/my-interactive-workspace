@@ -29,6 +29,7 @@ export default class RoomDebug {
     this._highlightActiveObjectsButton = null;
     this._introButton = null;
     this._introTimeController = null;
+    this._interactWithAllObjectsButton = null;
 
     this._isActiveObjectsHighlighted = false;
 
@@ -129,6 +130,14 @@ export default class RoomDebug {
   onHighlightAllActiveObjects() {
     this._isActiveObjectsHighlighted = !this._isActiveObjectsHighlighted;
     this.updateHighlightActiveObjectsButton();
+  }
+
+  enableInteractWithAllObjectsButton() {
+    this._interactWithAllObjectsButton.disabled = false;
+  }
+
+  disableInteractWithAllObjectsButton() {
+    this._interactWithAllObjectsButton.disabled = true;
   }
 
   _init() {
@@ -301,7 +310,7 @@ export default class RoomDebug {
       this.highlightAllActiveObjects();
     });
 
-    this._roomFolder.addButton({
+    this._interactWithAllObjectsButton = this._roomFolder.addButton({
       title: 'Interact with all objects',
     }).on('click', () => {
       this.events.post('allObjectsInteraction');
