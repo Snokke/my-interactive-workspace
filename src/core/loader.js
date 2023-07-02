@@ -116,6 +116,8 @@ const images = [
   'sound-icon.png',
   'sound-icon-mute.png',
   'button-green.png',
+  'checkbox_checked.png',
+  'checkbox_unchecked.png',
 ];
 
 const sounds = [

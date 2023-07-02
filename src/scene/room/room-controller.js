@@ -184,16 +184,22 @@ export default class RoomController {
   onIntroStart() {
     this._roomDebug.enableIntroButton();
     this._unblurScene();
-    this._intro.start();
+
+    this._cameraController.stopMoveCameraToSides()
+      .onComplete(() => this._intro.start());
   }
 
   onIntroSkip() {
     if (INTRO_CONFIG.active) {
       this._intro.stop();
     } else {
+      this._cameraController.stopMoveCameraToSides()
+        .onComplete(() => {
+          this._cameraController.setOrbitState();
+        });
+
       this._unblurScene();
       this._enableAllObjects();
-      this._cameraController.setOrbitState();
 
       this._roomDebug.enableMonitorFocusButton();
       this._roomDebug.enableKeyboardFocusButton();
@@ -373,6 +379,7 @@ export default class RoomController {
     this._blurScene();
     this._disableAllObjects();
     this._cameraController.setNoControlsState();
+    this._cameraController.moveCameraToSides();
 
     this._roomDebug.disableMonitorFocusButton();
     this._roomDebug.disableKeyboardFocusButton();

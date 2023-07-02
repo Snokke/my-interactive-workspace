@@ -32,6 +32,8 @@ export default class CameraController extends THREE.Group {
     this._currentZoomDistanceStaticMode = 0;
     this._currentZoomDistanceFocusedMode = 0;
     this._currentPointerPosition = new THREE.Vector2();
+    this._objectForCameraMoveToSides = new THREE.Object3D();
+    this._previousObjectForCameraMoveX = new THREE.Vector3();
 
     this._previousCameraMode = CAMERA_MODE.OrbitControls;
     this._cameraMode = CAMERA_MODE.OrbitControls;
@@ -268,6 +270,65 @@ export default class CameraController extends THREE.Group {
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Book) {
       this.events.post('onBookHide');
     }
+  }
+
+  moveCameraToSides() {
+    this._objectForCameraMoveToSides.position.copy(this._camera.position);
+
+    const lookAtPosition = CAMERA_FOCUS_POSITION_CONFIG[CAMERA_FOCUS_OBJECT_TYPE.Room].focus.lookAt;
+    this._objectForCameraMoveToSides.lookAt(lookAtPosition);
+
+    const time = 5000;
+    const objectPosition = { value: 0 };
+    this._previousObjectForCameraMoveX = objectPosition.value;
+
+    this._moveCameraToSidesTween = new TWEEN.Tween(objectPosition)
+      .to({ value: 1 }, time * 0.5)
+      .easing(TWEEN.Easing.Sinusoidal.Out)
+      .start()
+      .onUpdate(() => {
+        this._updateCameraToSidesMoving(objectPosition, lookAtPosition);
+      })
+      .onComplete(() => {
+        this._moveCameraToSidesTween = new TWEEN.Tween(objectPosition)
+          .to({ value: -1 }, time)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .yoyo(true)
+          .repeat(Infinity)
+          .start()
+          .onUpdate(() => {
+            this._updateCameraToSidesMoving(objectPosition, lookAtPosition);
+          });
+      });
+  }
+
+  stopMoveCameraToSides() {
+    if (this._moveCameraToSidesTween) {
+      this._moveCameraToSidesTween.stop();
+    }
+
+    const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[CAMERA_FOCUS_OBJECT_TYPE.Room].focus;
+    const position = focusConfig.position;
+
+    const tween = new TWEEN.Tween(this._camera.position)
+      .to({ x: position.x, y: position.y, z: position.z }, 150)
+      .easing(TWEEN.Easing.Sinusoidal.In)
+      .start()
+      .onUpdate(() => {
+        this._camera.lookAt(focusConfig.lookAt);
+      });
+
+    return tween;
+  }
+
+  _updateCameraToSidesMoving(objectPosition, lookAtPosition) {
+    const delta = objectPosition.value - this._previousObjectForCameraMoveX;
+
+    this._objectForCameraMoveToSides.translateX(delta * 1.5);
+    this._camera.position.copy(this._objectForCameraMoveToSides.position);
+    this._camera.lookAt(lookAtPosition);
+
+    this._previousObjectForCameraMoveX = objectPosition.value;
   }
 
   _updateFocusedMode(dt) {

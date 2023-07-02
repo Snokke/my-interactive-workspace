@@ -13,10 +13,6 @@ export default class SkipButton extends DisplayObject {
   show() {
     const tween = new Tween({ scale: 1 }, 0.3, { ease: Ease.backOut });
     this.add(tween);
-
-    tween.on('complete', () => {
-      this.touchable = true;
-    });
   }
 
   hide(delay = 0) {
@@ -42,7 +38,7 @@ export default class SkipButton extends DisplayObject {
   }
 
   _initView() {
-    const view = this._view = new TextField('skip intro', 'Arial', 0xe5e5e5, 26);
+    const view = this._view = new TextField('SKIP INTRO', 'Arial', 0xe5e5e5, 26);
     this.add(view);
 
     view.touchable = true;
@@ -53,7 +49,6 @@ export default class SkipButton extends DisplayObject {
   _initSignals() {
     this._view.on('pointerDown', () => {
       this.post('onClick');
-      this.touchable = false;
     });
 
     this._view.on('pointerMove', () => {

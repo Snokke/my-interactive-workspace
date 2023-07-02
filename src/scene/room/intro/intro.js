@@ -79,7 +79,9 @@ export default class Intro extends THREE.Group {
   }
 
   _showActiveObjectsForIntro() {
-    this._activateIntroObject(700, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(9));
+    if (INTRO_CONFIG.isMusicEnabled) {
+      this._activateIntroObject(700, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(9));
+    }
 
     this._activateIntroObject(2000, () => this._activeObjects[ROOM_OBJECT_TYPE.Mouse].moveToPosition(0, -0.08, 500 / THEATRE_JS_CONFIG.rate));
     this._activateIntroObject(2600, () => this._activeObjects[ROOM_OBJECT_TYPE.Mouse].onLeftKeyClick());

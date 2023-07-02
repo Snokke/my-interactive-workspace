@@ -1,6 +1,7 @@
 const INTRO_CONFIG = {
   active: false,
-  sceneBlur: 5,
+  sceneBlur: 6,
+  isMusicEnabled: true,
 }
 
 export { INTRO_CONFIG };

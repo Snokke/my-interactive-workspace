@@ -11,7 +11,7 @@ const SCENE_CONFIG = {
     edgeGlow: 1,
     edgeStrength: 4,
     edgeThickness: 1,
-    pulsePeriod: 2.5,
+    pulsePeriod: 4,
   },
 };
 
