@@ -40,6 +40,9 @@ const textures = [
   'screens/laptop/laptop-music-02-pause.jpg',
   'screens/laptop/laptop-music-03-playing.jpg',
   'screens/laptop/laptop-music-03-pause.jpg',
+  'baked-textures/baked-laptop-monitor.jpg',
+  'baked-textures/baked-laptop-monitor-light-off.jpg',
+  'baked-textures/baked-laptop-monitor-closed-light-off.jpg',
 
   // keyboard
   'keyboard/keyboard-keys-atlas.png',

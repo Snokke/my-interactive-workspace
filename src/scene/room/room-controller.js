@@ -1036,6 +1036,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].onLightPercentChange(lightPercent);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onLightPercentChange(lightPercent);
   }
 
   _onLightHalfOn() {

@@ -7,13 +7,15 @@ import { LAPTOP_CONFIG, LAPTOP_MOUNT_CONFIG, LAPTOP_SCREEN_MUSIC_CONFIG } from '
 import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
 import HelpArrows from '../../shared/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
-import vertexShader from '../../shared/sparkle-shaders/sparkle-vertex.glsl';
-import fragmentShader from '../../shared/sparkle-shaders/sparkle-fragment.glsl';
+import sparkleVertexShader from '../../shared/sparkle-shaders/sparkle-vertex.glsl';
+import sparkleFragmentShader from '../../shared/sparkle-shaders/sparkle-fragment.glsl';
 import LaptopParts from './laptop-parts';
 import { SPARKLE_CONFIG } from '../../shared/sparkle-shaders/sparkle-config';
 import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
 import SCENE_CONFIG from '../../../../core/configs/scene-config';
+import mixTexturesVertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import mixTexturesFragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 
 export default class Laptop extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -287,6 +289,11 @@ export default class Laptop extends RoomObjectAbstract {
     this._isAllObjectsInteractionEnabled = false;
   }
 
+  onLightPercentChange(lightPercent) {
+    const monitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
+    monitor.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+  }
+
   resetToInitState() {
     this._onDebugStopMusic();
     this._currentMusicIndex = 0;
@@ -324,6 +331,7 @@ export default class Laptop extends RoomObjectAbstract {
     this._debugMenu.updateTopPanelState();
     this._stopLaptopTween();
 
+    const monitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
     const maxAngle = LAPTOP_CONFIG.positionType === LAPTOP_POSITION_STATE.Opened ? 0 : LAPTOP_CONFIG.maxOpenAngle;
 
     const remainingRotationAngle = maxAngle - (-this._laptopTopGroup.rotation.x * THREE.MathUtils.RAD2DEG);
@@ -335,6 +343,8 @@ export default class Laptop extends RoomObjectAbstract {
       .start()
       .onUpdate(() => {
         LAPTOP_CONFIG.angle = -this._laptopTopGroup.rotation.x * THREE.MathUtils.RAD2DEG;
+        const openPercent = THREE.MathUtils.clamp(LAPTOP_CONFIG.angle / LAPTOP_CONFIG.maxOpenAngle, 0, 1);
+        monitor.material.uniforms.uMixTexture03Percent.value = 1 - openPercent;
       })
       .onComplete(() => {
         this._updateLaptopPositionType();
@@ -449,6 +459,7 @@ export default class Laptop extends RoomObjectAbstract {
   _init() {
     this._initParts();
     this._addMaterials();
+    this._addMonitorMaterials();
     this._addPartsToScene();
     this._initScreenTexture();
     this._initButtonsWithSparkles();
@@ -467,9 +478,33 @@ export default class Laptop extends RoomObjectAbstract {
     armMount02.material = bigObjectsMaterial;
 
     const keyboard = this._parts[LAPTOP_PART_TYPE.LaptopKeyboard];
-    const monitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
     keyboard.material = smallObjectsMaterial;
-    monitor.material = smallObjectsMaterial;
+  }
+
+  _addMonitorMaterials() {
+    const bakedTextureLightOn = Loader.assets['baked-textures/baked-laptop-monitor'];
+    bakedTextureLightOn.flipY = false;
+
+    const bakedTextureLightOff = Loader.assets['baked-textures/baked-laptop-monitor-light-off'];
+    bakedTextureLightOff.flipY = false;
+
+    const bakedTextureClosed = Loader.assets['baked-textures/baked-laptop-monitor-closed-light-off'];
+    bakedTextureClosed.flipY = false;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture01: { value: bakedTextureLightOff },
+        uTexture02: { value: bakedTextureLightOn },
+        uTexture03: { value: bakedTextureClosed },
+        uMixTextures0102Percent: { value: 1 },
+        uMixTexture03Percent: { value: 0 },
+      },
+      vertexShader: mixTexturesVertexShader,
+      fragmentShader: mixTexturesFragmentShader,
+    });
+
+    const monitor = this._parts[LAPTOP_PART_TYPE.LaptopMonitor];
+    monitor.material = material;
   }
 
   _initSignals() {
@@ -537,8 +572,8 @@ export default class Laptop extends RoomObjectAbstract {
 
       part.material = new THREE.ShaderMaterial({
         uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
+        vertexShader: sparkleVertexShader,
+        fragmentShader: sparkleFragmentShader,
       });
 
       this._setPartTexturePause(partType);
