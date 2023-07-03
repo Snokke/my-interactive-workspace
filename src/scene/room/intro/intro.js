@@ -110,7 +110,9 @@ export default class Intro extends THREE.Group {
     this._activateIntroObject(26500, () => this._activeObjects[ROOM_OBJECT_TYPE.FloorLamp].onClick());
     this._activateIntroObject(28500, () => this._activeObjects[ROOM_OBJECT_TYPE.FloorLamp].onClick());
 
-    // this._activateIntroObject(29500, () => this._roomDebug.highlightAllActiveObjects());
+    if (INTRO_CONFIG.isMusicEnabled) {
+      this._activateIntroObject(29500, () => this._activeObjects[ROOM_OBJECT_TYPE.Keyboard].keyClick(8));
+    }
   }
 
   _activateIntroObject(delay, showFunction) {
