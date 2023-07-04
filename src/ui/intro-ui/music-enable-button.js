@@ -35,6 +35,7 @@ export default class MusicEnableButton extends DisplayObject {
     const text = this._text = new TextField('ENABLE MUSIC', 'Arial', 0xe5e5e5, 19);
     this.add(text);
 
+    text.highQuality = true;
     text.touchable = true;
     text.x = -15;
 

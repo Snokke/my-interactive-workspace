@@ -42,6 +42,7 @@ export default class SkipButton extends DisplayObject {
     this.add(view);
 
     view.touchable = true;
+    view.highQuality = true;
 
     view.alignPivotOffset();
   }

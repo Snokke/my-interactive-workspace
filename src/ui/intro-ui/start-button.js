@@ -39,14 +39,14 @@ export default class StartButton extends DisplayObject {
     const textField = new TextField('SHOW INTRO', 'Arial', 0xffffff, 31);
     this.add(textField);
 
+    textField.highQuality = true;
+
     textField.alignPivotOffset();
-    // textField.y = -2;
   }
 
   _initSignals() {
     this._view.on('pointerDown', () => {
       this.post('onClick');
-      // this.touchable = false;
     });
 
     this._view.on('pointerMove', () => {
