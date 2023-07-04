@@ -66,6 +66,10 @@ export default class MusicEnableButton extends DisplayObject {
     this._text.on('pointerMove', () => {
       Black.engine.containerElement.style.cursor = 'pointer';
     });
+
+    this._checkbox.on('pointerMove', () => {
+      Black.engine.containerElement.style.cursor = 'pointer';
+    });
   }
 
   _updateCheckbox() {

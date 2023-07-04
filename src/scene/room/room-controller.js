@@ -579,6 +579,10 @@ export default class RoomController {
             this._onExitFocusMode();
           }
         }
+
+        if (INTRO_CONFIG.active) {
+          this.onIntroSkip();
+        }
       }
     });
   }
