@@ -14,6 +14,7 @@ import { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG } from './data/global-room-objects-en
 import SCENE_CONFIG from '../../core/configs/scene-config';
 import { THEATRE_JS_CONFIG } from './intro/theatre-js/data/theatre-js-config';
 import { INTRO_CONFIG } from './intro/intro-config';
+import DEBUG_CONFIG from '../../core/configs/debug-config';
 
 export default class RoomController {
   constructor(data) {
@@ -376,6 +377,10 @@ export default class RoomController {
   }
 
   _onStart() {
+    if (DEBUG_CONFIG.withoutUIMode) {
+      return;
+    }
+
     this._blurScene();
     this._disableAllObjects();
     this._cameraController.setNoControlsState();

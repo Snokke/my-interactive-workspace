@@ -2,6 +2,7 @@ import { Pane } from 'tweakpane';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
 import { DEBUG_MENU_START_STATE } from '../../configs/debug-menu-start-state';
 import isMobile from 'ismobilejs';
+import DEBUG_CONFIG from '../../configs/debug-config';
 
 export default class GUIHelper {
   constructor() {
@@ -66,12 +67,9 @@ export default class GUIHelper {
   }
 
   showAfterAssetsLoad() {
-    // const currentUrl = window.location.href;
-    // const isDebug = currentUrl.indexOf('#debug') !== -1;
-
-    // if (isDebug) {
+    if (!DEBUG_CONFIG.withoutUIMode) {
       this.gui.hidden = false;
-    // }
+    }
   }
 
   static getGui() {

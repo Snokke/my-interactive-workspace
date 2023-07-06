@@ -3,6 +3,7 @@ import StartButton from "./start-button";
 import SkipButton from "./skip-button";
 import Delayed from "../../core/helpers/delayed-call";
 import MusicEnableButton from "./music-enable-button";
+import DEBUG_CONFIG from "../../core/configs/debug-config";
 
 export default class IntroUI extends DisplayObject {
   constructor() {
@@ -21,6 +22,10 @@ export default class IntroUI extends DisplayObject {
 
     Black.stage.on('resize', () => this._onResize());
     this._onResize();
+
+    if (DEBUG_CONFIG.withoutUIMode) {
+      this.visible = false;
+    }
   }
 
   show() {

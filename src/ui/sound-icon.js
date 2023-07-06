@@ -1,5 +1,6 @@
 import { DisplayObject, Sprite } from "black-engine";
 import { SOUNDS_CONFIG } from "../scene/room/data/sounds-config";
+import DEBUG_CONFIG from "../core/configs/debug-config";
 
 export default class SoundIcon extends DisplayObject {
   constructor() {
@@ -17,6 +18,10 @@ export default class SoundIcon extends DisplayObject {
   onAdded() {
     this._initView();
     this._initSignals();
+
+    if (DEBUG_CONFIG.withoutUIMode) {
+      this.visible = false;
+    }
   }
 
   _initView() {

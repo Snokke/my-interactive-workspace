@@ -571,6 +571,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._initDebugMenu();
     this._initCVLink();
     this._initSignals();
+
+    this.resetToInitState();
   }
 
   _addMaterials() {
