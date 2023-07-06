@@ -103,6 +103,10 @@ export default class Book extends RoomObjectAbstract {
     return [closedBook];
   }
 
+  enableDebugShowBookButton() {
+    this._debugMenu.enableShowButton();
+  }
+
   _onBookClick() {
     if (!this._isBookShown) {
       this._showBook();
@@ -474,6 +478,8 @@ export default class Book extends RoomObjectAbstract {
     this._initDebugMenu();
     this._initSignals();
     this._hideOpenBook();
+
+    // this._debugMenu.enableShowButton();
   }
 
   _initBookPageRender() {

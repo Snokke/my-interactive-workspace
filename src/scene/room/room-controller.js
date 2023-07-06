@@ -207,6 +207,7 @@ export default class RoomController {
       this._roomDebug.enableStartCameraPositionButton();
       this._roomDebug.enableIntroButton();
       this._roomDebug.enableInteractWithAllObjectsButton();
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Book].enableDebugShowBookButton();
     }
   }
 
@@ -512,7 +513,7 @@ export default class RoomController {
 
   _initIntroSignals() {
     this._intro.events.on('onResetActiveObjects', () => this._onResetActiveObjects());
-    this._intro.events.on('onIntroStop', () => this.events.post('onIntroStop'));
+    this._intro.events.on('onIntroStop', () => this._onIntroStop());
   }
 
   _initOtherSignals() {
@@ -1064,5 +1065,10 @@ export default class RoomController {
     SOUNDS_CONFIG.volume = 0.5;
     this._roomDebug.updateSoundsVolumeController();
     this._onVolumeChanged(false);
+  }
+
+  _onIntroStop() {
+    this.events.post('onIntroStop');
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Book].enableDebugShowBookButton();
   }
 }
