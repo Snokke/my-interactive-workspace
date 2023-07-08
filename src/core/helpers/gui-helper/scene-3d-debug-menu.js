@@ -117,7 +117,7 @@ export default class Scene3DDebugMenu {
 
       if (THEATRE_JS_CONFIG.studioEnabled) {
         const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[cameraFocusType];
-        this._camera.position.copy(focusConfig.focus.position)
+        this._camera.position.copy(focusConfig.focus.position);
         this._camera.lookAt(focusConfig.focus.lookAt.x, focusConfig.focus.lookAt.y, focusConfig.focus.lookAt.z);
       } else {
         orbitControls.enableDamping = ORBIT_CONTROLS_MODE_CONFIG.enableDamping;

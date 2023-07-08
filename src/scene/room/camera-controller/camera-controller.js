@@ -278,7 +278,7 @@ export default class CameraController extends THREE.Group {
     const lookAtPosition = CAMERA_FOCUS_POSITION_CONFIG[CAMERA_FOCUS_OBJECT_TYPE.Room].focus.lookAt;
     this._objectForCameraMoveToSides.lookAt(lookAtPosition);
 
-    const time = 5000;
+    const time = 3000;
     const objectPosition = { value: 0 };
     this._previousObjectForCameraMoveX = objectPosition.value;
 
@@ -496,7 +496,7 @@ export default class CameraController extends THREE.Group {
     const cameraFocusType = CAMERA_FOCUS_OBJECT_TYPE.Room;
     const focusConfig = CAMERA_FOCUS_POSITION_CONFIG[cameraFocusType];
 
-    this._camera.position.copy(focusConfig.focus.position)
+    this._camera.position.copy(focusConfig.focus.position);
     this._camera.lookAt(focusConfig.focus.lookAt.x, focusConfig.focus.lookAt.y, focusConfig.focus.lookAt.z);
   }
 

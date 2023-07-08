@@ -246,7 +246,7 @@ export default class BaseScene {
   }
 
   _setupBackgroundColor() {
-    // this._scene.background = new THREE.Color(0x201919);
+    // this._scene.background = new THREE.Color(SCENE_CONFIG.backgroundColor);
 
     const texture = Loader.assets['environment'];
     const renderTarget = new THREE.WebGLCubeRenderTarget(texture.image.height);

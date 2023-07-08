@@ -102,9 +102,9 @@ export default class Room extends THREE.Group {
     this._initInactiveObjects();
     this._initLightsController();
     this._initCameraController();
+    this._initIntro();
     this._addObjectsToTableGroup();
     this._initCursor();
-    this._initIntro();
     this._addMonitorScreenTexture();
   }
 
