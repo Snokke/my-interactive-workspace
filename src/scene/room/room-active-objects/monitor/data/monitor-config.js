@@ -23,6 +23,11 @@ const MONITOR_ARM_MOUNT_CONFIG = {
   },
 }
 
+const MONITOR_LINKS_CONFIG = {
+  cv: 'https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf',
+  showreel: 'https://www.youtube.com/watch?v=HmZ_MUd3zJY',
+}
+
 const MONITOR_BUTTONS_CONFIG = {
   mouseOverColor: new THREE.Color(0x8ff88c),
   buttons: {
@@ -54,7 +59,19 @@ const MONITOR_BUTTONS_CONFIG = {
       },
       textureName: 'close-icon',
     },
+    [MONITOR_PART_TYPE.MonitorScreenYoutubeLogo]: {
+      area: {
+        position: new THREE.Vector2(-1.41, 0.74),
+        size: new THREE.Vector2(0.11, 0.11),
+      },
+      textureName: 'screens/monitor/youtube-logo',
+    },
   },
 }
 
-export { MONITOR_CONFIG, MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG };
+export {
+  MONITOR_CONFIG,
+  MONITOR_ARM_MOUNT_CONFIG,
+  MONITOR_BUTTONS_CONFIG,
+  MONITOR_LINKS_CONFIG,
+};

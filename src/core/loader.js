@@ -29,6 +29,7 @@ const textures = [
   'screens/monitor/cv-icon.jpg',
   'screens/monitor/volume.png',
   'screens/monitor/volume-muted.png',
+  'screens/monitor/youtube-logo.jpg',
   'screens/cursor.png',
   'close-icon.png',
 

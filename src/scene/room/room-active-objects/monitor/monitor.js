@@ -3,7 +3,7 @@ import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js
 import RoomObjectAbstract from '../room-object.abstract';
 import { MONITOR_TYPE } from '../../data/room-config';
 import { MONITOR_PARTS_WITHOUT_BUTTONS, MONITOR_PART_TYPE, MONITOR_SCREEN_BUTTONS } from './data/monitor-data';
-import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG } from './data/monitor-config';
+import { MONITOR_ARM_MOUNT_CONFIG, MONITOR_BUTTONS_CONFIG, MONITOR_CONFIG, MONITOR_LINKS_CONFIG } from './data/monitor-config';
 import { HELP_ARROW_TYPE } from '../../shared/help-arrows/help-arrows-config';
 import HelpArrows from '../../shared/help-arrows/help-arrows';
 import Loader from '../../../../core/loader';
@@ -404,6 +404,10 @@ export default class Monitor extends RoomObjectAbstract {
         this._hideGame();
       }
     }
+
+    if (partType === MONITOR_PART_TYPE.MonitorScreenYoutubeLogo) {
+      this._onOpenYoutube();
+    }
   }
 
   _playShowreel() {
@@ -415,6 +419,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._onFullScreenEnabled();
 
     this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._showreelTexture;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].visible = true;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].scale.set(1, 1, 1);
 
     this._showreelVideoElement.play();
 
@@ -429,6 +435,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._onFullScreenDisabled();
 
     this._parts[MONITOR_PART_TYPE.MonitorScreen].material.map = this._screenTexture;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].visible = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].scale.set(0, 0, 0);
 
     this._showreelVideoElement.pause();
     this._showreelVideoElement.currentTime = 0;
@@ -486,11 +494,21 @@ export default class Monitor extends RoomObjectAbstract {
 
   _onOpenCV() {
     if (SCENE_CONFIG.isMobile) {
-      const link = document.getElementById('cv_link');
-      link.setAttribute('href', 'https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf');
-      link.click();
+      const linkElement = document.getElementById('cv_link');
+      linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.cv);
+      linkElement.click();
     } else {
-      window.open('https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf', '_blank').focus();
+      window.open(MONITOR_LINKS_CONFIG.cv, '_blank').focus();
+    }
+  }
+
+  _onOpenYoutube() {
+    if (SCENE_CONFIG.isMobile) {
+      const linkElement = document.getElementById('cv_link');
+      linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.showreel);
+      linkElement.click();
+    } else {
+      window.open(MONITOR_LINKS_CONFIG.showreel, '_blank').focus();
     }
   }
 
@@ -594,8 +612,9 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorScreenTransferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
+    const monitorScreenYoutubeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo];
     const monitorCloseFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenVolume, monitorCloseFocusIcon);
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenYoutubeIcon, monitorScreenVolume, monitorCloseFocusIcon);
 
     screenGroup.position.copy(monitorScreen.position);
 
@@ -605,6 +624,7 @@ export default class Monitor extends RoomObjectAbstract {
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
     const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
     const closeFocusIconOffset = monitorCloseFocusIcon.position.clone().sub(monitorScreen.position.clone());
+    const monitorScreenYoutubeIconOffset = monitorScreenYoutubeIcon.position.clone().sub(monitorScreen.position.clone());
 
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
@@ -614,6 +634,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreenCloseIcon.position.z -= MONITOR_CONFIG.hideOffset;
     monitorScreenVolume.position.copy(volumeOffset);
     monitorCloseFocusIcon.position.copy(closeFocusIconOffset);
+    monitorScreenYoutubeIcon.position.copy(monitorScreenYoutubeIconOffset);
   }
 
   _initFocusObject() {
@@ -673,6 +694,8 @@ export default class Monitor extends RoomObjectAbstract {
     });
 
     this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon].visible = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].visible = false;
+    this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo].scale.set(0, 0, 0);
   }
 
   _initVolumeTexture() {

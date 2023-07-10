@@ -9,6 +9,7 @@ const MONITOR_PART_TYPE = {
   MonitorScreenTransferItIcon: 'monitor_screen_transfer_it_icon',
   MonitorScreenCloseIcon: 'monitor_screen_close_icon',
   MonitorScreenVolume: 'monitor_screen_volume',
+  MonitorScreenYoutubeLogo: 'monitor_screen_youtube_logo',
   MonitorCloseFocusIcon: 'monitor_close_focus_icon',
 }
 
@@ -23,6 +24,7 @@ const MONITOR_PART_ACTIVITY_CONFIG = {
   [MONITOR_PART_TYPE.MonitorScreenTransferItIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenVolume]: false,
+  [MONITOR_PART_TYPE.MonitorScreenYoutubeLogo]: true,
   [MONITOR_PART_TYPE.MonitorCloseFocusIcon]: true,
 }
 
@@ -38,6 +40,7 @@ const MONITOR_SCREEN_BUTTONS = [
   MONITOR_PART_TYPE.MonitorScreenCVIcon,
   MONITOR_PART_TYPE.MonitorScreenTransferItIcon,
   MONITOR_PART_TYPE.MonitorScreenCloseIcon,
+  MONITOR_PART_TYPE.MonitorScreenYoutubeLogo,
 ]
 
 export { MONITOR_PART_TYPE, MONITOR_PART_ACTIVITY_CONFIG, MONITOR_SCREEN_BUTTONS, MONITOR_PARTS_WITHOUT_BUTTONS }
