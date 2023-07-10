@@ -18,13 +18,22 @@ There are 14 active objects. To highlight all active objects use button «Highli
 I tried to add for every object some interesting interaction. For example: 
 - window can be opened in two ways: starndard and ventilation
 - keyboard has 9 different highlights type. Each key can be pressed (and from real keyaboard too). Some keys has functiality, for example: F8 - «play/pause song», F10 - «mute», F12 - «volume up», etc.
-- speed and size of particles from air conditioner depends on target temperature
+- speed and size of particles from air conditioner depends on temperature on air conditioner remote
 - in locker you can find photo of my real workspace
   
 Also there are some interaction between objects, for example if you turn on air conditioner than coffee steam will blow away.
 
 ## Control panel
 
+## Some technical details and links
+- 3D engine: [Three.js](https://threejs.org/)
+- 2D engine: [Blacksmith 2D](https://blacksmith2d.io/)
+- Physics for «Transfer it» game: [cannon-es](https://pmndrs.github.io/cannon-es/)
+- Intro camera movement: [Theatre.js](https://www.theatrejs.com/)
+- Reading pdf and draw it to canvas: [PDF.js](https://mozilla.github.io/pdf.js/)
+- Control panel: [Tweakpane](https://cocopon.github.io/tweakpane/)
+- All models are done with [Blender](https://www.blender.org/)
+- Prime example for inspiration: [My room in 3d by Bruno Simon](https://my-room-in-3d.vercel.app/)
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download). Run this followed commands:
