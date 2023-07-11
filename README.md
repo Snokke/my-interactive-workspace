@@ -6,7 +6,7 @@
 
 **Live: [andriibabintsev.com](https://www.andriibabintsev.com/)**
 
-In this project, I have created my workplace in 3D with numerous interactive objects. You can move the chair, open windows, turn on the air conditioner, open book, play music, play «Transfer it» game, and much more. Feel free to explore and interact with it!
+In this project, I have created my workplace in 3D with numerous interactive objects. You can move the chair, open window, turn on the air conditioner, open book, play music, play «Transfer it» game, and much more. Feel free to explore and interact with it!
 
 ## Interactive objects
 
