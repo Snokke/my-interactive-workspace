@@ -23,7 +23,11 @@ I tried to add for every object some interesting interaction. For example:
   
 Also there are some interaction between objects, for example if you turn on air conditioner than coffee steam will blow away.
 
-## Control panel
+## Game «Transfer it»
+
+<p align="center">
+  <img src="https://github.com/Snokke/my-interactive-workspace/assets/36459180/d28e6ef6-bb01-4cde-8cc8-1f647ef59c0a" />
+</p>
 
 ## Some technical details and links
 - 3D engine: [Three.js](https://threejs.org/)
