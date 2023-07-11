@@ -6,7 +6,7 @@
 
 **Live: [andriibabintsev.com](https://www.andriibabintsev.com/)**
 
-In this project, I have created my workplace in 3D with numerous interactive objects. You can move the chair, open window, turn on the air conditioner, open book, play music, play «Transfer it» game, and much more. Feel free to explore and interact with it!
+In this project, I have created my workplace in 3D with numerous interactive objects. You can move the chair, open window, turn on the air conditioner, open book, play music, play the «Transfer it» game, and much more. Feel free to explore and interact with it!
 
 ## Interactive objects
 
@@ -35,7 +35,7 @@ Additionally, there is a small and enjoyable game included in the project. The g
 ## Some technical details and links
 - 3D engine: [Three.js](https://threejs.org/)
 - 2D engine: [Blacksmith 2D](https://blacksmith2d.io/)
-- Physics for «Transfer it» game: [Cannon-es](https://pmndrs.github.io/cannon-es/)
+- Physics for the «Transfer it» game: [Cannon-es](https://pmndrs.github.io/cannon-es/)
 - Intro camera movement: [Theatre.js](https://www.theatrejs.com/)
 - Reading pdf: [PDF.js](https://mozilla.github.io/pdf.js/)
 - Control panel: [Tweakpane](https://cocopon.github.io/tweakpane/)
