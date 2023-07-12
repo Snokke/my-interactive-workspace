@@ -39,7 +39,7 @@ Additionally, there is a small and enjoyable game included in the project. The g
 - Intro camera movement: [Theatre.js](https://www.theatrejs.com/)
 - Reading pdf: [PDF.js](https://mozilla.github.io/pdf.js/)
 - Control panel: [Tweakpane](https://cocopon.github.io/tweakpane/)
-- All models are done with [Blender](https://www.blender.org/)
+- All models (except the «Transfer it» game) are done with [Blender](https://www.blender.org/)
 - Inspired by [«My room in 3D» by Bruno Simon](https://my-room-in-3d.vercel.app/)
 
 ## Setup
