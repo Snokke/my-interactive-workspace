@@ -125,6 +125,8 @@ export default class Keyboard extends RoomObjectAbstract {
       this._keySounds.forEach((sound) => {
         sound.setVolume(this._globalVolume * this._objectVolume);
       });
+
+      this._secretSound.setVolume(this._globalVolume * this._objectVolume);
     }
   }
 
@@ -134,6 +136,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keySounds.forEach((sound) => {
       sound.setVolume(this._globalVolume * this._objectVolume);
     });
+
+    this._secretSound.setVolume(this._globalVolume * this._objectVolume);
   }
 
   disableSound() {
@@ -142,6 +146,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keySounds.forEach((sound) => {
       sound.setVolume(0);
     });
+
+    this._secretSound.setVolume(0);
   }
 
   getFocusPosition() {
