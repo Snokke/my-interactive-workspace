@@ -28,6 +28,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
     this._keySounds = [];
     this._keySoundIndex = 0;
+    this._secretSound = null;
     this._keysCount = 0;
     this._keysDownTweens = [];
     this._keysUpTweens = [];
@@ -399,6 +400,8 @@ export default class Keyboard extends RoomObjectAbstract {
       const secretCode = SECRET_CODES_CONFIG[secretCodeType];
 
       if (arraysEqual(this._keysSequence, secretCode)) {
+        this._playSecretSound();
+
         this.events.post('onSecretCode', secretCodeType);
       }
     });
@@ -600,6 +603,14 @@ export default class Keyboard extends RoomObjectAbstract {
     }
   }
 
+  _playSecretSound() {
+    if (this._secretSound.isPlaying) {
+      this._secretSound.stop();
+    }
+
+    this._secretSound.play();
+  }
+
   _init() {
     this._initParts();
     this._initKeysBacklight();
@@ -790,6 +801,7 @@ export default class Keyboard extends RoomObjectAbstract {
 
   _initSounds() {
     this._initKeySounds();
+    this._initSecretSound();
     this._initSoundHelper();
   }
 
@@ -813,6 +825,22 @@ export default class Keyboard extends RoomObjectAbstract {
       this._keySounds.forEach((sound) => {
         sound.setBuffer(Loader.assets['keyboard-key-press']);
       });
+    });
+  }
+
+  _initSecretSound() {
+    const soundConfig = SOUNDS_CONFIG.objects[this._roomObjectType];
+
+    const sound = this._secretSound = new THREE.PositionalAudio(this._audioListener);
+    sound.setRefDistance(soundConfig.refDistance);
+    sound.position.y = 0.1;
+
+    sound.setVolume(this._globalVolume * this._objectVolume);
+
+    this._keysGroup.add(sound);
+
+    Loader.events.on('onAudioLoaded', () => {
+      sound.setBuffer(Loader.assets['secret']);
     });
   }
 
