@@ -15,6 +15,7 @@ import SCENE_CONFIG from '../../core/configs/scene-config';
 import { THEATRE_JS_CONFIG } from './intro/theatre-js/data/theatre-js-config';
 import { INTRO_CONFIG } from './intro/intro-config';
 import DEBUG_CONFIG from '../../core/configs/debug-config';
+import { SECRET_CODE_TYPE } from './room-active-objects/keyboard/data/secret-codes';
 
 export default class RoomController {
   constructor(data) {
@@ -378,7 +379,7 @@ export default class RoomController {
   }
 
   _onStart() {
-    if (DEBUG_CONFIG.withoutUIMode) {
+    if (DEBUG_CONFIG.withoutUIMode || DEBUG_CONFIG.skipIntro) {
       return;
     }
 
@@ -451,6 +452,7 @@ export default class RoomController {
     keyboard.events.on('onKeyboardNextTrackClick', () => laptop.playNextSong());
     keyboard.events.on('onKeyboardBaseClick', () => this._onKeyboardFocus());
     keyboard.events.on('onCloseFocusIconClick', () => this._onExitFocusMode());
+    keyboard.events.on('onSecretCode', (msg, secretCodeType) => this._onSecretCode(secretCodeType));
   }
 
   _initMonitorSignals() {
@@ -656,6 +658,12 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
     this._cameraController.focusCamera(CAMERA_FOCUS_OBJECT_TYPE.LastPosition);
     this._roomDebug.enableIntroButton();
+  }
+
+  _onSecretCode(secretCodeType) {
+    if (secretCodeType === SECRET_CODE_TYPE.Konami) {
+      this._roomInactiveObject[ROOM_OBJECT_TYPE.MousePad].showSecretTexture();
+    }
   }
 
   _onSwitchToReserveCamera() {
@@ -1043,6 +1051,8 @@ export default class RoomController {
 
   _onLightPercentChange(lightPercent) {
     this._roomInactiveObject[ROOM_OBJECT_TYPE.Calendar].onLightPercentChange(lightPercent);
+    this._roomInactiveObject[ROOM_OBJECT_TYPE.MousePad].onLightPercentChange(lightPercent);
+
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].onLightPercentChange(lightPercent);

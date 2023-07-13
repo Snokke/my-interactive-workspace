@@ -3,6 +3,7 @@ const DEBUG_CONFIG = {
   rendererStats: false,
   gridHelper: false,
   withoutUIMode: false,
+  skipIntro: false,
 };
 
 export default DEBUG_CONFIG;

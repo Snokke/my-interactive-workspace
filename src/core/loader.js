@@ -74,6 +74,12 @@ const textures = [
   // mouse
   'mouse-shadow.png',
 
+  // mousepad
+  'baked-textures/baked-mousepad-black-light-on.jpg',
+  'baked-textures/baked-mousepad-black-light-off.jpg',
+  'baked-textures/baked-mousepad-color-light-on.jpg',
+  'baked-textures/baked-mousepad-color-light-off.jpg',
+
   // Transfer it Game
   'transfer-it/bg.jpg',
   'transfer-it/carpet-texture.png',

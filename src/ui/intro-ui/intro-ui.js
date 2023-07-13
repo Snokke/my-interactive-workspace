@@ -23,7 +23,7 @@ export default class IntroUI extends DisplayObject {
     Black.stage.on('resize', () => this._onResize());
     this._onResize();
 
-    if (DEBUG_CONFIG.withoutUIMode) {
+    if (DEBUG_CONFIG.withoutUIMode || DEBUG_CONFIG.skipIntro) {
       this.visible = false;
     }
   }

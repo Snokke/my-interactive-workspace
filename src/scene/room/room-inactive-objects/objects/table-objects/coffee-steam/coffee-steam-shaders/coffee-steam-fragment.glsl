@@ -5,7 +5,7 @@ uniform vec3 uColor;
 
 varying vec2 vUv;
 
-#include perlin2d;
+#include ../../../../../shared/perlin-noise/perlin2d;
 
 void main()
 {

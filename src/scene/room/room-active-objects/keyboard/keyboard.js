@@ -15,6 +15,8 @@ import { Black } from 'black-engine';
 import Materials from '../../../../core/materials';
 import SCENE_CONFIG from '../../../../core/configs/scene-config';
 import { KEYS_BACKLIGHT_TYPE_ORDER } from './keys-backlight/data/keys-backlight-data';
+import { SECRET_CODES_CONFIG, SECRET_CODE_CONFIG } from './data/secret-codes';
+import { arraysEqual } from '../../shared/helpers';
 
 export default class Keyboard extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -31,6 +33,8 @@ export default class Keyboard extends RoomObjectAbstract {
     this._keysUpTweens = [];
     this._keysHighlightTweens = [];
     this._keysStartPosition = [];
+    this._keysSequence = [];
+    this._availableSecretCodes = Object.keys(SECRET_CODES_CONFIG);
     this._isRealKeyboardEnabled = false;
 
     this._init();
@@ -231,6 +235,7 @@ export default class Keyboard extends RoomObjectAbstract {
     }
 
     this._onActiveKeysClick(keyId);
+    this._checkSequence(keyId);
     this._keysBacklight.onKeyPressDown(keyId);
 
     const keys = this._parts[KEYBOARD_PART_TYPE.Keys];
@@ -381,6 +386,22 @@ export default class Keyboard extends RoomObjectAbstract {
     if (keysAction[keyId]) {
       keysAction[keyId]();
     }
+  }
+
+  _checkSequence(keyId) {
+    this._keysSequence.push(keyId);
+
+    if (this._keysSequence.length > SECRET_CODE_CONFIG.maxSequence) {
+      this._keysSequence.shift();
+    }
+
+    this._availableSecretCodes.forEach((secretCodeType) => {
+      const secretCode = SECRET_CODES_CONFIG[secretCodeType];
+
+      if (arraysEqual(this._keysSequence, secretCode)) {
+        this.events.post('onSecretCode', secretCodeType);
+      }
+    });
   }
 
   _showKeyHighlight(intersect) {
