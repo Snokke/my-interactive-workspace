@@ -406,7 +406,9 @@ export default class Monitor extends RoomObjectAbstract {
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreenYoutubeLogo) {
-      this._onOpenYoutube();
+      if (this._isShowreelPlaying) {
+        this._onOpenYoutube();
+      }
     }
   }
 

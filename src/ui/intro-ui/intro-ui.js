@@ -4,6 +4,7 @@ import SkipButton from "./skip-button";
 import Delayed from "../../core/helpers/delayed-call";
 import MusicEnableButton from "./music-enable-button";
 import DEBUG_CONFIG from "../../core/configs/debug-config";
+import IntroText from "./intro-text";
 
 export default class IntroUI extends DisplayObject {
   constructor() {
@@ -12,6 +13,7 @@ export default class IntroUI extends DisplayObject {
     this._buttonStart = null;
     this._buttonSkip = null;
     this._buttonMusicEnable = null;
+    this._introText = null;
 
     this.touchable = true;
   }
@@ -66,9 +68,15 @@ export default class IntroUI extends DisplayObject {
   }
 
   _init() {
+    this._initIntroText();
     this._initButtonStart();
     this._initButtonMusicEnable();
     this._initButtonSkip();
+  }
+
+  _initIntroText() {
+    const introText = this._introText = new IntroText();
+    this.add(introText);
   }
 
   _initButtonStart() {
@@ -106,18 +114,21 @@ export default class IntroUI extends DisplayObject {
   _onResize() {
     const bounds = Black.stage.bounds;
 
+    this._introText.x = bounds.left + bounds.width * 0.5;
+    this._introText.y = bounds.top + bounds.height * 0.2;
+
     this._buttonStart.x = bounds.left + bounds.width * 0.5;
-    this._buttonStart.y = bounds.top + bounds.height * 0.5 - 50;
+    this._buttonStart.y = bounds.top + bounds.height * 0.6 - 50;
 
     this._buttonMusicEnable.x = bounds.left + bounds.width * 0.5;
-    this._buttonMusicEnable.y = bounds.top + bounds.height * 0.5 + 15;
+    this._buttonMusicEnable.y = bounds.top + bounds.height * 0.6 + 15;
 
     if (this._buttonSkip.getState() === SkipButton.State.DuringIntro) {
       this._buttonSkip.x = bounds.left + bounds.width * 0.5;
       this._buttonSkip.y = bounds.bottom - 60;
     } else {
       this._buttonSkip.x = bounds.left + bounds.width * 0.5;
-      this._buttonSkip.y = bounds.top + bounds.height * 0.5 + 80;
+      this._buttonSkip.y = bounds.top + bounds.height * 0.6 + 100;
     }
   }
 }

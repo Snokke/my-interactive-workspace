@@ -54,15 +54,15 @@ const MONITOR_BUTTONS_CONFIG = {
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {
-        position: new THREE.Vector2(-1.41, 0.74),
+        position: new THREE.Vector2(-1.42, 0.74),
         size: new THREE.Vector2(0.11, 0.11),
       },
       textureName: 'close-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenYoutubeLogo]: {
       area: {
-        position: new THREE.Vector2(-1.41, 0.74),
-        size: new THREE.Vector2(0.11, 0.11),
+        position: new THREE.Vector2(1.367, -0.745),
+        size: new THREE.Vector2(0.182, 0.122),
       },
       textureName: 'screens/monitor/youtube-logo',
     },

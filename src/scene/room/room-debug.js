@@ -222,6 +222,8 @@ export default class RoomDebug {
       this.events.post('volumeChanged');
     });
 
+    soundFolder.addSeparator();
+
     soundFolder.addInput(SOUNDS_CONFIG, 'debugHelpers', {
       label: 'Helpers',
     }).on('change', () => {

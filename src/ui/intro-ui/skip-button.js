@@ -35,10 +35,12 @@ export default class SkipButton extends DisplayObject {
   onAdded() {
     this._initView();
     this._initSignals();
+
+    this.visible = false;
   }
 
   _initView() {
-    const view = this._view = new TextField('SKIP INTRO', 'Arial', 0xe5e5e5, 26);
+    const view = this._view = new TextField('SKIP INTRO', 'Arial', 0xb3b3b3, 26); // 0xe5e5e5
     this.add(view);
 
     view.touchable = true;

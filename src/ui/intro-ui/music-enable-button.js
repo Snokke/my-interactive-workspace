@@ -29,6 +29,8 @@ export default class MusicEnableButton extends DisplayObject {
     this._initText();
     this._initCheckbox();
     this._initSignals();
+
+    this.visible = false;
   }
 
   _initText() {
@@ -49,7 +51,7 @@ export default class MusicEnableButton extends DisplayObject {
     checkbox.touchable = true;
 
     checkbox.alignPivotOffset();
-    checkbox.scale = 0.16;
+    // checkbox.scale = 0.16;
     checkbox.x = this._text.width / 2 + 20 - 15;
     checkbox.y = -2;
   }
