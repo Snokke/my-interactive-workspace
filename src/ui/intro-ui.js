@@ -1,8 +1,8 @@
 import { DisplayObject } from "black-engine";
-import Delayed from "../../core/helpers/delayed-call";
-import { INTRO_CONFIG } from "../../scene/room/intro/intro-config";
+import Delayed from "../core/helpers/delayed-call";
+import { INTRO_CONFIG } from "../scene/room/intro/intro-config";
 
-export default class IntroUI2 extends DisplayObject {
+export default class IntroUI extends DisplayObject {
   constructor() {
     super();
 

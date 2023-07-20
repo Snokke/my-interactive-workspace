@@ -1,8 +1,7 @@
 import { Black, DisplayObject, Message } from "black-engine";
 import Overlay from "./overlay";
 import SoundIcon from "./sound-icon";
-import IntroUI from "./intro-ui/intro-ui";
-import IntroUI2 from "./intro-ui/intro-ui2";
+import IntroUI from "./intro-ui";
 
 export default class UI extends DisplayObject {
   constructor() {
@@ -11,7 +10,6 @@ export default class UI extends DisplayObject {
     this._overlay = null;
     this._soundIcon = null;
     this._introUI = null;
-    this._introUI2 = null;
 
     this.touchable = true;
   }
@@ -22,7 +20,6 @@ export default class UI extends DisplayObject {
 
   onIntroStop() {
     this._introUI.onIntroStop();
-    this._introUI2.onIntroStop();
   }
 
   onAdded() {
@@ -48,9 +45,6 @@ export default class UI extends DisplayObject {
   _initIntroUI() {
     const introUI = this._introUI = new IntroUI();
     this.add(introUI);
-
-    const introUI2 = this._introUI2 = new IntroUI2();
-    this.add(introUI2);
   }
 
   _initSignals() {
@@ -62,9 +56,6 @@ export default class UI extends DisplayObject {
     this._soundIcon.on('onSoundChanged', () => this.post('onSoundChanged'));
     this._introUI.on('onStartClick', () => this.post('onIntroStart'));
     this._introUI.on('onSkipClick', () => this.post('onIntroSkip'));
-
-    this._introUI2.on('onStartClick', () => this.post('onIntroStart'));
-    this._introUI2.on('onSkipClick', () => this.post('onIntroSkip'));
   }
 
   _handleResize() {
