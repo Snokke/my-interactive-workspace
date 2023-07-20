@@ -1,7 +1,7 @@
 {
-  "name": "room-3d",
+  "name": "my-interactive-workspace",
   "version": "0.1.0",
-  "description": "My room.",
+  "description": "Andrii Babintsev portfolio website - My Interactive Workspace",
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
