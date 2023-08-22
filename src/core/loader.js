@@ -26,6 +26,7 @@ const textures = [
   'screens/monitor/monitor-screen.jpg',
   'screens/monitor/showreel-icon.jpg',
   'screens/monitor/game-transfer-it-icon.jpg',
+  'screens/monitor/game-boy-icon.jpg',
   'screens/monitor/cv-icon.jpg',
   'screens/monitor/volume.png',
   'screens/monitor/volume-muted.png',

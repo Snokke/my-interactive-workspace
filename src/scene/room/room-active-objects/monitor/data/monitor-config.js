@@ -26,6 +26,7 @@ const MONITOR_ARM_MOUNT_CONFIG = {
 const MONITOR_LINKS_CONFIG = {
   cv: 'https://www.andriibabintsev.com/pdf/andrii-babintsev-cv.pdf',
   showreel: 'https://www.youtube.com/watch?v=HmZ_MUd3zJY',
+  gameBoy: 'https://gameboy.andriibabintsev.com/',
 }
 
 const MONITOR_BUTTONS_CONFIG = {
@@ -51,6 +52,13 @@ const MONITOR_BUTTONS_CONFIG = {
         size: new THREE.Vector2(0.332, 0.332),
       },
       textureName: 'screens/monitor/game-transfer-it-icon',
+    },
+    [MONITOR_PART_TYPE.MonitorScreenGameBoyIcon]: {
+      area: {
+        position: new THREE.Vector2(0.363, 0.27),
+        size: new THREE.Vector2(0.332, 0.332),
+      },
+      textureName: 'screens/monitor/game-boy-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {

@@ -67,7 +67,7 @@ export default class GUIHelper {
   }
 
   showAfterAssetsLoad() {
-    if (!DEBUG_CONFIG.withoutUIMode) {
+    if (!DEBUG_CONFIG.modeWithoutUI) {
       this.gui.hidden = false;
     }
   }

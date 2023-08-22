@@ -1,6 +1,7 @@
 import { DisplayObject } from "black-engine";
 import Delayed from "../core/helpers/delayed-call";
 import { INTRO_CONFIG } from "../scene/room/intro/intro-config";
+import DEBUG_CONFIG from "../core/configs/debug-config";
 
 export default class IntroUI extends DisplayObject {
   constructor() {
@@ -69,6 +70,10 @@ export default class IntroUI extends DisplayObject {
     this._initShowIntroButton();
     this._initEnableMusicButton();
     this._initSkipButton();
+
+    if (DEBUG_CONFIG.skipIntro) {
+      this._hideOnSkip();
+    }
   }
 
   _initName() {

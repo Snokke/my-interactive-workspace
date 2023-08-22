@@ -1,9 +1,9 @@
 const DEBUG_CONFIG = {
-  fpsMeter: false,
+  fpsMeter: true,
   rendererStats: false,
   gridHelper: false,
-  withoutUIMode: false,
-  skipIntro: false,
+  modeWithoutUI: false,
+  skipIntro: true,
 };
 
 export default DEBUG_CONFIG;

@@ -379,7 +379,7 @@ export default class RoomController {
   }
 
   _onStart() {
-    if (DEBUG_CONFIG.withoutUIMode || DEBUG_CONFIG.skipIntro) {
+    if (DEBUG_CONFIG.modeWithoutUI || DEBUG_CONFIG.skipIntro) {
       return;
     }
 

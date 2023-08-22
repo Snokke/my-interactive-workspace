@@ -19,7 +19,7 @@ export default class SoundIcon extends DisplayObject {
     this._initView();
     this._initSignals();
 
-    if (DEBUG_CONFIG.withoutUIMode) {
+    if (DEBUG_CONFIG.modeWithoutUI) {
       this.visible = false;
     }
   }
