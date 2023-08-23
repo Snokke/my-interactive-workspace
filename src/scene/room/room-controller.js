@@ -540,6 +540,7 @@ export default class RoomController {
     walls.events.on('onWindowMoving', () => this._onObjectsMoving());
     walls.events.on('onWindowStopMoving', () => this._onObjectsStopMoving());
     table.events.on('onTableMoving', () => this._onTableMoving());
+    table.events.on('onTableMovingPercent', (msg, percent) => this._onTableMovingPercent(percent));
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
     locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
     locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
@@ -725,6 +726,10 @@ export default class RoomController {
     this._onObjectsMoving();
     this._disableFocusObjects();
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseInactive();
+  }
+
+  _onTableMovingPercent(percent) {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].setTablePercent(percent);
   }
 
   _onTableStop(tableState) {

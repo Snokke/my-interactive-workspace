@@ -132,6 +132,8 @@ export default class Table extends RoomObjectAbstract {
 
       const positionDeltaY = angleDelta / Math.PI * TABLE_CONFIG.handle360RotationDeltaY;
       this._topPartsGroup.position.y += positionDeltaY;
+      const percent = (this._topPartsGroup.position.y / TABLE_CONFIG.handle360RotationDeltaY) / (TABLE_CONFIG.handleMaxRotations * 2);
+      this.events.post('onTableMovingPercent', percent);
 
       this._sound.position.y += positionDeltaY;
       this._soundHelper.position.copy(this._sound.position);
@@ -198,6 +200,7 @@ export default class Table extends RoomObjectAbstract {
     this._previousTableState = this._currentTableState;
 
     this._topPartsGroup.position.y = 0;
+    this.events.post('onTableMovingPercent', 0);
 
     const handle = this._parts[TABLE_PART_TYPE.Handle];
 

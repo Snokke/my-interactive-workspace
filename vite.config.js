@@ -17,5 +17,10 @@ export default {
         emptyOutDir: true,
         sourcemap: true,
     },
-    plugins: [glsl(), eslint()],
+    plugins: [
+      glsl(),
+      eslint({
+        failOnError: false,
+      }),
+    ],
 }

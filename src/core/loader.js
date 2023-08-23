@@ -52,6 +52,10 @@ const textures = [
   'keyboard/keyboard-space-key-texture.jpg',
 
   // locker
+  'baked-textures/baked-locker-closed.jpg',
+  'baked-textures/baked-locker-closed-light-off.jpg',
+  'baked-textures/baked-locker-opened.jpg',
+  'baked-textures/baked-locker-opened-light-off.jpg',
   'baked-textures/baked-workplace-photo.jpg',
   'baked-textures/baked-workplace-photo-light-off.jpg',
   'baked-textures/baked-workplace-photo-focus.jpg',

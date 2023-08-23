@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, CASE_01_PARTS, CASE_02_PARTS, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
 import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -10,9 +10,10 @@ import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
-import Materials from '../../../../core/materials';
-import vertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
-import fragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
+import workplacePhotoVertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
+import workplacePhotoFragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
+import lockerVertexShader from './mix-locker-textures-shaders/mix-locker-textures-vertex.glsl';
+import lockerFragmentShader from './mix-locker-textures-shaders/mix-locker-textures-fragment.glsl';
 
 export default class Locker extends RoomObjectAbstract {
   constructor(meshesGroup, roomObjectType, audioListener) {
@@ -51,14 +52,6 @@ export default class Locker extends RoomObjectAbstract {
 
     if (CASES.includes(partType) && !this._isWorkplacePhotoShown) {
       this.pushCase(roomObject.userData.caseId);
-    }
-
-    if (CASE_01_PARTS.includes(partType) && !this._isWorkplacePhotoShown) {
-      this.pushCase(0);
-    }
-
-    if (CASE_02_PARTS.includes(partType) && !this._isWorkplacePhotoShown) {
-      this.pushCase(1);
     }
 
     if (partType === LOCKER_PART_TYPE.WorkplacePhoto) {
@@ -157,14 +150,6 @@ export default class Locker extends RoomObjectAbstract {
       return [mesh];
     }
 
-    if (CASE_01_PARTS.includes(mesh.userData.partType)) {
-      return CASE_01_PARTS.map((partName) => this._parts[partName]);
-    }
-
-    if (CASE_02_PARTS.includes(mesh.userData.partType)) {
-      return CASE_02_PARTS.map((partName) => this._parts[partName]);
-    }
-
     const partName = `case0${mesh.userData.caseId + 1}`;
     const casePart = this._parts[partName];
 
@@ -237,6 +222,19 @@ export default class Locker extends RoomObjectAbstract {
   onLightPercentChange(lightPercent) {
     const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
     workplacePhoto.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+
+    CASES.forEach((partName) => {
+      const caseObject = this._parts[partName];
+      caseObject.material.uniforms.uMixLightPercent.value = lightPercent;
+    });
+
+    const body = this._parts[LOCKER_PART_TYPE.Body];
+    body.material.uniforms.uMixLightPercent.value = lightPercent;
+  }
+
+  setTablePercent(percent) {
+    const body = this._parts[LOCKER_PART_TYPE.Body];
+    body.material.uniforms.uMixOpenedPercent.value = percent;
   }
 
   resetToInitState() {
@@ -276,16 +274,10 @@ export default class Locker extends RoomObjectAbstract {
 
     if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
       workplacePhoto.visible = true;
-
-      this._parts[LOCKER_PART_TYPE.LockerClosedPartCase01].visible = false;
-      this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = true;
     }
 
     if (caseId === 1 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
       workplacePhoto.visible = true;
-
-      this._parts[LOCKER_PART_TYPE.LockerClosedPartCase02].visible = false;
-      this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = true;
     }
 
     const startPositionZ = casePart.userData.startPosition.z;
@@ -303,13 +295,11 @@ export default class Locker extends RoomObjectAbstract {
       this._openSounds[caseId].position.z += 0.8;
       this._soundHelpers[caseId].position.copy(this._openSounds[caseId].position);
 
+      const percent = Math.abs(casePart.position.z - startPositionZ) / this._caseMoveDistance[caseId];
+      casePart.material.uniforms.uMixOpenedPercent.value = percent;
+
       if (caseId === 0) {
         workplacePhoto.position.z = casePart.position.z + 0.23;
-        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].position.z = casePart.position.z;
-      }
-
-      if (caseId === 1) {
-        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].position.z = casePart.position.z;
       }
     });
 
@@ -339,14 +329,6 @@ export default class Locker extends RoomObjectAbstract {
 
       if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
         workplacePhoto.visible = false;
-
-        this._parts[LOCKER_PART_TYPE.LockerClosedPartCase01].visible = true;
-        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = false;
-      }
-
-      if (caseId === 1 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
-        this._parts[LOCKER_PART_TYPE.LockerClosedPartCase02].visible = true;
-        this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = false;
       }
 
       this.events.post('onCaseStopMoving');
@@ -510,12 +492,37 @@ export default class Locker extends RoomObjectAbstract {
   }
 
   _addMaterials() {
-    const material = Materials.getMaterial(Materials.type.bakedBigObjects);
+    const bakedTextureLightOnOpened = Loader.assets['baked-textures/baked-locker-opened'];
+    bakedTextureLightOnOpened.flipY = false;
 
-    for (const partName in this._parts) {
+    const bakedTextureLightOffOpened = Loader.assets['baked-textures/baked-locker-opened-light-off'];
+    bakedTextureLightOffOpened.flipY = false;
+
+    const bakedTextureLightOnClosed = Loader.assets['baked-textures/baked-locker-closed'];
+    bakedTextureLightOnClosed.flipY = false;
+
+    const bakedTextureLightOffClosed = Loader.assets['baked-textures/baked-locker-closed-light-off'];
+    bakedTextureLightOffClosed.flipY = false;
+
+    const partsNames = [...CASES, LOCKER_PART_TYPE.Body];
+
+    partsNames.forEach((partName) => {
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          uTextureOpenedLightOff: { value: bakedTextureLightOffOpened },
+          uTextureOpenedLightOn: { value: bakedTextureLightOnOpened },
+          uTextureClosedLightOff: { value: bakedTextureLightOffClosed },
+          uTextureClosedLightOn: { value: bakedTextureLightOnClosed },
+          uMixLightPercent: { value: 1 },
+          uMixOpenedPercent: { value: 0 },
+        },
+        vertexShader: lockerVertexShader,
+        fragmentShader: lockerFragmentShader,
+      });
+
       const part = this._parts[partName];
       part.material = material;
-    }
+    });
   }
 
   _addPartsToScene() {
@@ -529,9 +536,6 @@ export default class Locker extends RoomObjectAbstract {
 
       this.add(part);
     }
-
-    this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase01].visible = false;
-    this._parts[LOCKER_PART_TYPE.LockerOpenedPartCase02].visible = false;
   }
 
   _initWorkplacePhoto() {
@@ -554,8 +558,8 @@ export default class Locker extends RoomObjectAbstract {
         uMixTextures0102Percent: { value: 1 },
         uMixTexture03Percent: { value: 0 },
       },
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
+      vertexShader: workplacePhotoVertexShader,
+      fragmentShader: workplacePhotoFragmentShader,
     });
 
     workplacePhoto.material = material;
