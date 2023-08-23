@@ -83,7 +83,7 @@ export default class IntroUI extends DisplayObject {
     introUI.appendChild(name);
 
     name.classList.add('intro-ui-element', 'developer-name');
-    name.innerHTML = 'ANDRII BABINTSEV.';
+    name.innerHTML = 'ANDRII BABINTSEV..';
 
     const occupation = document.createElement('div');
     name.appendChild(occupation);
