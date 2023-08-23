@@ -119,6 +119,11 @@ export default class BaseScene {
   }
 
   _checkDeploymentConfig() {
+    if (process.env.NODE_ENV === 'development') {
+      DEBUG_CONFIG.fpsMeter = true;
+      DEBUG_CONFIG.skipIntro = true;
+    }
+
     if (THEATRE_JS_CONFIG.studioEnabled) {
       DEBUG_CONFIG.fpsMeter = false;
       SCENE_CONFIG.outlinePass.enabled = false;
