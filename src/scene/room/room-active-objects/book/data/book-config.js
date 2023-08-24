@@ -1,5 +1,7 @@
+import { BOOK_TYPE } from "./book-data";
+
 const BOOK_CONFIG = {
-  bookName: ' Structure and Interpretation of Computer Programs - 2nd Edition ',
+  currentBookType: BOOK_TYPE.SICP,
   openAnimation: {
     duration: 450,
     sideCoverOffset: 0.04,
@@ -10,6 +12,16 @@ const BOOK_CONFIG = {
     height: 1370,
     resolution: 0.6,
     flipDuration: 650,
+  },
+  books: {
+    [BOOK_TYPE.SICP]: {
+      fileName: 'sicp.pdf',
+      name: ' Structure and Interpretation of Computer Programs - 2nd Edition ',
+    },
+    [BOOK_TYPE.Algorithms]: {
+      fileName: 'algorithms.pdf',
+      name: ' Algorithms - 4th Edition ',
+    },
   }
 }
 

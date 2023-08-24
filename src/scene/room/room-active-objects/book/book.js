@@ -4,7 +4,7 @@ import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
-import { BOOK_PART_TYPE, BOOK_SIDE, OPEN_BOOK_ACTIVE_PAGES_PARTS, OPEN_BOOK_INACTIVE_PARTS, OPEN_BOOK_PARTS, OPEN_BOOK_TOP_PAGES_PARTS, PAGE_FLIP_DIRECTION, PAGE_MATERIAL_TYPE, PAGE_SIDE } from './data/book-data';
+import { BOOK_PART_TYPE, BOOK_SIDE, BOOK_TYPE, OPEN_BOOK_ACTIVE_PAGES_PARTS, OPEN_BOOK_INACTIVE_PARTS, OPEN_BOOK_PARTS, OPEN_BOOK_TOP_PAGES_PARTS, PAGE_FLIP_DIRECTION, PAGE_MATERIAL_TYPE, PAGE_SIDE } from './data/book-data';
 import { BOOK_CONFIG } from './data/book-config';
 import vertexShader from './page-shaders/page-vertex.glsl';
 import fragmentShader from './page-shaders/page-fragment.glsl';
@@ -28,8 +28,9 @@ export default class Book extends RoomObjectAbstract {
     this._bookPageRender = null;
     this._bookPagePDFRender = null;
 
-    this._currentPage = 0;
-    this._pagesCount = 0;
+    this._currentBookType = BOOK_TYPE.SICP;
+    BOOK_CONFIG.currentBookType = this._currentBookType;
+    this._bookData = {};
 
     this._init();
   }
@@ -171,7 +172,11 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _openBook() {
-    this._drawTopPages();
+    if (!this._bookData[this._currentBookType].isBookLoaded) {
+      this._drawLoadingPages(0);
+      this._bookPagePDFRender.loadPDF(this._currentBookType);
+    }
+
     this._hideClosedBook();
     this._showOpenBook();
     this._disablePagesActivity();
@@ -191,10 +196,6 @@ export default class Book extends RoomObjectAbstract {
     Delayed.call(BOOK_CONFIG.openAnimation.duration, () => {
       this._hideOpenBook();
       this._showClosedBook();
-
-      if (this._bookPagePDFRender) {
-        this._bookPagePDFRender.renderTopPages();
-      }
     });
   }
 
@@ -328,14 +329,14 @@ export default class Book extends RoomObjectAbstract {
       })
       .start()
       .onComplete(() => {
-        this._currentPage = direction === PAGE_FLIP_DIRECTION.Forward ? this._currentPage + 2 : this._currentPage - 2;
-        this._debugMenu.setCurrentPage(this._currentPage);
+        this._bookData[this._currentBookType].currentPage = direction === PAGE_FLIP_DIRECTION.Forward ? this._bookData[this._currentBookType].currentPage + 2 : this._bookData[this._currentBookType].currentPage - 2;
+        this._debugMenu.setCurrentPage(this._bookData[this._currentBookType].currentPage);
         this._hidePages(pages[0], pages[1]);
         this._drawPagesOnFlipEnd(direction);
         this._enablePagesActivity();
 
         if (this._bookPagePDFRender) {
-          this._bookPagePDFRender.setCurrentPage(this._currentPage);
+          this._bookPagePDFRender.setCurrentPage(this._currentBookType, this._bookData[this._currentBookType].currentPage);
         }
 
         Delayed.call(10, () => {
@@ -345,12 +346,12 @@ export default class Book extends RoomObjectAbstract {
   }
 
   _enablePagesActivity() {
-    if (this._currentPage + 2 < this._pagesCount) {
+    if (this._bookData[this._currentBookType].currentPage + 2 < this._bookData[this._currentBookType].pagesCount) {
       this._parts[BOOK_PART_TYPE.BookRightTopPage].userData.isActive = true;
       this._debugMenu.enableNextPageButton();
     }
 
-    if (this._currentPage >= 2) {
+    if (this._bookData[this._currentBookType].currentPage >= 2) {
       this._parts[BOOK_PART_TYPE.BookLeftTopPage].userData.isActive = true;
       this._debugMenu.enablePreviousPageButton();
     }
@@ -423,36 +424,41 @@ export default class Book extends RoomObjectAbstract {
     closedBook.visible = false;
   }
 
+  _drawLoadingPages(percent = 0) {
+    this._drawLoadingPage(this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, percent);
+    this._drawLoadingPage(this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, percent);
+  }
+
   _drawTopPages() {
-    this._drawPage(this._currentPage, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
-    this._drawPage(this._currentPage + 1, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
+    this._drawPage(this._bookData[this._currentBookType].currentPage, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
+    this._drawPage(this._bookData[this._currentBookType].currentPage + 1, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
 
     if (this._bookPagePDFRender) {
-      this._bookPagePDFRender.setCurrentPage(this._currentPage);
+      this._bookPagePDFRender.setCurrentPage(this._currentBookType, this._bookData[this._currentBookType].currentPage);
     }
   }
 
   _drawPagesOnFlipProgress(flipDirection) {
     if (flipDirection === PAGE_FLIP_DIRECTION.Forward) {
       this._copyPage(this._parts[BOOK_PART_TYPE.BookRightTopPage], this._parts[BOOK_PART_TYPE.BookRightPageSide01]);
-      this._drawPage(this._currentPage + 3, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
-      this._drawPage(this._currentPage + 2, this._parts[BOOK_PART_TYPE.BookRightPageSide02], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Shader);
+      this._drawPage(this._bookData[this._currentBookType].currentPage + 3, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
+      this._drawPage(this._bookData[this._currentBookType].currentPage + 2, this._parts[BOOK_PART_TYPE.BookRightPageSide02], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Shader);
     }
 
     if (flipDirection === PAGE_FLIP_DIRECTION.Backward) {
       this._copyPage(this._parts[BOOK_PART_TYPE.BookLeftTopPage], this._parts[BOOK_PART_TYPE.BookLeftPageSide02]);
-      this._drawPage(this._currentPage - 2, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
-      this._drawPage(this._currentPage - 1, this._parts[BOOK_PART_TYPE.BookLeftPageSide01], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Shader);
+      this._drawPage(this._bookData[this._currentBookType].currentPage - 2, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
+      this._drawPage(this._bookData[this._currentBookType].currentPage - 1, this._parts[BOOK_PART_TYPE.BookLeftPageSide01], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Shader);
     }
   }
 
   _drawPagesOnFlipEnd(flipDirection) {
     if (flipDirection === PAGE_FLIP_DIRECTION.Forward) {
-      this._drawPage(this._currentPage, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
+      this._drawPage(this._bookData[this._currentBookType].currentPage, this._parts[BOOK_PART_TYPE.BookLeftTopPage], PAGE_SIDE.Left, PAGE_MATERIAL_TYPE.Basic);
     }
 
     if (flipDirection === PAGE_FLIP_DIRECTION.Backward) {
-      this._drawPage(this._currentPage + 1, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
+      this._drawPage(this._bookData[this._currentBookType].currentPage + 1, this._parts[BOOK_PART_TYPE.BookRightTopPage], PAGE_SIDE.Right, PAGE_MATERIAL_TYPE.Basic);
     }
   }
 
@@ -491,9 +497,17 @@ export default class Book extends RoomObjectAbstract {
 
     const bookPagePDFRender = this._bookPagePDFRender = new BookPagePDFRender();
 
-    bookPagePDFRender.events.on('onPdfLoaded', (msg, pagesCount) => {
-      this._pagesCount = pagesCount;
+    bookPagePDFRender.events.on('onPdfLoaded', (msg, bookType, pagesCount) => {
+      this._bookData[bookType].isBookLoaded = true;
+      this._bookData[bookType].pagesCount = pagesCount;
       this._debugMenu.updatePagesCount(pagesCount);
+
+      this._drawTopPages();
+      this._enablePagesActivity();
+    });
+
+    bookPagePDFRender.events.on('onPdfLoadingProgress', (msg, percent) => {
+      this._drawLoadingPages(percent);
     });
   }
 
@@ -532,6 +546,7 @@ export default class Book extends RoomObjectAbstract {
     this._setOpenBookMaterials();
     this._setActivePagesMaterial();
     this._setPartsSettings();
+    this._setBookData();
   }
 
   _setOpenBookPartsData() {
@@ -559,6 +574,22 @@ export default class Book extends RoomObjectAbstract {
     }
 
     this._updatePageTexture(page, materialType);
+  }
+
+  _drawLoadingPage(page, pageSide, percent) {
+    const bitmap = page.userData.bitmap;
+    const context = bitmap.getContext('2d');
+
+    context.clearRect(0, 0, bitmap.width, bitmap.height);
+
+    this._drawBakedPageTexture(bitmap, pageSide);
+
+    context.fillStyle = '#000000';
+    context.font = '23px Arial';
+    context.textAlign = 'center';
+    context.fillText(`Loading: ${percent}%`, bitmap.width / 2, bitmap.height / 2);
+
+    this._updatePageTexture(page, PAGE_MATERIAL_TYPE.Basic);
   }
 
   _copyPage(fromPage, toPage) {
@@ -772,5 +803,17 @@ export default class Book extends RoomObjectAbstract {
       position: new THREE.Vector3(),
       rotation: new THREE.Euler(),
     };
+  }
+
+  _setBookData() {
+    for (const value in BOOK_TYPE) {
+      const bookType = BOOK_TYPE[value];
+
+      this._bookData[bookType] = {
+        currentPage: 0,
+        pagesCount: 0,
+        isBookLoaded: false,
+      };
+    }
   }
 }

@@ -19,7 +19,8 @@ export default class BookDebugMenu extends RoomObjectDebugAbstract {
     this._stepTime = 0.25;
     this._maxBookNameLength = 23;
     this._currentBookNameOffset = 0;
-    this._bookName = BOOK_CONFIG.bookName;
+    this._bookType = BOOK_CONFIG.currentBookType;
+    this._bookName = BOOK_CONFIG.books[this._bookType].name;
     this._bookNameDirection = 1;
     this._currentBookName = { value: '' };
 

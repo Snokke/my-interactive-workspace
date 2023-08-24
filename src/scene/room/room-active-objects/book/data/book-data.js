@@ -62,6 +62,11 @@ const OPEN_BOOK_INACTIVE_PARTS = [
   BOOK_PART_TYPE.BookBackCover,
 ]
 
+const BOOK_TYPE = {
+  SICP: 'SICP',
+  Algorithms: 'ALGORITHMS',
+}
+
 const BOOK_SIDE = {
   Left: 'LEFT',
   Right: 'RIGHT',
@@ -93,4 +98,5 @@ export {
   OPEN_BOOK_INACTIVE_PARTS,
   OPEN_BOOK_ACTIVE_PAGES_PARTS,
   OPEN_BOOK_TOP_PAGES_PARTS,
+  BOOK_TYPE,
 };
