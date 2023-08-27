@@ -102,7 +102,7 @@ export default class SoundParticles extends THREE.Group {
     const data = [...this._analyser.data];
     let resultData = data;
 
-    if (this._isGameActive) {
+    if (this._isGameActive && this._gameSoundsAnalyser) {
       resultData = [];
       const gameData = this._getGameAnalyserData();
       resultData = data.map((item, i) => item + gameData[i]);

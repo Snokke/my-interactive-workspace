@@ -84,46 +84,12 @@ const textures = [
   'baked-textures/baked-mousepad-black-light-off.jpg',
   'baked-textures/baked-mousepad-color-light-on.jpg',
   'baked-textures/baked-mousepad-color-light-off.jpg',
-
-  // Transfer it Game
-  'transfer-it/bg.jpg',
-  'transfer-it/carpet-texture.png',
-  'transfer-it/cat.jpg',
-  'transfer-it/drone.png',
-  'transfer-it/floor-texture.jpg',
-  'transfer-it/star.png',
-  'transfer-it/target-big.png',
-  'transfer-it/target-small.png',
-  'transfer-it/target.png',
-  'transfer-it/tomato.jpg',
-  'transfer-it/button-next.png',
-  'transfer-it/button-restart.png',
 ];
 
 const models = [
   'room.glb',
   'keyboard-key.glb',
   'keyboard-key-space.glb',
-
-  // Transfer it Game
-  'transfer-it/bottom_floor.glb',
-  'transfer-it/carpet.glb',
-  'transfer-it/chair.glb',
-  'transfer-it/cloud.glb',
-  'transfer-it/cup.glb',
-  'transfer-it/drone-01.glb',
-  'transfer-it/floor.glb',
-  'transfer-it/gas-stove.glb',
-  'transfer-it/left-wall.glb',
-  'transfer-it/nightstand.glb',
-  'transfer-it/picture.glb',
-  'transfer-it/refrigerator.glb',
-  'transfer-it/right-wall.glb',
-  'transfer-it/robot-cleaner.glb',
-  'transfer-it/table-1.glb',
-  'transfer-it/table-2.glb',
-  'transfer-it/table-big.glb',
-  'transfer-it/washing-machine.glb',
 ];
 
 const images = [
@@ -155,12 +121,6 @@ const sounds = [
   'table-handle.mp3',
   'page-flip.mp3',
   'secret.mp3',
-
-  // Transfer it Game
-  'transfer-it/furniture-fall.mp3',
-  'transfer-it/whoosh.mp3',
-  'transfer-it/win.mp3',
-  'transfer-it/lose.mp3',
 ];
 
 const loadingPercentElement = document.querySelector('.loading-percent');

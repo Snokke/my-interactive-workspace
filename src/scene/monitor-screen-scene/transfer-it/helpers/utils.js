@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Loader from '../../../../core/loader';
+import TransferItLoader from '../loader/transfer-it-loader';
 
 const boundingBox = new THREE.Box3();
 const defaultMaterial = new THREE.MeshLambertMaterial();
@@ -16,7 +16,7 @@ function getFirstClonableChild(root) {
 
 export default class Utils {
   static createObject(name, material = defaultMaterial) {
-    const object = Loader.assets[name];
+    const object = TransferItLoader.assets[name];
     if (!object) {
       throw new Error(`Object ${name} is not in the cache.`);
     }

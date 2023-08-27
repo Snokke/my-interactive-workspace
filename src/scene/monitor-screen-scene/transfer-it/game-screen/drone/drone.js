@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Utils from '../../helpers/utils';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
 import { DRONE_TYPE, DRONE_MODELS, DRONES } from './drone-config';
-import Loader from '../../../../../core/loader';
+import TransferItLoader from '../../loader/transfer-it-loader';
 
 export default class Drone extends THREE.Group {
   constructor() {
@@ -82,7 +82,7 @@ export default class Drone extends THREE.Group {
     });
 
     const propellerMaterial = new THREE.MeshBasicMaterial({
-      map: Loader.assets['transfer-it/drone'],
+      map: TransferItLoader.assets['transfer-it/drone'],
       transparent: true,
     });
 

@@ -5,7 +5,7 @@ import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../helpers/simple-physics';
 import { ROOM_TYPE, ROOM_CONFIG } from './room-config';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../core/loader';
+import TransferItLoader from '../../loader/transfer-it-loader';
 
 export default class Floor extends THREE.Group {
   constructor(audioListener) {
@@ -85,7 +85,7 @@ export default class Floor extends THREE.Group {
   }
 
   _createFloor() {
-    const texture = Loader.assets['transfer-it/floor-texture'];
+    const texture = TransferItLoader.assets['transfer-it/floor-texture'];
     const material = new THREE.MeshLambertMaterial({ map: texture });
     const floor = Utils.createObject('transfer-it/floor', material);
 
@@ -144,8 +144,8 @@ export default class Floor extends THREE.Group {
 
     this._showSoundAnalyzer = new THREE.AudioAnalyser(showSound, 128);
 
-    Loader.events.on('onAudioLoaded', () => {
-      this._showSound.setBuffer(Loader.assets['transfer-it/whoosh']);
+    TransferItLoader.events.on('onAudioLoaded', () => {
+      this._showSound.setBuffer(TransferItLoader.assets['transfer-it/whoosh']);
     });
   }
 }

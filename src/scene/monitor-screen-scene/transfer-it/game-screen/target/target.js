@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TARGET_TYPE, TARGET_TEXTURE } from './target-config';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../core/loader';
+import TransferItLoader from '../../loader/transfer-it-loader';
 
 export default class Target extends THREE.Group {
   constructor(cellSize) {
@@ -100,7 +100,7 @@ export default class Target extends THREE.Group {
   _createTarget(type, textureFileName) {
     const bigTargetCoeff = type === TARGET_TYPE.big ? 2 : 1;
 
-    const texture = Loader.assets[textureFileName];
+    const texture = TransferItLoader.assets[textureFileName];
     const geometry = new THREE.PlaneGeometry(this._cellSize.width * bigTargetCoeff, this._cellSize.depth);
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     const target = new THREE.Mesh(geometry, material);

@@ -29,7 +29,7 @@ export default class GameScreen extends THREE.Group {
   }
 
   startGame() {
-    this._gameScreenController.showLoadingScreen();
+    this._gameScreenController.startGame();
   }
 
   stopGame() {

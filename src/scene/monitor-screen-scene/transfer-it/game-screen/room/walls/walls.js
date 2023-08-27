@@ -4,7 +4,7 @@ import Utils from '../../../helpers/utils';
 import { MessageDispatcher } from "black-engine";
 import SimplePhysics from '../../../helpers/simple-physics';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../../core/loader';
+import TransferItLoader from '../../../loader/transfer-it-loader';
 
 export default class Walls extends THREE.Group {
   constructor(floorSize, audioListener) {
@@ -164,8 +164,8 @@ export default class Walls extends THREE.Group {
 
     this._showSoundAnalyzer = new THREE.AudioAnalyser(showSound, 128);
 
-    Loader.events.on('onAudioLoaded', () => {
-      this._showSound.setBuffer(Loader.assets['transfer-it/whoosh']);
+    TransferItLoader.events.on('onAudioLoaded', () => {
+      this._showSound.setBuffer(TransferItLoader.assets['transfer-it/whoosh']);
     });
   }
 }

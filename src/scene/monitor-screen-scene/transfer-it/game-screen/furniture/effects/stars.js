@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../../core/loader';
+import TransferItLoader from '../../../loader/transfer-it-loader';
 
 export default class Stars extends THREE.Group {
   constructor() {
@@ -64,7 +64,7 @@ export default class Stars extends THREE.Group {
   }
 
   _init() {
-    const texture = Loader.assets['transfer-it/star'];
+    const texture = TransferItLoader.assets['transfer-it/star'];
     const particleMaterial = new THREE.SpriteMaterial({
       map: texture,
     });

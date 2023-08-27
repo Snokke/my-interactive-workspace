@@ -6,9 +6,9 @@ import { RATING_TYPE, RATING_DISTANCE, BIG_FURNITURE_COEFF } from './configs/rat
 import { ROOM_TYPE, ROOM_CONFIG } from './room/room-config';
 import HeightMeter from "../helpers/height-meter";
 import Delayed from "../../../../core/helpers/delayed-call";
-import Loader from "../../../../core/loader";
 import { SOUNDS_CONFIG } from '../../../room/data/sounds-config';
 import { SPEAKERS_POWER_STATUS } from "../../../room/room-active-objects/speakers/data/speakers-data";
+import TransferItLoader from "../loader/transfer-it-loader";
 
 export default class GameScreenController extends THREE.Group{
   constructor(data) {
@@ -63,11 +63,6 @@ export default class GameScreenController extends THREE.Group{
     this._room.reset();
     this._room.hide();
     this._ui.hideTutorial();
-    this._ui.stopLoadingScreen();
-  }
-
-  showLoadingScreen() {
-    this._ui.showLoadingScreen();
   }
 
   defeat() {
@@ -382,8 +377,6 @@ export default class GameScreenController extends THREE.Group{
     this._furnitureController.events.on('furnitureCollision', () => this.events.post('furnitureCollision'));
 
     this._robotCleaner.events.on('collide', () => this.defeat());
-
-    this._ui.events.on('onLoadingScreenHidden', () => this.startGame());
   }
 
   _initSounds() {
@@ -412,9 +405,9 @@ export default class GameScreenController extends THREE.Group{
     const wallsShowSoundAnalyser = this._room.getWallsShowSoundAnalyser();
     this._soundsAnalyzer.push(wallsShowSoundAnalyser);
 
-    Loader.events.on('onAudioLoaded', () => {
-      this._winSound.setBuffer(Loader.assets['transfer-it/win']);
-      this._loseSound.setBuffer(Loader.assets['transfer-it/lose']);
+    TransferItLoader.events.on('onAudioLoaded', () => {
+      this._winSound.setBuffer(TransferItLoader.assets['transfer-it/win']);
+      this._loseSound.setBuffer(TransferItLoader.assets['transfer-it/lose']);
     });
   }
 

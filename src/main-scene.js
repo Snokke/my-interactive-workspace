@@ -37,7 +37,6 @@ export default class MainScene {
     this._ui = new UI();
     this._monitorScreenScene = new MonitorScreenScene(this._data.monitorScreenData);
 
-    this._getMonitorScreenSceneSoundsAnalyzer();
     this._initSignals();
   }
 
@@ -60,6 +59,8 @@ export default class MainScene {
     this._scene3D.events.on('onSpeakersPowerChanged', (msg, powerStatus) => this._monitorScreenScene.onSpeakersPowerChanged(powerStatus));
     this._scene3D.events.on('onSwitchToReserveCamera', () => this.events.post('onSwitchToReserveCamera'));
     this._scene3D.events.on('onIntroStop', () => this._ui.onIntroStop());
+
+    this._monitorScreenScene.events.on('onTransferItAssetsLoaded', () => this._onTransferItAssetsLoaded());
   }
 
   _onSoundsEnabledChanged() {
@@ -83,7 +84,7 @@ export default class MainScene {
     this.events.post('onHideGame');
   }
 
-  _getMonitorScreenSceneSoundsAnalyzer() {
+  _onTransferItAssetsLoaded() {
     const gameSoundsAnalyzer = this._monitorScreenScene.getSoundsAnalyzer();
     this._scene3D.setGameSoundsAnalyzer(gameSoundsAnalyzer);
   }

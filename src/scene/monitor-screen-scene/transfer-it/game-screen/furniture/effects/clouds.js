@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../../core/loader';
+import TransferItLoader from '../../../loader/transfer-it-loader';
 
 export default class Clouds extends THREE.Group {
   constructor() {
@@ -93,7 +93,7 @@ export default class Clouds extends THREE.Group {
   _init() {
     const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
 
-    const cloudModel = Loader.assets['transfer-it/cloud'];
+    const cloudModel = TransferItLoader.assets['transfer-it/cloud'];
     const cloudMesh = cloudModel.scene.children[0];
     const geometry = cloudMesh.geometry;
 

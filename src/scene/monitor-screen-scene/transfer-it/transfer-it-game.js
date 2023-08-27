@@ -3,23 +3,37 @@ import * as CANNON from 'cannon-es';
 import GameScreen from './game-screen/game-screen';
 import SimplePhysics from './helpers/simple-physics';
 import ShakeEffect from './helpers/shake/shake-effect';
-import { Black } from 'black-engine';
+import { Black, MessageDispatcher } from 'black-engine';
 import TRANSFER_IT_DEBUG_CONFIG from './configs/transfer-it-debug-config';
-import Loader from '../../../core/loader';
 import { OrbitControls } from '../../../core/OrbitControls';
+import LoadingScreen from './loader/loading-screen';
+import TransferItLoader from './loader/transfer-it-loader';
 
 export default class TransferItGame extends THREE.Group {
   constructor(scene, camera, audioListener) {
     super();
 
+    this.events = new MessageDispatcher();
+
     this._scene = scene;
     this._camera = camera;
     this._audioListener = audioListener;
 
-    this._init();
+    this._loadingScreen = null;
+
+    this._isGameLoaded = false;
+    this._isGameLoading = false;
+    this._isGameActive = false;
+
+    this._configureCamera();
+    this._initLoadingScreen();
   }
 
   update(dt) {
+    if (!this._isGameLoaded) {
+      return;
+    }
+
     this._physics.update(dt);
     this._gameScreen.update(dt);
     this._shake.update(dt);
@@ -34,15 +48,35 @@ export default class TransferItGame extends THREE.Group {
   }
 
   startGame() {
-    this._gameScreen.startGame();
+    this._isGameActive = true;
+
+    if (this._isGameLoaded) {
+      this._loadingScreen.showFake();
+    } else {
+      if (this._isGameLoading) {
+        this._loadingScreen.show();
+      } else {
+        this._isGameLoading = true;
+        this._initTransferItLoader();
+        this._loadingScreen.show();
+      }
+    }
   }
 
   stopGame() {
-    this._gameScreen.stopGame();
+    this._isGameActive = false;
+
+    if (this._isGameLoaded) {
+      this._gameScreen.stopGame();
+    }
   }
 
   getSoundsAnalyzer() {
-    return this._gameScreen.getSoundsAnalyzer();
+    if (this._isGameLoaded) {
+      return this._gameScreen.getSoundsAnalyzer();
+    }
+
+    return null;
   }
 
   onSoundsEnabledChanged() {
@@ -57,8 +91,44 @@ export default class TransferItGame extends THREE.Group {
     this._gameScreen.onSpeakersPowerChanged(powerStatus);
   }
 
-  _init() {
-    this._configureCamera();
+  _initLoadingScreen() {
+    const loadingScreen = this._loadingScreen = new LoadingScreen();
+    this.add(loadingScreen);
+
+    loadingScreen.quaternion.copy(this._camera.quaternion);
+    loadingScreen.position.copy(this._camera.position);
+    loadingScreen.translateZ(-1);
+
+    loadingScreen.events.on('onLoadingScreenHidden', () => this._onLoadingScreenHidden());
+  }
+
+  _initTransferItLoader() {
+    new TransferItLoader();
+
+    TransferItLoader.events.on('onAssetsLoaded', () => this._onAssetsLoaded());
+    TransferItLoader.events.on('onAssetsLoading', (msg, percent) => this._loadingScreen.updateProgressBar(percent));
+  }
+
+  _onLoadingScreenHidden() {
+    this._loadingScreen.hide();
+    this._gameScreen.startGame();
+  }
+
+  _onAssetsLoaded() {
+    this._isGameLoading = false;
+    this._isGameLoaded = true;
+
+    this._loadingScreen.hide();
+    this._initGame();
+
+    this.events.post('onAssetsLoaded');
+
+    if (this._isGameActive) {
+      this._gameScreen.startGame();
+    }
+  }
+
+  _initGame() {
     this._initLights();
     this._initBg();
     this._initPhysics();
@@ -94,7 +164,7 @@ export default class TransferItGame extends THREE.Group {
   }
 
   _initBg() {
-    const background = Loader.assets['transfer-it/bg'];
+    const background = TransferItLoader.assets['transfer-it/bg'];
     this._scene.background = background;
   }
 

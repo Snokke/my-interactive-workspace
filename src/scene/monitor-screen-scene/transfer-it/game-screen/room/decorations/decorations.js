@@ -5,7 +5,7 @@ import WALL_TYPE from '../walls/wall-config';
 import { CARPET_CONFIG, PICTURE_CONFIG } from './decorations-config';
 import { ROOM_TYPE, ROOM_CONFIG } from '../room-config';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../../core/loader';
+import TransferItLoader from '../../../loader/transfer-it-loader';
 
 export default class Decorations extends THREE.Group {
   constructor(floorSize) {
@@ -122,7 +122,7 @@ export default class Decorations extends THREE.Group {
   _createCarpet() {
     const carpetConfig = this._config.carpet;
     const frameName = CARPET_CONFIG[carpetConfig.type].texture;
-    const texture = Loader.assets[frameName];
+    const texture = TransferItLoader.assets[frameName];
 
     const material = new THREE.MeshLambertMaterial({
       map: texture,
@@ -147,7 +147,7 @@ export default class Decorations extends THREE.Group {
     const picture = Utils.createObject('transfer-it/picture');
     const frameName = PICTURE_CONFIG[config.type].texture;
 
-    const texture = Loader.assets[frameName];
+    const texture = TransferItLoader.assets[frameName];
     texture.center.set(0.5, 0.5);
     texture.rotation = Math.PI;
 

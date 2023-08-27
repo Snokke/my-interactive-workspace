@@ -7,7 +7,7 @@ import Stars from './effects/stars';
 import { ROOM_CONFIG, ROOM_TYPE } from '../room/room-config';
 import Clouds from './effects/clouds';
 import Delayed from '../../../../../core/helpers/delayed-call';
-import Loader from '../../../../../core/loader';
+import TransferItLoader from '../../loader/transfer-it-loader';
 
 export default class FurnitureController extends THREE.Group {
   constructor(room, audioListener) {
@@ -428,8 +428,8 @@ export default class FurnitureController extends THREE.Group {
 
     this._fallSoundAnalyser = new THREE.AudioAnalyser(fallSound, 128);
 
-    Loader.events.on('onAudioLoaded', () => {
-      this._fallSound.setBuffer(Loader.assets['transfer-it/furniture-fall']);
+    TransferItLoader.events.on('onAudioLoaded', () => {
+      this._fallSound.setBuffer(TransferItLoader.assets['transfer-it/furniture-fall']);
     });
   }
 }

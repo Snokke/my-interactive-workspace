@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { BUTTON_CONFIG } from './button-config';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import Loader from '../../../../../../core/loader';
+import TransferItLoader from '../../../loader/transfer-it-loader';
 
 export default class Button extends THREE.Group {
   constructor() {
@@ -44,7 +44,7 @@ export default class Button extends THREE.Group {
 
   setType(type) {
     const textureFrameName = BUTTON_CONFIG[type].textureFrameName;
-    const texture = Loader.assets[textureFrameName];
+    const texture = TransferItLoader.assets[textureFrameName];
 
     this._view.material.map = texture;
   }
