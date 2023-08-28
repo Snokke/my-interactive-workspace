@@ -44,7 +44,9 @@ export default class TransferItGame extends THREE.Group {
   }
 
   onInputDown() {
-    this._gameScreen.onInputDown();
+    if (this._isGameLoaded) {
+      this._gameScreen.onInputDown();
+    }
   }
 
   startGame() {
@@ -80,15 +82,21 @@ export default class TransferItGame extends THREE.Group {
   }
 
   onSoundsEnabledChanged() {
-    this._gameScreen.onSoundsEnabledChanged();
+    if (this._isGameLoaded) {
+      this._gameScreen.onSoundsEnabledChanged();
+    }
   }
 
   onVolumeChanged() {
-    this._gameScreen.onVolumeChanged();
+    if (this._isGameLoaded) {
+      this._gameScreen.onVolumeChanged();
+    }
   }
 
   onSpeakersPowerChanged(powerStatus) {
-    this._gameScreen.onSpeakersPowerChanged(powerStatus);
+    if (this._isGameLoaded) {
+      this._gameScreen.onSpeakersPowerChanged(powerStatus);
+    }
   }
 
   _initLoadingScreen() {
