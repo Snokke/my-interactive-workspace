@@ -12,6 +12,7 @@ import { LAPTOP_PART_ACTIVITY_CONFIG, LAPTOP_PART_TYPE } from '../room-active-ob
 import { SOCIAL_NETWORK_LOGOS_PART_ACTIVITY_CONFIG, SOCIAL_NETWORK_LOGOS_PART_TYPE } from '../room-active-objects/social-network-logos/social-network-logos-data';
 import { AIR_CONDITIONER_REMOTE_PART_ACTIVITY_CONFIG, AIR_CONDITIONER_REMOTE_PART_TYPE } from '../room-active-objects/air-conditioner-remote/data/air-conditioner-remote-data';
 import { BOOK_PART_ACTIVITY_CONFIG, BOOK_PART_TYPE } from '../room-active-objects/book/data/book-data';
+import { CV_PART_ACTIVITY_CONFIG, CV_PART_TYPE } from '../room-active-objects/cv/data/cv-data';
 
 const ROOM_CONFIG = {
   autoOpenActiveDebugFolder: true,
@@ -34,6 +35,7 @@ const ROOM_OBJECT_TYPE = {
   Book: 'BOOK',
   FloorLamp: 'FLOOR_LAMP',
   SocialNetworkLogos: 'SOCIAL_NETWORK_LOGOS',
+  CV: 'CV',
 
   // Inactive objects
   RoomObjects: 'ROOM_OBJECTS',
@@ -188,6 +190,16 @@ const ROOM_OBJECT_CONFIG = {
     groupName: 'Book',
     partTypes: BOOK_PART_TYPE,
     partsActiveConfig: BOOK_PART_ACTIVITY_CONFIG,
+  },
+  [ROOM_OBJECT_TYPE.CV]: {
+    createObject: true,
+    label: 'CV',
+    debugFolderLabel: 'CV',
+    activityType: ROOM_OBJECT_ACTIVITY_TYPE.Active,
+    groupName: 'CV',
+    partTypes: CV_PART_TYPE,
+    partsActiveConfig: CV_PART_ACTIVITY_CONFIG,
+    tableGroup: true,
   },
 
   // Inactive objects

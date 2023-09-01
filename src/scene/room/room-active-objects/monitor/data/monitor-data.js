@@ -5,7 +5,6 @@ const MONITOR_PART_TYPE = {
   MonitorArmMountArm01: 'monitor_arm_mount_arm01',
   MonitorArmMountArm02: 'monitor_arm_mount_arm02',
   MonitorScreenShowreelIcon: 'monitor_screen_showreel_icon',
-  MonitorScreenCVIcon: 'monitor_screen_cv_icon',
   MonitorScreenTransferItIcon: 'monitor_screen_transfer_it_icon',
   MonitorScreenGameBoyIcon: 'monitor_screen_gameboy_icon',
   MonitorScreenCloseIcon: 'monitor_screen_close_icon',
@@ -21,7 +20,6 @@ const MONITOR_PART_ACTIVITY_CONFIG = {
   [MONITOR_PART_TYPE.MonitorArmMountArm01]: true,
   [MONITOR_PART_TYPE.MonitorArmMountArm02]: true,
   [MONITOR_PART_TYPE.MonitorScreenShowreelIcon]: true,
-  [MONITOR_PART_TYPE.MonitorScreenCVIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenTransferItIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenGameBoyIcon]: true,
   [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: true,
@@ -39,7 +37,6 @@ const MONITOR_PARTS_WITHOUT_BUTTONS = [
 
 const MONITOR_SCREEN_BUTTONS = [
   MONITOR_PART_TYPE.MonitorScreenShowreelIcon,
-  MONITOR_PART_TYPE.MonitorScreenCVIcon,
   MONITOR_PART_TYPE.MonitorScreenTransferItIcon,
   MONITOR_PART_TYPE.MonitorScreenGameBoyIcon,
   MONITOR_PART_TYPE.MonitorScreenCloseIcon,

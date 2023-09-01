@@ -1,5 +1,4 @@
 import * as pdfjs from 'pdfjs-dist/build/pdf';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker';
 import { BOOK_CONFIG } from '../data/book-config';
 import { BOOK_PDF_CONFIG } from './book-pdf-config';
 import { MessageDispatcher } from 'black-engine';
@@ -65,7 +64,6 @@ export default class BookPagePDFRender {
 
   _init() {
     this._createBitmaps();
-    this._initPDFJS();
     this._initPDFObjects();
   }
 
@@ -84,11 +82,6 @@ export default class BookPagePDFRender {
 
       this._bitmaps.push(bitmapConfig);
     }
-  }
-
-  _initPDFJS() {
-    window.pdfjsWorker = pdfjsWorker;
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   }
 
   _initPDFObjects() {

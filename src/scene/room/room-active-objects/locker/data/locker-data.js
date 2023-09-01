@@ -1,3 +1,5 @@
+import WorkplacePhoto from "../objects-in-locker/workplace-photo"
+
 const LOCKER_PART_TYPE = {
   Body: 'locker_body',
   Case01: 'case01',
@@ -52,6 +54,13 @@ const LOCKER_CASES_ANIMATION_TYPE = {
   ToCenter: 'TO_CENTER',
 }
 
+const OBJECTS_IN_LOCKER_CONFIG = {
+  [LOCKER_PART_TYPE.WorkplacePhoto]: {
+    case: LOCKER_PART_TYPE.Case01,
+    class: WorkplacePhoto,
+  },
+}
+
 const LOCKER_CASES_ANIMATION_SEQUENCE = {
   [LOCKER_CASES_ANIMATION_TYPE.FromTop]: [
     [0], [1], [2], [3], [4], [5],
@@ -100,4 +109,5 @@ export {
   LOCKER_PART_ACTIVITY_CONFIG,
   LOCKER_CASE_OPEN_STATE,
   WORKPLACE_PHOTO_MATERIAL_TYPE,
+  OBJECTS_IN_LOCKER_CONFIG,
 };

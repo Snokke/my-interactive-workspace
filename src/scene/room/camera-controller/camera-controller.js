@@ -264,11 +264,15 @@ export default class CameraController extends THREE.Group {
     }
 
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Locker) {
-      this.events.post('onWorkplacePhotoHide');
+      this.events.post('onObjectInLockerHide');
     }
 
     if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.Book) {
       this.events.post('onBookHide');
+    }
+
+    if (this._staticModeRoomObjectType === ROOM_OBJECT_TYPE.CV) {
+      this.events.post('onCVHide');
     }
   }
 

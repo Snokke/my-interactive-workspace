@@ -30,6 +30,7 @@ import RoomObjects from "../room-inactive-objects/objects/room-objects";
 import Book from "../room-active-objects/book/book";
 import Calendar from "../room-inactive-objects/objects/calendar/calendar";
 import BookDebugMenu from "../room-active-objects/book/book-debug-menu";
+import CV from "../room-active-objects/cv/cv";
 
 const ROOM_OBJECT_CLASS = {
   // Active objects
@@ -88,6 +89,10 @@ const ROOM_OBJECT_CLASS = {
   [ROOM_OBJECT_TYPE.Book]: {
     object: Book,
     debugMenu: BookDebugMenu,
+  },
+  [ROOM_OBJECT_TYPE.CV]: {
+    object: CV,
+    debugMenu: null,
   },
 
   // Inactive objects

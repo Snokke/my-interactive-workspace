@@ -386,10 +386,6 @@ export default class Monitor extends RoomObjectAbstract {
         this._playShowreel();
       }
 
-      if (partType === MONITOR_PART_TYPE.MonitorScreenCVIcon) {
-        this._onOpenCV();
-      }
-
       if (partType === MONITOR_PART_TYPE.MonitorScreenTransferItIcon) {
         this.startGame();
       }
@@ -454,7 +450,6 @@ export default class Monitor extends RoomObjectAbstract {
 
   _onFullScreenEnabled() {
     const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
-    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const transferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const gameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
@@ -463,8 +458,6 @@ export default class Monitor extends RoomObjectAbstract {
     closeIcon.position.z += MONITOR_CONFIG.hideOffset;
     showreelIcon.visible = false;
     showreelIcon.position.z -= MONITOR_CONFIG.hideOffset;
-    CVIcon.visible = false;
-    CVIcon.position.z -= MONITOR_CONFIG.hideOffset;
     transferItIcon.visible = false;
     transferItIcon.position.z -= MONITOR_CONFIG.hideOffset;
     gameBoyIcon.visible = false;
@@ -473,7 +466,6 @@ export default class Monitor extends RoomObjectAbstract {
 
   _onFullScreenDisabled() {
     const showreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
-    const CVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const transferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const gameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
@@ -482,8 +474,6 @@ export default class Monitor extends RoomObjectAbstract {
     closeIcon.position.z -= MONITOR_CONFIG.hideOffset;
     showreelIcon.visible = true;
     showreelIcon.position.z += MONITOR_CONFIG.hideOffset;
-    CVIcon.visible = true;
-    CVIcon.position.z += MONITOR_CONFIG.hideOffset;
     transferItIcon.visible = true;
     transferItIcon.position.z += MONITOR_CONFIG.hideOffset;
     gameBoyIcon.visible = true;
@@ -504,16 +494,6 @@ export default class Monitor extends RoomObjectAbstract {
     this.events.post('onShowreelPause');
   }
 
-  _onOpenCV() {
-    if (SCENE_CONFIG.isMobile) {
-      const linkElement = document.getElementById('cv_link');
-      linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.cv);
-      linkElement.click();
-    } else {
-      window.open(MONITOR_LINKS_CONFIG.cv, '_blank').focus();
-    }
-  }
-
   _openGameBoyProject() {
     if (SCENE_CONFIG.isMobile) {
       const linkElement = document.getElementById('gameboy_link');
@@ -526,7 +506,7 @@ export default class Monitor extends RoomObjectAbstract {
 
   _onOpenYoutube() {
     if (SCENE_CONFIG.isMobile) {
-      const linkElement = document.getElementById('cv_link');
+      const linkElement = document.getElementById('youtube_link');
       linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.showreel);
       linkElement.click();
     } else {
@@ -609,7 +589,7 @@ export default class Monitor extends RoomObjectAbstract {
     this._updateArmRotation();
     this._initArrows();
     this._initDebugMenu();
-    this._initCVLink();
+    this._initYoutubeLink();
     this._initGameBoyLink();
     this._initSignals();
 
@@ -631,19 +611,17 @@ export default class Monitor extends RoomObjectAbstract {
 
     const monitorScreen = this._parts[MONITOR_PART_TYPE.MonitorScreen];
     const monitorScreenShowreelIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenShowreelIcon];
-    const monitorScreenCVIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCVIcon];
     const monitorScreenTransferItIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenTransferItIcon];
     const monitorScreenGameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
     const monitorScreenYoutubeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo];
     const monitorCloseFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenCVIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenYoutubeIcon, monitorScreenVolume, monitorCloseFocusIcon, monitorScreenGameBoyIcon);
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenYoutubeIcon, monitorScreenVolume, monitorCloseFocusIcon, monitorScreenGameBoyIcon);
 
     screenGroup.position.copy(monitorScreen.position);
 
     const showreelIconOffset = monitorScreenShowreelIcon.position.clone().sub(monitorScreen.position.clone());
-    const CVIconOffset = monitorScreenCVIcon.position.clone().sub(monitorScreen.position.clone());
     const transferItIconOffset = monitorScreenTransferItIcon.position.clone().sub(monitorScreen.position.clone());
     const gameBoyIconOffset = monitorScreenGameBoyIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
@@ -653,7 +631,6 @@ export default class Monitor extends RoomObjectAbstract {
 
     monitorScreen.position.set(0, 0, 0);
     monitorScreenShowreelIcon.position.copy(showreelIconOffset);
-    monitorScreenCVIcon.position.copy(CVIconOffset);
     monitorScreenTransferItIcon.position.copy(transferItIconOffset);
     monitorScreenGameBoyIcon.position.copy(gameBoyIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
@@ -752,10 +729,10 @@ export default class Monitor extends RoomObjectAbstract {
     helpArrows.position.copy(this._parts[MONITOR_PART_TYPE.Monitor].position.clone());
   }
 
-  _initCVLink() {
+  _initYoutubeLink() {
     if (SCENE_CONFIG.isMobile) {
       const linkElement = document.createElement('a');
-      linkElement.id = 'cv_link';
+      linkElement.id = 'youtube_link';
       window.document.body.appendChild(linkElement);
     }
   }
@@ -787,7 +764,6 @@ export default class Monitor extends RoomObjectAbstract {
   _initSignals() {
     this._debugMenu.events.on('onPositionChanged', (msg, position) => this._onPositionChanged(position));
     this._debugMenu.events.on('onPlayShowreelVideo', () => this._onDebugPlayShowreelVideo());
-    this._debugMenu.events.on('onOpenCV', () => this._onOpenCV());
     this._debugMenu.events.on('onShowGame', () => this._onShowGame());
   }
 

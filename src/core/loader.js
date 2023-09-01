@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { AssetManager, GameObject, MessageDispatcher } from 'black-engine';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
+import * as pdfjs from 'pdfjs-dist/build/pdf';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker';
 
 const textures = [
   'environment.jpg',
@@ -59,6 +61,8 @@ const textures = [
   'baked-textures/baked-workplace-photo.jpg',
   'baked-textures/baked-workplace-photo-light-off.jpg',
   'baked-textures/baked-workplace-photo-focus.jpg',
+  'baked-textures/baked-cv-light-off.jpg',
+  'baked-textures/baked-cv-light-on.jpg',
 
   // book
   'baked-textures/baked-opened-book.jpg',
@@ -84,6 +88,9 @@ const textures = [
   'baked-textures/baked-mousepad-black-light-off.jpg',
   'baked-textures/baked-mousepad-color-light-on.jpg',
   'baked-textures/baked-mousepad-color-light-off.jpg',
+
+  // cv
+  'open-pdf-button.jpg',
 ];
 
 const models = [
@@ -142,6 +149,7 @@ export default class Loader extends GameObject {
 
     this._loadBlackAssets();
     this._initFont();
+    this._initPDFJS();
   }
 
   _loadBlackAssets() {
@@ -178,6 +186,11 @@ export default class Loader extends GameObject {
     div.style.position = 'absolute';
     div.style.top = '-1000px';
     div.innerText = '0123456789';
+  }
+
+  _initPDFJS() {
+    window.pdfjsWorker = pdfjsWorker;
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   }
 
   _loadThreeJSAssets() {

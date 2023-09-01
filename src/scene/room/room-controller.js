@@ -509,8 +509,9 @@ export default class RoomController {
     this._cameraController.events.on('onObjectFocused', (msg, focusedObject) => this._onObjectFocused(focusedObject));
     this._cameraController.events.on('onRoomFocused', () => this._onRoomFocused());
     this._cameraController.events.on('onAirConditionerRemoteHide', () => this._onAirConditionerRemoteClickToHide());
-    this._cameraController.events.on('onWorkplacePhotoHide', () => this._onWorkplacePhotoClickToHide());
+    this._cameraController.events.on('onObjectInLockerHide', () => this._onLockerObjectClickToHide());
     this._cameraController.events.on('onBookHide', () => this._onBookClickToHide());
+    this._cameraController.events.on('onCVHide', () => this._onCVClickToHide());
   }
 
   _initIntroSignals() {
@@ -527,6 +528,7 @@ export default class RoomController {
     const book = this._roomActiveObject[ROOM_OBJECT_TYPE.Book];
     const chair = this._roomActiveObject[ROOM_OBJECT_TYPE.Chair];
     const floorLamp = this._roomActiveObject[ROOM_OBJECT_TYPE.FloorLamp];
+    const CV = this._roomActiveObject[ROOM_OBJECT_TYPE.CV];
 
     laptop.events.on('onLaptopClosed', () => this._cursor.onLaptopClosed());
     laptop.events.on('onLaptopScreenClick', () => this._onMonitorFocus());
@@ -542,12 +544,12 @@ export default class RoomController {
     table.events.on('onTableMoving', () => this._onTableMoving());
     table.events.on('onTableMovingPercent', (msg, percent) => this._onTableMovingPercent(percent));
     table.events.on('onTableStop', (msg, tableState) => this._onTableStop(tableState));
-    locker.events.on('onWorkplacePhotoClickToShow', (msg, workplacePhoto, roomObjectType) => this._onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType));
-    locker.events.on('onWorkplacePhotoClickToHide', () => this._onWorkplacePhotoClickToHide());
+    locker.events.on('onObjectInLockerClickToShow', (msg, object, roomObjectType) => this._onObjectInLockerClickToShow(object, roomObjectType));
+    locker.events.on('onObjectClickToHide', () => this._onLockerObjectClickToHide());
     locker.events.on('onCaseMoving', () => this._onObjectsMoving());
     locker.events.on('onCaseStopMoving', () => this._onObjectsStopMoving());
-    locker.events.on('onWorkplacePhotoMoving', () => this._onObjectsMoving());
-    locker.events.on('onWorkplacePhotoStopMoving', () => this._onObjectsStopMoving());
+    locker.events.on('onObjectMoving', () => this._onObjectsMoving());
+    locker.events.on('onObjectInLockerStopMoving', () => this._onObjectsStopMoving());
     book.events.on('onBookClickToShow', (msg, book, roomObjectType) => this._onBookClickToShow(book, roomObjectType));
     book.events.on('onBookClickToHide', () => this._onBookClickToHide());
     book.events.on('onPageMoving', () => this._onObjectsMoving());
@@ -560,6 +562,10 @@ export default class RoomController {
     floorLamp.events.on('onLightHalfOn', () => this._onLightHalfOn());
     floorLamp.events.on('onLightHalfOff', () => this._onLightHalfOff());
     floorLamp.events.on('onHelpersChange', () => this._onHelpersChange());
+    CV.events.on('onCVMoving', () => this._onObjectsMoving());
+    CV.events.on('onCVStopMoving', () => this._onObjectsStopMoving());
+    CV.events.on('onCVClickToShow', (msg, airConditionerRemote, roomObjectType) => this._onCVClickToShow(airConditionerRemote, roomObjectType));
+    CV.events.on('onCVClickToHide', () => this._onCVClickToHide());
   }
 
   _initRealKeyboardSignals() {
@@ -573,7 +579,7 @@ export default class RoomController {
           }
 
           if (objectType === ROOM_OBJECT_TYPE.Locker) {
-            this._onWorkplacePhotoClickToHide();
+            this._onLockerObjectClickToHide();
           }
         }
 
@@ -739,8 +745,8 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.AirConditionerRemote].setBaseActive();
   }
 
-  _onWorkplacePhotoClickToShow(workplacePhoto, roomObjectType) {
-    this._cameraController.setStaticState(workplacePhoto, roomObjectType);
+  _onObjectInLockerClickToShow(object, roomObjectType) {
+    this._cameraController.setStaticState(object, roomObjectType);
     this._roomDebug.disableStartCameraPositionButton();
     this._disableFocusObjects();
     this._disableAllObjects();
@@ -749,9 +755,9 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].enableDebugMenu();
   }
 
-  _onWorkplacePhotoClickToHide() {
+  _onLockerObjectClickToHide() {
     this._cameraController.onExitStaticMode();
-    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].hideWorkplacePhoto();
+    this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].hideObjectInLocker();
     this._cameraController.setOrbitState();
     this._roomDebug.enableStartCameraPositionButton();
     this._enableFocusObjects();
@@ -807,6 +813,36 @@ export default class RoomController {
     this._cameraController.setOrbitState();
     this._enableFocusObjects();
     this._enableAllObjects();
+
+    this._roomDebug.enableStartCameraPositionButton();
+  }
+
+  _onCVClickToShow(cv, roomObjectType) {
+    this._cameraController.setStaticState(cv, roomObjectType);
+    this._roomDebug.disableStartCameraPositionButton();
+    this._disableFocusObjects();
+    this._disableAllObjects();
+
+    ROOM_OBJECT_ENABLED_CONFIG[ROOM_OBJECT_TYPE.CV] = true;
+
+    if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
+      this._roomActiveObject[ROOM_OBJECT_TYPE.Monitor].hideCloseFocusIcon();
+    }
+  }
+
+  _onCVClickToHide() {
+    this._roomActiveObject[ROOM_OBJECT_TYPE.CV].hideCV();
+    this._cameraController.onExitStaticMode();
+
+    if (this._cameraController.getPreviousCameraMode() === CAMERA_MODE.Focused) {
+      this._enableFocusObjects();
+      this._enableAllObjects();
+      this._onMonitorFocus();
+    } else {
+      this._cameraController.setOrbitState();
+      this._enableFocusObjects();
+      this._enableAllObjects();
+    }
 
     this._roomDebug.enableStartCameraPositionButton();
   }
@@ -1062,6 +1098,7 @@ export default class RoomController {
     this._roomActiveObject[ROOM_OBJECT_TYPE.Locker].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Walls].onLightPercentChange(lightPercent);
     this._roomActiveObject[ROOM_OBJECT_TYPE.Laptop].onLightPercentChange(lightPercent);
+    this._roomActiveObject[ROOM_OBJECT_TYPE.CV].onLightPercentChange(lightPercent);
   }
 
   _onLightHalfOn() {

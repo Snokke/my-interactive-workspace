@@ -65,10 +65,6 @@ export default class MonitorDebugMenu extends RoomObjectDebugAbstract {
       title: 'Start game: «Transfer It»',
     }).on('click', () => this.events.post('onShowGame'));
 
-    this._debugFolder.addButton({
-      title: 'Open CV',
-    }).on('click', () => this.events.post('onOpenCV'));
-
     this._debugFolder.addSeparator();
 
     this._positionController = this._debugFolder.addInput(MONITOR_CONFIG, 'positionZ', {

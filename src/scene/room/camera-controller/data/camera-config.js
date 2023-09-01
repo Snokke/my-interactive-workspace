@@ -92,6 +92,24 @@ const STATIC_MODE_CAMERA_CONFIG = {
       lerpTime: 0.05,
     },
   },
+  [ROOM_OBJECT_TYPE.CV]: {
+    objectMoveTime: 250,
+    rotation: {
+      coefficient: 0.5,
+      lerpTime: 0.05,
+      startRotation: {
+        axis: new THREE.Vector3(1, 0, 0),
+        angle: Math.PI * 0.5,
+      },
+    },
+    zoom: {
+      defaultDistance: 1.8,
+      minDistance: 1.5,
+      maxDistance: 2.5,
+      coefficient: 0.1,
+      lerpTime: 0.05,
+    },
+  },
 }
 
 const ORBIT_CONTROLS_MODE_CONFIG = {

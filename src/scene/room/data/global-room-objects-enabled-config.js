@@ -15,6 +15,7 @@ const GLOBAL_ROOM_OBJECT_ENABLED_CONFIG = {
   [ROOM_OBJECT_TYPE.Mouse]: true,
   [ROOM_OBJECT_TYPE.SocialNetworkLogos]: true,
   [ROOM_OBJECT_TYPE.Book]: true,
+  [ROOM_OBJECT_TYPE.CV]: true,
 }
 
 export { GLOBAL_ROOM_OBJECT_ENABLED_CONFIG };

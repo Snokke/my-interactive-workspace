@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TWEEN } from '/node_modules/three/examples/jsm/libs/tween.module.min.js';
-import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE } from './data/locker-data';
+import { CASES, LOCKER_CASES_ANIMATION_SEQUENCE, LOCKER_CASES_ANIMATION_TYPE, LOCKER_CASES_RANDOM_ANIMATIONS, LOCKER_CASE_MOVE_DIRECTION, LOCKER_CASE_OPEN_STATE, LOCKER_CASE_STATE, LOCKER_PART_TYPE,  OBJECTS_IN_LOCKER_CONFIG } from './data/locker-data';
 import { LOCKER_CONFIG } from './data/locker-config';
 import Delayed from '../../../../core/helpers/delayed-call';
 import RoomObjectAbstract from '../room-object.abstract';
@@ -10,8 +10,6 @@ import { SOUNDS_CONFIG } from '../../data/sounds-config';
 import { CHAIR_BOUNDING_BOX_TYPE } from '../chair/data/chair-data';
 import { STATIC_MODE_CAMERA_CONFIG } from '../../camera-controller/data/camera-config';
 import { Black } from 'black-engine';
-import workplacePhotoVertexShader from '../../shared/mix-three-textures-shaders/mix-three-textures-vertex.glsl';
-import workplacePhotoFragmentShader from '../../shared/mix-three-textures-shaders/mix-three-textures-fragment.glsl';
 import lockerVertexShader from './mix-locker-textures-shaders/mix-locker-textures-vertex.glsl';
 import lockerFragmentShader from './mix-locker-textures-shaders/mix-locker-textures-fragment.glsl';
 
@@ -32,8 +30,8 @@ export default class Locker extends RoomObjectAbstract {
     this._chairIntersect = { [CHAIR_BOUNDING_BOX_TYPE.Main]: false, [CHAIR_BOUNDING_BOX_TYPE.FrontWheel]: false};
     this._caseMoveDistance = {};
 
-    this._isWorkplacePhotoShown = false;
-    this._workplacePhotoLastTransform = {};
+    this._objectsInLocker = {};
+    this._shownObjectInLocker = null;
 
     this._init();
   }
@@ -46,16 +44,16 @@ export default class Locker extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const partType = roomObject.userData.partType;
 
-    if (partType === LOCKER_PART_TYPE.Body && !this._isWorkplacePhotoShown) {
+    if (partType === LOCKER_PART_TYPE.Body && !this._isAnyObjectInLockerShown()) {
       this.pushAllCases();
     }
 
-    if (CASES.includes(partType) && !this._isWorkplacePhotoShown) {
+    if (CASES.includes(partType) && !this._isAnyObjectInLockerShown()) {
       this.pushCase(roomObject.userData.caseId);
     }
 
-    if (partType === LOCKER_PART_TYPE.WorkplacePhoto) {
-      this._onWorkplacePhotoClick();
+    if (this._getAllObjectsInLocker().includes(partType)) {
+      this._onObjectInLockerClick(partType);
     }
   }
 
@@ -80,8 +78,10 @@ export default class Locker extends RoomObjectAbstract {
     const roomObject = intersect.object;
     const type = roomObject.userData.partType;
 
-    if (type === LOCKER_PART_TYPE.WorkplacePhoto) {
-      if (this._isWorkplacePhotoShown) {
+    if (this._getAllObjectsInLocker().includes(type)) {
+      const objectInLocker = this._objectsInLocker[type];
+
+      if (objectInLocker.isShown()) {
         Black.engine.containerElement.style.cursor = 'zoom-out';
       } else {
         Black.engine.containerElement.style.cursor = 'grab';
@@ -146,8 +146,8 @@ export default class Locker extends RoomObjectAbstract {
       return Object.values(this._parts);
     }
 
-    if (mesh.userData.partType === LOCKER_PART_TYPE.WorkplacePhoto) {
-      return [mesh];
+    if (this._getAllObjectsInLocker().includes(mesh.userData.partType)) {
+       return [mesh];
     }
 
     const partName = `case0${mesh.userData.caseId + 1}`;
@@ -210,18 +210,21 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  hideWorkplacePhoto() {
-    this.events.post('onWorkplacePhotoMoving');
-    this._isWorkplacePhotoShown = false;
-    this._moveWorkplacePhotoToStartPosition();
+  hideObjectInLocker() {
+    this.events.post('onObjectMoving');
+
     this._debugMenu.enableCaseMovement();
-    this._parts[LOCKER_PART_TYPE.WorkplacePhoto].userData.hideOutline = false;
     this._enableActivity();
+
+    this._shownObjectInLocker.onFocusHide();
+    this._shownObjectInLocker.moveToStartPosition();
   }
 
   onLightPercentChange(lightPercent) {
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
-    workplacePhoto.material.uniforms.uMixTextures0102Percent.value = lightPercent;
+    for (const value in this._objectsInLocker) {
+      const objectInLocker = this._objectsInLocker[value];
+      objectInLocker.onLightPercentChange(lightPercent);
+    }
 
     CASES.forEach((partName) => {
       const caseObject = this._parts[partName];
@@ -250,13 +253,13 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _onWorkplacePhotoClick() {
-    this.events.post('onWorkplacePhotoMoving');
+  _onObjectInLockerClick(partType) {
+    this.events.post('onObjectMoving');
 
-    if (!this._isWorkplacePhotoShown) {
-      this._showWorkplacePhoto();
+    if (!this._isAnyObjectInLockerShown()) {
+      this._showObjectInLocker(partType);
     } else {
-      this.events.post('onWorkplacePhotoClickToHide');
+      this.events.post('onObjectClickToHide');
     }
   }
 
@@ -270,15 +273,8 @@ export default class Locker extends RoomObjectAbstract {
 
     const partName = `case0${caseId + 1}`;
     const casePart = this._parts[partName];
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
 
-    if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
-      workplacePhoto.visible = true;
-    }
-
-    if (caseId === 1 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
-      workplacePhoto.visible = true;
-    }
+    this._showObjectInCase(caseId);
 
     const startPositionZ = casePart.userData.startPosition.z;
     const endPositionZ = direction === LOCKER_CASE_MOVE_DIRECTION.Out ? startPositionZ + this._caseMoveDistance[caseId] : startPositionZ;
@@ -298,9 +294,7 @@ export default class Locker extends RoomObjectAbstract {
       const percent = Math.abs(casePart.position.z - startPositionZ) / this._caseMoveDistance[caseId];
       casePart.material.uniforms.uMixOpenedPercent.value = percent;
 
-      if (caseId === 0) {
-        workplacePhoto.position.z = casePart.position.z + 0.23;
-      }
+      this._updateObjectInCasePosition(caseId);
     });
 
     this._caseMoveTween[caseId].onStart(() => {
@@ -327,12 +321,42 @@ export default class Locker extends RoomObjectAbstract {
         this._playCloseSound(caseId);
       }
 
-      if (caseId === 0 && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
-        workplacePhoto.visible = false;
-      }
-
+      this._hideObjectInCase(caseId);
       this.events.post('onCaseStopMoving');
     });
+  }
+
+  _showObjectInCase(caseId) {
+    for (const value in this._objectsInLocker) {
+      const objectInLocker = this._objectsInLocker[value];
+
+      if (caseId + 1 === objectInLocker.getCaseId() && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+        objectInLocker.showView();
+      }
+    }
+  }
+
+  _hideObjectInCase(caseId) {
+    for (const value in this._objectsInLocker) {
+      const objectInLocker = this._objectsInLocker[value];
+
+      if (caseId + 1 === objectInLocker.getCaseId() && this._casesState[caseId] === LOCKER_CASE_STATE.Closed) {
+        objectInLocker.hideView();
+      }
+    }
+  }
+
+  _updateObjectInCasePosition(caseId) {
+    const partName = `case0${caseId + 1}`;
+    const casePart = this._parts[partName];
+
+    for (const value in this._objectsInLocker) {
+      const objectInLocker = this._objectsInLocker[value];
+
+      if (caseId + 1 === objectInLocker.getCaseId()) {
+        objectInLocker.getView().position.z = casePart.position.z + objectInLocker.getStartOffsetZ();
+      }
+    }
   }
 
   _stopCaseMoveTween(caseId) {
@@ -358,47 +382,21 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _showWorkplacePhoto() {
-    this._isWorkplacePhotoShown = true;
-    this._updateMaterialOnFocus();
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
-    this._workplacePhotoLastTransform.position.copy(workplacePhoto.position);
-    this._workplacePhotoLastTransform.rotation.copy(workplacePhoto.rotation);
-    this.events.post('onWorkplacePhotoClickToShow', workplacePhoto, this._roomObjectType);
+  _showObjectInLocker(partType) {
+    const objectInLocker = this._objectsInLocker[partType];
+    this._shownObjectInLocker = objectInLocker;
+    const view = objectInLocker.getView();
+    objectInLocker.onFocus();
 
-    this._debugMenu.disableCaseMovement();
+    this.events.post('onObjectInLockerClickToShow', view, this._roomObjectType);
+
     this._disableActivity();
-    workplacePhoto.userData.isActive = false;
-    workplacePhoto.userData.hideOutline = true;
+    this._debugMenu.disableCaseMovement();
 
     Delayed.call(STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime, () => {
-      workplacePhoto.userData.isActive = true;
-      this.events.post('onWorkplacePhotoStopMoving');
+      objectInLocker.setViewActive();
+      this.events.post('onObjectInLockerStopMoving');
     });
-  }
-
-  _moveWorkplacePhotoToStartPosition() {
-    this._updateMaterialOnFocus();
-
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
-    workplacePhoto.userData.isActive = false;
-
-    const endPosition = this._workplacePhotoLastTransform.position;
-    const endRotation = this._workplacePhotoLastTransform.rotation;
-
-    new TWEEN.Tween(workplacePhoto.position)
-      .to({ x: endPosition.x, y: endPosition.y, z: endPosition.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
-      .easing(TWEEN.Easing.Sinusoidal.In)
-      .start()
-      .onComplete(() => {
-        workplacePhoto.userData.isActive = true;
-        this.events.post('onWorkplacePhotoStopMoving');
-      });
-
-    new TWEEN.Tween(workplacePhoto.rotation)
-      .to({ x: endRotation.x, y: endRotation.y, z: endRotation.z }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
-      .easing(TWEEN.Easing.Sinusoidal.In)
-      .start();
   }
 
   _playOpenSound(caseId) {
@@ -415,6 +413,14 @@ export default class Locker extends RoomObjectAbstract {
     }
 
     this._closeSounds[caseId].play();
+  }
+
+  _isAnyObjectInLockerShown() {
+    return Object.values(this._objectsInLocker).some(object => object.isShown());
+  }
+
+  _getAllObjectsInLocker() {
+    return Object.keys(OBJECTS_IN_LOCKER_CONFIG);
   }
 
   _reset() {
@@ -452,27 +458,6 @@ export default class Locker extends RoomObjectAbstract {
     });
   }
 
-  _updateMaterialOnFocus() {
-    let endMixTexturesValue;
-
-    if (this._isWorkplacePhotoShown) {
-      endMixTexturesValue = 1;
-    } else {
-      endMixTexturesValue = 0;
-    }
-
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
-    const mixTexturesObject = { value: workplacePhoto.material.uniforms.uMixTexture03Percent.value };
-
-    new TWEEN.Tween(mixTexturesObject)
-      .to({ value: endMixTexturesValue }, STATIC_MODE_CAMERA_CONFIG[this._roomObjectType].objectMoveTime)
-      .easing(TWEEN.Easing.Sinusoidal.In)
-      .onUpdate(() => {
-        workplacePhoto.material.uniforms.uMixTexture03Percent.value = mixTexturesObject.value;
-      })
-      .start();
-  }
-
   _setAnimationType(allCasesAnimation) {
     this._currentAnimationType = allCasesAnimation;
   }
@@ -481,7 +466,7 @@ export default class Locker extends RoomObjectAbstract {
     this._initParts();
     this._addMaterials();
     this._addPartsToScene();
-    this._initWorkplacePhoto();
+    this._initObjectsInLocker();
     this._setDefaultMoveDistance();
     this._setDefaultOpenState();
     this._initSounds();
@@ -538,38 +523,23 @@ export default class Locker extends RoomObjectAbstract {
     }
   }
 
-  _initWorkplacePhoto() {
-    const workplacePhoto = this._parts[LOCKER_PART_TYPE.WorkplacePhoto];
+  _initObjectsInLocker() {
+    for (const object in OBJECTS_IN_LOCKER_CONFIG) {
+      const objectPart = this._parts[object];
+      const casePartType = OBJECTS_IN_LOCKER_CONFIG[object].case;
+      const objectClass = OBJECTS_IN_LOCKER_CONFIG[object].class;
 
-    const bakedTextureLightOn = Loader.assets['baked-textures/baked-workplace-photo'];
-    bakedTextureLightOn.flipY = false;
+      const objectInLocker = new objectClass(objectPart, casePartType);
+      this._objectsInLocker[object] = objectInLocker;
 
-    const bakedTextureLightOff = Loader.assets['baked-textures/baked-workplace-photo-light-off'];
-    bakedTextureLightOff.flipY = false;
+      objectInLocker.events.on('onObjectStopMoving', () => this.events.post('onObjectInLockerStopMoving'));
 
-    const bakedTextureFocus = Loader.assets['baked-textures/baked-workplace-photo-focus'];
-    bakedTextureFocus.flipY = false;
+      const startOffsetZ = objectPart.userData.startPosition.z - this._parts[casePartType].userData.startPosition.z;
+      objectInLocker.setStartOffsetZ(startOffsetZ);
+    }
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        uTexture01: { value: bakedTextureLightOff },
-        uTexture02: { value: bakedTextureLightOn },
-        uTexture03: { value: bakedTextureFocus },
-        uMixTextures0102Percent: { value: 1 },
-        uMixTexture03Percent: { value: 0 },
-      },
-      vertexShader: workplacePhotoVertexShader,
-      fragmentShader: workplacePhotoFragmentShader,
-    });
-
-    workplacePhoto.material = material;
-
-    this._workplacePhotoLastTransform = {
-      position: new THREE.Vector3(),
-      rotation: new THREE.Euler(),
-    };
-
-    workplacePhoto.visible = false;
+    // const CVButtons = this._objectsInLocker[LOCKER_PART_TYPE.CV].getButtons();
+    // this._allMeshes.push(...CVButtons);
   }
 
   _setDefaultMoveDistance() {
