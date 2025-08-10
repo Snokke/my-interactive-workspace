@@ -27,6 +27,7 @@ const MONITOR_LINKS_CONFIG = {
   showreel: 'https://www.youtube.com/watch?v=HmZ_MUd3zJY',
   gameBoy: 'https://gameboy.andriibabintsev.com/',
   crazyPumpkin: 'https://crazy-pumpkin.andriibabintsev.com/',
+  cubeScape: 'https://cubescape.andriibabintsev.com/',
 }
 
 const MONITOR_BUTTONS_CONFIG = {
@@ -59,6 +60,13 @@ const MONITOR_BUTTONS_CONFIG = {
         size: new THREE.Vector2(0.332, 0.332),
       },
       textureName: 'screens/monitor/crazy-pumpkin-icon',
+    },
+    [MONITOR_PART_TYPE.MonitorScreenCubeScapeIcon]: {
+      area: {
+        position: new THREE.Vector2(-0.06, -0.17),
+        size: new THREE.Vector2(0.332, 0.332),
+      },
+      textureName: 'screens/monitor/cubescape-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {
