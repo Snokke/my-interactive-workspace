@@ -31,6 +31,7 @@ const textures = [
   'screens/monitor/game-boy-icon.jpg',
   'screens/monitor/crazy-pumpkin-icon.jpg',
   'screens/monitor/cubescape-icon.jpg',
+  'screens/monitor/hexcastle-icon.jpg',
   'screens/monitor/cv-icon.jpg',
   'screens/monitor/volume.png',
   'screens/monitor/volume-muted.png',

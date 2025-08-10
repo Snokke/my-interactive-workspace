@@ -401,6 +401,10 @@ export default class Monitor extends RoomObjectAbstract {
       if (partType === MONITOR_PART_TYPE.MonitorScreenCubeScapeIcon) {
         this._openCubeScapeProject();
       }
+
+      if (partType === MONITOR_PART_TYPE.MonitorScreenHexCastleIcon) {
+        this._openHexCastleProject();
+      }
     }
 
     if (partType === MONITOR_PART_TYPE.MonitorScreenCloseIcon) {
@@ -462,6 +466,7 @@ export default class Monitor extends RoomObjectAbstract {
     const gameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const crazyPumpkinIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCrazyPumpkinIcon];
     const cubeScapeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCubeScapeIcon];
+    const hexCastleIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenHexCastleIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
 
     closeIcon.visible = true;
@@ -476,6 +481,8 @@ export default class Monitor extends RoomObjectAbstract {
     crazyPumpkinIcon.position.z -= MONITOR_CONFIG.hideOffset;
     cubeScapeIcon.visible = false;
     cubeScapeIcon.position.z -= MONITOR_CONFIG.hideOffset;
+    hexCastleIcon.visible = false;
+    hexCastleIcon.position.z -= MONITOR_CONFIG.hideOffset;
   }
 
   _onFullScreenDisabled() {
@@ -484,6 +491,7 @@ export default class Monitor extends RoomObjectAbstract {
     const gameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const crazyPumpkinIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCrazyPumpkinIcon];
     const cubeScapeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCubeScapeIcon];
+    const hexCastleIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenHexCastleIcon];
     const closeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
 
     closeIcon.visible = false;
@@ -498,6 +506,8 @@ export default class Monitor extends RoomObjectAbstract {
     crazyPumpkinIcon.position.z += MONITOR_CONFIG.hideOffset;
     cubeScapeIcon.visible = true;
     cubeScapeIcon.position.z += MONITOR_CONFIG.hideOffset;
+    hexCastleIcon.visible = true;
+    hexCastleIcon.position.z += MONITOR_CONFIG.hideOffset;
   }
 
   _pauseShowreel() {
@@ -536,11 +546,21 @@ export default class Monitor extends RoomObjectAbstract {
 
   _openCubeScapeProject() {
     if (SCENE_CONFIG.isMobile) {
-      const linkElement = document.getElementById('crazy_pumpkin_link');
+      const linkElement = document.getElementById('cubescape_link');
       linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.cubeScape);
       linkElement.click();
     } else {
       window.open(MONITOR_LINKS_CONFIG.cubeScape, '_blank').focus();
+    }
+  }
+
+  _openHexCastleProject() {
+    if (SCENE_CONFIG.isMobile) {
+      const linkElement = document.getElementById('hexcastle_link');
+      linkElement.setAttribute('href', MONITOR_LINKS_CONFIG.hexCastle);
+      linkElement.click();
+    } else {
+      window.open(MONITOR_LINKS_CONFIG.hexCastle, '_blank').focus();
     }
   }
 
@@ -632,6 +652,8 @@ export default class Monitor extends RoomObjectAbstract {
     this._initYoutubeLink();
     this._initGameBoyLink();
     this._initCrazyPumpkinLink();
+    this._initCubeScapeLink();
+    this._initHexCastleLink();
     this._initSignals();
 
     this.resetToInitState();
@@ -656,11 +678,12 @@ export default class Monitor extends RoomObjectAbstract {
     const monitorScreenGameBoyIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenGameBoyIcon];
     const monitorScreenCrazyPumpkinIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCrazyPumpkinIcon];
     const monitorScreenCubeScapeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCubeScapeIcon];
+    const monitorScreenHexCastleIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenHexCastleIcon];
     const monitorScreenCloseIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenCloseIcon];
     const monitorScreenVolume = this._parts[MONITOR_PART_TYPE.MonitorScreenVolume];
     const monitorScreenYoutubeIcon = this._parts[MONITOR_PART_TYPE.MonitorScreenYoutubeLogo];
     const monitorCloseFocusIcon = this._parts[MONITOR_PART_TYPE.MonitorCloseFocusIcon];
-    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenYoutubeIcon, monitorScreenVolume, monitorCloseFocusIcon, monitorScreenGameBoyIcon, monitorScreenCrazyPumpkinIcon, monitorScreenCubeScapeIcon);
+    screenGroup.add(monitorScreen, monitorScreenShowreelIcon, monitorScreenTransferItIcon, monitorScreenCloseIcon, monitorScreenYoutubeIcon, monitorScreenVolume, monitorCloseFocusIcon, monitorScreenGameBoyIcon, monitorScreenCrazyPumpkinIcon, monitorScreenCubeScapeIcon, monitorScreenHexCastleIcon);
 
     screenGroup.position.copy(monitorScreen.position);
 
@@ -669,6 +692,7 @@ export default class Monitor extends RoomObjectAbstract {
     const gameBoyIconOffset = monitorScreenGameBoyIcon.position.clone().sub(monitorScreen.position.clone());
     const crazyPumpkinIconOffset = monitorScreenCrazyPumpkinIcon.position.clone().sub(monitorScreen.position.clone());
     const cubeScapeIconOffset = monitorScreenCubeScapeIcon.position.clone().sub(monitorScreen.position.clone());
+    const hexCastleIconOffset = monitorScreenHexCastleIcon.position.clone().sub(monitorScreen.position.clone());
     const closeIconOffset = monitorScreenCloseIcon.position.clone().sub(monitorScreen.position.clone());
     const volumeOffset = monitorScreenVolume.position.clone().sub(monitorScreen.position.clone());
     const closeFocusIconOffset = monitorCloseFocusIcon.position.clone().sub(monitorScreen.position.clone());
@@ -680,6 +704,7 @@ export default class Monitor extends RoomObjectAbstract {
     monitorScreenGameBoyIcon.position.copy(gameBoyIconOffset);
     monitorScreenCrazyPumpkinIcon.position.copy(crazyPumpkinIconOffset);
     monitorScreenCubeScapeIcon.position.copy(cubeScapeIconOffset);
+    monitorScreenHexCastleIcon.position.copy(hexCastleIconOffset);
     monitorScreenCloseIcon.position.copy(closeIconOffset);
     monitorScreenCloseIcon.position.z -= MONITOR_CONFIG.hideOffset;
     monitorScreenVolume.position.copy(volumeOffset);
@@ -796,6 +821,22 @@ export default class Monitor extends RoomObjectAbstract {
     if (SCENE_CONFIG.isMobile) {
       const linkElement = document.createElement('a');
       linkElement.id = 'crazy_pumpkin_link';
+      window.document.body.appendChild(linkElement);
+    }
+  }
+
+  _initCubeScapeLink() {
+    if (SCENE_CONFIG.isMobile) {
+      const linkElement = document.createElement('a');
+      linkElement.id = 'cubescape_link';
+      window.document.body.appendChild(linkElement);
+    }
+  }
+
+  _initHexCastleLink() {
+    if (SCENE_CONFIG.isMobile) {
+      const linkElement = document.createElement('a');
+      linkElement.id = 'hexcastle_link';
       window.document.body.appendChild(linkElement);
     }
   }

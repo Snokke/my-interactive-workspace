@@ -28,6 +28,7 @@ const MONITOR_LINKS_CONFIG = {
   gameBoy: 'https://gameboy.andriibabintsev.com/',
   crazyPumpkin: 'https://crazy-pumpkin.andriibabintsev.com/',
   cubeScape: 'https://cubescape.andriibabintsev.com/',
+  hexCastle: 'https://hexcastle.andriibabintsev.com/',
 }
 
 const MONITOR_BUTTONS_CONFIG = {
@@ -67,6 +68,13 @@ const MONITOR_BUTTONS_CONFIG = {
         size: new THREE.Vector2(0.332, 0.332),
       },
       textureName: 'screens/monitor/cubescape-icon',
+    },
+    [MONITOR_PART_TYPE.MonitorScreenHexCastleIcon]: {
+      area: {
+        position: new THREE.Vector2(0.363, -0.17),
+        size: new THREE.Vector2(0.332, 0.332),
+      },
+      textureName: 'screens/monitor/hexcastle-icon',
     },
     [MONITOR_PART_TYPE.MonitorScreenCloseIcon]: {
       area: {
