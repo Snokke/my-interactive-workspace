@@ -2,7 +2,7 @@
   "name": "my-interactive-workspace",
   "version": "0.1.0",
   "description": "Andrii Babintsev portfolio website - My Interactive Workspace",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
